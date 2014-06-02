@@ -3,7 +3,8 @@
 #
 #
 #FROM wklv-www-cnpm
-FROM wklv-www-cnpm-dev
+#FROM wklv-www-cnpm-dev
+FROM wwwserver_dev
 MAINTAINER James Nesbitt <james.nesbitt@wunderkraut.com>
 
 # run as root user - as we will use supervisor to manage the container
