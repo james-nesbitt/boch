@@ -1,0 +1,9 @@
+
+The source folder is a place for you to keep your project specific
+source code.  Here you can check out a git repo, or just put the code.
+You can have any arrangment of files, but you should change the nginx
+configuration file, if you have your project web-root any place other
+than : /source/www
+
+If you have more than one host, put them all in here, and duplicate
+that nginx conf file as often as needed.

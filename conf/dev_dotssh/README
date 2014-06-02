@@ -1,0 +1,15 @@
+dev_dotssh
+
+A folder that will become the container developer user's .ssh folder.  This means that
+you can put in her ssh keys that the container can use to reach various production
+and acceptance servers, and you can add your own public key to 'authorized_keys' to
+allow passwordless logins to the container.
+
+-Generate ssh keys
+(make sure that you select this folder for destination)
+$/> ssh-keygen
+
+-Passwordless logins into container
+host/> cat ~/.ssh/id_rsa.pub > dev_dotssh/authorized_keys
+
+
