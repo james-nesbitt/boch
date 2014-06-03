@@ -1,4 +1,3 @@
-#!/bin/sh
 
 #
 # Build a new docker image from the Dockerfile
@@ -19,9 +18,8 @@ docker_destroy()
 # @todo : check for stopped container
 docker_run()
 {
-  #echo "docker run -h ${Machine_hostname} --name ${Docker_container} -d -t ${Machine_volumes} ${Docker_image} /usr/bin/supervisord -n"
   Docker_containerID="$(docker run --hostname=${Machine_hostname} -t -d ${Machine_volumes} ${Docker_image} /usr/bin/supervisord --conf /etc/supervisord.conf --nodaemon)"
-  echo "${Docker_containerID}" > ./_containerid
+  echo "${Docker_containerID}" > ${path_project}/manage/_containerid
   echo "MANAGE=> Started ${Docker_image} as container:${Docker_container} ID:${Docker_containerID}"
 }
 #
