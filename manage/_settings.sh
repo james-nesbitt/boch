@@ -2,19 +2,28 @@
 #
 # Configurable settings for the project
 #
-# @todo : move this to yaml?
+# @todo : move some of this to yaml?
+# Overrideable configuration variables
+#Project_name="filesafe_name_for_the_project"
 
-Docker_image="{project}"
-Docker_container="${Docker_image}_dev"
+# Docker image created in build, used in start/run/shell
+Docker_image="bmnr"
+#Docker_imageversion="latest"
 
-Docker_rm="--rm"
+# Docker container ID, used for start/stop/run etc
+#Docker_container="`cat ${path_containterID}`"
 
-Machine_hostname="$Docker_container"
+# OS hostname used inside the container (which would impact avahi)
+Machine_hostname="bmnr"
 
-# Build Mount list - all of
+# Build Mount list:
+#
+# These are run time mounts, where the host FS can be changed
+# diirectly changing the container FS.  The first line sets
+# the variable, and the rest add to it.
+#
+# @TODO get away from having to include the -v flag here
+#
 Machine_volumes=""
+# Copy this row if you want to add more mappings
 Machine_volumes="${Machine_volumes} -v ${path_project}/source:/app/source"
-Machine_volumes="${Machine_volumes} -v ${path_project}:/app/project"
-
-# this isn't really a setting, but it is used functionally, and maybe should be overridable
-# @todo : move to _main.sh, and then allow an override here?
