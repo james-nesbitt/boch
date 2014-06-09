@@ -1,1 +1,1 @@
-testestest
+DOCKER ABSTRACTION : docker_run [image:bmnr][version:base][flags: bmnr base][command:] ==> docker run -d bmnr base bmnr:base
