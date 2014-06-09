@@ -1,46 +1,111 @@
+#
+# Docker Abstraction routines
+#
+#
+# @NOTE I tried to focus on uniformity, so there are some
+#       cases where functions take parametrized arguments
+#       when serial arguments could have been used.
+#
+# @TODO make all functions echo the docker output, so that 
+#       calling code can catch the docker output?
+#       Maybe don't do this; build has a long pause if you do
+
+### methods #######################################
 
 #
 # Build a new docker image from the Dockerfile
 #
-# $1 : path to the Dockerfile (default to "/conf"
-# $2 : name to label the new image
-# $3 : build a specific version (defaults to latest)
+# -p|--path : path to the Dockerfile (default to "/conf"
+# -i|--image : name to label the new image
+# -v|--version : build a specific version (defaults to latest)
 #
 # @TODO templating for Dockerfile, to substitute variables in ?
 #   We could allow the Dockerfile to container shell vars, and pipe it
 #   into the docker build process, but this would mean that 'ADD' commands
 #   would need to be absolute
 # @TODO templating for other files?
+#
+# @NOTE that templating with shell files isn't the best option,
+# this should likely wait until a real toolset can be built using
+# Python or Ruby.
+#
 docker_build() {
   tag=""
 
-  path="${1:-${path_conf}}"
-  image="${2}"
-  version="${3:-"latest"}"
-  [ -n "${image}" ] && tag="--tag=${image}:${version}"
+  # default flags
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -p|--path)
+        path="${2}"
+        shift
+        ;;
+      -v|--version)
+        version="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Any additional arguments  after the image are passed to the docker run
+  if [ $# -gt 0 ]; then
+    flags="${flags} $@"
+  fi
+
+  # build a tag from the image and version (we always explicitly build a version, but default to "latest"
+  [ -n "${image}" ] && tag="--tag=${image}:${version:-latest}"
 
   # Run docker command
   if [ "$debug" == "1" ]; then
     echo "DOCKER ABSTRACTION : docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${tag} ${path}"
   fi
   docker build ${tag} ${path}
-  echo "Docker build run. '${image:-"Keyed"}' image created"
+  # echo "Docker build run. '${image:-"Keyed"}' image created"
 }
 # Destroy any build images
 #
-# $1 docker image to be removed
-# $2 delete only a specific version
+# -i|--image docker image to be removed
+# -v|--version delete only a specific version
 #
-docker_destroy()
+# @TODO should I name this docker_rmi to be more docker oriented?
+docker_rmi()
 {
-  image=${1:-${Docker_image}}
-  [ -z "${2}" ] && image="${image}:${2}"
+
+  # default flags
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -v|--version)
+        version="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  tag="${image}"
+  [ -n "${version}" ] && tag="${tag}:${version}"
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_destroy [image(with version):${image}][version:${2}] ==> docker rmi $image"
+    echo "DOCKER ABSTRACTION : docker_rmi [image(with version):${image}][version:${version}] ==> docker rmi $tag"
   fi
-  docker rmi $image
+  docker rmi $tag
 }
 
 #
@@ -98,6 +163,10 @@ docker_run()
         flags="${flags} --name=$2"
         shift
         ;;
+      -s|--savepath) 
+        path="${2}"
+        shift
+        ;;
       -P|--allports)
         flags="${flags} --publish-all=true"
         ;;
@@ -125,17 +194,26 @@ docker_run()
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_run [image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}"
+    echo "DOCKER ABSTRACTION : docker_run [image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
   fi
-#  echo "`docker run ${daemon} ${flags} ${image}:${version}`"
+  container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
+
+  if [ -n ${path} ]; then
+    echo ${container} > ${path}
+    echo "CONTROL: container started [ID:$container], saved as active container in: ${path_containterID}"
+  else 
+    echo "CONTROL: container started [ID:$container]"
+  fi
+
 }
 
 #
 # Attach to a running container
 #
 # -n|--noinput : don't attach stdin to the operation
-# $1 container
+# -c|--container : container ID or name
 #
+# @TODO parameter validation
 # @TODO test if the container exists and is running
 docker_attach()
 {
@@ -144,18 +222,23 @@ docker_attach()
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -n|--noinput)
-        flags="${flags} --no-stdin"
+      -c|--container)
+        container="${2}"
+        shift
         ;;
-      -*) echo >&2 "docker_attach(): unknown flag $1 : attach [-n|--noinput] [container]";;
+      -n|--noinput)
+        flags="${flags} --no-stdin=true"
+        ;;
+      -p|--sigproxy)
+        flags="${flags} --sig-proxy=true"
+        ;;
+      -*) echo >&2 "docker_attach(): unknown flag $1 : attach [-n|--noinput] [-p|--sigproxy] -c|--container {container}";;
       *)
           break;; # terminate while loop
     esac
     shift
   done
 
-  container="${1}"
-  shift
 
   # Run docker command
   if [ "$debug" == "1" ]; then
@@ -167,32 +250,80 @@ docker_attach()
 #
 # Stop a running box
 #
-# $1 : container ID
+# -c|--container : container ID or name
 # $@ : additional arguments to pass to docker kill
 #
+# @TODO validate parameters
 # @TODO test if the container exists and is running
-
 docker_stop()
 {
-  container="${1}"
-  shift
+  # start with an empty argument list
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -*) echo >&2 "docker_stop(): unknown flag $1 : stop -c|--container {container}";;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Any additional arguments  after the image are passed to the docker run
+  if [ $# -gt 0 ]; then
+    flags="${flags} $@"
+  fi
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][additional arguments:${@}] ==> docker stop $@ ${container}"
+    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${$flags} ${container}"
   fi
-  docker stop $@ ${container}
+  docker stop ${flags} ${container}
 }
 
 #
 # Delete any container
+#
+# -c|--container : container to remove
+#
+# @NOTE you can use the --rm flag in docker run to make a container temporary.
+#
+# @TODO validate parameters
+# @TODO check if container exists
+# @TODO stop container if running ?
 docker_rm()
 {
-  container=$1
+  # start with an empty argument list
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -*) echo >&2 "docker_rm(): unknown flag $1 : rm -c|--container {container}";;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
 
-  docker rm $container
+  # Any additional arguments  after the image are passed to the docker run
+  if [ $# -gt 0 ]; then
+    flags="${flags} $@"
+  fi
+
+  # Run docker command
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${$flags} ${container}"
+  fi
+  docker rm ${flags} ${container}
 }
-
 
 #
 # Commit an existing container to an image:version
@@ -201,21 +332,39 @@ docker_rm()
 # $2 : image version to be saved
 # $3 : container to be saved
 #
+# @TODO parameter validation
 # @TODO check for built image
 # @TODO check for existing container
 docker_commit()
 {
-
-  # default image and version, can be overriden with flags
-  image=$1
-  version=$2
-  container=$3
+  # default flags
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -v|--version)
+        version="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_commit [image:${image}][version:${version}][container:${container}] ==> docker commit ${container} ${image}:${version}"
+    echo "DOCKER ABSTRACTION : docker_commit [image:${image}][version:${version}][container:${container}][flags:${flags}] ==> docker commit ${container} ${image}:${version}"
   fi
-  echo "`docker commit ${container} ${image}:${version}`"
+  docker commit ${flags} ${container} ${image}:${version}
 }
 
 #
@@ -232,10 +381,26 @@ docker_commit()
 #
 docker_inspect()
 {
-  $container=$1
+  # default flags
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
 
   # Run docker command
-  docker inspect $container
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION : docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
+  fi
+  docker inspect ${flags} ${container}
 }
 
 #
@@ -289,7 +454,7 @@ _docker_container_list()
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -q|--id)  flags="$flags --quiet";;
+      -q|--idonly)  flags="$flags --quiet";;
       -r|--running)  all="";;
       -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-r|--running] [container]";;
       *)
@@ -313,3 +478,4 @@ _docker_container_list()
   echo "`docker ps ${flags} ${all} ${filter}`"
 
 }
+
