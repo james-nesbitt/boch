@@ -69,7 +69,19 @@ RUN /bin/chown -R :nginx /app
 RUN yum install -y supervisor
 ADD etc_supervisord.conf /etc/supervisord.conf
 RUN mkdir var/run/supervisor
+
+# Tried this syntact first, but it wouldn't work: ["/usr/bin/supervisord", "--conf=/etc/supervisord.conf", "--nodaemon"]
+USER root
+CMD /usr/bin/supervisord --conf=/etc/supervisord.conf --nodaemon 
+
 EXPOSE 9001
+
+#
+# DEVELOPER TOOLS
+#
+# Evertything below here should be disabled if building this image for server
+# environments, and you dont want the developer user or tools in place.
+#
 
 # Add more developer PHP tools
 RUN yum install -y  php-pecl-xdebug
@@ -88,5 +100,3 @@ RUN yum install -y wget git zsh sudo vim && \
     gpasswd -a nginx developer && \
     gpasswd -a developer nginx
 
-# Run supervisor for the container
-CMD ["/usr/bin/supervisord", "--conf=/etc/supervisord.conf", "--nodaemon"]

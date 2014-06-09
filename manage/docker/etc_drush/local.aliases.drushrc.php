@@ -3,17 +3,17 @@
 * Drush Aliases
 */
 
-// Core BM site : {project}
-$aliases['main'] = array(
-  'uri' => '{project.localurl}',
+// Core BM site : BMNR
+$aliases['bmnr'] = array(
+  'uri' => 'bmnr.dev',
   'root' => '/app/source/www',
   'databases' => array (
     'default' => array (
       'default' => array (
         'driver' => 'mysql',
-        'database' => '{project.db}',
-        'username' => '{project.dbuser',
-        'password' => '{project.dbpass}',
+        'database' => 'bmnr_drupal',
+        'username' => 'bmnr',
+        'password' => 'Y0lw7pqPn5by22qnzfpDMbIIjXnK3a',
       ),
     ),
   ),
@@ -38,13 +38,12 @@ $aliases['main'] = array(
       ),
     ),
     'site-install' => array(
-      'account-name' => '{project}',
-      'account-pass' => '{project.accountpass}',
-      'account-mail' => '{project.accountmail}',
-      'site-name' => '{project} : wkbe',
-      'site-mail' => 'info@{project}.be',
+      'account-name' => 'bmnr',
+      'account-pass' => 'Y0lw7pqPn5by22qnzfpDMbIIjXnK3a',
+      'account-mail' => 'bmnr@bmnr.wunderkraut.nl',
+      'site-name' => 'BMNR : wknl',
+      'site-mail' => 'info@bmnr.wunderkraut.nl',
       'yes' => FALSE,
     ),
   ),
 );
-

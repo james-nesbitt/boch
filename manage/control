@@ -1,0 +1,400 @@
+#!/bin/sh
+
+# Some hardcoded stuff to let us call the script from elsewhee
+path_project="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd))"
+path_userhome="${HOME}"
+#
+# get some paths
+#
+path_manage="$path_project/manage"
+path_settings="$path_manage/_settings.sh"
+# Give paths to the docker build
+# (the parent is the docker parent image build, which should be built outside of this tool)
+path_build="${path_manage}/docker"
+path_buildparent="${path_manage}/dockerparent"
+# A path to a file that containers the current ContainerID
+# (edit this if you want to rebase, or override ${Docker_container} in settings.sh)
+path_containterID="$path_manage/_container"
+
+# What is the container ID for the latest container
+Docker_container="`cat ${path_containterID}`"
+
+# Comman control
+vflag=off
+debug=0
+
+# include docker setting overrides
+source ${path_manage}/_settings.sh
+
+# Overridable settings for docker and the machine
+# these are here because they tend to depend on each
+# other, and you may want to override one of the top
+# items, and let the rest be based on it.
+# General name, should be file-safe
+Project_name="${Project_name:-${path_project##*/}}"
+
+# The docker image, which will be used for containers, (and building)
+Docker_image="${Docker_image:-$Project_name}"
+# by default all containers will run from the base image, which is created by build, however maybe we want to use a different version for advanced features
+Docker_imageversion="${Docker_imageversion:-"latest"}" # Used for run/shell/commit
+
+# Parent image name, used for image build and parent image build (but not used for most operations)
+Docker_parentimage="${Docker_parentimage:-"wwwserver-cpnm-dev"}"
+
+# hostname used inside the running container
+Machine_hostname="${Machine_hostname:-$Docker_container}"
+Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
+# Prefered shell for the Machine
+Machine_shell=${Machine_shell:-"/bin/bash"}
+Machine_shellrunargs=${Machine_shellrunargs:-"--publish-all=true"}
+Machine_runargs=${Machine_shellrunargs:-""}
+
+# include docker functions - bash abstractions for docker operations
+source ${path_manage}/_docker.sh
+
+#
+# Process Global Arguments and find the COMMAND
+#
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -v|--verbose)  vflag=on; debug=1;;
+    -*)
+        echo >&2 "usage: $0 [-v] [command ...]"
+        exit 1;;
+    *)
+        break;; # terminate while loop
+  esac
+  shift
+done
+
+# the first non-hyphenated argument is the command
+COMMAND=$1
+shift
+
+# Maybe print some debug info
+if [ "$debug" == "1" ]; then
+  echo "CONTROL: final control settings: ["
+  echo "-->path_project:${path_project}"
+  echo "-->path_execution:${path_execution}"
+  echo "-->path_build:${path_build}"
+  echo "-->path_buildparent:${path_buildparent}"
+  echo "-->path_manage:${path_manage}"
+  echo "-->path_settings:${path_settings}"
+  echo "-->path_containterID:${path_containterID}"
+  echo "-->Docker_container:${Docker_container}"
+  echo "-->Docker_image:${Docker_image}"
+  echo "-->Docker_imageversion:${Docker_imageversion}"
+  echo "-->Docker_parentimage:${Docker_parentimage}"
+  echo "-->Machine_hostname:${Machine_hostname}"
+  echo "-->Machine_mountvolumes:${Machine_mountvolumes}"
+  echo "-->Machine_shell:${Machine_shell}"
+  echo "-->Machine_shellrunargs:${Machine_shellrunargs}"
+  echo "-->Machine_runargs:${Machine_runargs}"
+  echo "-->Command:${COMMAND}"
+  echo "-->Command Args:${@}"
+  echo "]"
+fi
+
+#
+# Process command : pass the rest of the arguments in
+#
+case "$COMMAND" in
+    build)
+      # build the project docker image, from the docker build file
+      # located in the docker build directory.
+      #
+      # -i|--image : overrides settings image name for build
+      # -v|--version : overrides settings image version for build
+      # --p|--parent : build parent instead of the project image
+      #
+      # @TODO - --parent might not play well with --image and --version
+      # @TODO - build the parent if it is not found, instead of using the flag!
+      #
+
+      path="${path_build}"
+      image="${Docker_image}"
+      version="${Docker_imageversion}"
+
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -i|--image)
+            image="${2}"
+            shift
+            ;;
+          -v|--version)
+            version="${2}"
+            shift
+            ;;
+          -p|--parent)
+            # Run the build function for the parent instead of the project
+            path="${path_buildparent}"
+            image="${Docker_parentimage}"
+            version="latest"
+            ;;
+          *)
+            echo >&2 "unknown flag $1 : build [-p|--parent]"
+            break;; # terminate while loop
+        esac
+        shift
+      done
+
+      # Run the build function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: build [ handing off to docker abstraction ] ==> docker_build --image ${image} --version ${version} ${path}"
+      fi
+      docker_build --image "${image}" --version "${version}" "${path}"
+      ;;
+
+    destroy)
+      # commit a running container to a new version
+      #
+      # -i|--image use a different image name to commit to
+      # -v|version use a different image version to commit to
+      #
+      image=${Docker_image}
+      version="" 
+      container=${Docker_container}
+
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -i|--image)
+            image="${2}"
+            shift
+            ;;
+          -v|--version)
+            version="${2}"
+            shift
+            ;;
+          -p|--parent)
+            # Run the build function for the parent instead of the project
+            # @NOTE that this may break your -i and -v settings, depending on order
+            path="${path_buildparent}"
+            image="${Docker_parentimage}"
+            version="latest"
+            ;;
+          -*)
+            echo >&2 "unknown flag $1 : destroy [ [-i|--image] {image} [-v|--version] {version} | [-p|--parent] ] "
+            exit
+            ;;
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # Run the commit function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: destroy [ handing off to docker abstraction ] ==> docker_rmi --image ${image} --version ${version}"
+      fi
+      docker_rmi --image "${image}" --version "${version}"
+      ;;
+
+
+    commit)
+      # commit a running container to a new version
+      #
+      # -i|--image use a different image name to commit to
+      # -v|version use a different image version to commit to
+      #
+      image=${Docker_image}
+      version=${Docker_imageversion}
+      container=${Docker_container}
+
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -c|--container)
+            container="${2}"
+            shift
+            ;;
+          -i|--image)
+            image="${2}"
+            shift
+            ;;
+          -v|--version)
+            version="${2}"
+            shift
+            ;;
+          -*)
+            echo >&2 "unknown flag $1 : commit [-i|--image] {image} [-v|--version] {version} [-c|--container] {container}"
+            exit
+            ;;
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # Run the commit function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: commit [ handing off to docker abstraction ] ==> docker_commit --image \"${image}\" --version \"${version}\" --container \"${container}\""
+      fi
+      docker_commit --image "${image}" --version "${version}" --container "${container}"
+      ;;
+
+
+    start)
+      # Start a new container based on the image.
+      # this runs the Dockerfile CMD for the image, which most likely
+      # comes from the parent image, unless you overrode it in you
+      # project Dockerfile
+      #
+      # @NOTE this is a complex command but should have a simple implementation option
+      #       with lot's of overrides.
+      #
+      # -i|--image {image}
+      # -v|--version {version}
+      # -n|--name {name} : give the container a nice name
+      # -s|--savepath {path} : save the container id to this path
+      #
+      # $@ : if any additional attributes exist, then they will be used as a shell command
+
+      image="${Docker_image}"
+      version="${Docker_imageversion}"
+      path=${path_containterID}
+
+      flags="${flags} ${Machine_mountvolumes} ${Machine_runargs}"
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -n|--name) 
+	    flags="${flags} --name $2"
+            shift
+            ;;
+          -i|--image) 
+            image="${2}"
+            shift
+            ;;
+          -t|--temporary) 
+            flags="{$flags} --temporary"
+            ;;
+          -s|--savepath) 
+            path="${2}"
+            shift
+            ;;
+          -v|--version) 
+            version="${2}"
+            shift
+            ;;
+          -*)
+            echo >&2 "unknown flag $1 : run [-i|--image] {image} [-v|--version] {version} --temporary"
+            break;; # terminate while loop
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # Run the start function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --savepath \"${path}\" ${flags} $@"
+      fi
+      docker_run --image "${image}" --version "${version}" --savepath "${path}" ${flags} $@
+      ;;
+
+    shell)
+      # Give shell access to a new container based on the image
+      # this does not term into a running container, but rather
+      # creates a new container and gives shell access to it
+
+      image="${Docker_image}"
+      version="${Docker_imageversion}"
+      hostname="${Machine_hostname}"
+
+      flags=""
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -h|--hostname)
+            hostname="${2}"
+            shift
+            ;;
+          -i|--image)
+            image="${2}"
+            shift
+            ;;
+          -v|--version)
+            version="${2}"
+            shift
+            ;;
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # use the machine shell or pass in a command
+      command=${@:-"${Machine_shell}"}
+
+      # Run the shell function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: shell [ handing off to docker abstraction ] ==> docker_run ${flags} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
+      fi
+      docker_run ${flags} --shell "${Machine_shell}" --image "${image}" --version "${version}" --hostname "${hostname}" ${Machine_mountvolumes} ${Machine_shellrunargs} $@
+      ;;
+
+    attach)
+      # Attach the container if it is running
+
+      container=${Docker_container}
+
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -c|--container)
+            container="${2}"
+            shift
+            ;;
+          -*)
+            echo >&2 "unknown flag $1 : attach [-c|--container] {container}"
+            exit
+            ;;
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # Run the stop function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: attach [ handing off to docker abstraction ] ==> docker_attach ${attach}"
+      fi
+      docker_attach --container "${container}"
+      ;;
+
+    stop)
+      # Stop the container if it is running
+
+      container=${Docker_container}
+
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -c|--container)
+            container="${2}"
+            shift
+            ;;
+          -*)
+            echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
+            exit
+            ;;
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # Run the stop function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: stop [ handing off to docker abstraction ] ==> docker_stop ${container}"
+      fi
+      docker_stop --container "${container}"
+      ;;
+
+    *)
+      echo "CONTROL: Unknown command \"${COMMAND}'"
+
+esac
