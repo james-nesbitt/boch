@@ -6,7 +6,7 @@
 #       cases where functions take parametrized arguments
 #       when serial arguments could have been used.
 #
-# @TODO make all functions echo the docker output, so that 
+# @TODO make all functions echo the docker output, so that
 #       calling code can catch the docker output?
 #       Maybe don't do this; build has a long pause if you do
 
@@ -163,8 +163,8 @@ docker_run()
         flags="${flags} --name=$2"
         shift
         ;;
-      -s|--savepath) 
-        path="${2}"
+      -s|--savehook)
+        hook="${2}"
         shift
         ;;
       -P|--allports)
@@ -198,10 +198,10 @@ docker_run()
   fi
   container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
 
-  if [ -n ${path} ]; then
-    echo ${container} > ${path}
+  if [ -n ${hook} ]; then
+    eval "${hook} --image ${image} --version ${version} --container ${container}"
     echo "CONTROL: container started [ID:$container], saved as active container in: ${path_containterID}"
-  else 
+  else
     echo "CONTROL: container started [ID:$container]"
   fi
 
