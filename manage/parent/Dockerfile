@@ -66,8 +66,7 @@ RUN /bin/chown -R :nginx /app
 #CMD /usr/bin/simplevisor --conf /etc/simplevisor.conf
 
 # supervisor (simplevisor would be better as it handles "service start" commands
-RUN yum install -y supervisor && \
-    mkdir /var/log/supervisor
+RUN yum install -y supervisor
 EXPOSE 9001
 
 # Tried this syntax first, but it wouldn't work: ["/usr/bin/supervisord", "--conf=/etc/supervisord.conf", "--nodaemon"]
