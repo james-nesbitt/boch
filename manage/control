@@ -350,6 +350,9 @@ case "$COMMAND" in
       version="${Docker_imageversion}"
       hostname="${Machine_hostname}"
 
+      # temp.  empty this to make the shell a persistant container
+      temp="--temporary"
+
       flags=""
       while [ $# -gt 0 ]
       do
@@ -361,6 +364,9 @@ case "$COMMAND" in
           -i|--image)
             image="${2}"
             shift
+            ;;
+          -r|--persistant)
+            temp=""
             ;;
           -v|--version)
             version="${2}"
@@ -377,9 +383,9 @@ case "$COMMAND" in
 
       # Run the shell function
       if [ "$debug" == "1" ]; then
-        echo "CONTROL: shell [ handing off to docker abstraction ] ==> docker_run ${flags} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
+        echo "CONTROL: shell [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
       fi
-      docker_run ${flags} --shell "${Machine_shell}" --image "${image}" --version "${version}" --hostname "${hostname}" ${Machine_mountvolumes} ${Machine_shellrunargs} $@
+      docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --hostname "${hostname}" ${Machine_mountvolumes} ${Machine_shellrunargs} $@
       ;;
 
     attach)

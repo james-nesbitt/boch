@@ -132,7 +132,7 @@ docker_run()
   command=""
 
   # if daemon then this, otherwise replace this (--shell replaces this with a shell command)
-  daemon="-d"
+  daemon="--detach=true"
 
   # default image and version, can be overriden with flags
   image=${Docker_image}
@@ -179,7 +179,10 @@ docker_run()
           shift
         fi
         ;;
-      -t|--temporary) flags="${flags} --rm";;
+      -t|--temporary) 
+        flags="${flags} --rm"
+        daemon=""
+        ;;
       -u|--username) flags="${flags} --username=$2" && shift;;
       *)
           break;; # terminate while loop
