@@ -202,8 +202,10 @@ docker_run()
   container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
 
   if [ -n ${hook} ]; then
+    if [ "$debug" == "1" ]; then
+      echo "DOCKER HOOK : Handing off to RUN hook : ${hook} --image ${image} --version ${version} --container ${container}"
+    fi
     eval "${hook} --image ${image} --version ${version} --container ${container}"
-    echo "CONTROL: container started [ID:$container], saved as active container in: ${path_containterID}"
   else
     echo "CONTROL: container started [ID:$container]"
   fi

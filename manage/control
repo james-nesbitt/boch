@@ -139,6 +139,10 @@ _containerID_save()
     shift
   done
 
+  # Write the container ID to the container file
+  if [ "$debug" == "1" ]; then
+    echo "CONTROL HOOK : _containerID_save [image:${image}][version:${version}][container:${container}] ==> echo ${container} > ${path_containterID}"
+  fi
   echo ${container} > ${path_containterID}
 }
 
@@ -307,7 +311,7 @@ case "$COMMAND" in
       do
         case "$1" in
           -n|--name)
-	    flags="${flags} --name $2"
+            flags="${flags} --name $2"
             shift
             ;;
           -i|--image)

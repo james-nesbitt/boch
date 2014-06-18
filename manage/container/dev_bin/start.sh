@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo /usr/bin/supervisord --nodaemon --conf /etc/supervisor.conf
+sudo /usr/bin/supervisord --conf /etc/supervisord.conf
