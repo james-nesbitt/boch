@@ -4,7 +4,7 @@
 #
 # @todo : move some of this to yaml?
 # Overrideable configuration variables
-Project_name="growwild"
+Project_name="project"
 
 # Default docker image created in build, used in start/run/shell
 #Docker_image="${Project_name}" # The image name which will then be used by docker
@@ -23,10 +23,10 @@ Machine_hostname="${Project_name}"
 #
 # @NOTE Running a shell creates a new container, and does not give access to an existing container
 Machine_shell="/bin/zsh"
-# arguments for docker run that should always be included: docker help run
+# arguments for docker run that should always be included when starting a shell: docker help run
 Machine_shellrunargs="--publish-all=true --env HOME=/home/developer --user=developer"
 
-# Machine arguments for runs.  These arguments are added to all runs (not shell runs)
+# Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
 Machine_runargs=""
 
 # Build Mount list:

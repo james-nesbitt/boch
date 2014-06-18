@@ -1,19 +1,32 @@
 <?php
 /**
 * Drush Aliases
+*
+* This/These aliases are for local work, and 
+* should allow you to connect to local Drupal
+* projects for typical management.
+* This assumes that you project has a root www
+* folder, and that you have an sql database
+* called "project" that can be accessed by user
+* project:project
+*
+* TO USE:
+*   $/> drush @local.project en -y views_ui
+*   $/> drush @local.project site-install
+*
 */
 
-// Core project site : {project}
-$aliases['{project}'] = array(
-  'uri' => '{project}.dev',
+// Core project site : project
+$aliases['project'] = array(
+  'uri' => 'project.dev',
   'root' => '/app/source/www',
   'databases' => array (
     'default' => array (
       'default' => array (
         'driver' => 'mysql',
-        'database' => '{project}',
-        'username' => '{project}',
-        'password' => 'Y0lw7pqPn5by22qnzfpDMbIIjXnK3a',
+        'database' => 'project',
+        'username' => 'project',
+        'password' => 'project',
       ),
     ),
   ),
@@ -38,11 +51,11 @@ $aliases['{project}'] = array(
       ),
     ),
     'site-install' => array(
-      'account-name' => '{project}',
-      'account-pass' => 'Y0lw7pqPn5by22qnzfpDMbIIjXnK3a',
-      'account-mail' => '{project}@{project}.test.com',
-      'site-name' => '{project}',
-      'site-mail' => '{project}@{project}.test.com',
+      'account-name' => 'project',
+      'account-pass' => 'project',
+      'account-mail' => 'project@project.test.com',
+      'site-name' => 'project',
+      'site-mail' => 'project@project.test.com',
       'yes' => FALSE,
     ),
   ),
