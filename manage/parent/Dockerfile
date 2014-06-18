@@ -55,7 +55,7 @@ RUN yum install -y which php-drush-drush
 ADD app /app
 RUN /bin/chown -R :nginx /app
 
-# Install the simplevisor DEPRECATED
+# Install the simplevisor
 # simplevisor dropped cause it uses perl to read confs.  I am modding it for YAML but it won't be an offical build
 # Simplevisor would be much better as it can handle init.d/rc.d runs, which are much more competent than running
 # binaries manually.
@@ -67,14 +67,11 @@ RUN /bin/chown -R :nginx /app
 
 # supervisor (simplevisor would be better as it handles "service start" commands
 RUN yum install -y supervisor
-ADD etc_supervisord.conf /etc/supervisord.conf
-RUN mkdir var/run/supervisor
-
-# Tried this syntact first, but it wouldn't work: ["/usr/bin/supervisord", "--conf=/etc/supervisord.conf", "--nodaemon"]
-USER root
-CMD /usr/bin/supervisord --conf=/etc/supervisord.conf --nodaemon 
-
 EXPOSE 9001
+
+# Tried this syntax first, but it wouldn't work: ["/usr/bin/supervisord", "--conf=/etc/supervisord.conf", "--nodaemon"]
+USER root
+CMD /usr/bin/supervisord --conf=/etc/supervisord.conf --nodaemon
 
 #
 # DEVELOPER TOOLS

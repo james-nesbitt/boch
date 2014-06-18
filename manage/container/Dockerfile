@@ -1,10 +1,11 @@
-# BMNR DockerFile
+# Project DockerFile
 #
-# Site/Project specific image for the BMNR project
+# Site/Project specific image for the project
 # Built on top of the wwwserver-cpnm build
 #
-# Note that their is a non-dev deployment version of the
+# Note that there is a non-dev deployment version of the
 # Parent image that can be used for deployment
+# jamesnesbitt/wwwserver-cnpm
 #
 FROM jamesnesbitt/wwwserver-cnpm-dev
 MAINTAINER James Nesbitt <james.nesbitt@wunderkraut.com>
@@ -36,4 +37,5 @@ RUN     /bin/chown -R developer:developer /home/developer/bin
 
 # Make the databases
 RUN     (/usr/bin/mysqld_safe &) && sleep 5 && \
-        mysql -uroot -e "CREATE DATABASE growwild_drupal; GRANT ALL ON growwild_drupal.*  TO growwild@localhost IDENTIFIED BY 'TmKMeHJXyWpHpyvgldra';"
+        mysql -uroot -e "CREATE DATABASE project; GRANT ALL ON project.*  TO project@localhost IDENTIFIED BY 'project';"
+

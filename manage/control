@@ -10,14 +10,21 @@ path_manage="$path_project/manage"
 path_settings="$path_manage/_settings.sh"
 # Give paths to the docker build
 # (the parent is the docker parent image build, which should be built outside of this tool)
-path_build="${path_manage}/docker"
-path_buildparent="${path_manage}/dockerparent"
+path_build="${path_manage}/container"
+path_buildparent="${path_manage}/parent"
+
+# Each container has a unique ID - currently
+# we are tracking only a signle container, and it's
+# ID is kept in a single file..  This limited use
+# should be expanded to give some kind of db of IDs
+# to provide different development tools.
+#
 # A path to a file that containers the current ContainerID
 # (edit this if you want to rebase, or override ${Docker_container} in settings.sh)
 path_containterID="$path_manage/_container"
-
 # What is the container ID for the latest container
 Docker_container="`cat ${path_containterID}`"
+Docker_container_save_callback="_containerID_save"
 
 # Comman control
 vflag=off
@@ -96,6 +103,45 @@ if [ "$debug" == "1" ]; then
   echo "]"
 fi
 
+# Some utility functions
+
+# A local callback for saving container IDs
+# @NOTE This is a pretty limited tool, but is
+# the only iteration that we need until a better
+# ID management system is designed
+#
+# -c|--container {container} : containerID
+#
+# @TODO Parameter validation
+#
+_containerID_save()
+{
+  # default flags
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -v|--version)
+        version="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  echo ${container} > ${path_containterID}
+}
+
 #
 # Process command : pass the rest of the arguments in
 #
@@ -154,7 +200,7 @@ case "$COMMAND" in
       # -v|version use a different image version to commit to
       #
       image=${Docker_image}
-      version="" 
+      version=""
       container=${Docker_container}
 
       while [ $# -gt 0 ]
@@ -248,34 +294,34 @@ case "$COMMAND" in
       # -i|--image {image}
       # -v|--version {version}
       # -n|--name {name} : give the container a nice name
-      # -s|--savepath {path} : save the container id to this path
+      # -s|--savehook {hook} : save the container id using this function name
       #
       # $@ : if any additional attributes exist, then they will be used as a shell command
 
       image="${Docker_image}"
       version="${Docker_imageversion}"
-      path=${path_containterID}
+      hook=${Docker_container_save_callback}
 
       flags="${flags} ${Machine_mountvolumes} ${Machine_runargs}"
       while [ $# -gt 0 ]
       do
         case "$1" in
-          -n|--name) 
+          -n|--name)
 	    flags="${flags} --name $2"
             shift
             ;;
-          -i|--image) 
+          -i|--image)
             image="${2}"
             shift
             ;;
-          -t|--temporary) 
+          -t|--temporary)
             flags="{$flags} --temporary"
             ;;
-          -s|--savepath) 
-            path="${2}"
+          -s|--savehook)
+            hook="${2}"
             shift
             ;;
-          -v|--version) 
+          -v|--version)
             version="${2}"
             shift
             ;;
@@ -292,7 +338,7 @@ case "$COMMAND" in
       if [ "$debug" == "1" ]; then
         echo "CONTROL: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --savepath \"${path}\" ${flags} $@"
       fi
-      docker_run --image "${image}" --version "${version}" --savepath "${path}" ${flags} $@
+      docker_run --image "${image}" --version "${version}" --savehook "${hook}" ${flags} $@
       ;;
 
     shell)
