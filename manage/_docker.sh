@@ -199,17 +199,21 @@ docker_run()
   if [ "$debug" == "1" ]; then
     echo "DOCKER ABSTRACTION : docker_run [image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
   fi
-  container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
 
-  if [ -n ${hook} ]; then
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER HOOK : Handing off to RUN hook : ${hook} --image ${image} --version ${version} --container ${container}"
-    fi
-    eval "${hook} --image ${image} --version ${version} --container ${container}"
+  if [ "${daemon}" == "" ]; then
+    docker run ${daemon} ${flags} ${image}:${version} ${command}
   else
-    echo "CONTROL: container started [ID:$container]"
-  fi
+    container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
 
+    if [ -n ${hook} ]; then
+      if [ "$debug" == "1" ]; then
+        echo "DOCKER HOOK : Handing off to RUN hook after succesful docker run : ${hook} --image ${image} --version ${version} --container ${container}"
+      fi
+      eval "${hook} --image ${image} --version ${version} -ontainer ${container}"
+    else
+      echo "CONTROL: container started [ID:$container]"
+    fi
+  fi
 }
 
 #

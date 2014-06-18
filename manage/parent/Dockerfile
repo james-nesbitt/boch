@@ -69,9 +69,9 @@ RUN /bin/chown -R :nginx /app
 RUN yum install -y supervisor
 EXPOSE 9001
 
-# Tried this syntax first, but it wouldn't work: ["/usr/bin/supervisord", "--conf=/etc/supervisord.conf", "--nodaemon"]
+# Command that will run when the server starts
 USER root
-CMD /usr/bin/supervisord --conf=/etc/supervisord.conf --nodaemon
+CMD ["/usr/bin/supervisord --conf=/etc/supervisord.conf --nodaemon"]
 
 #
 # DEVELOPER TOOLS
