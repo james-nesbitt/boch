@@ -46,7 +46,7 @@ Docker_image="${Docker_image:-$Project_name}"
 Docker_imageversion="${Docker_imageversion:-"latest"}" # Used for run/shell/commit
 
 # Parent image name, used for image build and parent image build (but not used for most operations)
-Docker_parentimage="${Docker_parentimage:-"wwwserver-cpnm-dev"}"
+Docker_parentimage="${Docker_parentimage:-"wwwserver-cnpm-dev"}"
 
 # hostname used inside the running container
 Machine_hostname="${Machine_hostname:-$Docker_container}"
