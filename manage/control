@@ -110,7 +110,9 @@ fi
 # the only iteration that we need until a better
 # ID management system is designed
 #
-# -c|--container {container} : containerID
+# -c|--container {container} : ID of new container
+# -i|--image {image} : docker image used
+# -v|--version {version} : docker image version used
 #
 # @TODO Parameter validation
 #
@@ -285,7 +287,6 @@ case "$COMMAND" in
       docker_commit --image "${image}" --version "${version}" --container "${container}"
       ;;
 
-
     start)
       # Start a new container based on the image.
       # this runs the Dockerfile CMD for the image, which most likely
@@ -306,7 +307,7 @@ case "$COMMAND" in
       version="${Docker_imageversion}"
       hook=${Docker_container_save_callback}
 
-      flags="${flags} ${Machine_mountvolumes} ${Machine_runargs}"
+      flags="${Machine_mountvolumes} ${Machine_runargs}"
       while [ $# -gt 0 ]
       do
         case "$1" in
@@ -338,11 +339,23 @@ case "$COMMAND" in
         shift
       done
 
-      # Run the start function
+      # Check for a running container
       if [ "$debug" == "1" ]; then
-        echo "CONTROL: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --savepath \"${path}\" ${flags} $@"
+        echo "CONTROL: checking for existing container [ handing off to docker abstraction ] ==> _docker_container_list --id ${container}"
       fi
-      docker_run --image "${image}" --version "${version}" --savehook "${hook}" ${flags} $@
+      container="24f6f505cbc9"
+      running="`_docker_container_list  \"${container}\"`"
+
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: checking for existing container [  ] ==> running= ${running}"
+      fi
+
+      # Run the start function
+#      if [ "$debug" == "1" ]; then
+#        echo "CONTROL: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --savepath \"${path}\" ${flags} $@"
+#      fi
+#      #docker_run --image "${image}" --version "${version}" --savehook "${hook}" ${flags} $@
+
       ;;
 
     shell)
@@ -445,9 +458,11 @@ case "$COMMAND" in
 
       # Run the stop function
       if [ "$debug" == "1" ]; then
-        echo "CONTROL: stop [ handing off to docker abstraction ] ==> docker_stop ${container}"
+        echo "CONTROL: stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
       fi
       docker_stop --container "${container}"
+      # empty the saved container
+      _containerID_save --container
       ;;
 
     *)

@@ -171,7 +171,8 @@ docker_run()
         flags="${flags} --publish-all=true"
         ;;
       -s|--shell)
-        daemon="--tty=true --interactive=true"
+        daemon=""
+        flags="${flags} --tty=true --interactive=true"
         if [ "${2:0:1}" == "-" ]; then
           command="/bin/bash"
         else
@@ -179,7 +180,7 @@ docker_run()
           shift
         fi
         ;;
-      -t|--temporary) 
+      -t|--temporary)
         flags="${flags} --rm"
         daemon=""
         ;;
@@ -196,13 +197,17 @@ docker_run()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_run [image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-  fi
-
   if [ "${daemon}" == "" ]; then
+    if [ "$debug" == "1" ]; then
+      echo "DOCKER ABSTRACTION : docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    fi
     docker run ${daemon} ${flags} ${image}:${version} ${command}
   else
+
+    if [ "$debug" == "1" ]; then
+      echo "DOCKER ABSTRACTION : docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    fi
+
     container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
 
     if [ -n ${hook} ]; then
@@ -257,6 +262,44 @@ docker_attach()
 }
 
 #
+# Start a stopped box
+#
+# -c|--container : container ID or name
+# $@ : additional arguments to pass to docker start
+#
+# @TODO validate parameters
+# @TODO test if the container exists and is not running
+docker_start()
+{
+  # start with an empty argument list
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -*) echo >&2 "docker_stop(): unknown flag $1 : stop -c|--container {container}";;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Any additional arguments  after the image are passed to the docker start
+  if [ $# -gt 0 ]; then
+    flags="${flags} $@"
+  fi
+
+  # Run docker command
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION : docker_start [container:${container}][flags:${flags}] ==> docker start ${$flags} ${container}"
+  fi
+  docker start ${flags} ${container}
+}
+
+#
 # Stop a running box
 #
 # -c|--container : container ID or name
@@ -289,7 +332,7 @@ docker_stop()
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${$flags} ${container}"
+    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
   fi
   docker stop ${flags} ${container}
 }
@@ -415,6 +458,8 @@ docker_inspect()
 #
 # Check if an image exists,
 #
+# -i|--id : return only image IDs
+#
 _docker_image_list()
 {
   # start with an empty argument list
@@ -425,7 +470,7 @@ _docker_image_list()
       -i|--id)
         flags="${flags} --quiet"
         ;;
-      -*) echo >&2 "docker_image_list(): unknown flag $1 : exists [-r|--running] [container]";;
+      -*) echo >&2 "docker_image_list(): unknown flag $1 : _docker_image_list [-i|--id]";;
       *)
           break;; # terminate while loop
     esac
@@ -459,7 +504,7 @@ _docker_container_list()
   # assume we want to check even for containers that are not running
   all="--all"
   # start with an empty argument list
-  $flags=""
+  flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -476,7 +521,7 @@ _docker_container_list()
 
   # remove the header row, or grep for the particular container/command
   filter=" | sed -e \"1d\" "
-  if [ -n $container ]; then
+  if [ "${container}" -ne "" ]; then
     filter="${filter} | grep -i ${container}"
   fi
 
@@ -484,7 +529,7 @@ _docker_container_list()
   if [ "$debug" == "1" ]; then
     echo "DOCKER ABSTRACTION : _docker_container_list [flags:${flags}][all:${all}][filter:${filter}] ==> docker ps ${flags} ${all} ${filter}"
   fi
-  echo "`docker ps ${flags} ${all} ${filter}`"
+  docker ps ${flags} ${all} ${filter}
 
 }
 
