@@ -314,6 +314,7 @@ case "$COMMAND" in
       # @TODO test for container is already running
 
       container=${Docker_container}
+      hostname="${Machine_hostname}"
       image="${Docker_image}"
       version="${Docker_imageversion}"
       hook=${Docker_container_save_callback}
@@ -324,6 +325,10 @@ case "$COMMAND" in
         case "$1" in
           -c|--container)
             container="$2"
+            shift
+            ;;
+          -h|--hostname)
+            hostname="${2}"
             shift
             ;;
           -i|--image)
@@ -360,7 +365,7 @@ case "$COMMAND" in
         if [ "$debug" == "1" ]; then
           echo "CONTROL: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --savepath \"${path}\" ${flags} $@"
         fi
-        docker_run --image "${image}" --version "${version}" --name ${container} --savehook "${hook}" ${flags} $@
+        docker_run --image "${image}" --version "${version}" --name ${container} --hostname "${hostname}" --savehook "${hook}" ${flags} $@
       fi
       ;;
 
@@ -380,6 +385,10 @@ case "$COMMAND" in
       while [ $# -gt 0 ]
       do
         case "$1" in
+          -c|--container)
+            flags="${flags} --name $2"
+            shift
+            ;;
           -h|--hostname)
             hostname="${2}"
             shift
