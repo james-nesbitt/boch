@@ -480,6 +480,65 @@ case "$COMMAND" in
       _containerID_save --container
       ;;
 
+
+    ps)
+      # List container processors
+
+      container=${Docker_container}
+
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -c|--container)
+            container="${2}"
+            shift
+            ;;
+          -*)
+            echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
+            exit
+            ;;
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # Run the ps function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: ps [ handing off to docker abstraction ] ==> docker_top --container ${container}"
+      fi
+      docker_top --container "${container}"
+      ;;
+
+    log)
+      # Output the container process logs
+
+      container=${Docker_container}
+
+      while [ $# -gt 0 ]
+      do
+        case "$1" in
+          -c|--container)
+            container="${2}"
+            shift
+            ;;
+          -*)
+            echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
+            exit
+            ;;
+          *)
+            break;
+        esac
+        shift
+      done
+
+      # Run the logs function
+      if [ "$debug" == "1" ]; then
+        echo "CONTROL: logs [ handing off to docker abstraction ] ==> docker_logs --container ${container}"
+      fi
+      docker_logs --container "${container}"
+      ;;
+
     *)
       echo "CONTROL: Unknown command \"${COMMAND}'"
 
