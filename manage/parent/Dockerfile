@@ -67,11 +67,13 @@ RUN /bin/chown -R :nginx /app
 
 # supervisor (simplevisor would be better as it handles "service start" commands
 RUN yum install -y supervisor
+ADD etc_supervisord.conf /etc/supervisord.conf
+CMD mkdir -p /var/run/supervisor
 EXPOSE 9001
 
-# Tried this syntax first, but it wouldn't work: ["/usr/bin/supervisord", "--conf=/etc/supervisord.conf", "--nodaemon"]
+# Command that will run when the server starts
 USER root
-CMD /usr/bin/supervisord --conf=/etc/supervisord.conf --nodaemon
+CMD ["/usr/bin/supervisord --conf=/etc/supervisord.conf --nodaemon"]
 
 #
 # DEVELOPER TOOLS

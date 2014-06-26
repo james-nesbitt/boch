@@ -30,10 +30,10 @@
 # Python or Ruby.
 #
 docker_build() {
-  tag=""
+  local tag=""
 
   # default flags
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -80,7 +80,7 @@ docker_rmi()
 {
 
   # default flags
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -98,8 +98,8 @@ docker_rmi()
     shift
   done
 
-  tag="${image}"
-  [ -n "${version}" ] && tag="${tag}:${version}"
+  # build a proper image tag
+  [ -n "${version}" ] && tag="${image}:${version}" || tag="${image}"
 
   # Run docker command
   if [ "$debug" == "1" ]; then
@@ -123,23 +123,25 @@ docker_rmi()
 #
 # $@ additional args for docker run
 #
+# @NOTE hooks are only run for background containers
+#
 # @TODO prevent both --shell and --command
 # @TODO check for built image
 # @TODO add flag for check if the image already has a running container (-s|--single)
 docker_run()
 {
   # default command: empty runs the build CMD command
-  command=""
+  local command=""
 
   # if daemon then this, otherwise replace this (--shell replaces this with a shell command)
-  daemon="-d"
+  local daemon="--detach=true"
 
   # default image and version, can be overriden with flags
   image=${Docker_image}
   version=${Docker_imageversion}
 
   # default flags
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -171,7 +173,8 @@ docker_run()
         flags="${flags} --publish-all=true"
         ;;
       -s|--shell)
-        daemon="--tty=true --interactive=true"
+        daemon=""
+        flags="${flags} --tty=true --interactive=true"
         if [ "${2:0:1}" == "-" ]; then
           command="/bin/bash"
         else
@@ -179,7 +182,10 @@ docker_run()
           shift
         fi
         ;;
-      -t|--temporary) flags="${flags} --rm";;
+      -t|--temporary)
+        flags="${flags} --rm"
+        daemon=""
+        ;;
       -u|--username) flags="${flags} --username=$2" && shift;;
       *)
           break;; # terminate while loop
@@ -193,22 +199,37 @@ docker_run()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_run [image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-  fi
-  container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
+  if [ "${daemon}" == "" ]; then
+    if [ "$debug" == "1" ]; then
+      echo "DOCKER ABSTRACTION : docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    fi
 
-  if [ -n ${hook} ]; then
-    eval "${hook} --image ${image} --version ${version} --container ${container}"
-    echo "CONTROL: container started [ID:$container], saved as active container in: ${path_containterID}"
+    # run the docker command in the foreground (no hooks are run in this case)
+    docker run ${flags} ${image}:${version} ${command}
   else
-    echo "CONTROL: container started [ID:$container]"
-  fi
 
+    if [ "$debug" == "1" ]; then
+      echo "DOCKER ABSTRACTION : docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    fi
+
+    # run the docker command and capture the container ID
+    container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
+
+    if [ "$debug" == "1" ]; then
+      echo "DOCKER ABSTRACTION: container started [ID:$container]"
+    fi
+
+    if [ -n ${hook} ]; then
+      if [ "$debug" == "1" ]; then
+        echo "DOCKER HOOK : Handing off to RUN hook after succesful docker run : ${hook} --image ${image} --version ${version} --container ${container}"
+      fi
+      eval "${hook} --image ${image} --version ${version} --container ${container}"
+    fi
+  fi
 }
 
 #
-# Attach to a running container
+# Attach to a running container`
 #
 # -n|--noinput : don't attach stdin to the operation
 # -c|--container : container ID or name
@@ -218,7 +239,7 @@ docker_run()
 docker_attach()
 {
   # start with an empty argument list
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -248,6 +269,44 @@ docker_attach()
 }
 
 #
+# Start a stopped box
+#
+# -c|--container : container ID or name
+# $@ : additional arguments to pass to docker start
+#
+# @TODO validate parameters
+# @TODO test if the container exists and is not running
+docker_start()
+{
+  # start with an empty argument list
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -*) echo >&2 "docker_stop(): unknown flag $1 : stop -c|--container {container}";;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Any additional arguments  after the image are passed to the docker start
+  if [ $# -gt 0 ]; then
+    flags="${flags} $@"
+  fi
+
+  # Run docker command
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION : docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
+  fi
+  docker start ${flags} ${container}
+}
+
+#
 # Stop a running box
 #
 # -c|--container : container ID or name
@@ -258,7 +317,7 @@ docker_attach()
 docker_stop()
 {
   # start with an empty argument list
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -280,7 +339,7 @@ docker_stop()
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${$flags} ${container}"
+    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
   fi
   docker stop ${flags} ${container}
 }
@@ -298,7 +357,7 @@ docker_stop()
 docker_rm()
 {
   # start with an empty argument list
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -338,7 +397,7 @@ docker_rm()
 docker_commit()
 {
   # default flags
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -382,7 +441,7 @@ docker_commit()
 docker_inspect()
 {
   # default flags
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -406,35 +465,32 @@ docker_inspect()
 #
 # Check if an image exists,
 #
-_docker_image_list()
+# -i|--id : return only image IDs
+#
+inspect_docker_image_list()
 {
   # start with an empty argument list
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -i|--id)
-        flags="${flags} --quiet"
+      -i|--image)
+        filter="${filter} | grep -i ${2}"
+        shift
         ;;
-      -*) echo >&2 "docker_image_list(): unknown flag $1 : exists [-r|--running] [container]";;
+      -q|--idonly)  flags="$flags --quiet";;
+      -*) echo >&2 "docker_image_list(): unknown flag $1 : _docker_image_list [-i|--id]";;
       *)
           break;; # terminate while loop
     esac
     shift
   done
 
-  image=$1
-
-  filter=" | sed -e \"1d\" "
-  if [ -n $image ]; then
-    filter="${filter} | grep -i ${image}"
-  fi
-
   # Run docker command
   if [ "$debug" == "1" ]; then
     echo "DOCKER ABSTRACTION : _docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
   fi
-  echo "`docker images ${flags} ${filter}`"
+  echo "`(docker images ${flags} ${filter})`"
 }
 
 #
@@ -445,37 +501,69 @@ _docker_image_list()
 # $1 : container ID or name or command running (any might work)
 #
 # @TODO allow retrieval of just specific fields from docker_ps
-_docker_container_list()
+inspect_docker_container_list()
 {
   # assume we want to check even for containers that are not running
-  all="--all"
+  local all="--all"
   # start with an empty argument list
-  $flags=""
+  local flags=""
+  # remove the header row, or grep for the particular container/command
+  local filter=""
+  # container
+  container=""
+
   while [ $# -gt 0 ]
   do
     case "$1" in
+      -c|--container)
+        container="$2"
+        shift
+        ;;
       -q|--idonly)  flags="$flags --quiet";;
       -r|--running)  all="";;
-      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-r|--running] [container]";;
+      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-r|--running] -c|--container {container} ]";;
       *)
           break;; # terminate while loop
     esac
     shift
   done
 
-  container=$1
-
-  # remove the header row, or grep for the particular container/command
-  filter=" | sed -e \"1d\" "
-  if [ -n $container ]; then
-    filter="${filter} | grep -i ${container}"
-  fi
-
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : _docker_container_list [flags:${flags}][all:${all}][filter:${filter}] ==> docker ps ${flags} ${all} ${filter}"
+  if [ -n $container ]; then
+    # I debated about the -i, but it seems to be better than case collisions
+    echo "`docker ps ${flags} ${all} ${filter} | grep -i $container`"
+  else
+    echo "`docker ps ${flags} ${all} ${filter}`"
   fi
-  echo "`docker ps ${flags} ${all} ${filter}`"
-
 }
 
+# check if docker container $1 exists (has ever been started)
+_docker_container_exists()
+{
+  local container=$1
+  local exists="`inspect_docker_container_list --idonly --container $container`"
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION: _docker_container_exists [container:$container] ==> inspect_docker_container_list --idonly --container $container ==> ${exists}"
+  fi
+
+  if [ -n "$exists" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+# check if docker container $1 is running
+_docker_container_isrunning()
+{
+  local container=$1
+  local running="`inspect_docker_container_list --idonly --running --container $container`"
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION: _docker_container_isrunning [container:$container] ==> inspect_docker_container_list --idonly --running --container $container ==> ${running}"
+  fi
+
+  if [ -n "$running" ]; then
+    return 0
+  else
+    return 1
+  fi
+}

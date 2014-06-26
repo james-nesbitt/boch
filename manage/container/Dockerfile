@@ -1,7 +1,7 @@
 # Project DockerFile
 #
 # Site/Project specific image for the project
-# Built on top of the wwwserver-cpnm build
+# Built on top of the wwwserver-cnpm build
 #
 # Note that there is a non-dev deployment version of the
 # Parent image that can be used for deployment
