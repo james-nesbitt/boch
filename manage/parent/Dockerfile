@@ -67,6 +67,8 @@ RUN /bin/chown -R :nginx /app
 
 # supervisor (simplevisor would be better as it handles "service start" commands
 RUN yum install -y supervisor
+ADD etc_supervisord.conf /etc/supervisord.conf
+CMD mkdir -p /var/run/supervisor
 EXPOSE 9001
 
 # Command that will run when the server starts
@@ -96,3 +98,4 @@ RUN yum install -y wget git zsh sudo vim && \
     echo "developer        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/developer && \
     gpasswd -a nginx developer && \
     gpasswd -a developer nginx
+

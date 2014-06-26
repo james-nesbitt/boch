@@ -4,17 +4,17 @@
 #
 # @todo : move some of this to yaml?
 # Overrideable configuration variables
-Project_name="project"
+#Project_name="project"
 
 # Default docker image created in build, used in start/run/shell
-#Docker_image="${Project_name}" # The image name which will then be used by docker
+#Docker_image="project" # The image name which will then be used by docker
 #Docker_imageversion="latest" # you can implements branching using versions, where a version is like a fork
 
 # Docker container ID, used for start/stop/run etc
-#Docker_container="`cat ${path_containterID}`"
+#Docker_container="project_server"
 
 # OS hostname used inside the container (which would impact things like avahi)
-Machine_hostname="${Project_name}"
+#Machine_hostname="${Project_name}"
 
 # Prefered shell configuration for the Machine
 # Running as a shell is a temporary approach to getting shell access to a machine
