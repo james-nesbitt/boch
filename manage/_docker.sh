@@ -15,8 +15,10 @@
 #
 # Build a new docker image from the Dockerfile
 #
+# -d|--dirty : leave all of the intermediate containers after the build
 # -p|--path : path to the Dockerfile (default to "/conf"
 # -i|--image : name to label the new image
+# -q|--quiet : make the build quiet (there will be a long delay)
 # -v|--version : build a specific version (defaults to latest)
 #
 # @TODO templating for Dockerfile, to substitute variables in ?
@@ -31,12 +33,16 @@
 #
 docker_build() {
   local tag=""
+  local clean="--rm=true"
 
   # default flags
   local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
+      -d|--dirty)
+        clean=""
+        ;;
       -i|--image)
         image="${2}"
         shift
@@ -44,6 +50,9 @@ docker_build() {
       -p|--path)
         path="${2}"
         shift
+        ;;
+      -q|--dirty)
+        clean=""
         ;;
       -v|--version)
         version="${2}"
@@ -65,9 +74,9 @@ docker_build() {
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${tag} ${path}"
+    echo "DOCKER ABSTRACTION : docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
   fi
-  docker build ${tag} ${path}
+  docker build ${clean} ${tag} ${path}
   # echo "Docker build run. '${image:-"Keyed"}' image created"
 }
 # Destroy any build images
@@ -460,6 +469,64 @@ docker_inspect()
     echo "DOCKER ABSTRACTION : docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
   fi
   docker inspect ${flags} ${container}
+}
+
+#
+# List running processes in a container
+#
+# -c|--container : which container to list
+#
+docker_top()
+{
+  # default flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Run docker command
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION : docker_top [container:${container}][flags:${flags}] ==> docker top ${flags} ${container}"
+  fi
+  docker top ${flags} ${container}
+}
+
+#
+# Show the log/console output for a container
+#
+# -c|--container : which container to list
+#
+docker_logs()
+{
+  # default flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Run docker command
+  if [ "$debug" == "1" ]; then
+    echo "DOCKER ABSTRACTION : docker_logs [container:${container}][flags:${flags}] ==> docker logs ${flags} ${container}"
+  fi
+  docker logs ${flags} ${container}
 }
 
 #
