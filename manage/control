@@ -1,11 +1,18 @@
 #!/bin/sh
+#
+# Central container control script
+#
 
-# Common control
+##################
+# Common control #
+##################
 vflag=off
 # DEBUG : output debugging text
 debug=0
 
-# Some hardcoded stuff to let us call the script from elsewhere
+#####################
+# Some reused paths #
+#####################
 # path executed from
 path_execution="`pwd`"
 # path to the root of this project
@@ -30,6 +37,9 @@ source ${path_manage}/_utilities.sh
 # include docker functions - bash abstractions for docker operations
 source ${path_manage}/_docker.sh
 
+#######################################
+# Docker saving active container conf #
+#######################################
 # Each docker container has a unique name - currently
 # we are tracking only a signle container, and it's
 # name is kept in a single file..  This limited use
@@ -48,13 +58,18 @@ if [ -f ${path_container} -a -s ${path_container} ]; then
 fi
 # this function is called whenever a container is started
 Docker_container_save_callback="_container_save"
+# this function is called to unsave any saved containers
 Docker_container_empty_callback="_container_empty"
 
-# include docker setting overrides
+####################################
+# include docker setting overrides #
+####################################
 # In this settings.sh file you can include all sorts of variable overrides.
 source ${path_manage}/_settings.sh
 
-# Overridable settings for docker and the machine
+###################################################
+# Overridable settings for docker and the machine #
+###################################################
 # these are here because they tend to depend on each
 # other, and you may want to override one of the top
 # items, and let the rest be based on it.
@@ -71,7 +86,7 @@ Docker_parentimage="${Docker_parentimage:-"wwwserver-cnpm-dev"}"
 # use a default container name, default to a combination of image and version
 Docker_container=${Docker_container:-${Docker_image}_${Docker_imageversion}}
 
-# Default running ar
+# Default running args
 Machine_runargs=${Machine_runargs:-"--tty"}
 # hostname used inside the running container
 Machine_hostname="${Machine_hostname:-$Docker_container}"
@@ -79,11 +94,14 @@ Machine_hostname="${Machine_hostname:-$Docker_container}"
 Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
 # Prefered shell/command for the Machine
 Machine_shell=${Machine_shell:-"/bin/bash"}
+# default run args for shell command
 Machine_shellrunargs=${Machine_shellrunargs:-"--publish-all=true"}
 
-#
-# Process Global Arguments and find the COMMAND
-#
+#################################################
+# Process Global Arguments and find the COMMAND #
+#################################################
+# so far we only have 1 global argument
+
 while [ $# -gt 0 ]
 do
   case "$1" in
@@ -100,14 +118,14 @@ do
   shift
 done
 
-#
-# Determine what command is supposed to be run
-#
+################################################
+# Determine what command is supposed to be run #
+################################################
 # the first non-hyphenated argument is the command
 COMMAND=$1
 shift
 
-# Maybe print some debug info
+# Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
 if [ "$debug" == "1" ]; then
   echo "
 CONTROL: DEBUG MODE ENABLED
@@ -142,9 +160,9 @@ CONTROL: final control settings: [
 ]"
 fi
 
-#
-# Process command : pass the rest of the arguments to the command
-#
+###################################################################
+# Process command : pass the rest of the arguments to the command #
+###################################################################
 
 # determine the file that should execute for the command
 command_file="${path_commands}/${COMMAND}.sh"

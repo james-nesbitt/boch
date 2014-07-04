@@ -22,9 +22,11 @@ debug()
 # -s|--state {state} : state e.g. pre or post
 # $@ : passed to the hook functions
 #
+# @NOTE this will be the center of a hook system,
+#   but is currently not used (not tested or maintained)
 hooks_execute()
 {
-
+  # require the first argument to be the command
   command=$1
   shift
 
