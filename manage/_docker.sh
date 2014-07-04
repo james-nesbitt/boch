@@ -175,10 +175,6 @@ docker_run()
         flags="${flags} --name=$2"
         shift
         ;;
-      -s|--savehook)
-        hook="${2}"
-        shift
-        ;;
       -P|--allports)
         flags="${flags} --publish-all=true"
         ;;
@@ -210,31 +206,18 @@ docker_run()
 
   # Run docker command
   if [ "${daemon}" == "" ]; then
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER ABSTRACTION : docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-    fi
-
     # run the docker command in the foreground (no hooks are run in this case)
+    debug "DOCKER ABSTRACTION : docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"    
     docker run ${flags} ${image}:${version} ${command}
   else
-
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER ABSTRACTION : docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-    fi
-
     # run the docker command and capture the container ID
+    debug "DOCKER ABSTRACTION : docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
+    debug "DOCKER ABSTRACTION: RESULTS of docker run => container started [ID:$container]"
 
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER ABSTRACTION: container started [ID:$container]"
-    fi
-
-    if [ -n ${hook} ]; then
-      if [ "$debug" == "1" ]; then
-        echo "DOCKER HOOK : Handing off to RUN hook after succesful docker run : ${hook} --image ${image} --version ${version} --name ${name} --container ${container}"
-      fi
-      eval "${hook} --image ${image} --version ${version} --container ${container}"
-    fi
+    # execute any existing hooks
+    debug "DOCKER ABSTRACTION: Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
+    hooks_execute start --state "run_post" --image "${image} --version "${version} --container "${container}"
   fi
 }
 
@@ -272,9 +255,7 @@ docker_attach()
 
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
   docker attach ${flags} ${container}
 }
 
@@ -310,9 +291,7 @@ docker_start()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
   docker start ${flags} ${container}
 }
 
@@ -348,9 +327,7 @@ docker_stop()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
   docker stop ${flags} ${container}
 }
 
@@ -380,10 +357,6 @@ docker_rm()
         container="${2}"
         shift
         ;;
-      -r|--removehook)
-        container="${2}"
-        shift
-        ;;
       -*) echo >&2 "docker_rm(): unknown flag $1 : rm -c|--container {container}";;
       *)
           break;; # terminate while loop
@@ -397,17 +370,12 @@ docker_rm()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
   docker rm ${flags} ${container}
 
-  if [ -n ${hook} ]; then
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER HOOK : Handing off to RUN hook after docker rm : ${hook} --image ${image} --version ${version} --name ${name} --container ${container}"
-    fi
-    eval "${hook} --container ${container}"
-  fi
+  # execute any existing hooks
+  debug "DOCKER ABSTRACTION: Running post hooks => hooks_execute rm --state post --container \"${container}\""
+  hooks_execute rm --state post --container "${container}"
 }
 
 #

@@ -21,6 +21,7 @@ stop_execute()
 {
   container=${Docker_container}
 
+  flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in

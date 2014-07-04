@@ -37,6 +37,28 @@ source ${path_manage}/_utilities.sh
 # include docker functions - bash abstractions for docker operations
 source ${path_manage}/_docker.sh
 
+#################################################
+# Process Global Arguments and find the COMMAND #
+#################################################
+# so far we only have 1 global argument
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -v|--verbose)  
+      vflag=on
+      debug=1
+      debug "CONTROL: Debug mode enabled"
+      ;;
+    -*)
+        echo >&2 "usage: $0 [-v|--verbose] [command ...].  Try \"help\" for more instructions."
+        exit 1;;
+    *)
+        break;; # terminate while loop
+  esac
+  shift
+done
+
 #######################################
 # Docker saving active container conf #
 #######################################
@@ -50,20 +72,18 @@ source ${path_manage}/_docker.sh
 #
 # A path to a file that containers the current Container name
 # (edit this if you want to rebase, or override ${Docker_containerID} in settings.sh)
-path_containter="$path_data/_container"
+path_container="$path_data/_container"
 # What is the container Name or mini-ID for the latest container
 Docker_container=""
-if [ -f ${path_container} -a -s ${path_container} ]; then
-  Docker_container="`cat ${path_containter}`"
-fi
-# this function is called whenever a container is started
-Docker_container_save_callback="_container_save"
-# this function is called to unsave any saved containers
-Docker_container_empty_callback="_container_empty"
 
 ####################################
 # include docker setting overrides #
 ####################################
+
+# execute any existing pre hooks
+#debug "CONTROL: Running settings:pre hooks => hooks_execute settings --state \"pre\" --command \"${COMMAND}\""
+hooks_execute settings --state "pre" --command "${COMMAND} $@"
+
 # In this settings.sh file you can include all sorts of variable overrides.
 source ${path_manage}/_settings.sh
 
@@ -97,27 +117,6 @@ Machine_shell=${Machine_shell:-"/bin/bash"}
 # default run args for shell command
 Machine_shellrunargs=${Machine_shellrunargs:-"--publish-all=true"}
 
-#################################################
-# Process Global Arguments and find the COMMAND #
-#################################################
-# so far we only have 1 global argument
-
-while [ $# -gt 0 ]
-do
-  case "$1" in
-    -v|--verbose)  
-      vflag=on
-      debug=1
-      ;;
-    -*)
-        echo >&2 "usage: $0 [-v|--verbose] [command ...].  Try \"help\" for more instructions."
-        exit 1;;
-    *)
-        break;; # terminate while loop
-  esac
-  shift
-done
-
 ################################################
 # Determine what command is supposed to be run #
 ################################################
@@ -128,7 +127,6 @@ shift
 # Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
 if [ "$debug" == "1" ]; then
   echo "
-CONTROL: DEBUG MODE ENABLED
 CONTROL: final control settings: [
   >PATHS USED
   -->path_project:${path_project}
@@ -151,9 +149,7 @@ CONTROL: final control settings: [
   -->Machine_shellrunargs:${Machine_shellrunargs}
   -->Machine_runargs:${Machine_runargs}
   >CONTAINER SAVE:
-  -->path_containter:${path_containter}
-  -->Docker_container_save_callback:${Docker_container_save_callback}
-  -->Docker_container_empty_callback:${Docker_container_empty_callback}
+  -->path_container:${path_container}
   >COMMAND TO BE EXECUTED
   -->Command:${COMMAND}
   -->Command Args:${@}
@@ -171,11 +167,19 @@ if [ -f ${command_file} ]; then
   #command function to call
   command_function="${COMMAND}_execute"
 
+  # execute any existing pre hooks
+  #debug "CONTROL: Running global:pre hooks => hooks_execute global --state \"pre\" --command \"${COMMAND}\""
+  hooks_execute command --state "pre" --command "${COMMAND} $@"
+
   # We have a command file, so we hand the execution off to
   # that script to run inline (not as a function)
   debug "CONTROL: command [ ${COMMAND} ] handing off to command script : ${command_file}::${command_function}"
   source ${command_file}
   eval ${command_function} $@
+
+  # execute any existing post hooks
+  #debug "CONTROL: Running global:post hooks => hooks_execute global --state \"post\" --command \"${COMMAND}\""
+  hooks_execute command --state "post" --command "${COMMAND} $@"
 
 else 
   # no command was found

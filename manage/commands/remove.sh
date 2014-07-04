@@ -10,6 +10,7 @@ remove_help()
 Delete the container
 
   -c|--container {container} : override the default container name with an ID or name of a running container
+  -k|--hook {hook} : pass a function name for a hook to be run 
 
 @TODO check for existing and running container
 @TODO ask for confirmation
@@ -38,10 +39,12 @@ remove_execute()
     shift
   done
 
+  # deal with a hook if it set
+  if [ -z ${hook} ]; then
+    flags="$flags --emptyhook ${hook}"
+  fi
+
   # Run the rm function
   debug "COMMAND: stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
-  docker_rm --container "${container}" --removehook "${Docker_container_empty_callback}"
-
-  # empty the saved container
-  _container_empty
+  docker_rm --container "${container}"
 }

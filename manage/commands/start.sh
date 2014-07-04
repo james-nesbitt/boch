@@ -20,7 +20,6 @@ project Dockerfile
   -h|--hostname : a hostname to use inside a container, when starting the container (doesn't change a stopped container)
   -i|--image {image}
   -v|--version {version}
-  -s|--savehook {hook} : save the container id using this function name (best not to play with this yet)
 
   $@ : if any additional attributes exist, then they will be used as a shell command
 
@@ -39,7 +38,6 @@ start_execute()
   hostname="${Machine_hostname}"
   image="${Docker_image}"
   version="${Docker_imageversion}"
-  hook=${Docker_containerID_save_callback}
 
   flags=""
   while [ $# -gt 0 ]
@@ -55,10 +53,6 @@ start_execute()
         ;;
       -i|--image)
         image="${2}"
-        shift
-        ;;
-      -s|--savehook)
-        hook="${2}"
         shift
         ;;
       -v|--version)
@@ -90,7 +84,7 @@ start_execute()
     name="${container:-${name}}"
 
     # Run the run function
-    debug "COMMAND: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${name}\" --hostname \"${hostname}\" --savehook \"${hook}\" ${flags} $@"
-    docker_run --image "${image}" --version "${version}" --name ${name} --hostname "${hostname}" --savehook "${hook}" ${flags} $@
+    debug "COMMAND: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${name}\" --hostname \"${hostname}\" ${flags} $@"
+    docker_run --image "${image}" --version "${version}" --name "${name}" --hostname "${hostname}" ${flags} $@
   fi
 }
