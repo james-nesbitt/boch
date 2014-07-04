@@ -230,7 +230,7 @@ docker_run()
 
     if [ -n ${hook} ]; then
       if [ "$debug" == "1" ]; then
-        echo "DOCKER HOOK : Handing off to RUN hook after succesful docker run : ${hook} --image ${image} --version ${version} --container ${container}"
+        echo "DOCKER HOOK : Handing off to RUN hook after succesful docker run : ${hook} --image ${image} --version ${version} --name ${name} --container ${container}"
       fi
       eval "${hook} --image ${image} --version ${version} --container ${container}"
     fi
@@ -598,9 +598,9 @@ inspect_docker_container_list()
   # Run docker command
   if [ -n $container ]; then
     # I debated about the -i, but it seems to be better than case collisions
-    echo "`docker ps ${flags} ${all} ${filter} | grep -i $container`"
+    echo "docker ps ${flags} ${all} ${filter} | grep -i $container"
   else
-    echo "`docker ps ${flags} ${all} ${filter}`"
+    echo "docker ps ${flags} ${all} ${filter}"
   fi
 }
 
