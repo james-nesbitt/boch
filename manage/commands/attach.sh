@@ -25,7 +25,7 @@ if the command in the container accepts input
 # Command execute function
 attach_execute()
 {
-  container=${Docker_containerID}
+  container=${Docker_container}
 
   while [ $# -gt 0 ]
   do

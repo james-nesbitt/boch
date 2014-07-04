@@ -78,7 +78,7 @@ start_execute()
   flags="${flags} ${Machine_runargs} ${Machine_mountvolumes}"      
 
   # Check for an existing container
-  if _Docker_container_exists ${container}; then
+  if _docker_container_exists ${container}; then
     # Run the start function
     debug "COMMAND: start [ handing off to docker attach abstraction ] ==> docker_attach --container ${container}"
     docker_start --container ${container}

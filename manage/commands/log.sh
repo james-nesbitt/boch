@@ -17,7 +17,7 @@ Output the container process logs
 # command execute function
 log_execute()
 {
-  container=${Docker_containerID}
+  container=${Docker_container}
 
   while [ $# -gt 0 ]
   do

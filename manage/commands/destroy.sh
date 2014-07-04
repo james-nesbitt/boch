@@ -21,7 +21,7 @@ destroy_execute()
 {
   image=${Docker_image}
   version=""
-  container=${Docker_containerID}
+  container=${Docker_container}
 
   while [ $# -gt 0 ]
   do

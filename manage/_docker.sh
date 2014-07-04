@@ -388,7 +388,7 @@ docker_rm()
 
   # Run docker command
   if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${$flags} ${container}"
+    echo "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
   fi
   docker rm ${flags} ${container}
 }

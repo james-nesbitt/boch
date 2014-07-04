@@ -21,7 +21,7 @@ commit an existing container to a new version
 commit_execute()
 {
   #default values
-  container=${Docker_containerID}
+  container=${Docker_container}
   image=${Docker_image}
   version=${Docker_imageversion}
 

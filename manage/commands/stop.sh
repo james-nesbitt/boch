@@ -19,7 +19,7 @@ Stop the container if it is running
 # command execute function
 stop_execute()
 {
-  container=${Docker_containerID}
+  container=${Docker_container}
 
   while [ $# -gt 0 ]
   do

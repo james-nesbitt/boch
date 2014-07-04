@@ -6,6 +6,8 @@ vflag=off
 debug=0
 
 # Some hardcoded stuff to let us call the script from elsewhere
+# path executed from
+path_execution="`pwd`"
 # path to the root of this project
 path_project="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd))"
 # path to user home folder (in case)
@@ -118,7 +120,6 @@ PATHS USED
 -->path_hooks:${path_hooks}
 -->path_settings:${path_settings}
 -->path_data:${path_data}
--->path_containter:${path_containter}
 DOCKER CONFIGURATIONS
 -->Docker_container:${Docker_container}
 -->Docker_image:${Docker_image}
@@ -130,6 +131,8 @@ MACHINE CONFIGURATIONS
 -->Machine_shell:${Machine_shell}
 -->Machine_shellrunargs:${Machine_shellrunargs}
 -->Machine_runargs:${Machine_runargs}
+CONTAINER SAVE:
+-->path_containter:${path_containter}
 COMMAND TO BE EXECUTED
 -->Command:${COMMAND}
 -->Command Args:${@}

@@ -1,22 +1,23 @@
 #!bin/sh
 #
-# COMMAND: List containers
+# COMMAND: Remove a container
 #
 
-# Help function
-ps_help()
+# Command help function
+remove_help()
 {
- echo "
-List container processors
+  echo "
+Delete the container
 
   -c|--container {container} : override the default container name with an ID or name of a running container
 
 @TODO check for existing and running container
+@TODO ask for confirmation
 "
 }
 
 # command execute function
-ps_execute()
+remove_execute()
 {
   container=${Docker_container}
 
@@ -37,7 +38,7 @@ ps_execute()
     shift
   done
 
-  # Run the ps function
-  debug "COMMAND: ps [ handing off to docker abstraction ] ==> docker_top --container ${container}"
-  docker_top --container "${container}"
+  # Run the rm function
+  debug "COMMAND: stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
+  docker_rm --container "${container}"
 }
