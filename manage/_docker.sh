@@ -553,13 +553,16 @@ docker_logs()
 #
 inspect_docker_image_list()
 {
+  # Image name
+  image=""
+
   # start with an empty argument list
   local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
       -i|--image)
-        filter="${filter} | grep -i ${2}"
+        image="${2}"
         shift
         ;;
       -q|--idonly)  flags="$flags --quiet";;
@@ -571,10 +574,12 @@ inspect_docker_image_list()
   done
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : _docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
+  #debug "DOCKER ABSTRACTION : _docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
+  if [ -n $image ]; then
+    echo "`docker images ${flags} ${filter} | grep -i $image`"
+  else
+    echo "`docker images ${flags} ${filter}`"
   fi
-  echo "`(docker images ${flags} ${filter})`"
 }
 
 #

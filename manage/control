@@ -112,33 +112,33 @@ if [ "$debug" == "1" ]; then
   echo "
 CONTROL: DEBUG MODE ENABLED
 CONTROL: final control settings: [
-PATHS USED
--->path_project:${path_project}
--->path_execution:${path_execution}
--->path_build:${path_build}
--->path_manage:${path_manage}
--->path_commands:${path_commands}
--->path_hooks:${path_hooks}
--->path_settings:${path_settings}
--->path_data:${path_data}
-DOCKER CONFIGURATIONS
--->Docker_container:${Docker_container}
--->Docker_image:${Docker_image}
--->Docker_imageversion:${Docker_imageversion}
--->Docker_parentimage:${Docker_parentimage}
-MACHINE CONFIGURATIONS
--->Machine_hostname:${Machine_hostname}
--->Machine_mountvolumes:${Machine_mountvolumes}
--->Machine_shell:${Machine_shell}
--->Machine_shellrunargs:${Machine_shellrunargs}
--->Machine_runargs:${Machine_runargs}
-CONTAINER SAVE:
--->path_containter:${path_containter}
--->Docker_container_save_callback:${Docker_container_save_callback}
--->Docker_container_empty_callback:${Docker_container_empty_callback}
-COMMAND TO BE EXECUTED
--->Command:${COMMAND}
--->Command Args:${@}
+  >PATHS USED
+  -->path_project:${path_project}
+  -->path_execution:${path_execution}
+  -->path_build:${path_build}
+  -->path_manage:${path_manage}
+  -->path_commands:${path_commands}
+  -->path_hooks:${path_hooks}
+  -->path_settings:${path_settings}
+  -->path_data:${path_data}
+  >DOCKER CONFIGURATIONS
+  -->Docker_container:${Docker_container}
+  -->Docker_image:${Docker_image}
+  -->Docker_imageversion:${Docker_imageversion}
+  -->Docker_parentimage:${Docker_parentimage}
+  >MACHINE CONFIGURATIONS
+  -->Machine_hostname:${Machine_hostname}
+  -->Machine_mountvolumes:${Machine_mountvolumes}
+  -->Machine_shell:${Machine_shell}
+  -->Machine_shellrunargs:${Machine_shellrunargs}
+  -->Machine_runargs:${Machine_runargs}
+  >CONTAINER SAVE:
+  -->path_containter:${path_containter}
+  -->Docker_container_save_callback:${Docker_container_save_callback}
+  -->Docker_container_empty_callback:${Docker_container_empty_callback}
+  >COMMAND TO BE EXECUTED
+  -->Command:${COMMAND}
+  -->Command Args:${@}
 ]"
 fi
 
