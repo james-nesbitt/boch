@@ -80,7 +80,7 @@ start_execute()
   # Check for an existing container
   if _docker_container_exists ${container}; then
     # Run the start function
-    debug "COMMAND: start [ handing off to docker attach abstraction ] ==> docker_attach --container ${container}"
+    debug "COMMAND: start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
     docker_start --container ${container}
   # start a new container based on the image
   else

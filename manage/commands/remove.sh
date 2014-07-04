@@ -40,5 +40,8 @@ remove_execute()
 
   # Run the rm function
   debug "COMMAND: stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
-  docker_rm --container "${container}"
+  docker_rm --container "${container}" --removehook "${Docker_container_empty_callback}"
+
+  # empty the saved container
+  _container_empty
 }

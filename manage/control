@@ -48,6 +48,7 @@ if [ -f ${path_container} -a -s ${path_container} ]; then
 fi
 # this function is called whenever a container is started
 Docker_container_save_callback="_container_save"
+Docker_container_empty_callback="_container_empty"
 
 # include docker setting overrides
 # In this settings.sh file you can include all sorts of variable overrides.
@@ -133,6 +134,8 @@ MACHINE CONFIGURATIONS
 -->Machine_runargs:${Machine_runargs}
 CONTAINER SAVE:
 -->path_containter:${path_containter}
+-->Docker_container_save_callback:${Docker_container_save_callback}
+-->Docker_container_empty_callback:${Docker_container_empty_callback}
 COMMAND TO BE EXECUTED
 -->Command:${COMMAND}
 -->Command Args:${@}

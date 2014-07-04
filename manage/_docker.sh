@@ -137,6 +137,7 @@ docker_rmi()
 # @TODO prevent both --shell and --command
 # @TODO check for built image
 # @TODO add flag for check if the image already has a running container (-s|--single)
+# @TODO check execution success before running hook
 docker_run()
 {
   # default command: empty runs the build CMD command
@@ -363,14 +364,23 @@ docker_stop()
 # @TODO validate parameters
 # @TODO check if container exists
 # @TODO stop container if running ?
+# @TODO check execution success before running hook
 docker_rm()
 {
+
+  # hook to call after removing
+  hook=""
+
   # start with an empty argument list
   local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
       -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -r|--removehook)
         container="${2}"
         shift
         ;;
@@ -391,6 +401,13 @@ docker_rm()
     echo "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
   fi
   docker rm ${flags} ${container}
+
+  if [ -n ${hook} ]; then
+    if [ "$debug" == "1" ]; then
+      echo "DOCKER HOOK : Handing off to RUN hook after docker rm : ${hook} --image ${image} --version ${version} --name ${name} --container ${container}"
+    fi
+    eval "${hook} --container ${container}"
+  fi
 }
 
 #

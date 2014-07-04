@@ -101,8 +101,12 @@ _container_save()
   done
 
   # Write the container ID to the container file
-  if [ "$debug" == "1" ]; then
-    echo "CONTROL HOOK : _container_save [image:${image}][version:${version}][container:${container}][name:${name}] ==> echo ${name:-container} > ${path_containterID}"
-  fi
+  debug "CONTROL HOOK : _container_save [image:${image}][version:${version}][container:${container}][name:${name}] ==> echo ${name:-container} > ${path_containterID}"
+  echo ${name:-container} > ${path_containter}
+}
+# remove any reference to an active container
+_container_empty()
+{
+  debug "CONTROL HOOK : _container_empty ==> echo ${name:-container} > ${path_containterID}"
   echo ${name:-container} > ${path_containter}
 }

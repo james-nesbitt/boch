@@ -12,7 +12,7 @@ Stop the container if it is running
   -c|--container {container} : override the default container name with an ID or name of a running container
 
 @TODO check for existing and running container
-@TODO make a better way to empty the \"saved\" container file
+@TODO make a better way to define the empty save function
 "
 }
 
@@ -41,7 +41,4 @@ stop_execute()
   # Run the stop function
   debug "COMMAND: stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
   docker_stop --container "${container}"
-
-  # empty the saved container (THIS NEEDS ABSTRACTION)
-  _containerID_save --container
 }
