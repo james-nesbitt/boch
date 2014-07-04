@@ -3,6 +3,29 @@ DOCKER MANAGEMENT TOOLS
 
 QUICK FAQ
 
+Why can't I start my container:
+  - did you build first
+  - did you run any funky customizations that failed the build?
+       - check that the image was created
+       - check the build output for an error
+
+Why does my container use 100%
+  - we have a problem with supervisord taking 100% CPU, I haven't
+    figured out why yet.
+
+I started my container but I don't see it?
+  - are you expecting a prompt or output, because the default conf
+    doesn't provide any
+
+I used the shell command, but my changes disappear
+  - shell is meant to provide a temporary container based on the image
+       - you can try --persistant to have the container stay
+  - shell gives you a new container, not the same container
+    as you have in start.  
+  - shell is meant as a tools to debug the 
+    container, or to make changes that are then commited to the
+    image.
+
 WHAT IS THIS
 
 This is a quick version of what vagrant is, but tailored for Docker
@@ -23,34 +46,46 @@ if not, here is a list of advantages:
     made to those containers
 - separation of image and container
     - you can run multiple containers of the same image
-- no need to rebuild
+- no need to rebuild most of the container (like the web-server)
+- containers are really fast to start and stop
+- you can consider not using ssh
+- containers use much less reasources
 
 WHY NOT USE VAGRANT
 
-That is probably a good idea, but there are a few things that this
-toolset could eventually provide that VAGRANT cannot.
-- versioning containers (snapshotss, reversion, forking)
-- temporary containers (runn a self-destructing test containers
-- provision rarely, share often
-- separated provisioning (no need to reprovision adding php-fpm or nginx base)
+Vagrant is probably a good idea, in fact it is a much more mature
+and stable solution than this ...
 
-HOW DO I USE THIS TOOL (HOW IS IT DIFFERENT FROM VAGRANT
+BUT 
+
+There are a few things that this
+toolset does/could eventually provide that VAGRANT cannot.)
+- versioning containers (snapshots, reversion, forking)
+- temporary containers (run a self-destructing test container)
+- provision rarely, share often
+- share containers (as images) with content/data in them
+- separated provisioning (no need to reprovision adding php-fpm or nginx base)
+  from operation.
+- folders/files from different containers can be shared across
+  containers (different machine versions can share things)
+
+HOW DO I USE THIS TOOL (HOW IS IT DIFFERENT FROM VAGRANT)
 
 1. you only need a small project specific provision/build ... kind of
 
 Docker images are nested, and persistant, and can be the base for a container.
 This means that if you build something generic. it can be used for all sorts
 if children.  This means that provisioning can be separated into stages
-THis is what our dev image parent does:
+This is what our dev image parent does:
 
 1: wwwserver
  - A centOS 65 image with nginx, php-fpm, mariaDB and sshd, that uses supervisor to manage servers
-2: wwwserver-dev
+2: wwwserver-dev (which we use a "parent")
  - the wwwserver image with a developer user added, git, drush, zsh and some other things,
    it also modifies some of the php settings for more verbosity, and adds xdebug,
    and adds specific .ssh credentials
 
-3 project
+2 project
  - a project specific image that puts site's nginx configuration into place, and adds
    a mariaDB database, and it adds the project source (1 time copy) into the build
    also drush aliases
@@ -70,3 +105,43 @@ A container is like a copy of what you have when you run vagrant up, after provi
 Container can be:
 - temporary and disappear after you shut them down
 - marked as new base images, either as new versions or as the latest version of the image
+
+GETTING STARTED:
+
+1. Export or branch this repository
+
+	Why? branch this repository if you want to keep access to git (updates are common)
+				but export it if this is a final stop.
+				If you branch, then consider adding your project source code as a 
+				submodule, when you get to the next step.
+
+2. Add your project source (either directly or as a git submodule) in a folder /source
+
+ - Why /source ?  only because the nginx default conf for the project looks for /source/www
+                if you don't mind configuring your nginx, then ifnore this
+ - Why is this folder not in the git repo? mainly because it is easy to get conflicts
+ 				if you add your project as a submodule, and want to maintain connection
+ 				to the repo from where you got this source code
+
+3. Make any custom setting changes to manage/_settings.sh
+
+4. Make any changes to the container build environment (usualy in manage/build/container)
+
+  - Why? this configuration creates a build, based on the parent folder name, with certain
+         presets.  Presets like: DB name is "project" (in the Dockerfile) and DB password
+         is "project".  It also assumess that you only have 1 www root (/source/www) that
+         is at the URI project.dev.
+
+         Some of these things will likely be templated in the near future.
+
+5. Build the container: manage/control build
+
+   This will build a new container for your project, built on top of a parent container
+   (probably our CentOS box.)  If you have never downloaded our parent box, it will
+   download automatically.
+   This is not really fast, but it's much faster than full image builds.
+   At the end there will be a docker image for your project.
+
+6. Start the container: manage/control start
+
+   This will start a container based on the image (this is really fast)

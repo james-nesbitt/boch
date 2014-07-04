@@ -137,6 +137,7 @@ docker_rmi()
 # @TODO prevent both --shell and --command
 # @TODO check for built image
 # @TODO add flag for check if the image already has a running container (-s|--single)
+# @TODO check execution success before running hook
 docker_run()
 {
   # default command: empty runs the build CMD command
@@ -174,10 +175,6 @@ docker_run()
         flags="${flags} --name=$2"
         shift
         ;;
-      -s|--savehook)
-        hook="${2}"
-        shift
-        ;;
       -P|--allports)
         flags="${flags} --publish-all=true"
         ;;
@@ -209,31 +206,18 @@ docker_run()
 
   # Run docker command
   if [ "${daemon}" == "" ]; then
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER ABSTRACTION : docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-    fi
-
     # run the docker command in the foreground (no hooks are run in this case)
+    debug "DOCKER ABSTRACTION : docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"    
     docker run ${flags} ${image}:${version} ${command}
   else
-
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER ABSTRACTION : docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-    fi
-
     # run the docker command and capture the container ID
+    debug "DOCKER ABSTRACTION : docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
+    debug "DOCKER ABSTRACTION: RESULTS of docker run => container started [ID:$container]"
 
-    if [ "$debug" == "1" ]; then
-      echo "DOCKER ABSTRACTION: container started [ID:$container]"
-    fi
-
-    if [ -n ${hook} ]; then
-      if [ "$debug" == "1" ]; then
-        echo "DOCKER HOOK : Handing off to RUN hook after succesful docker run : ${hook} --image ${image} --version ${version} --container ${container}"
-      fi
-      eval "${hook} --image ${image} --version ${version} --container ${container}"
-    fi
+    # execute any existing hooks
+    debug "DOCKER ABSTRACTION: Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
+    hooks_execute start --state "run_post" --image "${image} --version "${version} --container "${container}"
   fi
 }
 
@@ -271,9 +255,7 @@ docker_attach()
 
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
   docker attach ${flags} ${container}
 }
 
@@ -309,9 +291,7 @@ docker_start()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
   docker start ${flags} ${container}
 }
 
@@ -347,9 +327,7 @@ docker_stop()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
   docker stop ${flags} ${container}
 }
 
@@ -363,8 +341,13 @@ docker_stop()
 # @TODO validate parameters
 # @TODO check if container exists
 # @TODO stop container if running ?
+# @TODO check execution success before running hook
 docker_rm()
 {
+
+  # hook to call after removing
+  hook=""
+
   # start with an empty argument list
   local flags=""
   while [ $# -gt 0 ]
@@ -387,10 +370,12 @@ docker_rm()
   fi
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${$flags} ${container}"
-  fi
+  debug "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
   docker rm ${flags} ${container}
+
+  # execute any existing hooks
+  debug "DOCKER ABSTRACTION: Running post hooks => hooks_execute rm --state post --container \"${container}\""
+  hooks_execute rm --state post --container "${container}"
 }
 
 #
@@ -536,13 +521,16 @@ docker_logs()
 #
 inspect_docker_image_list()
 {
+  # Image name
+  image=""
+
   # start with an empty argument list
   local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
       -i|--image)
-        filter="${filter} | grep -i ${2}"
+        image="${2}"
         shift
         ;;
       -q|--idonly)  flags="$flags --quiet";;
@@ -554,10 +542,12 @@ inspect_docker_image_list()
   done
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : _docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
+  #debug "DOCKER ABSTRACTION : _docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
+  if [ -n $image ]; then
+    echo "`docker images ${flags} ${filter} | grep -i $image`"
+  else
+    echo "`docker images ${flags} ${filter}`"
   fi
-  echo "`(docker images ${flags} ${filter})`"
 }
 
 #
@@ -608,10 +598,8 @@ inspect_docker_container_list()
 _docker_container_exists()
 {
   local container=$1
-  local exists="`inspect_docker_container_list --idonly --container $container`"
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION: _docker_container_exists [container:$container] ==> inspect_docker_container_list --idonly --container $container ==> ${exists}"
-  fi
+  local exists="`inspect_docker_container_list --container $container`"
+  debug "DOCKER ABSTRACTION: _docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
 
   if [ -n "$exists" ]; then
     return 0
@@ -620,13 +608,11 @@ _docker_container_exists()
   fi
 }
 # check if docker container $1 is running
-_docker_container_isrunning()
+_docker_container_running()
 {
   local container=$1
-  local running="`inspect_docker_container_list --idonly --running --container $container`"
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION: _docker_container_isrunning [container:$container] ==> inspect_docker_container_list --idonly --running --container $container ==> ${running}"
-  fi
+  local running="`inspect_docker_container_list --running --container $container`"
+  debug "DOCKER ABSTRACTION: _docker_container_isrunning [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
   if [ -n "$running" ]; then
     return 0

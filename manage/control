@@ -1,46 +1,97 @@
 #!/bin/sh
-
-# Some hardcoded stuff to let us call the script from elsewhee
-path_project="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd))"
-path_userhome="${HOME}"
 #
-# get some paths
+# Central container control script
 #
-path_manage="$path_project/manage"
-path_settings="$path_manage/_settings.sh"
-# Give paths to the docker build
-# (the parent is the docker parent image build, which should be built outside of this tool)
-path_build="${path_manage}/container"
-path_buildparent="${path_manage}/parent"
 
-# Each container has a unique ID - currently
-# we are tracking only a signle container, and it's
-# ID is kept in a single file..  This limited use
-# should be expanded to give some kind of db of IDs
-# to provide different development tools.
-#
-# A path to a file that containers the current ContainerID
-# (edit this if you want to rebase, or override ${Docker_container} in settings.sh)
-path_containterID="$path_manage/_container"
-# What is the container ID for the latest container
-Docker_container=""
-if [ -f ${path_containerID} -a -s ${path_containerID} ]; then
-  Docker_container="`cat ${path_containterID}`"
-fi
-Docker_container_save_callback="_containerID_save"
-
-# Comman control
+##################
+# Common control #
+##################
 vflag=off
+# DEBUG : output debugging text
 debug=0
 
-# include docker setting overrides
-source ${path_manage}/_settings.sh
+#####################
+# Some reused paths #
+#####################
+# path executed from
+path_execution="`pwd`"
+# path to the root of this project
+path_project="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd))"
+# path to user home folder (in case)
+path_userhome="${HOME}"
+# path to this management system
+path_manage="$path_project/manage"
+# path to a shell script that will be allowed to override some of these settings
+path_settings="$path_manage/_settings.sh"
+# path to a folder that has shell scripts which execute commands
+path_commands="${path_manage}/commands"
+# path to a folder that has shell scripts which execute hooks for commands
+path_hooks="${path_manage}/hooks"
+# path to a folder where the system can keep some data
+path_data="${path_manage}/data"
+# path to a folder that contains various docker image builds
+path_build="${path_manage}/build"
 
-# Overridable settings for docker and the machine
+# Include utility functions
+source ${path_manage}/_utilities.sh
+# include docker functions - bash abstractions for docker operations
+source ${path_manage}/_docker.sh
+
+#################################################
+# Process Global Arguments and find the COMMAND #
+#################################################
+# so far we only have 1 global argument
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -v|--verbose)  
+      vflag=on
+      debug=1
+      debug "CONTROL: Debug mode enabled"
+      ;;
+    -*)
+        echo >&2 "usage: $0 [-v|--verbose] [command ...].  Try \"help\" for more instructions."
+        exit 1;;
+    *)
+        break;; # terminate while loop
+  esac
+  shift
+done
+
+#######################################
+# Docker saving active container conf #
+#######################################
+# Each docker container has a unique name - currently
+# we are tracking only a signle container, and it's
+# name is kept in a single file..  This limited use
+# should be expanded to give some kind of db of names
+# to provide different development tools.
+# This should lead to an entire system of versioning
+# and forking.
+#
+# A path to a file that containers the current Container name
+# (edit this if you want to rebase, or override ${Docker_containerID} in settings.sh)
+path_container="$path_data/_container"
+# What is the container Name or mini-ID for the latest container
+Docker_container=""
+
+####################################
+# include docker setting overrides #
+####################################
+
+# execute any existing settings hooks
+#debug "CONTROL: Running settings hooks => hooks_execute settings"
+hooks_execute settings
+
+###################################################
+# Overridable settings for docker and the machine #
+###################################################
 # these are here because they tend to depend on each
 # other, and you may want to override one of the top
 # items, and let the rest be based on it.
-# General name, should be file-safe
+
+# General project name, should be file-safe
 Project_name="${Project_name:-${path_project##*/}}"
 
 # The docker image, which will be used for containers, (and building)
@@ -49,497 +100,85 @@ Docker_image="${Docker_image:-$Project_name}"
 Docker_imageversion="${Docker_imageversion:-"latest"}" # Used for run/shell/commit
 # Parent image name, used for image build and parent image build (but not used for most operations)
 Docker_parentimage="${Docker_parentimage:-"wwwserver-cnpm-dev"}"
-# use a default container name
+# use a default container name, default to a combination of image and version
 Docker_container=${Docker_container:-${Docker_image}_${Docker_imageversion}}
 
+# Default running args
+Machine_runargs=${Machine_runargs:-"--tty"}
 # hostname used inside the running container
 Machine_hostname="${Machine_hostname:-$Docker_container}"
+# live mounts that are used for containers
 Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
-# Prefered shell for the Machine
+# Prefered shell/command for the Machine
 Machine_shell=${Machine_shell:-"/bin/bash"}
+# default run args for shell command
 Machine_shellrunargs=${Machine_shellrunargs:-"--publish-all=true"}
-Machine_runargs=${Machine_shellrunargs:-""}
 
-# include docker functions - bash abstractions for docker operations
-source ${path_manage}/_docker.sh
-
-#
-# Process Global Arguments and find the COMMAND
-#
-while [ $# -gt 0 ]
-do
-  case "$1" in
-    -v|--verbose)  vflag=on; debug=1;;
-    -*)
-        echo >&2 "usage: $0 [-v] [command ...]"
-        exit 1;;
-    *)
-        break;; # terminate while loop
-  esac
-  shift
-done
-
+################################################
+# Determine what command is supposed to be run #
+################################################
 # the first non-hyphenated argument is the command
 COMMAND=$1
 shift
 
-# Maybe print some debug info
+# Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
 if [ "$debug" == "1" ]; then
-  echo "CONTROL: final control settings: ["
-  echo "-->path_project:${path_project}"
-  echo "-->path_execution:${path_execution}"
-  echo "-->path_build:${path_build}"
-  echo "-->path_buildparent:${path_buildparent}"
-  echo "-->path_manage:${path_manage}"
-  echo "-->path_settings:${path_settings}"
-  echo "-->path_containterID:${path_containterID}"
-  echo "-->Docker_container:${Docker_container}"
-  echo "-->Docker_image:${Docker_image}"
-  echo "-->Docker_imageversion:${Docker_imageversion}"
-  echo "-->Docker_parentimage:${Docker_parentimage}"
-  echo "-->Machine_hostname:${Machine_hostname}"
-  echo "-->Machine_mountvolumes:${Machine_mountvolumes}"
-  echo "-->Machine_shell:${Machine_shell}"
-  echo "-->Machine_shellrunargs:${Machine_shellrunargs}"
-  echo "-->Machine_runargs:${Machine_runargs}"
-  echo "-->Command:${COMMAND}"
-  echo "-->Command Args:${@}"
-  echo "]"
+  echo "
+CONTROL: final control settings: [
+  >PATHS USED
+  -->path_project:${path_project}
+  -->path_execution:${path_execution}
+  -->path_build:${path_build}
+  -->path_manage:${path_manage}
+  -->path_commands:${path_commands}
+  -->path_hooks:${path_hooks}
+  -->path_settings:${path_settings}
+  -->path_data:${path_data}
+  >DOCKER CONFIGURATIONS
+  -->Docker_container:${Docker_container}
+  -->Docker_image:${Docker_image}
+  -->Docker_imageversion:${Docker_imageversion}
+  -->Docker_parentimage:${Docker_parentimage}
+  >MACHINE CONFIGURATIONS
+  -->Machine_hostname:${Machine_hostname}
+  -->Machine_mountvolumes:${Machine_mountvolumes}
+  -->Machine_shell:${Machine_shell}
+  -->Machine_shellrunargs:${Machine_shellrunargs}
+  -->Machine_runargs:${Machine_runargs}
+  >CONTAINER SAVE:
+  -->path_container:${path_container}
+  >COMMAND TO BE EXECUTED
+  -->Command:${COMMAND}
+  -->Command Args:${@}
+]"
 fi
 
-# Some utility functions
+###################################################################
+# Process command : pass the rest of the arguments to the command #
+###################################################################
 
-# A local callback for saving container IDs
-# @NOTE This is a pretty limited tool, but is
-# the only iteration that we need until a better
-# ID management system is designed
-#
-# -c|--container {container} : ID of new container
-# -i|--image {image} : docker image used
-# -v|--version {version} : docker image version used
-#
-# @TODO Parameter validation
-#
-_containerID_save()
-{
-  # default flags
-  flags=""
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -c|--container)
-        container="${2}"
-        shift
-        ;;
-      -i|--image)
-        image="${2}"
-        shift
-        ;;
-      -v|--version)
-        version="${2}"
-        shift
-        ;;
-      *)
-          break;; # terminate while loop
-    esac
-    shift
-  done
+# determine the file that should execute for the command
+command_file="${path_commands}/${COMMAND}.sh"
+if [ -f ${command_file} ]; then
 
-  # Write the container ID to the container file
-  if [ "$debug" == "1" ]; then
-    echo "CONTROL HOOK : _containerID_save [image:${image}][version:${version}][container:${container}] ==> echo ${container} > ${path_containterID}"
-  fi
-  echo ${container} > ${path_containterID}
-}
+  #command function to call
+  command_function="${COMMAND}_execute"
 
-#
-# Process command : pass the rest of the arguments in
-#
-case "$COMMAND" in
-    build)
-      # build the project docker image, from the docker build file
-      # located in the docker build directory.
-      #
-      # -i|--image : overrides settings image name for build
-      # -v|--version : overrides settings image version for build
-      # --p|--parent : build parent instead of the project image
-      #
-      # @TODO - --parent might not play well with --image and --version
-      # @TODO - build the parent if it is not found, instead of using the flag!
-      #
+  # execute any existing pre hooks
+  #debug "CONTROL: Running global:pre hooks => hooks_execute global --state \"pre\" --command \"${COMMAND}\""
+  hooks_execute command --state "pre" --command "${COMMAND} $@"
 
-      path="${path_build}"
-      image="${Docker_image}"
-      version="${Docker_imageversion}"
+  # We have a command file, so we hand the execution off to
+  # that script to run inline (not as a function)
+  debug "CONTROL: command [ ${COMMAND} ] handing off to command script : ${command_file}::${command_function}"
+  source ${command_file}
+  eval ${command_function} $@
 
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -i|--image)
-            image="${2}"
-            shift
-            ;;
-          -v|--version)
-            version="${2}"
-            shift
-            ;;
-          -p|--parent)
-            # Run the build function for the parent instead of the project
-            path="${path_buildparent}"
-            image="${Docker_parentimage}"
-            version="latest"
-            ;;
-          *)
-            echo >&2 "unknown flag $1 : build [-p|--parent]"
-            break;; # terminate while loop
-        esac
-        shift
-      done
+  # execute any existing post hooks
+  #debug "CONTROL: Running global:post hooks => hooks_execute global --state \"post\" --command \"${COMMAND}\""
+  hooks_execute command --state "post" --command "${COMMAND} $@"
 
-      # Run the build function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: build [ handing off to docker abstraction ] ==> docker_build --image ${image} --version ${version} ${path}"
-      fi
-      docker_build --image "${image}" --version "${version}" "${path}"
-      ;;
-
-    destroy)
-      # commit a running container to a new version
-      #
-      # -i|--image : use a different image name to commit to
-      # -v|--version : use a different image version to commit to
-      #
-      image=${Docker_image}
-      version=""
-      container=${Docker_container}
-
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -i|--image)
-            image="${2}"
-            shift
-            ;;
-          -v|--version)
-            version="${2}"
-            shift
-            ;;
-          -p|--parent)
-            # Run the build function for the parent instead of the project
-            # @NOTE that this may break your -i and -v settings, depending on order
-            path="${path_buildparent}"
-            image="${Docker_parentimage}"
-            version="latest"
-            ;;
-          -*)
-            echo >&2 "unknown flag $1 : destroy [ [-i|--image] {image} [-v|--version] {version} | [-p|--parent] ] "
-            exit
-            ;;
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # Run the commit function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: destroy [ handing off to docker abstraction ] ==> docker_rmi --image ${image} --version ${version}"
-      fi
-      docker_rmi --image "${image}" --version "${version}"
-      ;;
-
-
-    commit)
-      # commit a running container to a new version
-      #
-      # -c|--container : specify which container to commit to the image
-      # -i|--image : specify an image name to commit to
-      # -v|--version : specify an image version to commit to
-      #
-
-      #default values
-      container=${Docker_container}
-      image=${Docker_image}
-      version=${Docker_imageversion}
-
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -c|--container)
-            container="${2}"
-            shift
-            ;;
-          -i|--image)
-            image="${2}"
-            shift
-            ;;
-          -v|--version)
-            version="${2}"
-            shift
-            ;;
-          -*)
-            echo >&2 "unknown flag $1 : commit [-i|--image] {image} [-v|--version] {version} [-c|--container] {container}"
-            exit
-            ;;
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # Run the commit function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: commit [ handing off to docker abstraction ] ==> docker_commit --image \"${image}\" --version \"${version}\" --container \"${container}\""
-      fi
-      docker_commit --image "${image}" --version "${version}" --container "${container}"
-      ;;
-
-    start)
-      # Start a new container based on the image.
-      # this runs the Dockerfile CMD for the image, which most likely
-      # comes from the parent image, unless you overrode it in you
-      # project Dockerfile
-      #
-      # @NOTE this is a complex command but should have a simple implementation option
-      #       with lot's of overrides.
-      # @NOTE --temporary was removed because it conflicts with background containers, so it is confusing to the user
-      #
-      # -c|--container {container} : a particular container name (or ID) to search/create (allows multiple containers - create don't create IDs, just names)
-      # -i|--image {image}
-      # -v|--version {version}
-      # -s|--savehook {hook} : save the container id using this function name (best not to play with this yet)
-      #
-      # $@ : if any additional attributes exist, then they will be used as a shell command
-      #
-      # @TODO test for container is already running
-
-      container=${Docker_container}
-      hostname="${Machine_hostname}"
-      image="${Docker_image}"
-      version="${Docker_imageversion}"
-      hook=${Docker_container_save_callback}
-
-      flags="${Machine_mountvolumes} ${Machine_runargs}"
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -c|--container)
-            container="$2"
-            shift
-            ;;
-          -h|--hostname)
-            hostname="${2}"
-            shift
-            ;;
-          -i|--image)
-            image="${2}"
-            shift
-            ;;
-          -s|--savehook)
-            hook="${2}"
-            shift
-            ;;
-          -v|--version)
-            version="${2}"
-            shift
-            ;;
-          -*)
-            echo >&2 "unknown flag $1 : run [-i|--image] {image} [-v|--version] {version} --temporary"
-            break;; # terminate while loop
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # Check for an existing container
-      if _docker_container_exists ${container}; then
-        # Run the start function
-        if [ "$debug" == "1" ]; then
-          echo "CONTROL: start [ handing off to docker attach abstraction ] ==> docker_attach --container ${container}"
-        fi
-        docker_start --container ${container}
-      # start a new container based on the image
-      else
-        # Run the run function
-        if [ "$debug" == "1" ]; then
-          echo "CONTROL: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --savepath \"${path}\" ${flags} $@"
-        fi
-        docker_run --image "${image}" --version "${version}" --name ${container} --hostname "${hostname}" --savehook "${hook}" ${flags} $@
-      fi
-      ;;
-
-    shell)
-      # Give shell access to a new container based on the image
-      # this does not term into a running container, but rather
-      # creates a new container and gives shell access to it
-
-      image="${Docker_image}"
-      version="${Docker_imageversion}"
-      hostname="${Machine_hostname}"
-
-      # temp.  empty this to make the shell a persistant container
-      temp="--temporary"
-
-      flags=""
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -c|--container)
-            flags="${flags} --name $2"
-            shift
-            ;;
-          -h|--hostname)
-            hostname="${2}"
-            shift
-            ;;
-          -i|--image)
-            image="${2}"
-            shift
-            ;;
-          -r|--persistant)
-            temp=""
-            ;;
-          -v|--version)
-            version="${2}"
-            shift
-            ;;
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # use the machine shell or pass in a command
-      command=${@:-${Machine_shell}}
-
-      # Run the shell function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: shell [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
-      fi
-      docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --hostname "${hostname}" ${Machine_mountvolumes} ${Machine_shellrunargs} $@
-      ;;
-
-    attach)
-      # Attach the container if it is running
-
-      container=${Docker_container}
-
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -c|--container)
-            container="${2}"
-            shift
-            ;;
-          -*)
-            echo >&2 "unknown flag $1 : attach [-c|--container] {container}"
-            exit
-            ;;
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # Run the stop function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: attach [ handing off to docker abstraction ] ==> docker_attach ${attach}"
-      fi
-      docker_attach --container "${container}"
-      ;;
-
-    stop)
-      # Stop the container if it is running
-
-      container=${Docker_container}
-
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -c|--container)
-            container="${2}"
-            shift
-            ;;
-          -*)
-            echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
-            exit
-            ;;
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # Run the stop function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
-      fi
-      docker_stop --container "${container}"
-      # empty the saved container
-      _containerID_save --container
-      ;;
-
-
-    ps)
-      # List container processors
-
-      container=${Docker_container}
-
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -c|--container)
-            container="${2}"
-            shift
-            ;;
-          -*)
-            echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
-            exit
-            ;;
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # Run the ps function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: ps [ handing off to docker abstraction ] ==> docker_top --container ${container}"
-      fi
-      docker_top --container "${container}"
-      ;;
-
-    log)
-      # Output the container process logs
-
-      container=${Docker_container}
-
-      while [ $# -gt 0 ]
-      do
-        case "$1" in
-          -c|--container)
-            container="${2}"
-            shift
-            ;;
-          -*)
-            echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
-            exit
-            ;;
-          *)
-            break;
-        esac
-        shift
-      done
-
-      # Run the logs function
-      if [ "$debug" == "1" ]; then
-        echo "CONTROL: logs [ handing off to docker abstraction ] ==> docker_logs --container ${container}"
-      fi
-      docker_logs --container "${container}"
-      ;;
-
-    *)
-      echo "CONTROL: Unknown command \"${COMMAND}'"
-
-esac
+else 
+  # no command was found
+  echo "CONTROL: Unknown command \"${COMMAND}' - try using 'control help' for instructions."      
+fi

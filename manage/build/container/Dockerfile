@@ -38,4 +38,3 @@ RUN     /bin/chown -R developer:developer /home/developer/bin
 # Make the databases
 RUN     (/usr/bin/mysqld_safe &) && sleep 5 && \
         mysql -uroot -e "CREATE DATABASE project; GRANT ALL ON project.*  TO project@localhost IDENTIFIED BY 'project';"
-

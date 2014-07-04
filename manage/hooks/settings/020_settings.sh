@@ -4,6 +4,8 @@
 #
 # @todo : move some of this to yaml?
 
+debug "HOOK: settings (020) :: Importing custom settings"
+
 # Overrideable configuration variables
 #Project_name="project"
 
