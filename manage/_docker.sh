@@ -598,10 +598,8 @@ inspect_docker_container_list()
 _docker_container_exists()
 {
   local container=$1
-  local exists="`inspect_docker_container_list --idonly --container $container`"
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION: _docker_container_exists [container:$container] ==> inspect_docker_container_list --idonly --container $container ==> ${exists}"
-  fi
+  local exists="`inspect_docker_container_list --container $container`"
+  debug "DOCKER ABSTRACTION: _docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
 
   if [ -n "$exists" ]; then
     return 0
@@ -610,13 +608,11 @@ _docker_container_exists()
   fi
 }
 # check if docker container $1 is running
-_docker_container_isrunning()
+_docker_container_running()
 {
   local container=$1
-  local running="`inspect_docker_container_list --idonly --running --container $container`"
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION: _docker_container_isrunning [container:$container] ==> inspect_docker_container_list --idonly --running --container $container ==> ${running}"
-  fi
+  local running="`inspect_docker_container_list --running --container $container`"
+  debug "DOCKER ABSTRACTION: _docker_container_isrunning [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
   if [ -n "$running" ]; then
     return 0

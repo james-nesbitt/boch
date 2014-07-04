@@ -45,5 +45,5 @@ do
 done
 
 # Write the container ID to the container file
-debug "HOOK : start:run_post (010) [image:${image}][version:${version}][container:${container}][name:${name}] ==> echo ${name:-container} > ${path_container}"
+debug "HOOK : start:run_post (010) :: saving new container to active [image:${image}][version:${version}][container:${container}][name:${name}] ==> echo ${name:-container} > ${path_container}"
 echo ${name:-container} > ${path_container}

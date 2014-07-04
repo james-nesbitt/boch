@@ -42,8 +42,13 @@ status_execute()
   done
 
   # Run the ps function
-  debug "COMMAND: status [ handing off to docker abstraction ] ==> docker_top --container ${container}"
-  echo "EXISTS:"
+  debug "COMMAND: status [ handing off to docker abstraction ] ==> inspect_docker_container_list --container ${container}"
+  if _docker_container_exists ${container}; then 
+    echo "CONTAINER EXISTS" 
+  fi
+  if _docker_container_running ${container}; then 
+    echo "CONTAINER IS RUNNING" 
+  fi
   echo "CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                                         NAMES"
   inspect_docker_container_list --container "${container}"
 }

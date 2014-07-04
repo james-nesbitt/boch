@@ -80,12 +80,9 @@ Docker_container=""
 # include docker setting overrides #
 ####################################
 
-# execute any existing pre hooks
-#debug "CONTROL: Running settings:pre hooks => hooks_execute settings --state \"pre\" --command \"${COMMAND}\""
-hooks_execute settings --state "pre" --command "${COMMAND} $@"
-
-# In this settings.sh file you can include all sorts of variable overrides.
-source ${path_manage}/_settings.sh
+# execute any existing settings hooks
+#debug "CONTROL: Running settings hooks => hooks_execute settings"
+hooks_execute settings
 
 ###################################################
 # Overridable settings for docker and the machine #
