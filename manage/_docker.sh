@@ -615,9 +615,9 @@ inspect_docker_container_list()
   # Run docker command
   if [ -n $container ]; then
     # I debated about the -i, but it seems to be better than case collisions
-    echo "docker ps ${flags} ${all} ${filter} | grep -i $container"
+    echo "`docker ps ${flags} ${all} ${filter} | grep -i $container`"
   else
-    echo "docker ps ${flags} ${all} ${filter}"
+    echo "`docker ps ${flags} ${all} ${filter}`"
   fi
 }
 
