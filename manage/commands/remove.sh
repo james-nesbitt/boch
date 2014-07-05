@@ -45,6 +45,6 @@ remove_execute()
   fi
 
   # Run the rm function
-  debug "COMMAND: stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
+  debug --level 5 --topic "COMMAND" "stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
   docker_rm --container "${container}"
 }

@@ -37,6 +37,6 @@ log_execute()
   done
 
   # Run the logs function
-  debug "COMMAND: logs [ handing off to docker abstraction ] ==> docker_logs --container ${container}"
+  debug --level 5 --topic "COMMAND" "logs [ handing off to docker abstraction ] ==> docker_logs --container ${container}"
   docker_logs --container "${container}"
 }

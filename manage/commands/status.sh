@@ -42,7 +42,7 @@ status_execute()
   done
 
   # Run the ps function
-  debug "COMMAND: status [ handing off to docker abstraction ] ==> inspect_docker_container_list --container ${container}"
+  debug --level 5 --topic "COMMAND" "status [ handing off to docker abstraction ] ==> inspect_docker_container_list --container ${container}"
   if _docker_container_exists ${container}; then 
     echo "CONTAINER EXISTS" 
   fi

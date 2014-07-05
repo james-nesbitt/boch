@@ -47,7 +47,7 @@ help_execute()
 
   else
 
-    debug "COMMAND: help : Print help for \"$1\" [path:${path}][function:${function}] ==>"
+    debug --level 5 --topic "COMMAND" "help : Print help for \"$1\" [path:${path}][function:${function}] ==>"
 
     path="${path_commands}/$1.sh"
     function="$1_help"

@@ -5,11 +5,42 @@
 
 # Handle debug messages
 #
+# -t|--topic {topic} : string grouping topic
+# -l|--level [{level}] : optional specific verbosity level 1-10
+#       verbosity level (off the top of my head):
+#        1 : critical
+#        3 : error
+#        5 : information
+#        7 : superfluous info
+#        10 : tiny detail, output may actually break the implementation
+#
 # 
 debug()
 {
-  if [ "$debug" == "1" ]; then
-    echo $@
+
+  # default organization config
+  local level=5
+  local topic="GENERAL"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--level)
+        level=${2}
+        shift
+        ;;
+      -t|--topic)
+        topic="${2}:"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  if [ ${level} -le ${debug} ]; then
+    echo "[${level}]${topic} $@"
   fi
 }
 
@@ -46,10 +77,10 @@ hooks_execute()
     shift
   done
 
-  #debug "UTILITY: hooks_execute [command:${commande}][state:${state}] ==> executing any hooks in ${path}"
+  debug --level 7 --topic "UTILITY" "hooks_execute [command:${commande}][state:${state}] ==> executing any hooks in ${path}"
   if [ -e ${path} ]; then
   	for hook in ${path}/*; do
-	    #debug  "HOOK: Executing Hook: ${hook} $@"	
+	    debug --level 7 --topic "UTILITY" "HOOK: Executing Hook: ${hook} $@"
   	  source ${hook} $@
   	done
   fi

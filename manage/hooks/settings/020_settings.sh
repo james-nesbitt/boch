@@ -4,7 +4,7 @@
 #
 # @todo : move some of this to yaml?
 
-debug "HOOK: settings (020) :: Importing custom settings"
+debug --level 4 --topic "HOOK" "settings (020) :: Importing custom settings"
 
 # Overrideable configuration variables
 #Project_name="project"
@@ -43,4 +43,3 @@ Machine_runargs=""
 
 # Mount the actual user .ssh folder in the developer user home directory.
 Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_userhome}/.ssh:/home/developer/.ssh-host"
-

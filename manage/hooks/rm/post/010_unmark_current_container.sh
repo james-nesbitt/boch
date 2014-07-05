@@ -23,5 +23,5 @@ do
 done
 
 # Run the hook to remove the active container label
-debug "HOOK : remove:post (010) :: Unsetting active container ==> echo \"\" > ${path_container}"
+debug --level 4 --topic "HOOK" "remove:post (010) :: Unsetting active container ==> echo \"\" > ${path_container}"
 echo "" > ${path_container}
