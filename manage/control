@@ -47,8 +47,14 @@ do
   case "$1" in
     -v|--verbose)  
       vflag=on
-      debug=1
-      debug "CONTROL: Debug mode enabled"
+      # if an integer level was passed, take it, otherwise default to 5
+      if [ -n "$2" ] && [ -z "${2##[0-9]}" ]; then
+        debug=${2}
+        shift
+      else
+        debug=5
+      fi
+      debug --topic "CONTROL" "Debug mode enabled (level:${debug})"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [command ...].  Try \"help\" for more instructions."
@@ -170,7 +176,7 @@ if [ -f ${command_file} ]; then
 
   # We have a command file, so we hand the execution off to
   # that script to run inline (not as a function)
-  debug "CONTROL: command [ ${COMMAND} ] handing off to command script : ${command_file}::${command_function}"
+  debug --level 4 --topic "CONTROL" "command [ ${COMMAND} ] handing off to command script : ${command_file}::${command_function}"
   source ${command_file}
   eval ${command_function} $@
 

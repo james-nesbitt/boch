@@ -58,6 +58,6 @@ shell_execute()
   flags="${flags} ${Machine_shellrunargs} ${Machine_mountvolumes}"
 
   # Run the shell function
-  debug "COMMAND: shell [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
+  debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
   docker_run ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@
 }

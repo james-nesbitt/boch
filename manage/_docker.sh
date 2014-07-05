@@ -73,11 +73,9 @@ docker_build() {
   [ -n "${image}" ] && tag="--tag=${image}:${version:-latest}"
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
-  fi
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
   docker build ${clean} ${tag} ${path}
-  # echo "Docker build run. '${image:-"Keyed"}' image created"
+  debug --level 5 --topic "DOCKER ABSTRACTION" "Docker build run. '${image:-"Keyed"}' image created"
 }
 # Destroy any build images
 #
@@ -111,9 +109,7 @@ docker_rmi()
   [ -n "${version}" ] && tag="${image}:${version}" || tag="${image}"
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_rmi [image(with version):${image}][version:${version}] ==> docker rmi $tag"
-  fi
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rmi [image(with version):${image}][version:${version}] ==> docker rmi $tag"
   docker rmi $tag
 }
 
@@ -207,16 +203,16 @@ docker_run()
   # Run docker command
   if [ "${daemon}" == "" ]; then
     # run the docker command in the foreground (no hooks are run in this case)
-    debug "DOCKER ABSTRACTION : docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"    
+    debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"    
     docker run ${flags} ${image}:${version} ${command}
   else
     # run the docker command and capture the container ID
-    debug "DOCKER ABSTRACTION : docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
-    debug "DOCKER ABSTRACTION: RESULTS of docker run => container started [ID:$container]"
+    debug --level 5 --topic "DOCKER ABSTRACTION" "RESULTS of docker run => container started [ID:$container]"
 
     # execute any existing hooks
-    debug "DOCKER ABSTRACTION: Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
+    debug --level 5 --topic "DOCKER ABSTRACTION" "Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
     hooks_execute start --state "run_post" --image "${image} --version "${version} --container "${container}"
   fi
 }
@@ -255,7 +251,7 @@ docker_attach()
 
 
   # Run docker command
-  debug "DOCKER ABSTRACTION : docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
   docker attach ${flags} ${container}
 }
 
@@ -291,7 +287,7 @@ docker_start()
   fi
 
   # Run docker command
-  debug "DOCKER ABSTRACTION : docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
   docker start ${flags} ${container}
 }
 
@@ -327,7 +323,7 @@ docker_stop()
   fi
 
   # Run docker command
-  debug "DOCKER ABSTRACTION : docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
   docker stop ${flags} ${container}
 }
 
@@ -370,11 +366,11 @@ docker_rm()
   fi
 
   # Run docker command
-  debug "DOCKER ABSTRACTION : docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
   docker rm ${flags} ${container}
 
   # execute any existing hooks
-  debug "DOCKER ABSTRACTION: Running post hooks => hooks_execute rm --state post --container \"${container}\""
+  debug --level 5 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute rm --state post --container \"${container}\""
   hooks_execute rm --state post --container "${container}"
 }
 
@@ -414,9 +410,7 @@ docker_commit()
   done
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_commit [image:${image}][version:${version}][container:${container}][flags:${flags}] ==> docker commit ${container} ${image}:${version}"
-  fi
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_commit [image:${image}][version:${version}][container:${container}][flags:${flags}] ==> docker commit ${container} ${image}:${version}"
   docker commit ${flags} ${container} ${image}:${version}
 }
 
@@ -450,9 +444,7 @@ docker_inspect()
   done
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
-  fi
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
   docker inspect ${flags} ${container}
 }
 
@@ -479,9 +471,7 @@ docker_top()
   done
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_top [container:${container}][flags:${flags}] ==> docker top ${flags} ${container}"
-  fi
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_top [container:${container}][flags:${flags}] ==> docker top ${flags} ${container}"
   docker top ${flags} ${container}
 }
 
@@ -508,9 +498,7 @@ docker_logs()
   done
 
   # Run docker command
-  if [ "$debug" == "1" ]; then
-    echo "DOCKER ABSTRACTION : docker_logs [container:${container}][flags:${flags}] ==> docker logs ${flags} ${container}"
-  fi
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_logs [container:${container}][flags:${flags}] ==> docker logs ${flags} ${container}"
   docker logs ${flags} ${container}
 }
 
@@ -587,9 +575,13 @@ inspect_docker_container_list()
 
   # Run docker command
   if [ -n $container ]; then
+    # PRINTING This debug will break the function
+    debug --level 10 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter} | grep -i ${container}"
     # I debated about the -i, but it seems to be better than case collisions
-    echo "`docker ps ${flags} ${all} ${filter} | grep -i $container`"
+    echo "`docker ps ${flags} ${all} ${filter} | grep -i ${container}`"
   else
+    # PRINTING This debug will break the function
+    debug --level 10 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter}"
     echo "`docker ps ${flags} ${all} ${filter}`"
   fi
 }
@@ -599,7 +591,7 @@ _docker_container_exists()
 {
   local container=$1
   local exists="`inspect_docker_container_list --container $container`"
-  debug "DOCKER ABSTRACTION: _docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
+  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
 
   if [ -n "$exists" ]; then
     return 0
@@ -612,7 +604,7 @@ _docker_container_running()
 {
   local container=$1
   local running="`inspect_docker_container_list --running --container $container`"
-  debug "DOCKER ABSTRACTION: _docker_container_isrunning [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
+  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_isrunning [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
   if [ -n "$running" ]; then
     return 0

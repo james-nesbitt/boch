@@ -74,7 +74,7 @@ start_execute()
   # Check for an existing container
   if _docker_container_exists ${container}; then
     # Run the start function
-    debug "COMMAND: start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
+    debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
     docker_start --container ${container}
   # start a new container based on the image
   else
@@ -84,7 +84,7 @@ start_execute()
     name="${container:-${name}}"
 
     # Run the run function
-    debug "COMMAND: start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${name}\" --hostname \"${hostname}\" ${flags} $@"
+    debug --level 5 --topic "COMMAND" "start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${name}\" --hostname \"${hostname}\" ${flags} $@"
     docker_run --image "${image}" --version "${version}" --name "${name}" --hostname "${hostname}" ${flags} $@
   fi
 }

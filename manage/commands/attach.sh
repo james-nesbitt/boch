@@ -45,6 +45,6 @@ attach_execute()
   done
 
   # Run the stop function
-  debug "COMMAND: attach [ handing off to docker abstraction ] ==> docker_attach ${attach}"
+  debug --level 5 --topic "COMMAND" "attach [ handing off to docker abstraction ] ==> docker_attach ${attach}"
   docker_attach --container "${container}"
 }
