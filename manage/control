@@ -8,7 +8,14 @@
 ##################
 vflag=off
 # DEBUG : output debugging text
-debug=0
+debug=3
+# DEBUG : Logging level
+log=0
+# Execution date & time (mainly used for logging)
+date="`date +%F/%H:%m.%S`"
+# Unique identifer of execution (random number)
+#executionid="`echo ${date} | md5sum`"
+executionid="${RANDOM}"
 
 #####################
 # Some reused paths #
@@ -31,6 +38,8 @@ path_hooks="${path_manage}/hooks"
 path_data="${path_manage}/data"
 # path to a folder that contains various docker image builds
 path_build="${path_manage}/build"
+# path to the log file
+path_log="${path_data}/log"
 
 # Include utility functions
 source ${path_manage}/_utilities.sh
@@ -40,7 +49,11 @@ source ${path_manage}/_docker.sh
 #################################################
 # Process Global Arguments and find the COMMAND #
 #################################################
-# so far we only have 1 global argument
+# so far we only have 2 global arguments
+#
+# -v|--verbose {level} : output debugging info
+# -l|--log {level} : enable debug logging
+#
 
 while [ $# -gt 0 ]
 do
@@ -54,7 +67,17 @@ do
       else
         debug=5
       fi
-      debug --topic "CONTROL" "Debug mode enabled (level:${debug})"
+      debug --level 3 --topic "CONTROL" "Debug mode enabled (level:${debug})"
+      ;;
+    -l|--log)
+      # if an integer level was passed, take it, otherwise default to 8
+      if [ -n "$2" ] && [ -z "${2##[0-9]}" ]; then
+        log=${2}
+        shift
+      else
+        log=8
+      fi
+      debug --level 3 --topic "CONTROL" "Logging mode enabled (level:${log})"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [command ...].  Try \"help\" for more instructions."
@@ -87,7 +110,7 @@ Docker_container=""
 ####################################
 
 # execute any existing settings hooks
-#debug "CONTROL: Running settings hooks => hooks_execute settings"
+debug --level 7 --topic "CONTROL" "Running settings hooks => hooks_execute settings"
 hooks_execute settings
 
 ###################################################
@@ -171,7 +194,7 @@ if [ -f ${command_file} ]; then
   command_function="${COMMAND}_execute"
 
   # execute any existing pre hooks
-  #debug "CONTROL: Running global:pre hooks => hooks_execute global --state \"pre\" --command \"${COMMAND}\""
+  debug --level 7 --topic "CONTROL" "Running global:pre hooks => hooks_execute global --state \"pre\" --command \"${COMMAND}\""
   hooks_execute command --state "pre" --command "${COMMAND} $@"
 
   # We have a command file, so we hand the execution off to
@@ -179,10 +202,22 @@ if [ -f ${command_file} ]; then
   debug --level 4 --topic "CONTROL" "command [ ${COMMAND} ] handing off to command script : ${command_file}::${command_function}"
   source ${command_file}
   eval ${command_function} $@
+  success=$?
+  if [ $success == 0 ]; then
+    echo "$result"
+    debug --level 6 --topic "CONTROL" "${COMMAND} succeeded."
 
-  # execute any existing post hooks
-  #debug "CONTROL: Running global:post hooks => hooks_execute global --state \"post\" --command \"${COMMAND}\""
-  hooks_execute command --state "post" --command "${COMMAND} $@"
+    # execute any existing post hooks
+    debug --level 7 --topic "CONTROL" "Running global:post hooks => hooks_execute global --state \"post\" --command \"${COMMAND}\""
+    hooks_execute command --state "post" --command "${COMMAND} $@"
+  else
+    debug --level 2 --topic "CONTROL" "Command execution failed for command ${COMMAND}."
+
+    # execute any existing post hooks
+    debug --level 7 --topic "CONTROL" "Running global:post hooks => hooks_execute global --state \"fail\" --command \"${COMMAND}\""
+    hooks_execute command --state "fail" --command "${COMMAND} $@"
+  fi
+  exit $sucess 
 
 else 
   # no command was found

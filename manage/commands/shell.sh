@@ -60,4 +60,5 @@ shell_execute()
   # Run the shell function
   debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
   docker_run ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@
+  return $?
 }

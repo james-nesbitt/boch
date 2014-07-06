@@ -54,4 +54,5 @@ destroy_execute()
   # Run the commit function
   debug --level 5 --topic "COMMAND" "destroy [ handing off to docker abstraction ] ==> docker_rmi --image ${image} --version ${version}"
   docker_rmi --image "${image}" --version "${version}"
+  return $?
 }

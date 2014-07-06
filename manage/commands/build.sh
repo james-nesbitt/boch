@@ -54,4 +54,5 @@ build_execute()
   # Run the build function
   debug --level 5 --topic "COMMAND" "build [ handing off to docker abstraction ] ==> docker_build --image ${image} --version ${version} ${path}"
   docker_build --image "${image}" --version "${version}" "${path}"
+  return $?
 }

@@ -9,11 +9,14 @@
 # -l|--level [{level}] : optional specific verbosity level 1-10
 #       verbosity level (off the top of my head):
 #        1 : critical
+#        2 : Serious error in abstraction
 #        3 : error
-#        5 : information
-#        7 : superfluous info
-#        10 : tiny detail, output may actually break the implementation
-#
+#        4 : Important implementation notification
+#        5 : Standard implementation information
+#        6 : Extra implementation information, like success messages
+#        7 : superfluous info (running hooks)
+#        8 : 
+#        9 : tiny detail, output may actually break the implementation
 # 
 debug()
 {
@@ -41,6 +44,9 @@ debug()
 
   if [ ${level} -le ${debug} ]; then
     echo "[${level}]${topic} $@"
+  fi
+  if [ ${level} -le ${log} ]; then
+    echo "${executionid} ${date} : [${level}]${topic} $@" >> ${path_log}
   fi
 }
 
@@ -77,10 +83,10 @@ hooks_execute()
     shift
   done
 
-  debug --level 7 --topic "UTILITY" "hooks_execute [command:${commande}][state:${state}] ==> executing any hooks in ${path}"
+  debug --level 8 --topic "UTILITY" "hooks_execute [command:${commande}][state:${state}] ==> executing any hooks in ${path}"
   if [ -e ${path} ]; then
   	for hook in ${path}/*; do
-	    debug --level 7 --topic "UTILITY" "HOOK: Executing Hook: ${hook} $@"
+	    debug --level 8 --topic "UTILITY" "HOOK: Executing Hook: ${hook} $@"
   	  source ${hook} $@
   	done
   fi

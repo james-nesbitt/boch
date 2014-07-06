@@ -39,4 +39,5 @@ log_execute()
   # Run the logs function
   debug --level 5 --topic "COMMAND" "logs [ handing off to docker abstraction ] ==> docker_logs --container ${container}"
   docker_logs --container "${container}"
+  return $?
 }
