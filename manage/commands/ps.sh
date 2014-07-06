@@ -40,4 +40,5 @@ ps_execute()
   # Run the ps function
   debug --level 5 --topic "COMMAND" "ps [ handing off to docker abstraction ] ==> docker_top --container ${container}"
   docker_top --container "${container}"
+  return $?
 }

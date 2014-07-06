@@ -59,7 +59,7 @@ docker_build() {
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -75,7 +75,13 @@ docker_build() {
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
   docker build ${clean} ${tag} ${path}
-  debug --level 5 --topic "DOCKER ABSTRACTION" "Docker build run. '${image:-"Keyed"}' image created"
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker build run. '${image:-"Keyed"}' image created"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker build failed."
+  fi
+  return $success
 }
 # Destroy any build images
 #
@@ -100,7 +106,7 @@ docker_rmi()
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -111,6 +117,13 @@ docker_rmi()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rmi [image(with version):${image}][version:${version}] ==> docker rmi $tag"
   docker rmi $tag
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker rmi succeeded. \"${image}:${version}\" image removed"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker rmi failed."
+  fi
+  return $sucess
 }
 
 #
@@ -190,7 +203,7 @@ docker_run()
         ;;
       -u|--username) flags="${flags} --username=$2" && shift;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -209,11 +222,18 @@ docker_run()
     # run the docker command and capture the container ID
     debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
-    debug --level 5 --topic "DOCKER ABSTRACTION" "RESULTS of docker run => container started [ID:$container]"
 
-    # execute any existing hooks
-    debug --level 5 --topic "DOCKER ABSTRACTION" "Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
-    hooks_execute start --state "run_post" --image "${image} --version "${version} --container "${container}"
+    local success=$?
+    if [ $success == 0 ]; then
+      debug --level 5 --topic "DOCKER ABSTRACTION" "RESULTS of docker run => container started [ID:$container]"
+
+      # execute any existing hooks
+      debug --level 7 --topic "DOCKER ABSTRACTION" "Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
+      hooks_execute start --state "run_post" --image "${image} --version "${version} --container "${container}"
+    else
+      debug --level 2 --topic "DOCKER ABSTRACTION" "Docker run failed. Not running any hooks"
+    fi
+    return $success
   fi
 }
 
@@ -244,7 +264,7 @@ docker_attach()
         ;;
       -*) echo >&2 "docker_attach(): unknown flag $1 : attach [-n|--noinput] [-p|--sigproxy] -c|--container {container}";;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -253,6 +273,13 @@ docker_attach()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
   docker attach ${flags} ${container}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker attach succeeded. \"${container}\" container was attached"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker attach failed."
+  fi
+  return $sucess
 }
 
 #
@@ -276,7 +303,7 @@ docker_start()
         ;;
       -*) echo >&2 "docker_stop(): unknown flag $1 : stop -c|--container {container}";;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -289,6 +316,13 @@ docker_start()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
   docker start ${flags} ${container}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker start succeeded. \"${container}\" container started"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker start failed."
+  fi
+  return $sucess
 }
 
 #
@@ -312,7 +346,7 @@ docker_stop()
         ;;
       -*) echo >&2 "docker_stop(): unknown flag $1 : stop -c|--container {container}";;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -325,6 +359,13 @@ docker_stop()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
   docker stop ${flags} ${container}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker stop succeeded. \"${container}\" container stopped"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker stop failed."
+  fi
+  return $sucess
 }
 
 #
@@ -355,7 +396,7 @@ docker_rm()
         ;;
       -*) echo >&2 "docker_rm(): unknown flag $1 : rm -c|--container {container}";;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -365,13 +406,24 @@ docker_rm()
     flags="${flags} $@"
   fi
 
+  # execute any existing hooks
+  debug --level 7 --topic "DOCKER ABSTRACTION" "Running pre hooks => hooks_execute rm --state pre --container \"${container}\""
+  hooks_execute rm --state pre --container "${container}"
+
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
   docker rm ${flags} ${container}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker rm succeeded. \"${container}\" container removed"
 
-  # execute any existing hooks
-  debug --level 5 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute rm --state post --container \"${container}\""
-  hooks_execute rm --state post --container "${container}"
+    # execute any existing hooks
+    debug --level 7 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute rm --state post --container \"${container}\""
+    hooks_execute rm --state post --container "${container}"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker rm failed."
+  fi
+  return $sucess
 }
 
 #
@@ -404,14 +456,29 @@ docker_commit()
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
 
+  # execute any existing hooks
+  debug --level 7 --topic "DOCKER ABSTRACTION" "Running pre hooks => hooks_execute commit --state pre --image \"${image}\" --version \"${version}\" --container \"${container}\""
+  hooks_execute attach --state pre --image "${image}" --version "${version}" --container "${container}"
+
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_commit [image:${image}][version:${version}][container:${container}][flags:${flags}] ==> docker commit ${container} ${image}:${version}"
   docker commit ${flags} ${container} ${image}:${version}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker commit succeeded. \"${container}\" container committed to ${image}:${version}"
+
+    # execute any existing hooks
+    debug --level 7 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute commit --state post --image \"${image}\" --version \"${version}\" --container \"${container}\""
+    hooks_execute attach --state post --image "${image}" --version "${version}" --container "${container}"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker commit failed."
+  fi
+  return $sucess
 }
 
 #
@@ -438,7 +505,7 @@ docker_inspect()
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -446,6 +513,8 @@ docker_inspect()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
   docker inspect ${flags} ${container}
+  local success=$?
+  return $sucess
 }
 
 #
@@ -465,7 +534,7 @@ docker_top()
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -473,6 +542,8 @@ docker_top()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_top [container:${container}][flags:${flags}] ==> docker top ${flags} ${container}"
   docker top ${flags} ${container}
+  local success=$?
+  return $sucess
 }
 
 #
@@ -492,7 +563,7 @@ docker_logs()
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -500,6 +571,8 @@ docker_logs()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_logs [container:${container}][flags:${flags}] ==> docker logs ${flags} ${container}"
   docker logs ${flags} ${container}
+  local success=$?
+  return $sucess
 }
 
 #
@@ -522,7 +595,7 @@ inspect_docker_image_list()
         shift
         ;;
       -q|--idonly)  flags="$flags --quiet";;
-      -*) echo >&2 "docker_image_list(): unknown flag $1 : _docker_image_list [-i|--id]";;
+      -*) echo >&2 "docker_image_list(): unknown flag $1 : _docker_image_list [-q|--idonly] [-i|--image {image}]";;
       *)
           break;; # terminate while loop
     esac
@@ -530,7 +603,7 @@ inspect_docker_image_list()
   done
 
   # Run docker command
-  #debug "DOCKER ABSTRACTION : _docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
+  debug --level 9 --topic "DOCKER ABSTRACTION" "_docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
   if [ -n $image ]; then
     echo "`docker images ${flags} ${filter} | grep -i $image`"
   else
@@ -566,7 +639,7 @@ inspect_docker_container_list()
         ;;
       -q|--idonly)  flags="$flags --quiet";;
       -r|--running)  all="";;
-      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-r|--running] -c|--container {container} ]";;
+      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-q|--idonly] [-r|--running] -c|--container {container} ]";;
       *)
           break;; # terminate while loop
     esac
@@ -574,14 +647,16 @@ inspect_docker_container_list()
   done
 
   # Run docker command
+  local result=""
+  local success=0
   if [ -n $container ]; then
     # PRINTING This debug will break the function
-    debug --level 10 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter} | grep -i ${container}"
+    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter} | grep -i ${container}"
     # I debated about the -i, but it seems to be better than case collisions
     echo "`docker ps ${flags} ${all} ${filter} | grep -i ${container}`"
   else
     # PRINTING This debug will break the function
-    debug --level 10 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter}"
+    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter}"
     echo "`docker ps ${flags} ${all} ${filter}`"
   fi
 }
@@ -593,7 +668,7 @@ _docker_container_exists()
   local exists="`inspect_docker_container_list --container $container`"
   debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
 
-  if [ -n "$exists" ]; then
+  if [ $? ] && [ -n "$exists" ]; then
     return 0
   else
     return 1
@@ -606,7 +681,7 @@ _docker_container_running()
   local running="`inspect_docker_container_list --running --container $container`"
   debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_isrunning [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
-  if [ -n "$running" ]; then
+  if [ $? ] && [ -n "$running" ]; then
     return 0
   else
     return 1

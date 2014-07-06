@@ -21,7 +21,6 @@ Print help for a command
 # command execute function
 help_execute()
 {
-
   if [ -z $1 ]; then
 
     echo "
@@ -59,5 +58,4 @@ help_execute()
     fi
 
   fi
-
 }

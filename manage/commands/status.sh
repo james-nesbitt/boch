@@ -45,10 +45,16 @@ status_execute()
   debug --level 5 --topic "COMMAND" "status [ handing off to docker abstraction ] ==> inspect_docker_container_list --container ${container}"
   if _docker_container_exists ${container}; then 
     echo "CONTAINER EXISTS" 
+
+    if _docker_container_running ${container}; then 
+      echo "CONTAINER IS RUNNING" 
+    else
+      echo "CONTAINER IS NOT RUNNING"
+    fi
+
+    echo "CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                                         NAMES"
+    inspect_docker_container_list --container "${container}"
+  else
+    echo "CONTAINER DOES NOT EXIST"
   fi
-  if _docker_container_running ${container}; then 
-    echo "CONTAINER IS RUNNING" 
-  fi
-  echo "CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                                         NAMES"
-  inspect_docker_container_list --container "${container}"
 }

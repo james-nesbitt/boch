@@ -76,9 +76,10 @@ start_execute()
     # Run the start function
     debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
     docker_start --container ${container}
+    return $?
+  
   # start a new container based on the image
   else
-
     # if we don't have a container identifier, make one up.
     name="${image}_${version}"
     name="${container:-${name}}"
@@ -86,5 +87,6 @@ start_execute()
     # Run the run function
     debug --level 5 --topic "COMMAND" "start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${name}\" --hostname \"${hostname}\" ${flags} $@"
     docker_run --image "${image}" --version "${version}" --name "${name}" --hostname "${hostname}" ${flags} $@
+    return $?
   fi
 }

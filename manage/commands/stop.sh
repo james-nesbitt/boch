@@ -42,4 +42,5 @@ stop_execute()
   # Run the stop function
   debug --level 5 --topic "COMMAND" "stop [ handing off to docker abstraction ] ==> docker_stop --container ${container}"
   docker_stop --container "${container}"
+  return $?
 }

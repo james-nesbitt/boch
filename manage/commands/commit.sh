@@ -53,4 +53,5 @@ commit_execute()
   # Run the commit function
   debug --level 5 --topic "COMMAND" "commit [ handing off to docker abstraction ] ==> docker_commit --image \"${image}\" --version \"${version}\" --container \"${container}\""
   docker_commit --image "${image}" --version "${version}" --container "${container}"
+  return $?
 }
