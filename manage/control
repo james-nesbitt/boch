@@ -149,7 +149,7 @@ COMMAND=$1
 shift
 
 # Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
-if [ "$debug" == "1" ]; then
+if [ $debug -gt 3 ]; then
   echo "
 CONTROL: final control settings: [
   >PATHS USED
@@ -159,8 +159,9 @@ CONTROL: final control settings: [
   -->path_manage:${path_manage}
   -->path_commands:${path_commands}
   -->path_hooks:${path_hooks}
-  -->path_settings:${path_settings}
   -->path_data:${path_data}
+  >PROJECT CONFIGURATION
+  -->Project_name:${Project_name}
   >DOCKER CONFIGURATIONS
   -->Docker_container:${Docker_container}
   -->Docker_image:${Docker_image}
