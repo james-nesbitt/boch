@@ -9,12 +9,17 @@ status_help()
  echo "
 Show the status for a container
 
-This is really just a wrapper for $/> docker ps
-The function returns some readable status text that the users
-can use to describe the status of the container.
+A status function to check operational status of a docker container
+and or an image.
+You can filter to a specific image, and/or a specific container.
+Actually, you are expected to filter to either container or a filter, 
+otherwise we will assume your want the default/active container/image
 
-  -c|--container {container} : override the default container name with an ID or name of a running container
+  -i|--image {image} : specify which image to limit to
+  -c|--container {container} : specify which container to limit to
 
+@NOTE if neither image nor container are passed, the default container
+    image pair are used.
 @TODO check for existing and running container
 "
 }
@@ -22,7 +27,10 @@ can use to describe the status of the container.
 # command execute function
 status_execute()
 {
-  container=${Docker_container}
+  # optional container to limit to
+  container=""
+  # optional image to limit to
+  image=""
 
   while [ $# -gt 0 ]
   do
@@ -31,8 +39,16 @@ status_execute()
         container="${2}"
         shift
         ;;
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -v|--version)
+        image="${2}"
+        shift
+        ;;
       -*)
-        echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
+        echo >&2 "unknown flag $1 : status [-i|--image {image}] [-c|--container {container}]"
         exit
         ;;
       *)
@@ -41,20 +57,61 @@ status_execute()
     shift
   done
 
-  # Run the ps function
-  debug --level 5 --topic "COMMAND" "status [ handing off to docker abstraction ] ==> inspect_docker_container_list --container ${container}"
-  if _docker_container_exists ${container}; then 
-    echo "CONTAINER EXISTS" 
+  if [ -z $image ] && [ -z $container ]; then
+    #set to the default/active image and container
+    image=${Docker_image}
+    container=${Docker_container}
+  fi
 
-    if _docker_container_running ${container}; then 
-      echo "CONTAINER IS RUNNING" 
-    else
-      echo "CONTAINER IS NOT RUNNING"
+  # 
+  debug --level 5 --topic "COMMAND" "status check starting [image:${image}][container:${container}]"
+
+  # Check the image
+  if [ "${image}" != "" ]; then
+    debug --level 7 --topic "COMMAND" "status check of image starting [image:${image}]"
+    echo "IMAGE INSPECT:"
+    echo "=============="
+
+    if _docker_image_exists ${image}; then
+      echo "--> IMAGE EXISTS"
+
+      if _docker_image_running ${image}; then
+        echo "--> IMAGE IS RUNNING"
+      else
+        echo "--> IMAGE IS NOT RUNNING"
+      fi
+
+      # Output the image table, with this filter
+      echo "IMAGE LIST TABLE:"
+      echo "REPOSITORY                        TAG                 IMAGE ID            CREATED             VIRTUAL SIZE"
+      inspect_docker_image_list --image ${image}
     fi
-
-    echo "CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                                         NAMES"
-    inspect_docker_container_list --container "${container}"
   else
-    echo "CONTAINER DOES NOT EXIST"
+    debug --level 7 --topic "COMMAND" "status check of image skipped (no image declared, but a container was)"
+  fi
+  # check the container
+  if [ "${container}" != "" ]; then
+    debug --level 5 --topic "COMMAND" "status check of container starting [container:${container}]"
+    echo "CONTAINER INSPECT:"
+    echo "=================="
+
+    if _docker_container_exists ${container}; then 
+      echo "--> CONTAINER EXISTS" 
+
+      if _docker_container_running ${container}; then 
+        echo "--> CONTAINER IS RUNNING" 
+      else
+        echo "--> CONTAINER IS NOT RUNNING"
+      fi
+
+      # Output the container list with this filter
+
+      echo "CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                                         NAMES"
+      inspect_docker_container_list --container "${container}"
+    else
+      echo "CONTAINER DOES NOT EXIST"
+    fi
+  else
+    debug --level 7 --topic "COMMAND" "status check of container skipped (no container declared, but an image was)"
   fi
 }

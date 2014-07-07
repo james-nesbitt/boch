@@ -578,12 +578,14 @@ docker_logs()
 #
 # Check if an image exists,
 #
-# -i|--id : return only image IDs
+# -i|--image {image} : image to filter for, you can add a version "${image}:${version}"
+# -a|--all : @NOTE removed - this would search all build commits, which is really not something we want.
+# -q|--idonly : return only image IDs
 #
 inspect_docker_image_list()
 {
-  # Image name
-  image=""
+  # filter text for grep
+  local filter=""
 
   # start with an empty argument list
   local flags=""
@@ -591,11 +593,11 @@ inspect_docker_image_list()
   do
     case "$1" in
       -i|--image)
-        image="${2}"
+        filter="${2}"
         shift
         ;;
       -q|--idonly)  flags="$flags --quiet";;
-      -*) echo >&2 "docker_image_list(): unknown flag $1 : _docker_image_list [-q|--idonly] [-i|--image {image}]";;
+      -*) echo >&2 "docker_image_list(): unknown flag $1 : inspect_docker_image_list [-q|--idonly] [-i|--image {image}]";;
       *)
           break;; # terminate while loop
     esac
@@ -603,43 +605,79 @@ inspect_docker_image_list()
   done
 
   # Run docker command
-  debug --level 9 --topic "DOCKER ABSTRACTION" "_docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
   if [ -n $image ]; then
-    echo "`docker images ${flags} ${filter} | grep -i $image`"
+    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} | grep -i \"${filter}\""
+    echo "`docker images ${flags} | grep -i "${filter}"`"
   else
-    echo "`docker images ${flags} ${filter}`"
+    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_image_list [flags:${flags}] ==> docker images ${flags}"    
+    echo "`docker images ${flags}`"
+  fi
+}
+
+# check if docker image $1 exists (has been built)
+_docker_image_exists()
+{
+  local image=$1
+  local exists="`inspect_docker_image_list --image ${image}`"
+  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_image_exists [image:${image}] ==> inspect_docker_image_list --image ${image} ==> ${exists}"
+
+  if [ $? ] && [ -n "$exists" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+# check if any docker containers using image $1 are running
+_docker_image_running()
+{
+  local image=$1
+  local running="`inspect_docker_container_list --running --image ${image}`"
+  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_image_running [image:${image}] ==> inspect_docker_container_list --running --image ${image} ==> ${running}"
+
+  if [ $? ] && [ -n "${running}" ]; then
+    return 0
+  else
+    return 1
   fi
 }
 
 #
 # Check if a container exists - and if it is running
 #
+# -c|container {container} : container name or ID to filter for (@NOTE Filter arg)
+# -i|--image {image} : image name to filter for (@NOTE Filter arg)
+#
 # -r|--running : only check for running containers
 # -q|--id : return only the container ID
-# $1 : container ID or name or command running (any might work)
+#
+# @NOTE while this has multiple filter options, it only handles one at a time
+# @NOTE if not filters are passed, 
 #
 # @TODO allow retrieval of just specific fields from docker_ps
+# @TODO make this function handle multiple filters per execution.
 inspect_docker_container_list()
 {
   # assume we want to check even for containers that are not running
   local all="--all"
   # start with an empty argument list
   local flags=""
-  # remove the header row, or grep for the particular container/command
+  # text for which we will grep
   local filter=""
-  # container
-  container=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -c|--container)
-        container="$2"
+        filter="$2"
+        shift
+        ;;
+      -i|--image)
+        filter="$2"
         shift
         ;;
       -q|--idonly)  flags="$flags --quiet";;
       -r|--running)  all="";;
-      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-q|--idonly] [-r|--running] -c|--container {container} ]";;
+      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-c|--container {container}] [-q|--idonly] [-r|--running] -c|--container {container} ]";;
       *)
           break;; # terminate while loop
     esac
@@ -651,17 +689,17 @@ inspect_docker_container_list()
   local success=0
   if [ -n $container ]; then
     # PRINTING This debug will break the function
-    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter} | grep -i ${container}"
-    # I debated about the -i, but it seems to be better than case collisions
-    echo "`docker ps ${flags} ${all} ${filter} | grep -i ${container}`"
+    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} | grep -i ${filter}"
+    # @NOTE I debated about the grep -i flag, but ignoring case-collision in container name seems to be best.
+    echo "`docker ps ${flags} ${all} | grep -i ${filter}`"
   else
     # PRINTING This debug will break the function
-    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} ${filter}"
-    echo "`docker ps ${flags} ${all} ${filter}`"
+    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all}"
+    echo "`docker ps ${flags} ${all}`"
   fi
 }
 
-# check if docker container $1 exists (has ever been started)
+# check if docker container $1 exists (has ever been started with `docker run`)
 _docker_container_exists()
 {
   local container=$1
@@ -679,7 +717,7 @@ _docker_container_running()
 {
   local container=$1
   local running="`inspect_docker_container_list --running --container $container`"
-  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_isrunning [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
+  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_running [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
   if [ $? ] && [ -n "$running" ]; then
     return 0

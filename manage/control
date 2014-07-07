@@ -29,8 +29,6 @@ path_userhome="${HOME}"
 # path to this management system
 path_manage="$path_project/manage"
 # path to a shell script that will be allowed to override some of these settings
-path_settings="$path_manage/_settings.sh"
-# path to a folder that has shell scripts which execute commands
 path_commands="${path_manage}/commands"
 # path to a folder that has shell scripts which execute hooks for commands
 path_hooks="${path_manage}/hooks"
