@@ -47,10 +47,10 @@ source ${path_manage}/_docker.sh
 #################################################
 # Process Global Arguments and find the COMMAND #
 #################################################
-# so far we only have 2 global arguments
 #
 # -v|--verbose {level} : output debugging info
 # -l|--log {level} : enable debug logging
+# -f|--force : ignore critical errors (don't halt)
 #
 
 while [ $# -gt 0 ]
@@ -76,6 +76,11 @@ do
         log=8
       fi
       debug --level 3 --topic "CONTROL" "Logging mode enabled (level:${log})"
+      ;;
+    -f|--force)
+      # lower the critical error level so that errors don't halt
+      _debug_critical_level=0
+      debug --level 3 --topic "CONTROL" "Forced mode enabled"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [command ...].  Try \"help\" for more instructions."
