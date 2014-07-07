@@ -518,6 +518,82 @@ docker_inspect()
 }
 
 #
+# Pause a running container`
+#
+# -c|--container : container ID or name
+#
+# @TODO parameter validation
+# @TODO test if the container exists and is running
+# @TODO test if the container is not paused already
+docker_pause()
+{
+  # start with an empty argument list
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -*) echo >&2 "docker_pause(): unknown flag $1 : pause -c|--container {container}";;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Run docker command
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_pause [container:${container}][flags:${flags}] ==> docker pause ${flags} ${container}"
+  docker pause ${flags} ${container}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker pause succeeded. \"${container}\" container was paused"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker pause failed."
+  fi
+  return $sucess
+}
+
+#
+# Un-Pause a paused  container`
+#
+# -c|--container : container ID or name
+#
+# @TODO parameter validation
+# @TODO test if the container exists and is running
+# @TODO test if the container is paused
+docker_unpause()
+{
+  # start with an empty argument list
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -*) echo >&2 "docker_unpause(): unknown flag $1 : unpause -c|--container {container}";;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Run docker command
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_unpause [container:${container}][flags:${flags}] ==> docker unpause ${flags} ${container}"
+  docker unpause ${flags} ${container}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker unpause succeeded. \"${container}\" container was unpaused"
+  else
+    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker unpause failed."
+  fi
+  return $sucess
+}
+
+#
 # List running processes in a container
 #
 # -c|--container : which container to list
