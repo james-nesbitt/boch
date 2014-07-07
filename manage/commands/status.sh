@@ -69,6 +69,7 @@ status_execute()
   # Check the image
   if [ "${image}" != "" ]; then
     debug --level 7 --topic "COMMAND" "status check of image starting [image:${image}]"
+    echo -e "\n"
     echo "IMAGE INSPECT:"
     echo "=============="
 
@@ -89,11 +90,12 @@ status_execute()
       debug --level 7 --topic "COMMAND" "status check of image starting [image:${image}]"
     fi
   else
-    echo "IMAGE DOES NOT EXIST (try using this: $/> manage/control build)"
+    echo "IMAGE DOES NOT EXIST (Did you build the image yet? : $/> manage/control build)"
   fi
   # check the container
   if [ "${container}" != "" ]; then
     debug --level 5 --topic "COMMAND" "status check of container starting [container:${container}]"
+    echo -e "\n"
     echo "CONTAINER INSPECT:"
     echo "=================="
 
@@ -111,7 +113,7 @@ status_execute()
       echo "CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                                         NAMES"
       inspect_docker_container_list --container "${container}"
     else
-      echo "CONTAINER DOES NOT EXIST. Try using this: $/> manage/contol start"
+      echo "CONTAINER DOES NOT EXIST. Have you executed your first run? : $/> manage/contol start"
     fi
   else
     debug --level 7 --topic "COMMAND" "status check of container skipped (no container declared, but an image was)"
