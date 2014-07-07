@@ -20,7 +20,7 @@ otherwise we will assume your want the default/active container/image
 
 @NOTE if neither image nor container are passed, the default container
     image pair are used.
-@TODO check for existing and running container
+@TODO give more help information, about the tables that are exported.
 "
 }
 
@@ -83,11 +83,13 @@ status_execute()
 
       # Output the image table, with this filter
       echo "IMAGE LIST TABLE:"
-      echo "REPOSITORY                        TAG                 IMAGE ID            CREATED             VIRTUAL SIZE"
+      echo "REPOSITORY                        TAG                 IMAGE ID            CREATED             VIRTUAL SIZE (Including shared)"
       inspect_docker_image_list --image ${image}
+    else
+      debug --level 7 --topic "COMMAND" "status check of image starting [image:${image}]"
     fi
   else
-    debug --level 7 --topic "COMMAND" "status check of image skipped (no image declared, but a container was)"
+    echo "IMAGE DOES NOT EXIST (try using this: $/> manage/control build)"
   fi
   # check the container
   if [ "${container}" != "" ]; then
@@ -109,7 +111,7 @@ status_execute()
       echo "CONTAINER ID        IMAGE                       COMMAND             CREATED             STATUS              PORTS                                         NAMES"
       inspect_docker_container_list --container "${container}"
     else
-      echo "CONTAINER DOES NOT EXIST"
+      echo "CONTAINER DOES NOT EXIST. Try using this: $/> manage/contol start"
     fi
   else
     debug --level 7 --topic "COMMAND" "status check of container skipped (no container declared, but an image was)"
