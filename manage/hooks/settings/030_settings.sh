@@ -30,7 +30,7 @@ Machine_shell="/bin/zsh"
 Machine_shellrunargs="--publish-all=true --env HOME=/home/developer --user=developer"
 
 # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
-Machine_runargs="-tty"
+Machine_runargs="--tty"
 
 # Build Mount list:
 #
