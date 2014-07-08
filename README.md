@@ -129,7 +129,13 @@ For a list of commands try this:
 $/> manage/control help
 $/> manage/control help {command}
 
-### the parent image: wwwerver-cnpm-dev
+### them images
+
+The build system is not aware of dependencies.
+
+The default approach is to have a parent image shared across projects/containers.  You should build any dependencies first; if you include the build configurations then the build command will help you doing that, but you will have to know the order of dependencies, and run the command once per dependency.
+
+#### the parent image: wwwerver-cnpm-dev
 
 The parent image is used as a base for all projects using this framework.  It has the basic docker functionality, with www server applications installed, and configured to run.
 
@@ -140,7 +146,7 @@ The base Docker container is included as a Dockerfile in the manage/build/parent
 @BUGS:
 - Supervisor sometimes uses 100% CPU, I think that is not playing well with nginx.  I am considering switching to using simplevisor, which has less features but is more efficient.  Using simplevisor would mean losing the tcp client.
 
-### the project image
+#### the project image
 
 The build system builds a custom image for your project, using the parent as a shared base.  Then you project iself can be versioned (multiple versions) and used for multiple containers.
 
@@ -153,7 +159,7 @@ The build system builds a custom image for your project, using the parent as a s
 2. STEP ONE : BUILD YOUR PROJECT CONTAINER
 
   Q: Do you have the parent box?
-    If you don't then the build will pull it.  If you want you can build it first with --parent
+    If you don't then the build will pull it.  If you want you can build it first with $/> manage/control build --build {parent}
 
   - Play with the contents of manage/_settings.sh if you want
   - Play with the container build configuration (manage/build/container)
@@ -189,6 +195,7 @@ Why does my container use 100%
     figured out why yet.
 
 I started my container but I don't see it?
+
   - are you expecting a prompt or output, because the default conf
     doesn't provide any
 
