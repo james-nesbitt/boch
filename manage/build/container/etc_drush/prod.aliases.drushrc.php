@@ -43,7 +43,7 @@ $aliases['dev'] = array(
 );
 
 // stage site : project.stage
-$aliases['project'] = array(
+$aliases['stage'] = array(
   'uri' => 'project.stage',
   'root' => '/var/www/project.stage',
   'remote-host' => 'project.stage',
@@ -69,7 +69,7 @@ $aliases['project'] = array(
 );
 
 // prod site : project.prod
-$aliases['project'] = array(
+$aliases['prod'] = array(
   'uri' => 'project.prod',
   'root' => '/var/www/project.prod',
   'remote-host' => 'project.prod',
