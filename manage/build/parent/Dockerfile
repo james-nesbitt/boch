@@ -3,7 +3,7 @@
 # Multiline runs are used to minimize RUN transactions to keep the cache
 # shorter for this basebox.  There is no need to overdo the caching here.
 #
-FROM            maxholman/centos7
+FROM            centos:centos6
 MAINTAINER      james.nesbitt@wunderkraut.com
 
 ## EPEL Dependency on CentOS 6 and Red Hat (RHEL) 6 ##
@@ -23,9 +23,9 @@ ADD etc_yum.repos.d/mariaDB.repo /etc/yum.repos.d/MariaDB.repo
 RUN yum install -y MariaDB-server && \
     mkdir /var/run/mysqld && \
     chown mysql /var/run/mysqld
-ADD etc_my.cnf.d_server.cnf /etc/my.cnf.d/server.cnf
 RUN mysql_install_db && chown -R mysql:mysql /var/lib/mysql && (/usr/bin/mysqld_safe &) && sleep 5 && \
     mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO root@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
+ADD etc_my.cnf.d_server.cnf /etc/my.cnf.d/server.cnf
 EXPOSE 3306
 
 # Install nginx (make it run as the nginx user)
