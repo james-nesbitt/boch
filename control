@@ -31,7 +31,7 @@ path_manage="$path_project/manage"
 # path to a shell script that will be allowed to override some of these settings
 path_commands="${path_manage}/commands"
 # path to a folder that has shell scripts which execute hooks for commands
-path_hooks="${path_manage}/hooks"
+path_hooks="${path_manage}/hooks ${path_project}/source/hooks"
 # path to a folder where the system can keep some data
 path_data="${path_manage}/data"
 # path to a folder that contains various docker image builds
@@ -114,7 +114,9 @@ Docker_container=""
 
 # execute any existing settings hooks
 debug --level 7 --topic "CONTROL" "Running settings hooks => hooks_execute settings"
+hooks_execute settings --state pre
 hooks_execute settings
+hooks_execute settings --state post
 
 ###################################################
 # Overridable settings for docker and the machine #
@@ -130,8 +132,6 @@ Project_name="${Project_name:-${path_project##*/}}"
 Docker_image="${Docker_image:-$Project_name}"
 # by default all containers will run from the base image, which is created by build, however maybe we want to use a different version for advanced features
 Docker_imageversion="${Docker_imageversion:-"latest"}" # Used for run/shell/commit
-# Parent image name, used for image build and parent image build (but not used for most operations)
-Docker_parentimage="${Docker_parentimage:-"wwwserver-cnpm-dev"}"
 # use a default container name, default to a combination of image and version
 Docker_container=${Docker_container:-${Docker_image}_${Docker_imageversion}}
 
@@ -171,7 +171,6 @@ CONTROL: final control settings: [
   -->Docker_container:${Docker_container}
   -->Docker_image:${Docker_image}
   -->Docker_imageversion:${Docker_imageversion}
-  -->Docker_parentimage:${Docker_parentimage}
   >MACHINE CONFIGURATIONS
   -->Machine_hostname:${Machine_hostname}
   -->Machine_mountvolumes:${Machine_mountvolumes}
