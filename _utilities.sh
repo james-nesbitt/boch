@@ -112,20 +112,18 @@ hooks_execute()
 
   # loop through all of the paths and execute any functions found.
   debug --level 7 --topic "UTILITY" "hooks_execute [hooks:${hook}] ==> executing any hooks in these paths: ${paths}"
-  if [ -e ${path} ]; then
-    for path in ${paths}; do
-      if [ -d ${path} ]; then
-      	for hook in ${path}/*; do
-          if [ -f ${path} ]; then
-      	    debug --level 8 --topic "UTILITY" "HOOK: Executing Hook script (source): ${hook} $@"
-        	  source ${hook} $@
-          fi
-      	done
-      else
-        debug --level 8 --topic "UTILITY" "HOOK: Hook path doesn't exist: ${path} $@"
-      fi
-    done
-  fi
+  for path in ${paths}; do
+    if [ -d ${path} ]; then    
+    	for hook in ${path}/*; do
+        if [ -f ${hook} ]; then
+    	    debug --level 8 --topic "UTILITY" "HOOK: Executing Hook script (source): ${hook} $@"
+      	  source ${hook} $@
+        fi
+    	done
+    else
+      debug --level 8 --topic "UTILITY" "HOOK: Hook path doesn't exist: ${path} $@"
+    fi
+  done
 }
 
 # File and folder functions

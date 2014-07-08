@@ -28,10 +28,12 @@ path_project="$(dirname $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd))"
 path_userhome="${HOME}"
 # path to this management system
 path_manage="$path_project/manage"
+# path to this management system
+path_settings="$path_project/settings.sh"
 # path to a shell script that will be allowed to override some of these settings
 path_commands="${path_manage}/commands"
 # path to a folder that has shell scripts which execute hooks for commands
-path_hooks="${path_manage}/hooks ${path_project}/source/hooks"
+path_hooks="${path_manage}/hooks"
 # path to a folder where the system can keep some data
 path_data="${path_manage}/data"
 # path to a folder that contains various docker image builds
@@ -160,8 +162,9 @@ CONTROL: final control settings: [
   >PATHS USED
   -->path_project:${path_project}
   -->path_execution:${path_execution}
-  -->path_build:${path_build}
   -->path_manage:${path_manage}
+  -->path_settings:${path_settings}
+  -->path_build:${path_build}
   -->path_commands:${path_commands}
   -->path_hooks:${path_hooks}
   -->path_data:${path_data}
