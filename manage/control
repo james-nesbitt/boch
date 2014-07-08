@@ -136,7 +136,7 @@ Docker_parentimage="${Docker_parentimage:-"wwwserver-cnpm-dev"}"
 Docker_container=${Docker_container:-${Docker_image}_${Docker_imageversion}}
 
 # Default running args
-Machine_runargs=${Machine_runargs:-"--tty"}
+Machine_runargs=${Machine_runargs:-""}
 # hostname used inside the running container
 Machine_hostname="${Machine_hostname:-$Docker_container}"
 # live mounts that are used for containers
