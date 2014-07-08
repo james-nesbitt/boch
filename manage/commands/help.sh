@@ -31,8 +31,9 @@ help_execute()
   Useage: control {global args} {command} {args}
 
   Global Args:
-    --v|--verbose : make the execution verbose
-    --h|--help : give instructions instead of executing action
+    -v|--verbose : make the execution verbose
+    -h|--help : give instructions instead of executing action
+    -f|--force : ignore critical errors (don't halt)
 
   Commands:"
 

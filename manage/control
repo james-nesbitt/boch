@@ -29,8 +29,6 @@ path_userhome="${HOME}"
 # path to this management system
 path_manage="$path_project/manage"
 # path to a shell script that will be allowed to override some of these settings
-path_settings="$path_manage/_settings.sh"
-# path to a folder that has shell scripts which execute commands
 path_commands="${path_manage}/commands"
 # path to a folder that has shell scripts which execute hooks for commands
 path_hooks="${path_manage}/hooks"
@@ -49,10 +47,10 @@ source ${path_manage}/_docker.sh
 #################################################
 # Process Global Arguments and find the COMMAND #
 #################################################
-# so far we only have 2 global arguments
 #
 # -v|--verbose {level} : output debugging info
 # -l|--log {level} : enable debug logging
+# -f|--force : ignore critical errors (don't halt)
 #
 
 while [ $# -gt 0 ]
@@ -78,6 +76,11 @@ do
         log=8
       fi
       debug --level 3 --topic "CONTROL" "Logging mode enabled (level:${log})"
+      ;;
+    -f|--force)
+      # lower the critical error level so that errors don't halt
+      _debug_critical_level=0
+      debug --level 3 --topic "CONTROL" "Forced mode enabled"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [command ...].  Try \"help\" for more instructions."
@@ -133,7 +136,7 @@ Docker_parentimage="${Docker_parentimage:-"wwwserver-cnpm-dev"}"
 Docker_container=${Docker_container:-${Docker_image}_${Docker_imageversion}}
 
 # Default running args
-Machine_runargs=${Machine_runargs:-"--tty"}
+Machine_runargs=${Machine_runargs:-""}
 # hostname used inside the running container
 Machine_hostname="${Machine_hostname:-$Docker_container}"
 # live mounts that are used for containers
@@ -151,7 +154,7 @@ COMMAND=$1
 shift
 
 # Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
-if [ "$debug" == "1" ]; then
+if [ $debug -gt 3 ]; then
   echo "
 CONTROL: final control settings: [
   >PATHS USED
@@ -161,8 +164,9 @@ CONTROL: final control settings: [
   -->path_manage:${path_manage}
   -->path_commands:${path_commands}
   -->path_hooks:${path_hooks}
-  -->path_settings:${path_settings}
   -->path_data:${path_data}
+  >PROJECT CONFIGURATION
+  -->Project_name:${Project_name}
   >DOCKER CONFIGURATIONS
   -->Docker_container:${Docker_container}
   -->Docker_image:${Docker_image}

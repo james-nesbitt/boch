@@ -1,33 +1,44 @@
 #!bin/sh
 #
-# COMMAND: Output container process logs
+# COMMAND: Output control logs
 #
 
 # command help function
 log_help()
 {
   echo "
-Output the container process logs
-  -c|--container {container} : override the default container name with an ID or name of a running container
+Output the control logs
 
-@TODO check for existing and running container
+The prints the control logs for this management control process.
+
+ -t|--tail : make this a tail process
+ -f|--follow : make this a tail process, and follow it.
 "
 }
 
 # command execute function
 log_execute()
 {
-  container=${Docker_container}
+  # Log path
+  local path="${path_log}"
+
+  # Command
+  local com="cat"
+  # Flags
+  local flags=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -c|--container)
-        container="${2}"
-        shift
+      -t|--tail)
+        com="tail"
+        ;;
+      -t|--tail)
+        com="tail"
+        flags="${flags} -f"
         ;;
       -*)
-        echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
+        echo >&2 "unknown flag $1 : log [-t|--tail] [-f|--follow]"
         exit
         ;;
       *)
@@ -37,7 +48,7 @@ log_execute()
   done
 
   # Run the logs function
-  debug --level 5 --topic "COMMAND" "logs [ handing off to docker abstraction ] ==> docker_logs --container ${container}"
-  docker_logs --container "${container}"
+  debug --level 5 --topic "COMMAND" "log [ executing log output command ][command:${command}][flags:${flags}] ==> ${com} ${flags} \"${path}\""
+  eval "${com} ${flags} ${path}"
   return $?
 }

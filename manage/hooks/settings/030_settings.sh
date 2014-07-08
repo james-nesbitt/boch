@@ -4,7 +4,7 @@
 #
 # @todo : move some of this to yaml?
 
-debug --level 4 --topic "HOOK" "settings (020) :: Importing custom settings"
+debug --level 4 --topic "HOOK" "settings (030) :: Importing custom settings"
 
 # Overrideable configuration variables
 #Project_name="project"
@@ -30,7 +30,7 @@ Machine_shell="/bin/zsh"
 Machine_shellrunargs="--publish-all=true --env HOME=/home/developer --user=developer"
 
 # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
-Machine_runargs=""
+Machine_runargs="-tty"
 
 # Build Mount list:
 #
@@ -39,7 +39,17 @@ Machine_runargs=""
 #
 # @TODO get away from having to include the -v flag here, by finding a better format for this
 #
-# Already added: Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
+
+# Add our project source to the box
+# @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
+path_source="${path_project}/source"
+path_source_www="${path_source}/www"
+debug --level 6 --topic "HOOK" "settings (030) :: Making sure that we have the project source path \"${path_source_www}\""
+if ! _ensure_folder ${path_source_www}; then
+  debug --level 1 --topic "HOOK" "settings (015) :: Required webroot folder \"${path_source_www}\".  If this path isn't required in your project, then remove it's dependency from the 030_settings.sh hook in manage/hooks/settings"
+fi
+
+Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
 
 # Mount the actual user .ssh folder in the developer user home directory.
 Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_userhome}/.ssh:/home/developer/.ssh-host"
