@@ -75,28 +75,27 @@ debug()
 # Run hooks for a command
 #
 # Conceptually, the function arguments determine
-# a path, and all function in that path are executed
+# a number of paths, and all function in those
+# paths are executed
 #
 # $1 : command
 # -s|--state {state} : state e.g. pre or post
 # $@ : passed to the hook functions
 #
-# @NOTE this will be the center of a hook system,
-#   but is currently not used (not tested or maintained)
 hooks_execute()
 {
   # require the first argument to be the command
-  command=$1
+  hook=$1
   shift
 
   # base hooks path
-  path="${path_hooks}/${command}"
+  local paths=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -s|--state)
-        path="${path}/${2}"
+        hook="${hook}/${2}"
         shift
         ;;
       *)
@@ -105,12 +104,27 @@ hooks_execute()
     shift
   done
 
-  debug --level 8 --topic "UTILITY" "hooks_execute [command:${commande}][state:${state}] ==> executing any hooks in ${path}"
+  # build paths from hooks path parent, and hook
+  for path_parent in ${path_hooks}; do
+    paths="${paths} ${path_parent}/${hook}"
+  done
+
+
+  # loop through all of the paths and execute any functions found.
+  debug --level 7 --topic "UTILITY" "hooks_execute [hooks:${hook}] ==> executing any hooks in these paths: ${paths}"
   if [ -e ${path} ]; then
-  	for hook in ${path}/*; do
-	    debug --level 8 --topic "UTILITY" "HOOK: Executing Hook script (source): ${hook} $@"
-  	  source ${hook} $@
-  	done
+    for path in ${paths}; do
+      if [ -d ${path} ]; then
+      	for hook in ${path}/*; do
+          if [ -f ${path} ]; then
+      	    debug --level 8 --topic "UTILITY" "HOOK: Executing Hook script (source): ${hook} $@"
+        	  source ${hook} $@
+          fi
+      	done
+      else
+        debug --level 8 --topic "UTILITY" "HOOK: Hook path doesn't exist: ${path} $@"
+      fi
+    done
   fi
 }
 
@@ -166,7 +180,7 @@ _ensure_file()
     fi
   else
     debug --level 8 --topic "UTILITY" " FILEFOLDER : _ensure_file [path:$path] ==> creating missing file ${path}"
-    mkdir -p $path
+    touch $path
     local success=$?
     if [ $success -gt 0 ]; then
       debug --level 4 --topic "UTILITY" " FILEFOLDER : _ensure_file [path:$path] ==> could not create file ${path}"

@@ -87,10 +87,10 @@ status_execute()
       echo "REPOSITORY                        TAG                 IMAGE ID            CREATED             VIRTUAL SIZE (Including shared)"
       inspect_docker_image_list --image ${image}
     else
-      debug --level 7 --topic "COMMAND" "status check of image starting [image:${image}]"
+      echo "IMAGE DOES NOT EXIST.  Did you build the image yet? : $/> manage/control build"
     fi
   else
-    echo "IMAGE DOES NOT EXIST (Did you build the image yet? : $/> manage/control build)"
+    debug --level 7 --topic "COMMAND" "status check of image skipped (no image specified, but a container was)"
   fi
   # check the container
   if [ "${container}" != "" ]; then
@@ -116,6 +116,6 @@ status_execute()
       echo "CONTAINER DOES NOT EXIST. Have you executed your first run? : $/> manage/contol start"
     fi
   else
-    debug --level 7 --topic "COMMAND" "status check of container skipped (no container declared, but an image was)"
+    debug --level 7 --topic "COMMAND" "status check of container skipped (no container specified, but an image was)"
   fi
 }
