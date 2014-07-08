@@ -3,11 +3,7 @@
 # Site/Project specific image for the project
 # Built on top of the wwwserver-cnpm build
 #
-# Note that there is a non-dev deployment version of the
-# Parent image that can be used for deployment
-# jamesnesbitt/wwwserver-cnpm
-#
-FROM jamesnesbitt/wwwserver-cnpm-dev
+FROM wwwserver-cnpm-dev
 MAINTAINER James Nesbitt <james.nesbitt@wunderkraut.com>
 
 # run as root user - as we will use supervisor to manage the container

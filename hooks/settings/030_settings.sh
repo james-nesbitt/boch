@@ -30,7 +30,7 @@ Machine_shell="/bin/zsh"
 Machine_shellrunargs="--publish-all=true --env HOME=/home/developer --user=developer"
 
 # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
-Machine_runargs="--tty"
+Machine_runargs="--tty" # --tty is needed for supervisord to run.
 
 # Build Mount list:
 #
@@ -48,8 +48,8 @@ debug --level 6 --topic "HOOK" "settings (030) :: Making sure that we have the p
 if ! _ensure_folder ${path_source_www}; then
   debug --level 1 --topic "HOOK" "settings (015) :: Required webroot folder \"${path_source_www}\".  If this path isn't required in your project, then remove it's dependency from the 030_settings.sh hook in manage/hooks/settings"
 fi
-
+# Now that we have tested it, add the source folder to the mount
 Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
 
-# Mount the actual user .ssh folder in the developer user home directory.
+# Mount the external user .ssh folder in the developer user home directory.
 Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_userhome}/.ssh:/home/developer/.ssh-host"
