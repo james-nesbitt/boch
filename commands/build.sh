@@ -73,7 +73,7 @@ build_execute()
     docker_rmi --image "${image}" --version "${version}"
     return $?
   else
-    if [ _docker_image_exists "${image}:${version}" ]; then
+    if _docker_image_exists "${image}:${version}" ; then
       debug --level 1 --topic "COMMAND" "build :: error building custom image, image already exists: ${image}:${version}"
     fi    
     # test to see if the build exists
