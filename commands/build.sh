@@ -11,12 +11,12 @@ Build or destroy docker images related to the project.
 
   -b|--build {build} : select a different build from the ${path_build} folder
 
-  -d|--destroy : delete/destroy the build instead of building it
+  -d|--destroy : delete/destroy the image instead of building it
 
   -i|--image {image} : overrides settings image name for new image
   -v|--version {version} : overrides settings image version for new image
 
-@TODO check to see if image:version is running before removing it.
+@TODO set default build based of order: ${Project_name}, "project", (first build in builds folder)
 "
 }
 
@@ -24,7 +24,7 @@ Build or destroy docker images related to the project.
 build_execute()
 {
   # default build settings
-  local path="${path_build}/project"
+  local path="${path_build}/${default_build:-"project"}"
   local image="${Docker_image}"
   local version="${Docker_imageversion}"
 
@@ -73,6 +73,9 @@ build_execute()
     docker_rmi --image "${image}" --version "${version}"
     return $?
   else
+    if [ _docker_image_exists "${image}:${version}" ]; then
+      debug --level 1 --topic "COMMAND" "build :: error building custom image, image already exists: ${image}:${version}"
+    fi    
     # test to see if the build exists
     if [ ! -d ${path} ]; then
       debug --level 1 --topic "COMMAND" "build :: error building custom image, path to build doesn't exist: ${path}"
