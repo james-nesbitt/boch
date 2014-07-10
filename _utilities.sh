@@ -82,10 +82,12 @@ debug()
 # -s|--state {state} : state e.g. pre or post
 # $@ : passed to the hook functions
 #
+# @TODO move to use _include_source abstraction
+#
 hooks_execute()
 {
   # require the first argument to be the command
-  hook=$1
+  local hook=$1
   shift
 
   # base hooks path
@@ -111,17 +113,17 @@ hooks_execute()
 
 
   # loop through all of the paths and execute any functions found.
-  debug --level 7 --topic "UTILITY" "hooks_execute [hooks:${hook}] ==> executing any hooks in these paths: ${paths}"
+  debug --level 7 --topic "UTILITY->HOOK" "hooks_execute [hook:${hook}] : executing any hooks in these paths: ${paths}"
   for path in ${paths}; do
     if [ -d ${path} ]; then    
     	for hook in ${path}/*; do
         if [ -f ${hook} ]; then
-    	    debug --level 8 --topic "UTILITY" "HOOK: Executing Hook script (source): ${hook} $@"
+    	    debug --level 8 --topic "UTILITY->HOOK" "hooks_execute : Executing Hook script (source): ${hook} $@"
       	  source ${hook} $@
         fi
     	done
     else
-      debug --level 8 --topic "UTILITY" "HOOK: Hook path doesn't exist: ${path} $@"
+      debug --level 8 --topic "UTILITY->HOOK" "hooks_execute : Hook path doesn't exist: ${path} $@"
     fi
   done
 }
@@ -133,6 +135,41 @@ hooks_execute()
 # return an error if they can't
 #
 
+#
+# Include a file using source
+#
+# $1 : path to target to include
+# $@ : additional arguments to pass to source command
+#
+_include_source()
+{
+  local target=$1
+  shift
+
+  if [ -f ${target} ]; then
+    debug --level 9 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Including source item"
+    source ${target} $@
+    return $?
+  else
+    debug --level 4 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Could not include source item.  Item was not found, or is not a file"
+    return 1
+  fi
+}
+
+# include a command source
+#
+# $1 : command name (without full path, but can be a subpath)
+#
+_include_command()
+{
+  local com=$1
+  local path="${path_commands}/${com}.sh"
+
+  debug --level 8 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}] : Including command.  Handing off to _include_source ==> _include_source \"${path}\" $@ " 
+  _include_source "${path}" $@
+  return $?
+}
+
 # Create an empty folder, if it doesn't already exist
 #
 # $1 : folder path
@@ -141,20 +178,20 @@ _ensure_folder()
 {
   # Take the path from the first argument
   local path=$1
-  debug --level 9 --topic "UTILITY" " FILEFOLDER : _ensure_folder [path:$path]"
+  debug --level 9 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path]"
 
   if [ -e $path ]; then
     if [ -f $path ]; then
-      debug --level 4 --topic "UTILITY" " FILEFOLDER : _ensure_folder [path:$path] ==> could not create folder ${path}.  Already exists but not as a directory."
+      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}.  Already exists but not as a directory."
     else
       return 0
     fi
   else
-    debug --level 8 --topic "UTILITY" " FILEFOLDER : _ensure_folder [path:$path] ==> creating missing folder ${path}"
+    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => creating missing folder ${path}"
     mkdir -p $path
     local success=$?
     if [ $success -gt 0 ]; then
-      debug --level 4 --topic "UTILITY" " FILEFOLDER : _ensure_folder [path:$path] ==> could not create folder ${path}"
+      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}"
     fi
     return $success
   fi
@@ -168,20 +205,20 @@ _ensure_file()
 {
   # Take the path from the first argument
   local path=$1
-  debug --level 9 --topic "UTILITY" " FILEFOLDER : _ensure_file [path:$path]"
+  debug --level 9 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path]"
 
   if [ -e $path ]; then
     if [ -d $path ]; then
-      debug --level 4 --topic "UTILITY" " FILEFOLDER : _ensure_file [path:$path] ==> could not create file ${path}.  Already exists but as a directory."
+      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}.  Already exists but as a directory."
     else
       return 0
     fi
   else
-    debug --level 8 --topic "UTILITY" " FILEFOLDER : _ensure_file [path:$path] ==> creating missing file ${path}"
+    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => creating missing file ${path}"
     touch $path
     local success=$?
     if [ $success -gt 0 ]; then
-      debug --level 4 --topic "UTILITY" " FILEFOLDER : _ensure_file [path:$path] ==> could not create file ${path}"
+      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}"
     fi
     return $success
   fi
