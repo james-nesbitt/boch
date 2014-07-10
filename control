@@ -192,21 +192,17 @@ fi
 # Process command : pass the rest of the arguments to the command #
 ###################################################################
 
-# determine the file that should execute for the command
-command_file="${path_commands}/${COMMAND}.sh"
-if [ -f ${command_file} ]; then
 
-  #command function to call
-  command_function="${COMMAND}_execute"
+# We have a command file, so we hand the execution off to
+# that script to run inline (not as a function)
+if _include_command ${COMMAND}; then
 
   # execute any existing pre hooks
   debug --level 7 --topic "CONTROL" "Running global:pre hooks => hooks_execute global --state \"pre\" --command \"${COMMAND}\""
   hooks_execute command --state "pre" --command "${COMMAND} $@"
 
-  # We have a command file, so we hand the execution off to
-  # that script to run inline (not as a function)
-  debug --level 4 --topic "CONTROL" "command [ ${COMMAND} ] handing off to command script : ${command_file}::${command_function}"
-  source ${command_file}
+  command_function="${COMMAND}_execute"
+  debug --level 4 --topic "CONTROL" "command [ ${COMMAND} ] handing off to command script : ${command_function}"
   eval ${command_function} $@
   success=$?
   if [ $success == 0 ]; then
@@ -227,5 +223,6 @@ if [ -f ${command_file} ]; then
 
 else 
   # no command was found
+  debug --level 4 --topic "CONTROL" "${COMMAND} failed.  Unkown command."
   echo "CONTROL: Unknown command \"${COMMAND}' - try using 'control help' for instructions."      
 fi
