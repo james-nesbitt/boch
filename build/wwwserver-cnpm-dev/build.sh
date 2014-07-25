@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build --tag="jamesnesbitt/wwwserver-cnpm-dev2" .
+docker build --tag="wwwserver-cnpm-dev" .
