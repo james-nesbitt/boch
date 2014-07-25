@@ -94,7 +94,7 @@ docker_build() {
 #   containers, it doesn't actuall delete the image, but rather
 #   it removes the label, and leaves the image.
 #
-# @TODO should I name this docker_rmi to be more docker oriented?
+# @TODO check for existing image before deleting
 docker_rmi()
 {
 
@@ -124,7 +124,7 @@ docker_rmi()
   [ -n "${version}" ] && tag="${image}:${version}" || tag="${image}"
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rmi [image(with version):${image}][version:${version}][flags:${flags}] ==> docker rmi ${flags} ${tag}"
+  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rmi [image:${image}][version:${version}][flags:${flags}][tag:${tag}] ==> docker rmi ${flags} ${tag}"
   docker rmi ${flags} ${tag}
   local success=$?
   if [ $success == 0 ]; then

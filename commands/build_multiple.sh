@@ -9,8 +9,6 @@ build_multiple_help()
   echo "
 Build or destroy multiple docker images.
 
-By default, images from the \$Docker_builds variable are built 
-(\${Docker_builds}=${Docker_builds:-"project"} )
 
   -b|--build {builds} : select a different build from the \${path_build} folder
         This can be a space separated, ordered list of builds in the folder,
@@ -22,9 +20,11 @@ By default, images from the \$Docker_builds variable are built
 
   -d|--destroy : delete/destroy the image instead of building it.
 
-  -i|--image {image} : name to use for the new base image, overriding the default.
-  -v|--version {version} : version to use for the new base image, overriding the
+  -v|--version {version} : version to use for the new images, overriding the
         default.
+
+@NOTE By default, images from the \$Docker_builds variable are built 
+  (\${Docker_builds}=${Docker_builds:-"project"} )
 @NOTE this was forked off of the \"build\" command, as it has different flags for 
   implementation, that got confusing with mixing single and multiple builds.
 @NOTE because the -b flag takes a space separated list, be careful of how you pass
@@ -87,14 +87,19 @@ build_multiple_execute()
   _include_command "build"
 
   if [ "$action" == "destroy" ]; then    # test to see if the build exists
+    local image=""
     for build in $builds; do
+      image="${build}"
       debug --level 5 --topic "COMMAND" "build_multiple :: removing image ${image} (flags:${flags})"
       build_destroy --image ${image} ${flags}
     done
   else
     local path=""
+    local image=""
     for build in $builds; do
-      debug --level 5 --topic "COMMAND" "build_multiple :: building image ${image} (path:${path})(flags:${flags})"
+      path="${path_build}/${build}"
+      image="${build}"
+      debug --level 5 --topic "COMMAND" "build_multiple :: building image [image:${image}][path:${path}][flags:${flags}] => build_build --path \"${basepath}/${build}\" --image ${image} ${flags}"
       build_build --path "${basepath}/${build}" --image ${image} ${flags}
     done
   fi

@@ -162,27 +162,35 @@ _include_source()
 #
 # $1 : command name (without full path, but can be a subpath)
 #
+# @NOTE commands can only be included once
 
 # Remember included commands so we can prevent repeats
 included_commands=""
 _include_command()
 {
   local com=$1
+  shift
 
-  case "$included_commands" in 
-    *${com}*)
+  # check if already attempted (if not mark it as attempted)
+  case " $included_commands " in 
+    *" ${com} "*)
         debug --level 6 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}][included_commands:${included_commands}] command already included!"
         return 1
       ;;
   esac
+  included_commands="${included_commands} ${com}"
 
   local path="${path_commands}/${com}.sh"
 
   debug --level 7 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}] : Including command.  Handing off to _include_source ==> _include_source \"${path}\" $@ " 
   _include_source "${path}" $@
   local success=$?
-  included_commands="${included_commands} ${com}"
-  return ${sucess}
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "UTILITY->INCLUDE->COMMAND" "command included \"${com}\""
+  else
+    debug --level 2 --topic "UTILITY->INCLUDE->COMMAND" "command include failed for \"${com}\""
+  fi
+  return $sucess
 }
 
 ####

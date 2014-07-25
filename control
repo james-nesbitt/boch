@@ -197,7 +197,6 @@ fi
 # Process command : pass the rest of the arguments to the command #
 ###################################################################
 
-
 # We have a command file, so we hand the execution off to
 # that script to run inline (not as a function)
 if _include_command ${COMMAND}; then
