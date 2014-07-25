@@ -3,6 +3,7 @@
 # Utility functions
 #
 
+##
 # Handle debug messages
 #
 # -t|--topic {topic} : string grouping topic
@@ -72,6 +73,7 @@ debug()
   fi
 }
 
+###
 # Run hooks for a command
 #
 # Conceptually, the function arguments determine
@@ -111,7 +113,6 @@ hooks_execute()
     paths="${paths} ${path_parent}/${hook}"
   done
 
-
   # loop through all of the paths and execute any functions found.
   debug --level 7 --topic "UTILITY->HOOK" "hooks_execute [hook:${hook}] : executing any hooks in these paths: ${paths}"
   for path in ${paths}; do
@@ -128,11 +129,12 @@ hooks_execute()
   done
 }
 
-# File and folder functions
+###
+# source/include scripts
 #
-# Various operations in the system require a path or file
-# exist.  These two functions will create the path or
-# return an error if they can't
+# an abstract function to include as a source, a script
+# plus a few specific implementations that use the abstract
+# function
 #
 
 #
@@ -160,15 +162,36 @@ _include_source()
 #
 # $1 : command name (without full path, but can be a subpath)
 #
+
+# Remember included commands so we can prevent repeats
+included_commands=""
 _include_command()
 {
   local com=$1
+
+  case "$included_commands" in 
+    *${com}*)
+        debug --level 6 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}][included_commands:${included_commands}] command already included!"
+        return 1
+      ;;
+  esac
+
   local path="${path_commands}/${com}.sh"
 
-  debug --level 8 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}] : Including command.  Handing off to _include_source ==> _include_source \"${path}\" $@ " 
+  debug --level 7 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}] : Including command.  Handing off to _include_source ==> _include_source \"${path}\" $@ " 
   _include_source "${path}" $@
-  return $?
+  local success=$?
+  included_commands="${included_commands} ${com}"
+  return ${sucess}
 }
+
+####
+# File and folder functions
+#
+# Various operations in the system require a path or file
+# exist.  These two functions will create the path or
+# return an error if they can't
+#
 
 # Create an empty folder, if it doesn't already exist
 #

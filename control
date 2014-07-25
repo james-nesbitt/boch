@@ -130,8 +130,12 @@ hooks_execute settings --state post
 # General project name, should be file-safe
 Project_name="${Project_name:-${path_project##*/}}"
 
+# Docker build images 
+# Generally needed to start making containers (a space separated queue of builds)
+# and are the ddefault builds built with the build command.
+Docker_builds="${Docker_builds:-"wwwserver-cnpm wwwserver-cnpm-dev project"}"
 # The docker image, which will be used for containers, (and building)
-Docker_image="${Docker_image:-$Project_name}"
+Docker_image="${Docker_image:-${Docker_builds##* }}"
 # by default all containers will run from the base image, which is created by build, however maybe we want to use a different version for advanced features
 Docker_imageversion="${Docker_imageversion:-"latest"}" # Used for run/shell/commit
 # use a default container name, default to a combination of image and version
@@ -172,6 +176,7 @@ CONTROL: final control settings: [
   -->Project_name:${Project_name}
   >DOCKER CONFIGURATIONS
   -->Docker_container:${Docker_container}
+  -->Docker_builds:${Docker_builds}
   -->Docker_image:${Docker_image}
   -->Docker_imageversion:${Docker_imageversion}
   >MACHINE CONFIGURATIONS
