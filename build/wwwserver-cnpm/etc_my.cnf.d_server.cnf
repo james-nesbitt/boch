@@ -18,16 +18,16 @@
 
 # The following options will be passed to all MariaDB clients
 [client]
-#password	= your_password
 port		= 3306
-socket		= /var/lib/mysql/mysql.sock
+socket		= /var/run/mariadb/mariadb.sock
+#password	= your_password
 
 # Here follows entries for some specific programs
 
 # The MariaDB server
 [mysqld]
 port		= 3306
-socket		= /var/lib/mysql/mysql.sock
+socket		= /var/run/mariadb/mariadb.sock
 skip-external-locking
 key_buffer_size = 16M
 max_allowed_packet = 64M 

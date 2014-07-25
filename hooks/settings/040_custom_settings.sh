@@ -3,7 +3,7 @@
 # Configurable settings for the project
 #
 
-debug --level 4 --topic "HOOK" "settings (040) :: Importing custom settings from : ${path_settings}"
+debug --level 4 --topic "HOOK" "settings (040) :: Checking for custom settings file : ${path_settings}"
 
 # try the default custom settings paths for includes
 if [ -n ${path_settings} ]; then

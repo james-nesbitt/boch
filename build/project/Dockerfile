@@ -23,11 +23,9 @@ RUN     /bin/chmod go-rwx /home/developer/.ssh
 
 # ADD Drush aliases
 ADD     etc_drush /home/developer/.drush
-RUN     mkdir /home/developer/dumps
-RUN     /bin/chown -R developer:developer /home/developer/.drush && \
-        /bin/chown -R developer:developer /home/developer/dumps
+RUN     /bin/chown -R developer:developer /home/developer/.drush
 
-# ADD BM Specific tools
+# ADD Developr Specific tools, like scripts meant to be run inside the box (think build scripts)
 ADD     dev_bin /home/developer/bin
 RUN     /bin/chown -R developer:developer /home/developer/bin
 
