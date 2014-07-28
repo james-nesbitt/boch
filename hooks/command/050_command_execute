@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# HOOK: command : 050 Command execute
+#
+
+hook="hook_command_050"
+
+# Help function
+hook_command_050_help()
+{
+
+}
+
+# execute function
+hook_command_050_execute()
+{
+
+}

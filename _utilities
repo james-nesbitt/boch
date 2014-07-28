@@ -1,15 +1,16 @@
-#!bin/sh
+#!/bin/sh
 #
 # Utility functions
 #
 
-##
-# Handle debug messages
+#########################
+# Handle debug messages #
+#########################
 #
 # -t|--topic {topic} : string grouping topic
 # -l|--level [{level}] : optional specific verbosity level 1-10
 #       verbosity level (off the top of my head):
-#        1 : critical - Execution will stop
+#        1 : critical - EXECUTION WILL STOP
 #        2 : Serious error in abstraction
 #        3 : error (will print without debug turned on)
 #        4 : Important implementation notification/failure
@@ -18,12 +19,38 @@
 #        7 : superfluous info (running hooks)
 #        8 : Top detail, that is safe to echo
 #        9 : tiny detail, output may actually break the implementation!
-# 
+#
+
+# path to the log file
+path_log="${path_log:-"${path_data}/log"}"
 
 #set an execution threshold.  Anything -le will stop execution flow.
-_debug_critical_level=${_debug_critical_level:-1}
+debug_critical_level=${_debug_critical_level:-1}
+# DEBUG : output debugging text
+debug=${debug:-3}
+# DEBUG : Logging level
+log=${log:-0}
 
-# Make a new debug log
+# Set the debugging level
+debug_set_level()
+{
+  debug=${1}
+  debug --level 3 --topic "COMMAND" "Debug mode enabled/set (level:${debug})"
+}
+# set the debug logging value
+debug_set_log()
+{
+  log=${1}
+  debug --level 3 --topic "COMMAND" "Logging mode enabled/set (level:${log})"
+}
+# disable the "execution stop on critical" feature in debug()
+debug_disable_critical()
+{
+  debug_critical_level=${1:--1}
+  debug --level 3 --topic "COMMAND" "Forced mode enabled"
+}
+
+# Create a debug entry
 debug()
 {
 
@@ -51,7 +78,7 @@ debug()
     shift
   done
 
-  if [ ${level} -le ${_debug_critical_level} ]; then
+  if [ ${level} -le ${debug_critical_level} ]; then
     critical=1
   fi
 
@@ -73,6 +100,22 @@ debug()
   fi
 }
 
+# run some initial debug statements depending on debug state
+#
+# We do some testing on the debug state, purely so that we can
+# make some initial debugging output.  We do it here, as it is
+# the earliest that we can,
+#
+if [ $debug -gt 0 ]; then
+  debug_set_level $debug
+fi
+if [ $log -get 0 ]; then
+  debug_set_log $log
+fi
+if [ $debug_critical_level -lt 1 ]; then
+  debug_disable_critical
+fi
+
 ###
 # Run hooks for a command
 #
@@ -84,8 +127,11 @@ debug()
 # -s|--state {state} : state e.g. pre or post
 # $@ : passed to the hook functions
 #
-# @TODO move to use _include_source abstraction
-#
+
+# path to a folder that has shell scripts which execute hooks for commands
+# @NOTE this is a space delimited list of paths, executed in order
+path_hooks="${path_hooks:-"${path_manage}/hooks"}"
+
 hooks_execute()
 {
   # require the first argument to be the command
@@ -116,11 +162,14 @@ hooks_execute()
   # loop through all of the paths and execute any functions found.
   debug --level 7 --topic "UTILITY->HOOK" "hooks_execute [hook:${hook}] : executing any hooks in these paths: ${paths}"
   for path in ${paths}; do
-    if [ -d ${path} ]; then    
+    if [ -d ${path} ]; then
     	for hook in ${path}/*; do
         if [ -f ${hook} ]; then
-    	    debug --level 8 --topic "UTILITY->HOOK" "hooks_execute : Executing Hook script (source): ${hook} $@"
-      	  source ${hook} $@
+	  debug --level 8 --topic "UTILITY->HOOK" "hooks_execute : Executing Hook script (source): ${hook} $@"
+      	  _include_source ${hook} $@
+	  if [ $success != 0 ]; then
+	    debug --level 4 --topic "UTILITY->HOOK" "hooks_execute : Executing Hook script failed. Script returned an error [source:${hook}][flags:$@]"
+	  fi
         fi
     	done
     else
@@ -164,6 +213,9 @@ _include_source()
 #
 # @NOTE commands can only be included once
 
+# path to the command shell scripts
+path_commands="${path_commands:-"${path_manage}/commands"}"
+
 # Remember included commands so we can prevent repeats
 included_commands=""
 _include_command()
@@ -172,7 +224,7 @@ _include_command()
   shift
 
   # check if already attempted (if not mark it as attempted)
-  case " $included_commands " in 
+  case " $included_commands " in
     *" ${com} "*)
         debug --level 6 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}][included_commands:${included_commands}] command already included!"
         return 1
@@ -182,7 +234,7 @@ _include_command()
 
   local path="${path_commands}/${com}.sh"
 
-  debug --level 7 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}] : Including command.  Handing off to _include_source ==> _include_source \"${path}\" $@ " 
+  debug --level 7 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}] : Including command.  Handing off to _include_source ==> _include_source \"${path}\" $@ "
   _include_source "${path}" $@
   local success=$?
   if [ $success == 0 ]; then

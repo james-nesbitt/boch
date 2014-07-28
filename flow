@@ -1,0 +1,152 @@
+#!/bin/sh
+#
+# Workflow based docker container management
+#
+
+############################
+# Process config Arguments #
+############################
+# -v|--verbose {level} : output debugging info
+# -l|--log {level} : enable debug logging
+# -f|--force : ignore critical errors (don't halt)
+#
+# @TODO find a way past the described silliness
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -v|--verbose)
+      vflag=on
+      # if an integer level was passed, take it, otherwise default to 5
+      if [ -n "$2" ] && [ -z "${2##[0-9]}" ]; then
+        debug=${2}
+        shift
+      else
+        debug=5
+      fi
+      ;;
+    -l|--log)
+      # if an integer level was passed, take it, otherwise default to 8
+      if [ -n "$2" ] && [ -z "${2##[0-9]}" ]; then
+        log=${2}
+        shift
+      else
+        log=8
+      fi
+      ;;
+    -f|--force)
+      # lower the critical error level so that errors don't halt
+      _debug_critical_level=0
+      ;;
+    -*)
+        echo >&2 "usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [flow ...].  Try \"help\" for more instructions."
+        exit 1;;
+    *)
+        break;; # terminate while loop
+  esac
+  shift
+done
+
+#####################################################
+# Find out where we are, and connect to the _config #
+#####################################################
+
+# path to the root of this project
+path_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+# include _config, which will do the rest of the work.
+source "${path_script}/_config"
+
+##########################$######################
+# Determine what workflow is supposed to be run #
+###########################$#####################
+# the first non-hyphenated argument is the flow
+WORKFLOW=$1
+shift
+
+# Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
+if [ $debug -gt 3 ]; then
+  echo "
+WORKFLOW: final control settings: [
+  >WORKFLOW COMMAND TO BE EXECUTED
+  -->workflow:${WORKFLOW}
+  -->workflow Args:${@}
+]"
+fi
+
+###
+# include a workfow source
+#
+# $1 : workflow name (without full path, but can be a subpath)
+#
+# @NOTE workflows can only be included once
+
+
+# path to the workflow shell scripts
+path_flowss="${path_flows:-"${path_manage}/flows"}"
+
+# Remember included flows so we can prevent repeats
+included_flows=""
+_include_flow()
+{
+  local flow=$1
+  shift
+
+  # check if already attempted (if not mark it as attempted)
+  case " $included_flows " in
+    *" ${com} "*)
+        debug --level 6 --topic "UTILITY->INCLUDE->FLOW" "_include_flow [flow:${com}][included_flows:${included_flows}] flow already included!"
+        return 1
+      ;;
+  esac
+  included_flows="${included_flows} ${com}"
+
+  local path="${path_flows}/${com}.sh"
+
+  debug --level 7 --topic "UTILITY->INCLUDE->FLOW" "_include_flow [flow:${com}] : Including flow.  Handing off to _include_source ==> _include_source \"${path}\" $@ "
+  _include_source "${path}" $@
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "UTILITY->INCLUDE->FLOW" "flow included \"${com}\""
+  else
+    debug --level 2 --topic "UTILITY->INCLUDE->FLOW" "flow include failed for \"${com}\""
+  fi
+  return $sucess
+}
+
+####################################################################
+# Process workflow : pass the rest of the arguments to the flow #
+####################################################################
+
+# We have a flow file, so we hand the execution off to
+# that script to run inline (not as a function)
+if _include_flow ${WORKFLOW}; then
+
+  # execute any existing pre hooks
+  debug --level 7 --topic "WORKFLOW" "Running global:pre hooks => hooks_execute global --state \"pre\" --flow \"${WORKFLOW}\""
+  hooks_execute flow --state "pre" --flow ${WORKFLOW} $@
+
+  flow_function="${WORKFLOW}_execute"
+  debug --level 4 --topic "WORKFLOW" "flow [ ${WORKFLOW}] handing off to flow script : ${flow_function}"
+  eval ${flow_function} $@
+  success=$?
+  if [ $success == 0 ]; then
+    echo "$result"
+    debug --level 6 --topic "WORKFLOW" "${WORKFLOW} succeeded."
+
+    # execute any existing post hooks
+    debug --level 7 --topic "WORKFLOW" "Running global:post hooks => hooks_execute global --state \"post\" --flow \"${WORKFLOW}\""
+    hooks_execute flow --state "post" --flow ${WORKFLOW} $@
+  else
+    debug --level 2 --topic "WORKFLOW" "Command execution failed for flow ${WORKFLOW}."
+
+    # execute any existing post hooks
+    debug --level 7 --topic "WORKFLOW" "Running global:post hooks => hooks_execute global --state \"fail\" --flow \"${WORKFLOW}\""
+    hooks_execute flow --state "fail" --flow ${WORKFLOW} $@
+  fi
+  exit $sucess
+
+else
+  # no flow was found
+  debug --level 4 --topic "WORKFLOW" "${WORKFLOW}failed.  Unkown flow."
+  echo "CONTROL: Unknown flow \"${WORKFLOW}' - try using 'control help' for instructions."
+fi

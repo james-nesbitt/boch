@@ -1,4 +1,4 @@
-#!bin/sh
+#!/bin/sh
 #
 # COMMAND: Show help for, general or for a command
 #
@@ -42,7 +42,7 @@ help_execute()
       echo "  --> ${command:0:-3}"
     done
 
-    echo " 
+    echo "
     * Command specific help is available using \"help {command}\""
 
   else

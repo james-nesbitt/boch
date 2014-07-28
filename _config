@@ -1,0 +1,60 @@
+#!/bin/sh
+
+#######################################
+# some timing and debug related stuff #
+#######################################
+
+# Execution date & time (mainly used for logging)
+date="`date +%F/%H:%m.%S`"
+# Unique identifer of execution (random number)
+#executionid="`echo ${date} | md5sum`"
+executionid="${RANDOM}"
+
+##################
+# Common control #
+##################
+
+vflag=off
+# DEBUG : default debugging level (3 gives some minimal output)
+debug=${debug:-3}
+# DEBUG : Logging level (same as debug, but for the log file)
+log=${log:-0}
+
+#####################
+# Some reused paths #
+#####################
+#
+# Feel free to change any of these paths
+# but note that a lot of other paths may
+# de based on them
+#
+
+# path executed from
+path_execution="`pwd`"
+# path to this management system
+path_manage="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+# path to the root of this project, which we assume is one directory up
+path_project="$(dirname ${path_manage})"
+# path to user home folder (in case)
+path_userhome="${HOME}"
+# path to a folder where the system can keep some data
+path_data="${path_manage}/data"
+
+# Include utility functions
+source ${path_manage}/_utilities.sh
+# include docker functions - bash abstractions for docker operations
+source ${path_manage}/_docker.sh
+
+####################################
+# include docker setting overrides #
+####################################
+#
+# Most of the usefull settings are made
+# in settings hooks
+#
+
+# execute any existing settings hooks
+debug --level 7 --topic "CONFIG" "Running settings hooks => hooks_execute settings"
+hooks_execute settings --state pre
+hooks_execute settings
+hooks_execute settings --state post

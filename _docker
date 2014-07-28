@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # Docker Abstraction routines
 #
@@ -225,7 +226,7 @@ docker_run()
   # Run docker command
   if [ "${daemon}" == "" ]; then
     # run the docker command in the foreground (no hooks are run in this case)
-    debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"    
+    debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     docker run ${flags} ${image}:${version} ${command}
   else
     # run the docker command and capture the container ID
@@ -694,7 +695,7 @@ inspect_docker_image_list()
     debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} | grep -i \"${filter}\""
     echo "`docker images ${flags} | grep -i "${filter}"`"
   else
-    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_image_list [flags:${flags}] ==> docker images ${flags}"    
+    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_image_list [flags:${flags}] ==> docker images ${flags}"
     echo "`docker images ${flags}`"
   fi
 }
@@ -736,7 +737,7 @@ _docker_image_running()
 # -q|--id : return only the container ID
 #
 # @NOTE while this has multiple filter options, it only handles one at a time
-# @NOTE if not filters are passed, 
+# @NOTE if not filters are passed,
 #
 # @TODO allow retrieval of just specific fields from docker_ps
 # @TODO make this function handle multiple filters per execution.

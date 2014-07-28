@@ -3,7 +3,7 @@
 # Make sure that we have the folders and files that we need
 #
 
-debug --level 4 --topic "HOOK" "settings (015) :: Create required folders and files for operation"
+debug --level 4 --topic "HOOK" "settings/post (010) :: Create required folders and files for operation"
 
 #
 # This process is kind of manual, but has a bit of automation
@@ -15,25 +15,25 @@ debug --level 4 --topic "HOOK" "settings (015) :: Create required folders and fi
 #
 # Required Folders
 #
-required="${path_data}"
-for path in $required 
-do 
+required_folders="${required_folders} ${path_data}"
+for path in $required_folders
+do
   if ! _ensure_folder $path; then
-    debug --level 1 --topic "HOOK" "settings (015) :: Failed to create required folder: $path"
-  else 
-  	debug --level 8 --topic "HOOK" "settings (015) :: Created required folder: $path"
+    debug --level 1 --topic "HOOK" "settings/post (010) :: Failed to create required folder: $path"
+  else
+  	debug --level 8 --topic "HOOK" "settings/post (010) :: Created required folder: $path"
   fi
 done
 
 #
 # Required Files
 #
-required="${path_log}"
-for file in $required 
-do 
+required_files="${required_files} ${path_log}"
+for file in $required_files
+do
   if ! _ensure_file $file; then
-    debug --level 1 --topic "HOOK" "settings (015) :: Failed to create required file: $file"
+    debug --level 1 --topic "HOOK" "settings/post (010) :: Failed to create required file: $file"
   else
-  	debug --level 8 --topic "HOOK" "settings (015) :: Created required file: $file"
+  	debug --level 8 --topic "HOOK" "settings/post (010) :: Created required file: $file"
   fi
 done

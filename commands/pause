@@ -1,4 +1,4 @@
-#!bin/sh
+#!/bin/sh
 #
 # COMMAND: pause and un-pause a running container
 #
@@ -53,7 +53,7 @@ pause_execute()
     debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
     docker_unpause --container ${container}
     return $?
-  
+
   # pause the container
   else
     # Run the pause function

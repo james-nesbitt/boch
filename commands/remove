@@ -1,4 +1,4 @@
-#!bin/sh
+#!/bin/sh
 #
 # COMMAND: Remove a container
 #
@@ -10,7 +10,7 @@ remove_help()
 Delete the container
 
   -c|--container {container} : override the default container name with an ID or name of a running container
-  -k|--hook {hook} : pass a function name for a hook to be run 
+  -k|--hook {hook} : pass a function name for a hook to be run
 
 @TODO check for existing and running container
 @TODO ask for confirmation

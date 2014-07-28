@@ -1,17 +1,21 @@
 #!/bin/sh
 #
-# Configurable settings for the project
+# Some last chance variable sets, for things that should have default values
 #
-# @todo : move some of this to yaml?
 
-debug --level 4 --topic "HOOK" "settings (030) :: Importing default settings"
+###################################################
+# Overridable settings for docker and the machine #
+###################################################
+# these are here because they tend to depend on each
+# other, and you may want to override one of the top
+# items, and let the rest be based on it.
 
 # General project name, should be file-safe
 Project_name="${Project_name:-${path_project##*/}}"
 
 # Docker build images
 # Generally needed to start making containers (a space separated queue of builds)
-# and are the default builds built with the build command.
+# and are the ddefault builds built with the build command.
 Docker_builds="${Docker_builds:-"wwwserver-cnpm wwwserver-cnpm-dev project"}"
 # The docker image, which will be used for containers, (and building)
 Docker_image="${Docker_image:-${Docker_builds##* }}"
@@ -20,23 +24,13 @@ Docker_imageversion="${Docker_imageversion:-"latest"}" # Used for run/shell/comm
 # use a default container name, default to a combination of image and version
 Docker_container=${Docker_container:-${Docker_image}_${Docker_imageversion}}
 
-
-# hostname used inside the running container
-Machine_hostname="${Machine_hostname:-$Docker_container}"
-
-# Prefered shell/command for the Machine : bash is pretty safe, but we probably have zsh installed.  the custom settings defaults include zsh.
-Machine_shell=${Machine_shell:-"/bin/bash"}
-
 # Default running args
 Machine_runargs=${Machine_runargs:-""}
+# hostname used inside the running container
+Machine_hostname="${Machine_hostname:-$Docker_container}"
+# live mounts that are used for containers
+Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
+# Prefered shell/command for the Machine
+Machine_shell=${Machine_shell:-"/bin/bash"}
 # default run args for shell command
 Machine_shellrunargs=${Machine_shellrunargs:-"--publish-all=true"}
-
-# live mounts that are used for containers
-path_source="${path_project}/source"
-if ! _ensure_folder $path_source; then
-  debug --level 8 --topic "HOOK" "settings/post (030) :: Created required folder for project source code, adding it to the mount path list: $path_source"
-  Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_source}:/app/source"
-else
-  debug --level 3 --topic "HOOK" "settings/post (010) :: Failed to create required folder for project source code path: $path_source"
-fi

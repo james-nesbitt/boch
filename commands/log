@@ -1,4 +1,4 @@
-#!bin/sh
+#!/bin/sh
 #
 # COMMAND: Output control logs
 #

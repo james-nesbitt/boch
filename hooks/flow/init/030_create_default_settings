@@ -1,0 +1,85 @@
+#!/bin/sh
+#
+# INIT:HOOK: Create the custom settings file
+#
+
+# path to this management system
+path_customsettings="${path_customsettings:-"$path_project/settings.sh"}"
+
+# Allow skipping this
+ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
+
+if [ ${ignore_root_custom_settings_file} -gt 0 ]; then
+  if [ ! -f ${path_customsettings} ]; then
+
+  # @NOTE This loop is here, because path_customsettings is technically
+  # a space delimited list.  we will assume that the first item in the
+  # list is our special item that we can create during init.
+
+  for path in $path_customsettings; do
+
+debug --level 4 --topic "INIT:HOOK" "Creating missing default custom settings file [${path}]"
+echo "
+# Overrideable configuration variables
+
+# Project name.
+Project_name=\"${Project_name:-"project"}\"
+
+# Docker build images
+# Generally needed to start making containers (a space separated queue of builds)
+# and are the default builds built with the build command.
+# Change this if your build image has a different name, or if it has different
+# parent images that need building.
+#Docker_builds="${Docker_builds:-"wwwserver-cnpm wwwserver-cnpm-dev project"}"
+
+# Default docker image created in build, used in start/run/shell
+# The docker image, which will be used for containers, (and building)
+#Docker_image="${Docker_image:-"project"}"
+#Docker_imageversion=\"latest\"
+
+# Docker container ID, used for start/stop/run etc
+#Docker_container=\"project_server\"
+
+# OS hostname used inside the container (which would impact things like avahi)
+#Machine_hostname=\"\${Project_name}\"
+
+# Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
+Machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
+
+# Prefered shell configuration for the Machine
+# Running as a shell is a temporary approach to getting shell access to a machine
+# but should be considered secondary to other methods of running commands on the
+# container.  It is a good plan for now but will be dropped in the future.
+#
+# @NOTE Running a shell creates a new container, and does not give access to an existing container
+Machine_shell=\"/bin/zsh\"
+# arguments for docker run that should always be included when starting a shell: docker help run
+Machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
+
+# Build Mount list:
+#
+# These are run time mounts, where the host FS can be changed
+# directly changing the container FS.
+#
+# @TODO get away from having to include the -v flag here, by finding a better format for this
+#
+
+# Add our project source to the box
+# @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
+path_source=\"\${path_project}/source\"
+path_source_www=\"\${path_source}/www\"
+
+# Now that we have tested it, add the source folder to the mount
+# This is an example from what is already added == Machine_mountvolumes=\"\${Machine_mountvolumes} --volume=\${path_project}/source:/app/source\"
+
+# Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
+Machine_mountvolumes=\"\${Machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+
+" > $path
+
+      break
+
+    done
+
+  fi
+fi

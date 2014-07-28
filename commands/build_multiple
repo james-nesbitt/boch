@@ -1,4 +1,4 @@
-#!bin/sh
+#!/bin/sh
 #
 # COMMAND: Build multiple images
 #
@@ -8,7 +8,6 @@ build_multiple_help()
 {
   echo "
 Build or destroy multiple docker images.
-
 
   -b|--build {builds} : select a different build from the \${path_build} folder
         This can be a space separated, ordered list of builds in the folder,
@@ -23,9 +22,9 @@ Build or destroy multiple docker images.
   -v|--version {version} : version to use for the new images, overriding the
         default.
 
-@NOTE By default, images from the \$Docker_builds variable are built 
+@NOTE By default, images from the \$Docker_builds variable are built
   (\${Docker_builds}=${Docker_builds:-"project"} )
-@NOTE this was forked off of the \"build\" command, as it has different flags for 
+@NOTE this was forked off of the \"build\" command, as it has different flags for
   implementation, that got confusing with mixing single and multiple builds.
 @NOTE because the -b flag takes a space separated list, be careful of how you pass
   your parameters.  The -b flag assumes that any parameter starting with - is the

@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# HOOK : command:pre : 050 load command
+#
+
+hook="hook_command_pre_050"
+
+# help function
+hook_command_pre_050_help()
+{
+
+}
+
+# execute function
+hook_command_pre_050_execute()
+{
+  # We have a command file, so we hand the execution off to
+  # that script to run inline (not as a function)
+  if ! _include_command ${COMMAND}; then
+
+    # no command was found
+    debug --level 3 --topic "COMMAND" "${COMMAND} failed.  Unkown command."
+    echo "CONTROL: Unknown command \"${COMMAND}' - try using 'control help' for instructions."
+
+  fi
+}
