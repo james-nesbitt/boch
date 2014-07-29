@@ -4,24 +4,30 @@
 #
 
 hook_version="2"
-hook_root="hook_help_050"
+hook_root="hook_command_help_050"
 
 # description method
-hook_help_050_description()
+hook_command_help_050_description()
 {
   echo "hook->help: Main help handler"
 }
 
 # help method
-hook_help_050_help()
+hook_command_help_050_help()
 {
   echo "
 hook->help: Main help handler
 
+This hook is the primary COMMAND help executor.  It will
+write generic help to the screen, or it will load and
+write command specific, and command and hook specific
+help to the screen.
+
+To get generic help try running wihtout a command.
 "
 }
 # description method
-hook_help_050_execute()
+hook_command_help_050_execute()
 {
 
   # Command is the first argument
@@ -52,70 +58,96 @@ hook_help_050_execute()
     debug --level 6 --topic "HOOK>COMMAND->HELP" "command not found \"${COMMAND}\""
 
     if [ "${COMMAND}" != "" ]; then
-      hook_help_050_help_unknowncommand ${COMMAND} $@
+      hook_command_help_050_help_unknowncommand ${COMMAND} $@
     fi
 
-    hook_help_050_help_generalhelp $@
+    hook_command_help_050_help_generalhelp $@
   else
 
-    hook_help_050_help_commandhelp ${COMMAND} $@
+    hook_command_help_050_help_commandhelp ${COMMAND} $@
 
     if [ "$hook" == "" ]; then
 
       debug --level 6 --topic "HOOK>COMMAND->HELP" "no help hook specified.  List all hooks instead."
 
-      # pre hooks
-      local hooks="`hooks_list --state "pre" ${COMMAND}`"
-      if [ "$hooks" != "" ]; then
-        hook_help_050_help_hooklist ${COMMAND} "pre" "${hooks}"
-      fi
-      # hooks
-      local hooks="`hooks_list ${COMMAND}`"
-      if [ "$hooks" != "" ]; then
-        hook_help_050_help_hooklist ${COMMAND} "execute" "${hooks}"
-      fi
-      # pre hooks
-      local hooks="`hooks_list --state "post" ${COMMAND}`"
-      if [ "$hooks" != "" ]; then
-        hook_help_050_help_hooklist ${COMMAND} "post" "${hooks}"
-      fi
-      # pre hooks
-      local hooks="`hooks_list --state "help" ${COMMAND}`"
-      if [ "$hooks" != "" ]; then
-        hook_help_050_help_hooklist ${COMMAND} "help" "${hooks}"
-      fi
+      # do a list of all of the hooks
+      local label=""
+      local states="pre execute post help"
+      for state in $states; do
+        label="${state}"
+        if [ "$state" == "execute" ]; then
+          # execute is a placeholder for no state
+          state=""
+        else
+          state="--state ${state}"
+        fi
+        local hooks="`hooks_list "command/${COMMAND}" ${state}`"
+
+        if [ "$hooks" != "" ]; then
+          hook_command_help_050_help_hooklist ${COMMAND} "${label}" "${hooks}"
+        fi
+      done
 
     else
 
-    echo "LIST HOOK SPECIFIC HELP"
+      # do a list of all of the hooks
+      local label=""
+      local states="pre execute post help"
+      for state in $states; do
+        label="${state}"
+        if [ "$state" == "execute" ]; then
+          # execute is a placeholder for no state
+          state=""
+        else
+          state="--state ${state}"
+        fi
+        local hooks="`hooks_list "command/${COMMAND}" ${state}`"
+
+        if [ "$hooks" != "" ]; then
+          for thishook in ${hooks}; do
+            local hooklabel="`hook_label ${thishook}`"
+            if [ "${hook}" == "${hooklabel}" ]; then
+              if [ "${label}" == "help" ]; then
+                hook_command_help_050_help_hookhelpforbidden $hook $thishook
+              else
+                hook_command_help_050_help_hookhelp $hook $thishook
+              fi
+              exit
+            fi
+          done
+        fi
+      done
 
     fi
 
   fi
 }
 
-hook_help_050_help_generalhelp()
+# generic help message for the command help system
+# @TODO put some usefull material here
+hook_command_help_050_help_generalhelp()
 {
   echo "
 hook->command/help 050 : GENERIC HELP MESSAGE GOES HERE
 "
 }
-
-hook_help_050_help_unknowncommand()
+# output message if help is requested for an unknow command
+hook_command_help_050_help_unknowncommand()
 {
   echo "
 hook->command/help 050 : UNKNOWN COMMAND HELP MESSAGE GOES HERE [command:$1]
 "
 }
-hook_help_050_help_unknownhook()
+# output message if help was requested for an unkown hook
+hook_command_help_050_help_unknownhook()
 {
   echo "
 hook->command/help 050 : UNKNOWN COMMAND HOOK HELP MESSAGE GOES HERE [command:$1][hook:$2]
 "
 }
 
-
-hook_help_050_help_commandhelp()
+# output help for a specific command
+hook_command_help_050_help_commandhelp()
 {
   local COMMAND=$1
   shift
@@ -124,23 +156,52 @@ hook_help_050_help_commandhelp()
   debug --level 6 --topic "HOOK>COMMAND->HELP" "handing off help to command help hook [command:\"${COMMAND}\"][function:${help_function}"
   eval ${help_function} $@
 }
-
-hook_help_050_help_hooklist()
+# output a list (of hooks) for a state
+hook_command_help_050_help_hooklist()
 {
   debug --level 7 --topic "HOOK>COMMAND->HELP" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
 
-  echo "STATE: $2"
+  local flow="$1"
+  local state="$2"
+  local hooks="$3"
+
+  echo "
+ACTIVE HOOKS FOR STATE: ${state}
+=============================================="
   shift
 
-  for hook in $3; do
-    echo "--> ${hook}"
+  for hook in ${hooks}; do
+    local label="$(hook_label ${hook} $@)"
+    local description="$(hook_description ${hook} $@)"
+    echo "  -->${label} : ${description}"
   done
 }
-
-hook_help_050_help_hookhelp()
+# output the hook _help contents
+hook_command_help_050_help_hookhelp()
 {
+  local label=$1
+  local hook=$2
+  shift 2
+
   echo "
-hook->command/help 050 : UNKNOWN COMMAND HELP MESSAGE GOES HERE [command:$1]
+HOOK HELP FOR: $label
+=======================================================
 "
+  hook_help ${hook} $@
+}
+# in some cases it doesn't make sense to output hook help
+# such as when it is this hook
+hook_command_help_050_help_hookhelpforbidden()
+{
+  local label=$1
+  local hook=$2
+  shift 2
+
+  echo "
+HOOK HELP:
+==========
+can't give hook help for: $label.  This hook is a part of the above message.
+"
+
 }
 

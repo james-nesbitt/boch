@@ -3,16 +3,16 @@
 # HOOK: INIT:help : describe the flow command
 #
 
-hook_root="init_help_010"
+hook_root="hook_core_init_help_010"
 hook_version="2"
 
 # description hook method
-init_help_010_description()
+hook_core_init_help_010_description()
 {
   echo "Init: definition for help"
 }
 
-init_help_010_help()
+hook_core_init_help_010_help()
 {
   echo "
 FLOW: Init
@@ -23,7 +23,7 @@ Initialize the current project
 }
 
 # Execute method - as this is a help hook, it just outputs the help
-init_help_010_execute()
+hook_core_init_help_010_execute()
 {
-  init_help_010_help
+  hook_core_init_help_010_help
 }

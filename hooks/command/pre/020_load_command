@@ -1,30 +1,28 @@
 #!/bin/sh
 #
-# HOOK : command:pre : 050 load command
+# HOOK : command:pre : 020 load command
 #
 
 hook_version="2"
-hook_root="hook_command_pre_050"
-
-hook_test="THIS IS A TEST"
+hook_root="hook_command_pre_020"
 
 # description method
-hook_command_pre_050_description()
+hook_command_pre_020_description()
 {
-  echo "hook->command:pre 050 : Load the command script file"
+  echo "hook->command:pre 020 : Load the command script file"
 }
 
 # help function
-hook_command_pre_050_help()
+hook_command_pre_020_help()
 {
   echo "
-hook->command:pre 050 : Load the command script file
+hook->command:pre 020 : Load the command script file
 
 "
 }
 
 # execute function
-hook_command_pre_050_execute()
+hook_command_pre_020_execute()
 {
   # Command is the first argument
   COMMAND=$1
@@ -37,14 +35,14 @@ hook_command_pre_050_execute()
   if [ $success -gt 0 ]; then
 
     # no command was found
-    _hook_command_pre_050_notfound
-    debug --level 1 --topic "HOOK:COMMAND:PRE:050" "${COMMAND} failed.  Unkown command."
+    _hook_command_pre_020_notfound
+    debug --level 1 --topic "HOOK:COMMAND:PRE:020" "${COMMAND} failed to load.  Unkown command."
 
     return 1
   fi
 }
 
-_hook_command_pre_050_notfound()
+_hook_command_pre_020_notfound()
 {
 echo "
 Command not found: Unknown command \"${COMMAND}' - try using 'control help' for instructions.

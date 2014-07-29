@@ -19,8 +19,7 @@ echo "
 hook->command 050 : execute the command hook_execute method
 
 Run the command include hook_execute method, which is the target function
-that impements the functionality.
-If the function fails, then run the fail hooks.
+that impements the functionality.  If the function fails, then run the fail hooks.
 "
 }
 

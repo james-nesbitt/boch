@@ -4,16 +4,16 @@
 #
 
 hook_version="2"
-hook_root="hook_help_050"
+hook_root="hook_flow_help_050"
 
 # description method
-hook_help_050_description()
+hook_flow_help_050_description()
 {
   echo "hook->help: Main help handler"
 }
 
 # help method
-hook_help_050_help()
+hook_flow_help_050_help()
 {
   echo "
 hook->help: Main help handler
@@ -21,7 +21,7 @@ hook->help: Main help handler
 "
 }
 # description method
-hook_help_050_execute()
+hook_flow_help_050_execute()
 {
 
   # Command is the first argument
@@ -47,11 +47,11 @@ hook_help_050_execute()
   if [ "${FLOW}" == "" ]; then
 
     debug --level 6 --topic "HOOK>FLOW->HELP" "command not found \"${FLOW}\""
-    hook_help_050_help_generalhelp $@
+    hook_flow_help_050_help_generalhelp $@
 
   else
 
-    hook_help_050_help_flowhelp ${FLOW} $@
+    hook_flow_help_050_help_flowhelp ${FLOW} $@
 
     if [ "$hook" == "" ]; then
 
@@ -71,7 +71,7 @@ hook_help_050_execute()
         local hooks="`hooks_list "flow/${FLOW}" ${state}`"
 
         if [ "$hooks" != "" ]; then
-          hook_help_050_help_hooklist ${FLOW} "${label}" "${hooks}"
+          hook_flow_help_050_help_hooklist ${FLOW} "${label}" "${hooks}"
         fi
       done
 
@@ -95,9 +95,9 @@ hook_help_050_execute()
             local hooklabel="`hook_label ${thishook}`"
             if [ "${hook}" == "${hooklabel}" ]; then
               if [ "${label}" == "help" ]; then
-                hook_help_050_help_hookhelpforbidden $hook $thishook
+                hook_flow_help_050_help_hookhelpforbidden $hook $thishook
               else
-                hook_help_050_help_hookhelp $hook $thishook
+                hook_flow_help_050_help_hookhelp $hook $thishook
               fi
               exit
             fi
@@ -110,20 +110,20 @@ hook_help_050_execute()
   fi
 }
 
-hook_help_050_help_generalhelp()
+hook_flow_help_050_help_generalhelp()
 {
   echo "
 hook->flow/help 050 : GENERIC HELP MESSAGE GOES HERE
 "
 }
 
-hook_help_050_help_unknowncommand()
+hook_flow_help_050_help_unknowncommand()
 {
   echo "
 hook->flow/help 050 : UNKNOWN FLOW HELP MESSAGE GOES HERE [command:$1]
 "
 }
-hook_help_050_help_unknownhook()
+hook_flow_help_050_help_unknownhook()
 {
   echo "
 hook->flow/help 050 : UNKNOWN FLOW HOOK HELP MESSAGE GOES HERE [command:$1][hook:$2]
@@ -131,7 +131,7 @@ hook->flow/help 050 : UNKNOWN FLOW HOOK HELP MESSAGE GOES HERE [command:$1][hook
 }
 
 
-hook_help_050_help_flowhelp()
+hook_flow_help_050_help_flowhelp()
 {
   local FLOW=$1
   shift
@@ -141,7 +141,7 @@ hook_help_050_help_flowhelp()
 
 }
 
-hook_help_050_help_hooklist()
+hook_flow_help_050_help_hooklist()
 {
   debug --level 7 --topic "HOOK>FLOW->HELP" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
 
@@ -157,24 +157,24 @@ ACTIVE HOOKS FOR STATE: ${state}
   for hook in ${hooks}; do
     local label="$(hook_label ${hook} $@)"
     local description="$(hook_description ${hook} $@)"
-    echo "-->${label} : ${description}"
+    echo "  -->${label} : ${description}"
   done
 }
 
-hook_help_050_help_hookhelp()
+hook_flow_help_050_help_hookhelp()
 {
   local label=$1
   local hook=$2
   shift 2
 
   echo "
-HOOK HELP FOR HOOK: $label
+HOOK HELP FOR: $label
 =======================================================
 "
   hook_help ${hook} $@
 }
 
-hook_help_050_help_hookhelpforbidden()
+hook_flow_help_050_help_hookhelpforbidden()
 {
   local label=$1
   local hook=$2

@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# Run the command specific
+#
+
+hook_version=2
+hook_root="hook_command_post_specific_050"
+
+# description method
+hook_command_post_specific_050_description()
+{
+  echo "HOOK->Command:post:specific: Run any command specific POST hooks"
+}
+
+# help method
+hook_command_post_specific_050_help()
+{
+  echo "
+HOOK->Command:post:specific: Run any command specific POST hooks
+
+"
+}
+
+# execute method
+hook_command_post_specific_050_execute()
+{
+
+  local COMMAND=$1
+  shift
+
+  # Run all POST hooks for the custom command
+  execute_hooks "command/${command}" --state "post" $@
+  local success=$?
+  if [ $success -gt 0 ]; then
+    debug --level 8 --topic "HOOK:COMMAND:${COMMAND}:POST" "Command specific POST hooks run successfully"
+  else
+    debug --level 6 --topic "HOOK:COMMAND:${COMMAND}:POST" "Command specific POST hooks failed to run"
+  fi
+  return $success
+}
