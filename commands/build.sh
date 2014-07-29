@@ -35,7 +35,7 @@ can easily be built by passing the individual folder names to this command.
 }
 
 # command execute function
-build_execute
+build_execute()
 {
   # default build settings
   local path="${path_build}/${default_build:-"${Docker_image:-"project"}"}"
