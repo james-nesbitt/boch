@@ -27,7 +27,7 @@ hook_settings_040_execute()
 {
 
   # path to this management system
-  path_customsettings="$path_project/settings.sh"
+  path_customsettings="$path_data/settings.sh"
 
   # Allow skipping this custom file stuff
   ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}

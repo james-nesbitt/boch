@@ -25,7 +25,7 @@ hook->init 030 : Create the default customs settings.sh, if it is missing
 hook_init_030_execute()
 {
   # path to this management system
-  path_customsettings="${path_customsettings:-"$path_project/settings.sh"}"
+  path_customsettings="${path_customsettings:-"$path_data/settings.sh"}"
 
   # Allow skipping this
   ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
@@ -42,6 +42,15 @@ hook_init_030_execute()
   debug --level 4 --topic "INIT:HOOK" "Creating missing default custom settings file [${path}]"
   echo "
 # Overrideable configuration variables
+
+####
+# Important paths for the source code
+#
+
+# =path to custom settings and data=
+# various settings about custom configurations and
+#
+#path_data="\${path_manage}/data"
 
 # Project name.
 Project_name=\"${Project_name:-"project"}\"
