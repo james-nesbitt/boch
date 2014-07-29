@@ -29,16 +29,16 @@ can easily be built by passing the individual folder names to this command.
 
 @NOTE by default, the only image build will be the single project specific
   image (${path_build}/${default_build:-"project"})
-@NOTE the latest docker_build function uses \"latest\" as the default 
+@NOTE the latest docker_build function uses \"latest\" as the default
   image version.
 "
 }
 
 # command execute function
-build_execute()
+build_execute
 {
   # default build settings
-  local path="${path_build}/${default_build:-"project"}"
+  local path="${path_build}/${default_build:-"${Docker_image:-"project"}"}"
   local image="${Docker_image}"
   local version="${Docker_imageversion}"
 
@@ -87,7 +87,7 @@ build_execute()
     build_destroy ${flags}
     return $?
   else
-    build_build ${flags} --path \"${path}\"
+    build_build ${flags} --path "${path}"
     return $?
   fi
 }
