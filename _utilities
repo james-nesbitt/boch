@@ -106,77 +106,15 @@ debug()
 # make some initial debugging output.  We do it here, as it is
 # the earliest that we can,
 #
-if [ $debug -gt 0 ]; then
+if [ $debug -gt 3 ]; then
   debug_set_level $debug
 fi
-if [ $log -get 0 ]; then
+if [ $log -gt 0 ]; then
   debug_set_log $log
 fi
 if [ $debug_critical_level -lt 1 ]; then
   debug_disable_critical
 fi
-
-###
-# Run hooks for a command
-#
-# Conceptually, the function arguments determine
-# a number of paths, and all function in those
-# paths are executed
-#
-# $1 : command
-# -s|--state {state} : state e.g. pre or post
-# $@ : passed to the hook functions
-#
-
-# path to a folder that has shell scripts which execute hooks for commands
-# @NOTE this is a space delimited list of paths, executed in order
-path_hooks="${path_hooks:-"${path_manage}/hooks"}"
-
-hooks_execute()
-{
-  # require the first argument to be the command
-  local hook=$1
-  shift
-
-  # base hooks path
-  local paths=""
-
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -s|--state)
-        hook="${hook}/${2}"
-        shift
-        ;;
-      *)
-          break;; # terminate while loop
-    esac
-    shift
-  done
-
-  # build paths from hooks path parent, and hook
-  for path_parent in ${path_hooks}; do
-    paths="${paths} ${path_parent}/${hook}"
-  done
-
-  # loop through all of the paths and execute any functions found.
-  debug --level 7 --topic "UTILITY->HOOK" "hooks_execute [hook:${hook}] : executing any hooks in these paths: ${paths}"
-  for path in ${paths}; do
-    if [ -d ${path} ]; then
-    	for hook in ${path}/*; do
-        if [ -f ${hook} ]; then
-	  debug --level 8 --topic "UTILITY->HOOK" "hooks_execute : Executing Hook script (source): ${hook} $@"
-      	  _include_source ${hook} $@
-	  if [ $success != 0 ]; then
-	    debug --level 4 --topic "UTILITY->HOOK" "hooks_execute : Executing Hook script failed. Script returned an error [source:${hook}][flags:$@]"
-	  fi
-        fi
-    	done
-    else
-      debug --level 8 --topic "UTILITY->HOOK" "hooks_execute : Hook path doesn't exist: ${path} $@"
-    fi
-  done
-}
 
 ###
 # source/include scripts
@@ -198,51 +136,13 @@ _include_source()
   shift
 
   if [ -f ${target} ]; then
-    debug --level 9 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Including source item"
+    debug --level 8 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Including source item"
     source ${target} $@
     return $?
   else
     debug --level 4 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Could not include source item.  Item was not found, or is not a file"
     return 1
   fi
-}
-
-# include a command source
-#
-# $1 : command name (without full path, but can be a subpath)
-#
-# @NOTE commands can only be included once
-
-# path to the command shell scripts
-path_commands="${path_commands:-"${path_manage}/commands"}"
-
-# Remember included commands so we can prevent repeats
-included_commands=""
-_include_command()
-{
-  local com=$1
-  shift
-
-  # check if already attempted (if not mark it as attempted)
-  case " $included_commands " in
-    *" ${com} "*)
-        debug --level 6 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}][included_commands:${included_commands}] command already included!"
-        return 1
-      ;;
-  esac
-  included_commands="${included_commands} ${com}"
-
-  local path="${path_commands}/${com}.sh"
-
-  debug --level 7 --topic "UTILITY->INCLUDE->COMMAND" "_include_command [command:${com}] : Including command.  Handing off to _include_source ==> _include_source \"${path}\" $@ "
-  _include_source "${path}" $@
-  local success=$?
-  if [ $success == 0 ]; then
-    debug --level 6 --topic "UTILITY->INCLUDE->COMMAND" "command included \"${com}\""
-  else
-    debug --level 2 --topic "UTILITY->INCLUDE->COMMAND" "command include failed for \"${com}\""
-  fi
-  return $sucess
 }
 
 ####
@@ -265,7 +165,7 @@ _ensure_folder()
 
   if [ -e $path ]; then
     if [ -f $path ]; then
-      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}.  Already exists but not as a directory."
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}.  Already exists but not as a directory."
     else
       return 0
     fi
@@ -274,7 +174,7 @@ _ensure_folder()
     mkdir -p $path
     local success=$?
     if [ $success -gt 0 ]; then
-      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}"
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}"
     fi
     return $success
   fi
@@ -292,7 +192,7 @@ _ensure_file()
 
   if [ -e $path ]; then
     if [ -d $path ]; then
-      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}.  Already exists but as a directory."
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}.  Already exists but as a directory."
     else
       return 0
     fi
@@ -301,7 +201,7 @@ _ensure_file()
     touch $path
     local success=$?
     if [ $success -gt 0 ]; then
-      debug --level 4 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}"
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}"
     fi
     return $success
   fi

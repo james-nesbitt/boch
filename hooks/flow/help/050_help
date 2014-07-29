@@ -1,0 +1,189 @@
+#!/bin/sh
+#
+# hook:help Main help handler
+#
+
+hook_version="2"
+hook_root="hook_help_050"
+
+# description method
+hook_help_050_description()
+{
+  echo "hook->help: Main help handler"
+}
+
+# help method
+hook_help_050_help()
+{
+  echo "
+hook->help: Main help handler
+
+"
+}
+# description method
+hook_help_050_execute()
+{
+
+  # Command is the first argument
+  FLOW=$1
+  shift
+
+  local hook=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -h|--hook)
+        hook=$2
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  debug --level 6 --topic "HOOK>FLOW->HELP" "showing help for flow \"${FLOW}\""
+
+  if [ "${FLOW}" == "" ]; then
+
+    debug --level 6 --topic "HOOK>FLOW->HELP" "command not found \"${FLOW}\""
+    hook_help_050_help_generalhelp $@
+
+  else
+
+    hook_help_050_help_flowhelp ${FLOW} $@
+
+    if [ "$hook" == "" ]; then
+
+      debug --level 6 --topic "HOOK>FLOW->HELP" "no help hook specified.  List all hooks instead."
+
+      # do a list of all of the hooks
+      local label=""
+      local states="pre execute post help"
+      for state in $states; do
+        label="${state}"
+        if [ "$state" == "execute" ]; then
+          # execute is a placeholder for no state
+          state=""
+        else
+          state="--state ${state}"
+        fi
+        local hooks="`hooks_list "flow/${FLOW}" ${state}`"
+
+        if [ "$hooks" != "" ]; then
+          hook_help_050_help_hooklist ${FLOW} "${label}" "${hooks}"
+        fi
+      done
+
+    else
+
+      # do a list of all of the hooks
+      local label=""
+      local states="pre execute post help"
+      for state in $states; do
+        label="${state}"
+        if [ "$state" == "execute" ]; then
+          # execute is a placeholder for no state
+          state=""
+        else
+          state="--state ${state}"
+        fi
+        local hooks="`hooks_list "flow/${FLOW}" ${state}`"
+
+        if [ "$hooks" != "" ]; then
+          for thishook in ${hooks}; do
+            local hooklabel="`hook_label ${thishook}`"
+            if [ "${hook}" == "${hooklabel}" ]; then
+              if [ "${label}" == "help" ]; then
+                hook_help_050_help_hookhelpforbidden $hook $thishook
+              else
+                hook_help_050_help_hookhelp $hook $thishook
+              fi
+              exit
+            fi
+          done
+        fi
+      done
+
+    fi
+
+  fi
+}
+
+hook_help_050_help_generalhelp()
+{
+  echo "
+hook->flow/help 050 : GENERIC HELP MESSAGE GOES HERE
+"
+}
+
+hook_help_050_help_unknowncommand()
+{
+  echo "
+hook->flow/help 050 : UNKNOWN FLOW HELP MESSAGE GOES HERE [command:$1]
+"
+}
+hook_help_050_help_unknownhook()
+{
+  echo "
+hook->flow/help 050 : UNKNOWN FLOW HOOK HELP MESSAGE GOES HERE [command:$1][hook:$2]
+"
+}
+
+
+hook_help_050_help_flowhelp()
+{
+  local FLOW=$1
+  shift
+
+  debug --level 6 --topic "HOOK>FLOW->HELP" "handing off help to help hook for flow [flow:\"${FLOW}\"]"
+  hooks_execute "flow/${FLOW}" --state "help" $@
+
+}
+
+hook_help_050_help_hooklist()
+{
+  debug --level 7 --topic "HOOK>FLOW->HELP" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
+
+  local flow="$1"
+  local state="$2"
+  local hooks="$3"
+
+  echo "
+ACTIVE HOOKS FOR STATE: ${state}
+=============================================="
+  shift
+
+  for hook in ${hooks}; do
+    local label="$(hook_label ${hook} $@)"
+    local description="$(hook_description ${hook} $@)"
+    echo "-->${label} : ${description}"
+  done
+}
+
+hook_help_050_help_hookhelp()
+{
+  local label=$1
+  local hook=$2
+  shift 2
+
+  echo "
+HOOK HELP FOR HOOK: $label
+=======================================================
+"
+  hook_help ${hook} $@
+}
+
+hook_help_050_help_hookhelpforbidden()
+{
+  local label=$1
+  local hook=$2
+  shift 2
+
+  echo "
+HOOK HELP:
+==========
+can't give hook help for: $label.  This hook is a part of the above message.
+"
+
+}

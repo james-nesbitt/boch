@@ -39,7 +39,9 @@ help_execute()
 
     for command in ${path_commands}/*; do
       command="`basename $command`"
-      echo "  --> ${command:0:-3}"
+      if [ "${command}" != "README.md" ]; then
+        echo "  --> ${command}"
+      fi
     done
 
     echo "
@@ -49,13 +51,13 @@ help_execute()
 
     debug --level 5 --topic "COMMAND" "help : Print help for \"$1\" [path:${path}][function:${function}] ==>"
 
-    path="${path_commands}/$1.sh"
+    path="${path_commands}/$1"
     function="$1_help"
     if [ -f $path ]; then
       source $path
       eval $function
     else
-      echo "Command not found, could not show help.  try again with \"help-v $1\""
+      echo "Command not found, could not show help.  try again with \"help -v $1\""
     fi
 
   fi

@@ -41,9 +41,13 @@ path_userhome="${HOME}"
 path_data="${path_manage}/data"
 
 # Include utility functions
-source ${path_manage}/_utilities.sh
+source ${path_manage}/_utilities
+# include utility functions for running hooks
+source ${path_manage}/_hook
+# include command related functions
+source ${path_manage}/_command
 # include docker functions - bash abstractions for docker operations
-source ${path_manage}/_docker.sh
+source ${path_manage}/_docker
 
 ####################################
 # include docker setting overrides #
@@ -55,6 +59,6 @@ source ${path_manage}/_docker.sh
 
 # execute any existing settings hooks
 debug --level 7 --topic "CONFIG" "Running settings hooks => hooks_execute settings"
-hooks_execute settings --state pre
+hooks_execute settings --state "pre" $@
 hooks_execute settings
-hooks_execute settings --state post
+hooks_execute settings --state "post" $@

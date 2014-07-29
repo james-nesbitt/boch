@@ -3,24 +3,50 @@
 # HOOK : command:pre : 050 load command
 #
 
-hook="hook_command_pre_050"
+hook_version="2"
+hook_root="hook_command_pre_050"
+
+hook_test="THIS IS A TEST"
+
+# description method
+hook_command_pre_050_description()
+{
+  echo "hook->command:pre 050 : Load the command script file"
+}
 
 # help function
 hook_command_pre_050_help()
 {
+  echo "
+hook->command:pre 050 : Load the command script file
 
+"
 }
 
 # execute function
 hook_command_pre_050_execute()
 {
+  # Command is the first argument
+  COMMAND=$1
+
   # We have a command file, so we hand the execution off to
   # that script to run inline (not as a function)
-  if ! _include_command ${COMMAND}; then
+  _include_command ${COMMAND}
+  local success=$?
+
+  if [ $success -gt 0 ]; then
 
     # no command was found
-    debug --level 3 --topic "COMMAND" "${COMMAND} failed.  Unkown command."
-    echo "CONTROL: Unknown command \"${COMMAND}' - try using 'control help' for instructions."
+    _hook_command_pre_050_notfound
+    debug --level 1 --topic "HOOK:COMMAND:PRE:050" "${COMMAND} failed.  Unkown command."
 
+    return 1
   fi
+}
+
+_hook_command_pre_050_notfound()
+{
+echo "
+Command not found: Unknown command \"${COMMAND}' - try using 'control help' for instructions.
+"
 }

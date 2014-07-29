@@ -6,15 +6,22 @@
 ############################
 # Process config Arguments #
 ############################
+# -h|--help : get help instead of running the command
 # -v|--verbose {level} : output debugging info
 # -l|--log {level} : enable debug logging
 # -f|--force : ignore critical errors (don't halt)
 #
 # @TODO find a way past the described silliness
 
+# turn this to >0 if you want to get help instead of running a command
+help=0
+
 while [ $# -gt 0 ]
 do
   case "$1" in
+    -h|--help)
+      help=1
+      ;;
     -v|--verbose)
       vflag=on
       # if an integer level was passed, take it, otherwise default to 5
@@ -63,62 +70,53 @@ source "${path_script}/_config"
 COMMAND=$1
 shift
 
-# Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
+
+  # Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
 if [ $debug -gt 3 ]; then
-  echo "
+  if [ $help -gt 0 ]; then
+    echo "
+COMMAND: final control settings: [
+  >HELP MODE ENABLED
+  >COMMAND TO BE HELPED WITH
+  -->Command:${COMMAND}
+  -->Command Args:${@}
+]"
+  else
+    echo "
 COMMAND: final control settings: [
   >COMMAND TO BE EXECUTED
   -->Command:${COMMAND}
   -->Command Args:${@}
 ]"
+  fi
 fi
 
 ###################################################################
 # Process command : pass the rest of the arguments to the command #
 ###################################################################
 
-# execute any existing pre hooks
-debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute global --state \"pre\" --command \"${COMMAND}\""
-hooks_execute command --state "pre" --command "${COMMAND} $@"
-
-# execute any existing pre hooks
-debug --level 7 --topic "COMMAND" "Running global:hooks => hooks_execute global --command \"${COMMAND}\""
-hooks_execute command --command "${COMMAND} $@"
-
-# execute any existing pre hooks
-debug --level 7 --topic "COMMAND" "Running global:post hooks => hooks_execute global --state \"post\" --command \"${COMMAND}\""
-hooks_execute command --state "post" --command "${COMMAND} $@"
-
-# We have a command file, so we hand the execution off to
-# that script to run inline (not as a function)
-if _include_command ${COMMAND}; then
+if [ $help -gt 0 ]; then
 
   # execute any existing pre hooks
-  debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute global --state \"pre\" --command \"${COMMAND}\""
-  hooks_execute command --state "pre" --command "${COMMAND} $@"
-
-  command_function="${COMMAND}_execute"
-  debug --level 4 --topic "COMMAND" "command [ ${COMMAND} ] handing off to command script : ${command_function}"
-  eval ${command_function} $@
+  debug --level 7 --topic "COMMAND" "Running global:hooks => hooks_execute command --state \"help\" \"${COMMAND}\""
+  hooks_execute command --state "help" "${COMMAND} $@"
   success=$?
-  if [ $success == 0 ]; then
-    echo "$result"
-    debug --level 6 --topic "COMMAND" "${COMMAND} succeeded."
-
-    # execute any existing post hooks
-    debug --level 7 --topic "COMMAND" "Running global:post hooks => hooks_execute global --state \"post\" --command \"${COMMAND}\""
-    hooks_execute command --state "post" --command "${COMMAND} $@"
-  else
-    debug --level 2 --topic "COMMAND" "Command execution failed for command ${COMMAND}."
-
-    # execute any existing post hooks
-    debug --level 7 --topic "COMMAND" "Running global:post hooks => hooks_execute global --state \"fail\" --command \"${COMMAND}\""
-    hooks_execute command --state "fail" --command "${COMMAND} $@"
-  fi
-  exit $sucess
 
 else
-  # no command was found
-  debug --level 4 --topic "COMMAND" "${COMMAND} failed.  Unkown command."
-  echo "CONTROL: Unknown command \"${COMMAND}' - try using 'control help' for instructions."
+
+  # execute any existing pre hooks
+  debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute command --state \"pre\" \"${COMMAND}\""
+  hooks_execute command --state "pre" "${COMMAND} $@"
+
+  # execute any existing pre hooks
+  debug --level 7 --topic "COMMAND" "Running global:hooks => hooks_execute command \"${COMMAND}\""
+  hooks_execute command "${COMMAND} $@"
+  success=$?
+
+  if [ $success == 0 ]; then
+    # execute any existing post hooks
+    debug --level 7 --topic "COMMAND" "Running global:post hooks => hooks_execute command --state \"post\" \"${COMMAND}\""
+    hooks_execute command --state "post" "${COMMAND} $@"
+  fi
+
 fi

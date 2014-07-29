@@ -1,0 +1,146 @@
+#!/bin/sh
+#
+# hook:help Main help handler
+#
+
+hook_version="2"
+hook_root="hook_help_050"
+
+# description method
+hook_help_050_description()
+{
+  echo "hook->help: Main help handler"
+}
+
+# help method
+hook_help_050_help()
+{
+  echo "
+hook->help: Main help handler
+
+"
+}
+# description method
+hook_help_050_execute()
+{
+
+  # Command is the first argument
+  COMMAND=$1
+  shift
+
+  local hook=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -h|--hook)
+        hook=$2
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  debug --level 6 --topic "HOOK>COMMAND->HELP" "including command \"${COMMAND}\""
+
+  _include_command ${COMMAND}
+  success=$?
+
+  if [ $success -gt 0 ]; then
+
+    debug --level 6 --topic "HOOK>COMMAND->HELP" "command not found \"${COMMAND}\""
+
+    if [ "${COMMAND}" != "" ]; then
+      hook_help_050_help_unknowncommand ${COMMAND} $@
+    fi
+
+    hook_help_050_help_generalhelp $@
+  else
+
+    hook_help_050_help_commandhelp ${COMMAND} $@
+
+    if [ "$hook" == "" ]; then
+
+      debug --level 6 --topic "HOOK>COMMAND->HELP" "no help hook specified.  List all hooks instead."
+
+      # pre hooks
+      local hooks="`hooks_list --state "pre" ${COMMAND}`"
+      if [ "$hooks" != "" ]; then
+        hook_help_050_help_hooklist ${COMMAND} "pre" "${hooks}"
+      fi
+      # hooks
+      local hooks="`hooks_list ${COMMAND}`"
+      if [ "$hooks" != "" ]; then
+        hook_help_050_help_hooklist ${COMMAND} "execute" "${hooks}"
+      fi
+      # pre hooks
+      local hooks="`hooks_list --state "post" ${COMMAND}`"
+      if [ "$hooks" != "" ]; then
+        hook_help_050_help_hooklist ${COMMAND} "post" "${hooks}"
+      fi
+      # pre hooks
+      local hooks="`hooks_list --state "help" ${COMMAND}`"
+      if [ "$hooks" != "" ]; then
+        hook_help_050_help_hooklist ${COMMAND} "help" "${hooks}"
+      fi
+
+    else
+
+    echo "LIST HOOK SPECIFIC HELP"
+
+    fi
+
+  fi
+}
+
+hook_help_050_help_generalhelp()
+{
+  echo "
+hook->command/help 050 : GENERIC HELP MESSAGE GOES HERE
+"
+}
+
+hook_help_050_help_unknowncommand()
+{
+  echo "
+hook->command/help 050 : UNKNOWN COMMAND HELP MESSAGE GOES HERE [command:$1]
+"
+}
+hook_help_050_help_unknownhook()
+{
+  echo "
+hook->command/help 050 : UNKNOWN COMMAND HOOK HELP MESSAGE GOES HERE [command:$1][hook:$2]
+"
+}
+
+
+hook_help_050_help_commandhelp()
+{
+  local COMMAND=$1
+  shift
+
+  local help_function="${COMMAND}_help"
+  debug --level 6 --topic "HOOK>COMMAND->HELP" "handing off help to command help hook [command:\"${COMMAND}\"][function:${help_function}"
+  eval ${help_function} $@
+}
+
+hook_help_050_help_hooklist()
+{
+  debug --level 7 --topic "HOOK>COMMAND->HELP" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
+
+  echo "STATE: $2"
+  shift
+
+  for hook in $3; do
+    echo "--> ${hook}"
+  done
+}
+
+hook_help_050_help_hookhelp()
+{
+  echo "
+hook->command/help 050 : UNKNOWN COMMAND HELP MESSAGE GOES HERE [command:$1]
+"
+}
+
