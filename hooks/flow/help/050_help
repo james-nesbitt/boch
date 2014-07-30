@@ -43,11 +43,11 @@ hook_flow_help_050_execute()
   FLOW=$1
   shift
 
-  debug --level 6 --topic "HOOK>FLOW->HELP" "showing help for flow \"${FLOW}\""
+  debug --level 6 --topic "HOOK>FLOW->HELP->050" "showing help for flow \"${FLOW}\""
 
   if [ "${FLOW}" == "" ]; then
 
-    debug --level 6 --topic "HOOK>FLOW->HELP" "command not found \"${FLOW}\""
+    debug --level 6 --topic "HOOK>FLOW->HELP->050" "command not found \"${FLOW}\""
     hook_flow_help_050_help_generalhelp $@
 
   else
@@ -99,7 +99,7 @@ hook_flow_help_050_execute()
       ;;
       *)
 
-	debug --level 6 --topic "HOOK>FLOW->HELP" "no help hook specified.  List all hooks instead."
+	debug --level 6 --topic "HOOK>FLOW->HELP->050" "no help hook specified.  List all hooks instead."
 
 	# do a list of all of the hooks
 	local label=""
@@ -151,14 +151,14 @@ hook_flow_help_050_help_flowhelp()
   local FLOW=$1
   shift
 
-  debug --level 6 --topic "HOOK>FLOW->HELP" "handing off help to help hook for flow [flow:\"${FLOW}\"]"
+  debug --level 6 --topic "HOOK>FLOW->HELP->050" "handing off help to help hook for flow [flow:\"${FLOW}\"]"
   hooks_execute "flow/${FLOW}" --state "help" $@
 
 }
 
 hook_flow_help_050_help_hooklist()
 {
-  debug --level 7 --topic "HOOK>FLOW->HELP" "Executing hook list for command [flow:$1][state:$2][hooks:$3]"
+  debug --level 7 --topic "HOOK>FLOW->HELP->050" "Executing hook list for command [flow:$1][state:$2][hooks:$3]"
 
   local flow="$1"
   local state="$2"

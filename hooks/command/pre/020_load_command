@@ -36,7 +36,7 @@ hook_command_pre_020_execute()
 
     # no command was found
     _hook_command_pre_020_notfound
-    debug --level 1 --topic "HOOK:COMMAND:PRE:020" "${COMMAND} failed to load.  Unkown command."
+    debug --level 1 --topic "HOOK->COMMAND->PRE->020" "failed to load.  Unkown command [command:${COMMAND}]"
 
     return 1
   fi

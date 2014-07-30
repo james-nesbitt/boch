@@ -49,14 +49,14 @@ hook_command_help_050_execute()
   COMMAND=$1
   shift
 
-  debug --level 6 --topic "HOOK>COMMAND->HELP" "including command \"${COMMAND}\""
+  debug --level 6 --topic "HOOK>COMMAND->HELP->050" "including command \"${COMMAND}\""
 
   _include_command ${COMMAND}
   local success=$?
 
   if [ $success -gt 0 ]; then
 
-    debug --level 6 --topic "HOOK>COMMAND->HELP" "command not found \"${COMMAND}\""
+    debug --level 6 --topic "HOOK>COMMAND->HELP->050" "command not found \"${COMMAND}\""
 
     if [ "${COMMAND}" != "" ]; then
       hook_command_help_050_help_unknowncommand ${COMMAND} $@
@@ -112,7 +112,7 @@ hook_command_help_050_execute()
       ;;
       *)
 
-	debug --level 6 --topic "HOOK>COMMAND->HELP" "no help hook specified.  List all hooks instead."
+	debug --level 6 --topic "HOOK>COMMAND->HELP->050" "no help hook specified.  List all hooks instead."
 
 	# do a list of all of the hooks
 	local label=""
@@ -166,13 +166,13 @@ hook_command_help_050_help_commandhelp()
   local COMMAND=$1
   shift
 
-  debug --level 6 --topic "HOOK>COMMAND->HELP" "handing off help to command help hook [command:\"${COMMAND}\"]"
+  debug --level 6 --topic "HOOK>COMMAND->HELP->050" "handing off help to command help hook [command:\"${COMMAND}\"]"
   command_execute ${COMMAND} --action "help" $@
 }
 # output a list (of hooks) for a state
 hook_command_help_050_help_hooklist()
 {
-  debug --level 7 --topic "HOOK>COMMAND->HELP" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
+  debug --level 7 --topic "HOOK>COMMAND->HELP->050" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
 
   local flow="$1"
   local state="$2"

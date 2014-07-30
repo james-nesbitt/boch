@@ -39,7 +39,7 @@ hook_init_010_execute()
 
     for path in $path_customsettings; do
 
-  debug --level 4 --topic "INIT:HOOK" "Creating missing default custom settings file [${path}]"
+  debug --level 4 --topic "HOOK->INIT->010" "Creating missing default custom settings file [${path}]"
   echo "
 # Overrideable configuration variables
 

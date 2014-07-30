@@ -32,9 +32,9 @@ hook_command_pre_specific_060_execute()
   hooks_execute
   local success=$?
   if [ $success -gt 0 ]; then
-    debug --level 8 --topic "HOOK:COMMAND:${COMMAND}:PRE" "Command specific PRE hooks run successfully"
+    debug --level 8 --topic "HOOK->COMMAND->PRE->050" "Command specific PRE hooks run successfully [command:${COMMAND}]"
   else
-    debug --level 6 --topic "HOOK:COMMAND:${COMMAND}:PRE" "Command specific PRE hooks failed to run"
+    debug --level 6 --topic "HOOK->COMMAND->PRE->050" "Command specific PRE hooks failed to run [command:${COMMAND}]"
   fi
   return $success
 }

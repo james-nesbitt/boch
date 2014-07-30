@@ -44,9 +44,9 @@ hook_settings_post_010_execute()
       success=$?
 
       if [ $success -gt 0 ]; then
-	debug --level 3 --topic "HOOK" "settings/post (010) :: Failed to create required folder: $path"
+	debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required folder: $path"
       else
-	debug --level 8 --topic "HOOK" "settings/post (010) :: Created required folder: $path"
+	debug --level 8 --topic "HOOK->SETTINGS->POST->010" "Created required folder: $path"
       fi
 
     fi
