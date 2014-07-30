@@ -29,8 +29,6 @@ used, and what settings to pass to the docker abstraction.
 hook_settings_030_execute()
 {
 
-  debug --level 6 --topic "HOOK" "settings (030) :: Using default settings"
-
   # General project name, should be file-safe
   Project_name="${Project_name:-${path_project##*/}}"
 

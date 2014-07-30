@@ -165,17 +165,18 @@ _ensure_folder()
 
   if [ -e $path ]; then
     if [ -f $path ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}.  Already exists but not as a directory."
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder => could not create folder.  Already exists but not as a directory [path:$path]"
+      return 1
     else
-      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => did not create folder ${path}.  Folder already exists."
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder => folder already exists. No need to create it [path:$path]"
       return 0
     fi
   else
-    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => creating missing folder ${path}"
+    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_folder => creating missing folder [path:$path]"
     mkdir -p ${path}
     local success=$?
     if [ $success -gt 0 ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path] => could not create folder ${path}"
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder => could not create folder [path:$path]"
     fi
     return $success
   fi
@@ -193,18 +194,19 @@ _ensure_file()
 
   if [ -e $path ]; then
     if [ -d $path ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}.  Already exists but as a directory."
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file => could not create file.  Already exists but as a directory [path:$path]"
+      return 1
     else
-      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}.  Already exists."
-      return 0
+      debug --level 7 --topic "UTILITY->FILEFOLDER" "_ensure_file => file already exists, no need to create it [path:$path]"
+       return 0
     fi
   else
-    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => creating missing file ${path}"
-    touch ${path}
+    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file => creating missing file [path:$path]"
+    #touch "${path}"
 
     local success=$?
     if [ $success -gt 0 ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path] => could not create file ${path}"
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file => could not create file [path:$path]"
     fi
     return $success
   fi

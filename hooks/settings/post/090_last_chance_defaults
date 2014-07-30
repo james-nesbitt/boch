@@ -55,4 +55,5 @@ hook_settings_post_090_execute()
   Machine_shell=${Machine_shell:-"/bin/bash"}
   # default run args for shell command
   Machine_shellrunargs=${Machine_shellrunargs:-"--publish-all=true"}
+
 }

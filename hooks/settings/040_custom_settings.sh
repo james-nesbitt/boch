@@ -34,8 +34,6 @@ hook_settings_040_execute()
 
   if [ ${ignore_root_custom_settings_file} -gt 0 ]; then
 
-    debug --level 4 --topic "HOOK" "settings (040) :: Checking for custom settings file : ${path_customsettings}"
-
     # try the default custom settings paths for includes
     if [ -n ${path_customsettings} ]; then
       for path in ${path_customsettings}; do
