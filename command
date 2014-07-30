@@ -67,7 +67,7 @@ done
 # path to the root of this project
 path_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 # include _config, which will do the rest of the work.
-source "${path_script}/_config"
+source "${path_script}/_init"
 
 ################################################
 # Determine what command is supposed to be run #
@@ -111,7 +111,7 @@ if [ "$help" != "no" ]; then
   fi
 
   # execute any existing pre hooks
-  debug --level 7 --topic "COMMAND" "Running command:help hooks => hooks_execute \"flow/help}\" --state \"help\" ${COMMAND} ${hook} $@"
+  debug --level 7 --topic "COMMAND" "Running command:help hooks => help_execute --topic \"${topic}\" ${COMMAND} $@"
   help_execute --topic "${topic}" ${COMMAND} $@
   exit $?
 
