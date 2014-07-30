@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# Some last chance variable sets, for things that should have default values
+#
+
+hook_version=2
+hook_root="hook_settings_post_090"
+
+# description method
+hook_settings_post_090_description()
+{
+  echo "hook->settings (post) 090: include some safe values for important variables"
+}
+
+# help method
+hook_settings_post_090_help()
+{
+  echo "
+hook->settings (post) 090: include some safe values for important variables
+
+"
+}
+
+# execute method
+hook_settings_post_090_execute()
+{
+  ###################################################
+  # Overridable settings for docker and the machine #
+  ###################################################
+  # these are here because they tend to depend on each
+  # other, and you may want to override one of the top
+  # items, and let the rest be based on it.
+
+  # General project name, should be file-safe
+  Project_name="${Project_name:-${path_project##*/}}"
+
+  # Docker build images
+  # Generally needed to start making containers (a space separated queue of builds)
+  # and are the ddefault builds built with the build command.
+  Docker_builds="${Docker_builds:-"wwwserver-cnpm wwwserver-cnpm-dev project"}"
+  # The docker image, which will be used for containers, (and building)
+  Docker_image="${Docker_image:-${Docker_builds##* }}"
+  # by default all containers will run from the base image, which is created by build, however maybe we want to use a different version for advanced features
+  Docker_imageversion="${Docker_imageversion:-"latest"}" # Used for run/shell/commit
+  # use a default container name, default to a combination of image and version
+  Docker_container=${Docker_container:-${Docker_image}_${Docker_imageversion}}
+
+  # Default running args
+  Machine_runargs=${Machine_runargs:-""}
+  # hostname used inside the running container
+  Machine_hostname="${Machine_hostname:-$Docker_container}"
+  # live mounts that are used for containers
+  Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_project}/source:/app/source"
+  # Prefered shell/command for the Machine
+  Machine_shell=${Machine_shell:-"/bin/bash"}
+  # default run args for shell command
+  Machine_shellrunargs=${Machine_shellrunargs:-"--publish-all=true"}
+
+}

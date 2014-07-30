@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# COMMAND: Run a command in a temporary container
+#
+
+# Command help function
+run_help()
+{
+  echo "
+Run a command in a new container.
+
+@NOTE this container is temporary, unless you pass --peristant
+
+@NOTE if you pass no command, then the defaul \${machine_shell} command is used
+"
+}
+
+# Command execute function
+run_execute()
+{
+  image="${Docker_image}"
+  version="${Docker_imageversion}"
+  hostname="${Machine_hostname}"
+
+  # temp.  empty this to make the run a persistant container
+  temp="--temporary"
+
+  flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        flags="${flags} --name $2"
+        shift
+        ;;
+      -h|--hostname)
+        hostname="${2}"
+        shift
+        ;;
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -r|--persistant)
+        temp=""
+        ;;
+      -v|--version)
+        version="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # use the machine run or pass in a command
+  command=${@:-${Machine_shell}}
+
+  # add default flags to the end of the flag list
+  flags="${flags} ${Machine_shellrunargs} ${Machine_mountvolumes}"
+
+  # Run the run function
+  debug --level 5 --topic "COMMAND" "run [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
+  docker_run ${temp} --image "${image}" --version "${version}" --hostname "${hostname}" --command "${command}" ${flags}
+  return $?
+}

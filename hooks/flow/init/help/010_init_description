@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# HOOK: INIT:help : describe the flow command
+#
+
+hook_root="hook_core_init_help_010"
+hook_version="2"
+
+# description hook method
+hook_core_init_help_010_description()
+{
+  echo "Show help for ./flow init"
+}
+
+hook_core_init_help_010_help()
+{
+  echo "
+FLOW: Init
+
+Initialize the current project
+
+
+@NOTE As with most flow commands, the init flow is primarily hook based.
+  To discover what actions are taken, examine the help for the hooks.
+"
+}
+
+# Execute method - as this is a help hook, it just outputs the help
+hook_core_init_help_010_execute()
+{
+  hook_core_init_help_010_help
+}

@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# Command functionality
+#
+# include a command source
+#
+# $1 : command name (without full path, but can be a subpath)
+#
+# @NOTE commands can only be included once
+
+# path to the command shell scripts
+path_commands="${path_commands:-"${path_manage}/commands"}"
+
+# Include a command
+# @NOTE uses the library tools for handling multiple loads
+_include_command()
+{
+  local COMMAND=$1
+  shift
+
+  debug --level 8 --topic "COMMAND:INCLUDE" "_include_command [command:${COMMAND}] : Including command.  Handing off to library_include ==> library_include --component \"${COMMAND}\" \"command\" $@ "
+
+  # include command as a library component
+  library_include --component ${COMMAND} "command"
+
+  if [ $? -eq 0 ]; then
+    debug --level 7 --topic "COMMAND:INCLUDE" "command included \"${COMMAND}\""
+    return 0
+  else
+    debug --level 6 --topic "COMMAND:INCLUDE" "command include failed for \"${COMMAND}\""
+    return 1
+  fi
+}
+
+command_execute()
+{
+  local COMMAND=$1
+  shift
+
+  # include the command source file
+  _include_command $COMMAND $@
+  if [ $? -eq 0 ]; then
+
+    # default action
+    local action="execute"
+
+    while [ $# -gt 0 ]
+    do
+      case "$1" in
+	-a|--action)
+	  action=$2
+	  shift
+	  ;;
+	*)
+	    break;; # terminate while loop
+      esac
+      shift
+    done
+
+    debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${COMMAND} ] handing off to library_execute script: library_execute --component \"${COMMAND}\" --action \"${action}\" \"command\" $@"
+    library_execute --component "${COMMAND}" --action "${action}" "command" $@
+    local success=$?
+
+    if [ $success -eq 0 ]; then
+      debug --level 8 --topic "COMMAND:EXECUTE" "${COMMAND} succeeded."
+    else
+      debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${COMMAND}.  Command method returned an error"
+    fi
+    return $success
+
+  else
+    debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${COMMAND}.  Could not find command"
+    return 1
+  fi
+}

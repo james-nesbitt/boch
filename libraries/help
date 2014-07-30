@@ -1,0 +1,84 @@
+#!/bin/sh
+#
+# Shared help system
+#
+# @NOTE the help system is entirely hook based, using a hook state of "help"
+#
+
+help_execute()
+{
+
+  # this function should respond to bad usage
+  if [ "$1" == "" ]; then
+
+    help_notopic_help $@
+
+  else
+
+    help_topic_help $@
+
+  fi
+}
+
+# this is not likely to ever happen, unless it was called incorrectly
+help_notopic_help()
+{
+echo "
+GENERIC HELP MESSAGE FOR NO TOPIC
+
+- explain how the help system works
+- explain that a help topic has not been passed
+
+- give some examples of a proper help request   --> ./flow --help , ./command --help {command}
+
+@NOTE this is likely being shown because of a developer error
+"
+
+}
+
+help_topic_help()
+{
+
+  # default topic stuff
+  local topic="help"
+
+  # hook flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -t|--topic)
+	# if an string was passed, take it as the help topics (a list)
+	topic=$2
+	shift
+	;;
+
+      *)
+	break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # separate the topic from the subtopic
+  local subtopic=${topic#*:}
+  topic=${topic/:${subtopic}/}
+
+  case "${topic}" in
+    *)
+      # for most scenarios, the subtopic is a hook
+      # but it is most likely something like the hook format
+      # Here we assume that the topic has help hooks that
+      # receive a --topic argument
+
+      # create a help hook from the help subtopic
+      if [ "$subtopic" != "" ]; then
+	flags="${flags} --topic \"${subtopic}\""
+      fi
+
+      # execute any existing pre hooks
+      debug --level 7 --topic "HELP" "Running help hooks => hooks_execute \"${topic}}\" --state \"help\" ${flags} $@"
+      hooks_execute ${topic} --state "help" ${flags} $@
+      return $?
+  esac
+
+}

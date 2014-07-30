@@ -1,0 +1,213 @@
+#!/bin/sh
+#
+# Utility functions
+#
+
+#########################
+# Handle debug messages #
+#########################
+#
+# -t|--topic {topic} : string grouping topic
+# -l|--level [{level}] : optional specific verbosity level 1-10
+#       verbosity level (off the top of my head):
+#        1 : critical - EXECUTION WILL STOP
+#        2 : Serious error in abstraction
+#        3 : error (will print without debug turned on)
+#        4 : Important implementation notification/failure
+#        5 : Standard implementation information (standard log message)
+#        6 : Extra implementation information, like success messages
+#        7 : superfluous info (running hooks)
+#        8 : Top detail, that is safe to echo
+#        9 : tiny detail, output may actually break the implementation!
+#
+
+# path to the log file
+path_log="${path_log:-"${path_data}/log"}"
+
+#set an execution threshold.  Anything -le will stop execution flow.
+debug_critical_level=${_debug_critical_level:-1}
+# DEBUG : output debugging text
+debug=${debug:-3}
+# DEBUG : Logging level
+log=${log:-0}
+
+# Set the debugging level
+debug_set_level()
+{
+  debug=${1}
+  debug --level 3 --topic "COMMAND" "Debug mode enabled/set (level:${debug})"
+}
+# set the debug logging value
+debug_set_log()
+{
+  log=${1}
+  debug --level 3 --topic "COMMAND" "Logging mode enabled/set (level:${log})"
+}
+# disable the "execution stop on critical" feature in debug()
+debug_disable_critical()
+{
+  debug_critical_level=${1:--1}
+  debug --level 3 --topic "COMMAND" "Forced mode enabled"
+}
+
+# Create a debug entry
+debug()
+{
+
+  # 0= not critical, 1= critical - execution will stop
+  local critical=0
+
+  # default organization config
+  local level=5
+  local topic="GENERAL"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--level)
+        level=${2}
+        shift
+        ;;
+      -t|--topic)
+        topic="${2}:"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  if [ ${level} -le ${debug_critical_level} ]; then
+    critical=1
+  fi
+
+  if [ ${level} -le ${debug} ]; then
+    echo "[${level}]${topic} $@"
+    if [ ${critical} -gt 0 ]; then
+      echo "STOPPING EXECUTION DUE TO CRITICAL NOTICE"
+    fi
+  fi
+  if [ ${level} -le ${log} ]; then
+    echo "${executionid} ${date} : [${level}]${topic} $@" >> ${path_log}
+    if [ ${critical} -gt 0 ]; then
+      echo "STOPPING EXECUTION DUE TO CRITICAL NOTICE" >> ${path_log}
+    fi
+  fi
+
+  if [ ${critical} -gt 0 ]; then
+    exit 1
+  fi
+}
+
+# run some initial debug statements depending on debug state
+#
+# We do some testing on the debug state, purely so that we can
+# make some initial debugging output.  We do it here, as it is
+# the earliest that we can,
+#
+if [ $debug -gt 3 ]; then
+  debug_set_level $debug
+fi
+if [ $log -gt 0 ]; then
+  debug_set_log $log
+fi
+if [ $debug_critical_level -lt 1 ]; then
+  debug_disable_critical
+fi
+
+###
+# source/include scripts
+#
+# an abstract function to include as a source, a script
+# plus a few specific implementations that use the abstract
+# function
+#
+
+#
+# Include a file using source
+#
+# $1 : path to target to include
+# $@ : additional arguments to pass to source command
+#
+_include_source()
+{
+  local target=$1
+  shift
+
+  if [ -f ${target} ]; then
+    debug --level 8 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Including source item"
+    source ${target} $@
+    return $?
+  else
+    debug --level 6 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Could not include source item.  Item was not found, or is not a file"
+    return 1
+  fi
+}
+
+####
+# File and folder functions
+#
+# Various operations in the system require a path or file
+# exist.  These two functions will create the path or
+# return an error if they can't
+#
+
+# Create an empty folder, if it doesn't already exist
+#
+# $1 : folder path
+#
+_ensure_folder()
+{
+  # Take the path from the first argument
+  local path=$1
+  debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_folder [path:$path]"
+
+  if [ -e $path ]; then
+    if [ -f $path ]; then
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder => could not create folder.  Already exists but not as a directory [path:$path]"
+      return 1
+    else
+      debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_folder => folder already exists. No need to create it [path:$path]"
+      return 0
+    fi
+  else
+    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_folder => creating missing folder [path:$path]"
+    mkdir -p ${path}
+    local success=$?
+    if [ $success -gt 0 ]; then
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder => could not create folder [path:$path]"
+    fi
+    return $success
+  fi
+}
+
+# Create an empty file, if it doesn't already exist
+#
+# $1 : file path
+#
+_ensure_file()
+{
+  # Take the path from the first argument
+  local path=$1
+  debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file [path:$path]"
+
+  if [ -e $path ]; then
+    if [ -d $path ]; then
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file => could not create file.  Already exists but as a directory [path:$path]"
+      return 1
+    else
+      debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file => file already exists, no need to create it [path:$path]"
+       return 0
+    fi
+  else
+    debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file => creating missing file [path:$path]"
+    touch "${path}"
+
+    local success=$?
+    if [ $success -gt 0 ]; then
+      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file => could not create file [path:$path]"
+    fi
+    return $success
+  fi
+}

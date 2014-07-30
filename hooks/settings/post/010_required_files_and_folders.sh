@@ -3,37 +3,72 @@
 # Make sure that we have the folders and files that we need
 #
 
-debug --level 4 --topic "HOOK" "settings (015) :: Create required folders and files for operation"
+hook_version=2
+hook_root="hook_settings_post_010"
 
-#
-# This process is kind of manual, but has a bit of automation
-# in it.  Some elements are really necessary, but some should
-# be overridable.  This script handles all of the overridable
-# elements (after discovery I realized that this is all them)
-#
+# description method
+hook_settings_post_010_description()
+{
+  echo "hook->settings:pre 010: create some core files and folders"
+}
 
-#
-# Required Folders
-#
-required="${path_data}"
-for path in $required 
-do 
-  if ! _ensure_folder $path; then
-    debug --level 1 --topic "HOOK" "settings (015) :: Failed to create required folder: $path"
-  else 
-  	debug --level 8 --topic "HOOK" "settings (015) :: Created required folder: $path"
-  fi
-done
+# help method
+hook_settings_post_010_help()
+{
+  echo "
+hook->settings:pre 010 : create some core files and folders
 
-#
-# Required Files
-#
-required="${path_log}"
-for file in $required 
-do 
-  if ! _ensure_file $file; then
-    debug --level 1 --topic "HOOK" "settings (015) :: Failed to create required file: $file"
-  else
-  	debug --level 8 --topic "HOOK" "settings (015) :: Created required file: $file"
-  fi
-done
+"
+}
+
+# execute method
+hook_settings_post_010_execute()
+{
+
+  #
+  # This process is kind of manual, but has a bit of automation
+  # in it.  Some elements are really necessary, but some should
+  # be overridable.  This script handles all of the overridable
+  # elements (after discovery I realized that this is all them)
+  #
+
+  #
+  # Required Folders
+  #
+  required_folders="${required_folders} ${path_data}"
+  for path in "${required_folders}"
+  do
+    if [ "$path" != "" ]; then
+
+      _ensure_folder $path
+      success=$?
+
+      if [ $success -gt 0 ]; then
+	debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required folder: $path"
+      else
+	debug --level 8 --topic "HOOK->SETTINGS->POST->010" "Required folder exists: $path"
+      fi
+
+    fi
+  done
+
+  #
+  # Required Files
+  #
+  required_files="${required_files} ${path_log}"
+  for file in "${required_files}"
+  do
+    if [ "$file" != "" ]; then
+
+     _ensure_file $file;
+     success=$?
+     if [ $success -gt 0 ]; then
+	debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required file: $file"
+     else
+	debug --level 7 --topic "HOOK->SETTINGS->POST->010" "Required file exists: $file"
+     fi
+
+    fi
+  done
+
+}
