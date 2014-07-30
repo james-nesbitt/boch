@@ -56,8 +56,6 @@ help_topic_help()
   topic=${topic/:${subtopic}/}
 
   case "${topic}" in
-
-
     *)
       # for most scenarios, the subtopic is a hook
 

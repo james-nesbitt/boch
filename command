@@ -100,7 +100,7 @@ fi
 # Process command : pass the rest of the arguments to the command #
 ###################################################################
 
-if [ $help != "no" ]; then
+if [ "$help" != "no" ]; then
 
   # create a help hook from the help topic
   # @NOTE right now, the only help topics are hook names
@@ -116,7 +116,6 @@ if [ $help != "no" ]; then
   exit $?
 
 else
-
 
   # execute any existing pre hooks
   debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute command --state \"pre\" \"${COMMAND}\""

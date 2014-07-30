@@ -101,13 +101,13 @@ fi
 # Process workflow : pass the rest of the arguments to the flow #
 ####################################################################
 
-if [ $help != "no" ]; then
+if [ "$help" == "yes" ]; then
 
   # create a help hook from the help topic
   # @NOTE right now, the only help topics are hook names
   # @TODO improve the help topic concept
   topic="flow"
-  if [ $help_topic != "" ]; then
+  if [ "$help_topic" != "" ]; then
     topic="${topic}:${help_topic}"
   fi
 
