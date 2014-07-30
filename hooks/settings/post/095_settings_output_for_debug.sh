@@ -29,26 +29,25 @@ hook_settings_post_095_execute()
     echo "
   CONFIG: final control settings: [
     >PATHS USED
-    -->path_project:${path_project}
-    -->path_execution:${path_execution}
-    -->path_manage:${path_manage}
-    -->path_libraries:${path_libraries}
-    -->path_build:${path_build}
-    -->path_hooks:${path_hooks}
-    -->path_data:${path_data}
-    -->path_source:${path_source}
+    -->path_project----------: ${path_project}
+    -->path_execution--------: ${path_execution}
+    -->path_manage-----------: ${path_manage}
+    -->path_libraries--------: ${path_libraries}
+    -->path_hooks------------: ${path_hooks}
+    -->path_data-------------: ${path_data}
+    -->path_source-----------: ${path_source}
     >PROJECT CONFIGURATION
-    -->Project_name:${Project_name}
-    >DOCKER CONFIGURATIONS
-    -->Docker_container:${Docker_container}
-    -->Docker_image:${Docker_image}
-    -->Docker_imageversion:${Docker_imageversion}
-    >MACHINE CONFIGURATIONS
-    -->Machine_hostname:${Machine_hostname}
-    -->Machine_mountvolumes:${Machine_mountvolumes}
-    -->Machine_shell:${Machine_shell}
-    -->Machine_shellrunargs:${Machine_shellrunargs}
-    -->Machine_runargs:${Machine_runargs}
+    -->Project_name----------: ${Project_name}
+    >PROJECT DOCKER CONFIGURATIONS
+    -->Docker_container------: ${Docker_container}
+    -->Docker_image----------: ${Docker_image}
+    -->Docker_imageversion---: ${Docker_imageversion}
+    >PROJECT MACHINE CONFIGURATIONS
+    -->Machine_hostname------: ${Machine_hostname}
+    -->Machine_mountvolumes--: ${Machine_mountvolumes}
+    -->Machine_shell---------: ${Machine_shell}
+    -->Machine_shellrunargs--: ${Machine_shellrunargs}
+    -->Machine_runargs-------: ${Machine_runargs}
   ] (hooks/settings/post/095)"
   fi
 

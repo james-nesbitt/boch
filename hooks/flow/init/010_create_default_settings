@@ -53,6 +53,21 @@ hook_init_010_execute()
 #
 # @NOTE you could try changing the above paths in your settings file, but the results are not predictable
 
+# Libraries path
+#
+# path list for possible locations for library tools
+#
+# Libraries are function sets that can be included with
+# library_include  and have methods executed using
+# library_execute.
+# You don't need to use this system, but it is used
+# for all sorts of things, including command loading,
+# and the help system.  It has a lot of build in debugging
+#
+#path_library=\"\${path_libraries} \${path_data}/libraries\"
+
+#library_include --component {sub_library} {library}
+
 # =path to custom settings and data=
 # various settings about custom configurations
 #
@@ -79,12 +94,12 @@ path_hooks="\${path_hooks} \${path_projecthooks}"
 
 # you can use this command to create any missing paths
 ensure_folder \"\${path_projecthooks}\"
-#ensure_folder \"\${path_projecthooks}\\commands\\pre\"        <-- hooks run before any \"./command\" execution
-#ensure_folder \"\${path_projecthooks}\\commands\\build\\pre\" <-- hooks run before any \"./command build\"
-#ensure_folder \"\${path_projecthooks}\\flow\\init\"           <-- hooks run as actions for the \"init flow\"
-#ensure_folder \"\${path_projecthooks}\\settings\"             <-- settings hooks
-#ensure_folder \"\${path_projecthooks}\\settings\\pre\"        <-- early settings hooks
-#ensure_folder \"\${path_projecthooks}\\settings\\post\"       <-- late settings hooks
+#ensure_folder \"\${path_projecthooks}/commands/pre\"        <-- hooks run before any \"./command\" execution
+#ensure_folder \"\${path_projecthooks}/commands/build/pre\" <-- hooks run before any \"./command build\"
+#ensure_folder \"\${path_projecthooks}/flow/init\"           <-- hooks run as actions for the \"init flow\"
+#ensure_folder \"\${path_projecthooks}/settings\"             <-- settings hooks
+#ensure_folder \"\${path_projecthooks}/settings/pre\"        <-- early settings hooks
+#ensure_folder \"\${path_projecthooks}/settings/post\"       <-- late settings hooks
 
 ###
 # Project settings
