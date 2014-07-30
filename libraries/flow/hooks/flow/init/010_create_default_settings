@@ -64,6 +64,9 @@ hook_init_010_execute()
 # for all sorts of things, including command loading,
 # and the help system.  It has a lot of build in debugging
 #
+# if you do load a library, and it has a hooks folder, those
+# hooks will automatically be activated.
+#
 #path_library=\"\${path_libraries} \${path_data}/libraries\"
 
 #library_include --component {sub_library} {library}
@@ -72,8 +75,11 @@ hook_init_010_execute()
 # various settings about custom configurations
 #
 # - settings.sh : this file
+# - log : log file
 #
 #path_data="${path_data}"
+
+# @NOTE changing this isn't great
 
 # path to the log file
 # @NOTE to enable logging try passing --log [{level}] to you command line
@@ -89,17 +95,19 @@ hook_init_010_execute()
 #
 # @NOTE we recommend that you add your own hooks folder to this path, so that you
 #   can add project specific hooks to the system
-path_projecthooks=\"\${path_data}/hooks\"
-path_hooks="\${path_hooks} \${path_projecthooks}"
+#path_projecthooks=\"\${path_data}/hooks\"
+#path_hooks="\${path_hooks} \${path_projecthooks}"
 
 # you can use this command to create any missing paths
-ensure_folder \"\${path_projecthooks}\"
+#ensure_folder \"\${path_projecthooks}\"
 #ensure_folder \"\${path_projecthooks}/commands/pre\"        <-- hooks run before any \"./command\" execution
 #ensure_folder \"\${path_projecthooks}/commands/build/pre\" <-- hooks run before any \"./command build\"
 #ensure_folder \"\${path_projecthooks}/flow/init\"           <-- hooks run as actions for the \"init flow\"
 #ensure_folder \"\${path_projecthooks}/settings\"             <-- settings hooks
 #ensure_folder \"\${path_projecthooks}/settings/pre\"        <-- early settings hooks
 #ensure_folder \"\${path_projecthooks}/settings/post\"       <-- late settings hooks
+
+# @NOTE HOOK files must be executable, or they are ignored!!!!
 
 ###
 # Project settings
@@ -108,7 +116,7 @@ ensure_folder \"\${path_projecthooks}\"
 #
 
 # Project name : this gets used as a default all over the place
-project_name=\"${project_name:-"project"}\"
+project_name=\"${project_name:-project}\"
 
 ###
 # Docker image configurations
@@ -130,14 +138,14 @@ project_name=\"${project_name:-"project"}\"
 #   \"./flow init\" but not before starting any builds
 #
 # @TODO make build check this before proceeding.
-#required_builds="${required_builds:-""}"
+#required_builds=\"${required_builds:-""}\"
 
 # Project build and image
 #
 # which build (folder) should be used for project images (if it isn't built)
-#project_build="${project_build:-"project"}"
+#project_build=\"${project_build:-"project"}\"
 # which image should we use for creating containers (and build it if it is missing)
-#project_image="${project_image:-"project"}"
+#project_image=\"${project_image:-"project"}\"
 # which image version/tag should we use for containers
 #project_imageversion=\"${project_imageversion:-"latest"}\"
 

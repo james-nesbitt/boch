@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Run the required project builds
+#
+
+hook_version=2
+hook_root="hook_init_post_020"
+
+# description method
+hook_init_post_020_description()
+{
+  echo "build required project images"
+}
+
+# help method
+hook_init_post_020_help()
+{
+  echo "
+HOOK->FLOW->INIT->POST->020: Build the required project images
+
+[-b|--builds {builds}] : specify an alternate list of builds that should be built
+
+"
+}
+
+# execute method
+hook_init_post_020_execute()
+{
+
+
+
+}
