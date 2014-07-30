@@ -24,16 +24,13 @@ hook->help: Main help handler
 hook_flow_help_050_execute()
 {
 
-  # Command is the first argument
-  FLOW=$1
-  shift
-
+  # help functions have some flags
   local hook=""
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -h|--hook)
-        hook=$2
+      -t|--topic)
+        topic=$2
         shift
         ;;
       *)
@@ -41,6 +38,10 @@ hook_flow_help_050_execute()
     esac
     shift
   done
+
+  # Command is the first argument
+  FLOW=$1
+  shift
 
   debug --level 6 --topic "HOOK>FLOW->HELP" "showing help for flow \"${FLOW}\""
 
@@ -53,59 +54,73 @@ hook_flow_help_050_execute()
 
     hook_flow_help_050_help_flowhelp ${FLOW} $@
 
-    if [ "$hook" == "" ]; then
+    local subtopic=${topic#*:}
+    topic=${topic/:${subtopic}/}
 
-      debug --level 6 --topic "HOOK>FLOW->HELP" "no help hook specified.  List all hooks instead."
+    case "${topic}" in
+      "hook")
+	# subtopic is a hook
+	local hook="${subtopic}"
+	local helpfound="no"
 
-      # do a list of all of the hooks
-      local label=""
-      local states="pre execute post help"
-      for state in $states; do
-        label="${state}"
-        if [ "$state" == "execute" ]; then
-          # execute is a placeholder for no state
-          state=""
-        else
-          state="--state ${state}"
-        fi
-        local hooks="`hooks_list "flow/${FLOW}" ${state}`"
+	# do a list of all of the hooks, so we can try to match the subtopic
+	local label=""
+	local states="pre execute post help"
+	for state in $states; do
+	  label="${state}"
+	  if [ "$state" == "execute" ]; then
+	    # execute is a placeholder for no state
+	    state=""
+	  else
+	    state="--state ${state}"
+	  fi
+	  local hooks="`hooks_list "flow/${FLOW}" ${state}`"
 
-        if [ "$hooks" != "" ]; then
-          hook_flow_help_050_help_hooklist ${FLOW} "${label}" "${hooks}"
-        fi
-      done
+	  if [ "$hooks" != "" ]; then
+	    for thishook in ${hooks}; do
+	      local hooklabel="`hook_label ${thishook}`"
+	      if [ "${hook}" == "${hooklabel}" ]; then
+	        helpfound="yes"
+		if [ "${label}" == "help" ]; then
+		  hook_flow_help_050_help_hookhelpforbidden $hook $thishook
+		else
+		  hook_flow_help_050_help_hookhelp $hook $thishook
+		fi
+		exit
+	      fi
+	    done
+	  fi
+	done
 
-    else
+	if [ "${helpfound}" == "no" ]; then
+	  hook_flow_help_050_help_unknownhook ${FLOW} ${hook} $@
+	fi
 
-      # do a list of all of the hooks
-      local label=""
-      local states="pre execute post help"
-      for state in $states; do
-        label="${state}"
-        if [ "$state" == "execute" ]; then
-          # execute is a placeholder for no state
-          state=""
-        else
-          state="--state ${state}"
-        fi
-        local hooks="`hooks_list "flow/${FLOW}" ${state}`"
+      ;;
+      *)
 
-        if [ "$hooks" != "" ]; then
-          for thishook in ${hooks}; do
-            local hooklabel="`hook_label ${thishook}`"
-            if [ "${hook}" == "${hooklabel}" ]; then
-              if [ "${label}" == "help" ]; then
-                hook_flow_help_050_help_hookhelpforbidden $hook $thishook
-              else
-                hook_flow_help_050_help_hookhelp $hook $thishook
-              fi
-              exit
-            fi
-          done
-        fi
-      done
+	debug --level 6 --topic "HOOK>FLOW->HELP" "no help hook specified.  List all hooks instead."
 
-    fi
+	# do a list of all of the hooks
+	local label=""
+	local states="pre execute post help"
+	for state in $states; do
+	  label="${state}"
+	  if [ "$state" == "execute" ]; then
+	    # execute is a placeholder for no state
+	    state=""
+	  else
+	    state="--state ${state}"
+	  fi
+	  local hooks="`hooks_list "flow/${FLOW}" ${state}`"
+
+	  if [ "$hooks" != "" ]; then
+	    hook_flow_help_050_help_hooklist ${FLOW} "${label}" "${hooks}"
+	  fi
+	done
+
+      ;;
+    esac
 
   fi
 }
@@ -120,13 +135,13 @@ hook->flow/help 050 : GENERIC HELP MESSAGE GOES HERE
 hook_flow_help_050_help_unknowncommand()
 {
   echo "
-hook->flow/help 050 : UNKNOWN FLOW HELP MESSAGE GOES HERE [command:$1]
+hook->flow/help 050 : UNKNOWN FLOW HELP MESSAGE GOES HERE [flow:$1]
 "
 }
 hook_flow_help_050_help_unknownhook()
 {
   echo "
-hook->flow/help 050 : UNKNOWN FLOW HOOK HELP MESSAGE GOES HERE [command:$1][hook:$2]
+hook->flow/help 050 : UNKNOWN FLOW HOOK HELP MESSAGE GOES HERE [flow:$1][hook:$2]
 "
 }
 
@@ -143,7 +158,7 @@ hook_flow_help_050_help_flowhelp()
 
 hook_flow_help_050_help_hooklist()
 {
-  debug --level 7 --topic "HOOK>FLOW->HELP" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
+  debug --level 7 --topic "HOOK>FLOW->HELP" "Executing hook list for command [flow:$1][state:$2][hooks:$3]"
 
   local flow="$1"
   local state="$2"

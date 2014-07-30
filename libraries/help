@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# Shared help system
+#
+
+help_execute()
+{
+
+  # help systems have root topics
+  local topic=$1
+
+  if [ "${topic}" == "" ]; then
+
+    help_notopic_help $@
+
+  else
+
+    help_topic_help $@
+
+  fi
+}
+
+help_notopic_help()
+{
+echo "
+GENERIC HELP MESSAGE FOR NO TOPIC
+"
+
+}
+
+help_topic_help()
+{
+
+  # default topic stuff
+  local topic="help"
+
+  # hook flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -t|--topic)
+	# if an string was passed, take it as the help topics (a list)
+	topic=$2
+	shift
+	;;
+
+      *)
+	break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # separate the topic from the subtopic
+  local subtopic=${topic#*:}
+  topic=${topic/:${subtopic}/}
+
+  case "${topic}" in
+
+
+    *)
+      # for most scenarios, the subtopic is a hook
+
+      # create a help hook from the help topic
+      # @NOTE right now, the only help topics are hook names
+      # @TODO improve the help topic concept
+      if [ "$subtopic" != "" ]; then
+	flags="${flags} --topic \"${subtopic}\""
+      fi
+
+      # execute any existing pre hooks
+      debug --level 7 --topic "HELP" "Running help hooks => hooks_execute \"${topic}}\" --state \"help\" ${flags} $@"
+      hooks_execute ${topic} --state "help" ${flags} $@
+      return $?
+  esac
+
+}

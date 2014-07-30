@@ -1,0 +1,217 @@
+#!/bin/sh
+#
+# Library handling
+#
+
+# default library path
+path_libraries=${path_libraries:-"${path_manage}/libraries"}
+
+# Remember included libraries so we can prevent repeats
+included_libraries=""
+included_library_components=""
+library_include()
+{
+
+  # empty defaults
+  local library=""
+  local component=""
+
+  local path=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--component)
+	component=$2
+	shift
+	;;
+      *)
+	  break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # library is the first thing loaded
+  local library=$1
+  shift
+
+  # start off with success
+  local success=0
+
+  # check if already attempted to load this library (if not mark it as attempted)
+  case " $included_libraries " in
+    *" ${library} "*)
+        debug --level 7 --topic "LIBRARY:INCLUDE" "include_library [library:${library}][included_libraries:${included_libraries}] library already included!"
+        success=0
+      ;;
+
+    *)
+
+      included_libraries="${included_libraries} ${library}"
+
+      for path_library in ${path_libraries}; do
+	path="${path_library}/${library}"
+
+	success=-1
+
+	debug --level 9 --topic "LIBRARY:INCLUDE" "include_library [library:${library}] : trying to include library \"${path}\""
+
+	if [ -f ${path} ] && [ -x ${path} ]; then
+	  debug --level 8 --topic "LIBRARY:INCLUDE" "include_library [library:${library}] : Including library.  Handing off to _include_source ==> _include_source \"${path}\" $@ "
+	  _include_source "${path}" $@
+
+	  if [ $? -eq 0 ]; then
+	    debug --level 7 --topic "LIBRARY:INCLUDE" "library included \"${path}\""
+	    success=0
+	  else
+	    debug --level 6 --topic "LIBRARY:INCLUDE" "library include failed for \"${path}\""
+	    success=1
+	  fi
+
+	else
+	  debug --level 9 --topic "LIBRARY:INCLUDE" "library does not exist or is not executable for \"${path}\""
+	  success=1
+	fi
+
+	if [ $success -gt -1 ]; then
+	  break;
+	fi
+
+      done
+
+      if [ $success -eq -1 ]; then
+	# library was not found
+	debug --level 6 --topic "LIBRARY:INCLUDE" "library not found \"${path}\""
+	success=1
+      fi
+    ;;
+  esac
+
+  if [ "$component" != "" ] && [ $success -eq 0 ]; then
+
+
+    # check if already attempted to oad this library component (if not mark it as attempted)
+    case " $included_library_components " in
+      *" ${component} "*)
+          # already included
+
+	  debug --level 7 --topic "LIBRARY:COMPONENT:INCLUDE" "include_library [library:${library}][component:${component}][[included_library_components:${included_library_components}] library component already included!"
+	  success=0
+	;;
+
+      *)
+	# include now
+
+	# mark as included, even if we fail
+	included_library_components="${included_library_components} ${library}"
+
+	for path_library in ${path_libraries}; do
+	  # @NOTE how we make the path from a plural for the library
+	  # @TODO find a better wayto make a sub-path
+	  path="${path_library}/${library}s/${component}"
+
+	  # mark no success
+	  success=-1
+
+	  if [ -f ${path} ] && [ -x ${path} ]; then
+	    debug --level 8 --topic "LIBRARY:COMPONENT:INCLUDE" "include_library component [library:${library}][component:${component}] : Including library.  Handing off to _include_source ==> _include_source \"${path}\" $@ "
+	    _include_source "${path}" $@
+
+	    if [ $? -eq 0 ]; then
+	      debug --level 7 --topic "LIBRARY:COMPONENT:INCLUDE" "library included \"${path}\""
+	      success=0
+	    else
+	      debug --level 6 --topic "LIBRARY:COMPONENT:INCLUDE" "library include failed for \"${path}\""
+	      success=1
+	    fi
+
+	  else
+	    debug --level 9 --topic "LIBRARY:COMPONENT:INCLUDE" "library component does not exist or is not executable for \"${path}\""
+	    success=1
+	  fi
+
+	  if [ $success -gt -1 ]; then
+	    break;
+	  fi
+	done
+
+	if [ $success -eq -1 ]; then
+	  # library was not found
+	  debug --level 6 --topic "LIBRARY:COMPONENT:INCLUDE" "library component not found \"${path}\""
+	  success=1
+	fi
+
+      ;;
+    esac
+
+  fi
+
+  return $success
+}
+
+library_execute()
+{
+
+  # empty defaults
+  local library=""
+  local component=""
+  local action="execute"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -a|--action)
+	action=$2
+	shift
+	;;
+      -c|--component)
+	component=$2
+	shift
+	;;
+      *)
+	  break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # library is the first thing loaded
+  local library=$1
+  shift
+
+  local success=-1
+
+  # include the library
+  if [ "${component}" == "" ]; then
+    library_include "${library}" $@
+    success=$?
+
+    # generate the library method
+    library_function="${library}_${action}"
+  else
+    library_include --component "${component}" "${library}" $@
+    success=$?
+
+    # generate the library method
+    library_function="${component}_${action}"
+  fi
+
+  if [ $success -eq 0 ]; then
+
+    debug --level 7 --topic "LIBRARY:EXECUTE" "library [library:${library}][component:${component}] handing off to library script : ${library_function} $@"
+    eval ${library_function} $@
+    success=$?
+    if [ $success == 0 ]; then
+      echo "$result"
+      debug --level 8 --topic "LIBRARY:EXECUTE" "Library execute succeeded [library:${library}][component:${component}][action:${action}]."
+
+    else
+      debug --level 6 --topic "LIBRARY:EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Command method returned an error"
+    fi
+    exit $sucess
+
+  else
+    debug --level 6 --topic "LIBRARY:EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Could not find library or component"
+    exit 1
+  fi
+}
+

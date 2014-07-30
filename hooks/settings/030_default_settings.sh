@@ -19,6 +19,9 @@ hook_settings_030_help()
   echo "
 hook->settings 030 : default variable values
 
+In this hook we include an early set of default settings to configure the system. These
+settings incluee information about which builds are being built, which folders are being
+used, and what settings to pass to the docker abstraction.
 "
 }
 
@@ -26,7 +29,7 @@ hook->settings 030 : default variable values
 hook_settings_030_execute()
 {
 
-  debug --level 4 --topic "HOOK" "settings (030) :: Importing default settings"
+  debug --level 6 --topic "HOOK" "settings (030) :: Using default settings"
 
   # General project name, should be file-safe
   Project_name="${Project_name:-${path_project##*/}}"

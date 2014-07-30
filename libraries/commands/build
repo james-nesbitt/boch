@@ -138,22 +138,22 @@ build_destroy()
 
   if ! _docker_image_exists "${tag}"; then
     if [ force -eq 0 ]; then
-      debug --level 1 --topic "COMMAND->build" "build_destroy() :: error destroying custom image, image doesn't exist: ${image}:${version}"
+      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: error destroying custom image, image doesn't exist: ${image}:${version}"
     else
-      debug --level 1 --topic "COMMAND->build" "build_destroy() :: image doesn't exist, trying to delete anyway (because of --force): ${image}:${version}"
+      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: image doesn't exist, trying to delete anyway (because of --force): ${image}:${version}"
     fi
   fi
   if ! _docker_image_running "${image}:${version}"; then
 
     if [ force -eq 0 ]; then
-      debug --level 1 --topic "COMMAND->build" "build_destroy() :: error destroying custom image, image has running containers: ${image}:${version}"
+      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: error destroying custom image, image has running containers: ${image}:${version}"
     else
-      debug --level 4 --topic "COMMAND->build" "build_destroy() :: trying to destroy custom image that has running containers (because of --force): ${image}:${version}"
+      debug --level 4 --topic "COMMAND->BUILD" "build_destroy() :: trying to destroy custom image that has running containers (because of --force): ${image}:${version}"
     fi
   fi
 
   # run the rmi method
-  debug --level 5 --topic "COMMAND->build" "build_destroy() :: destroying custom image [ handing off to docker abstraction ] ==> docker_rmi ${flags}"
+  debug --level 5 --topic "COMMAND->BUILD" "build_destroy() :: destroying custom image [ handing off to docker abstraction ] ==> docker_rmi ${flags}"
   docker_rmi ${flags}
   return $?
 }
@@ -203,19 +203,19 @@ build_build()
 
   if _docker_image_exists "${tag}" ; then
     if [ $force -eq 0 ]; then
-      debug --level 1 --topic "COMMAND->build" "build_build() :: error building custom image, image already exists: ${tag}"
+      debug --level 1 --topic "COMMAND->BUILD" "build_build() :: error building custom image, image already exists: ${tag}"
     else
-      debug --level 4 --topic "COMMAND->build" "build_build() :: image already exists, forcing build anyway due to force flag: ${tag}"
+      debug --level 4 --topic "COMMAND->BUILD" "build_build() :: image already exists, forcing build anyway due to force flag: ${tag}"
     fi
   fi
 
   # test to see if the build exists
   if [ ! -d ${path} ]; then
-    debug --level 1 --topic "COMMAND->build" "build_build() :: error building custom image, path to build doesn't exist: ${path}"
+    debug --level 1 --topic "COMMAND->BUILD" "build_build() :: error building custom image, path to build doesn't exist: ${path}"
   fi
 
   # Run the build function
-  debug --level 5 --topic "COMMAND->build" "build_build() :: building custom image [ handing off to docker abstraction ] ==> docker_build ${flags} --path ${path}"
+  debug --level 5 --topic "COMMAND->BUILD" "build_build() :: building custom image [ handing off to docker abstraction ] ==> docker_build ${flags} --path ${path}"
   docker_build ${flags} --path "${path}"
   return $?
 }

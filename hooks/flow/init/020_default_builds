@@ -26,7 +26,6 @@ Flow->init hook 020: Build the default project images
 # execute method
 hook_init_020_execute()
 {
-
-  echo "default builds"
+local thisone="this"
 
 }

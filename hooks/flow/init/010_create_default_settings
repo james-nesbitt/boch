@@ -4,25 +4,25 @@
 #
 
 hook_version=2
-hook_root="hook_init_030"
+hook_root="hook_init_010"
 
 # descriptoin method
-hook_init_030_description()
+hook_init_010_description()
 {
-  echo "hook->init 030 : Create the default customs settings.sh, if it is missing"
+  echo "hook->init 010 : Create the default customs settings.sh, if it is missing"
 }
 
 # help method
-hook_init_030_help()
+hook_init_010_help()
 {
   echo "
-hook->init 030 : Create the default customs settings.sh, if it is missing
+hook->init 010 : Create the default customs settings.sh, if it is missing
 
 "
 }
 
 # execute method
-hook_init_030_execute()
+hook_init_010_execute()
 {
   # path to this management system
   path_customsettings="${path_customsettings:-"$path_data/settings.sh"}"
@@ -30,7 +30,7 @@ hook_init_030_execute()
   # Allow skipping this
   ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
 
-  if [ $ignore_root_custom_settings_file -gt 0 ]; then
+  if [ $ignore_root_custom_settings_file -eq 0 ]; then
     if [ ! -f ${path_customsettings} ]; then
 
     # @NOTE This loop is here, because path_customsettings is technically

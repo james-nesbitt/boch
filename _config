@@ -42,12 +42,21 @@ path_data="${path_manage}/data"
 
 # Include utility functions
 source ${path_manage}/_utilities
+# Include library handling functions
+source ${path_manage}/_libraries
+
+debug --level 8 --topic "CONFIG" "INCLUDING LIBRARIES"
+
 # include utility functions for running hooks
-source ${path_manage}/_hook
+library_include hook
 # include command related functions
-source ${path_manage}/_command
+library_include command
+# include help related functions (not debug, which is in utilities to get it loaded early.)
+library_include help
 # include docker functions - bash abstractions for docker operations
-source ${path_manage}/_docker
+library_include docker
+
+debug --level 8 --topic "CONFIG" "INCLUDING LIBRARIES COMPLETE"
 
 ####################################
 # include docker setting overrides #

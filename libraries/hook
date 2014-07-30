@@ -134,35 +134,36 @@ hooks_list()
   echo "${hook_list}"
 }
 
-included_hooks=""
+# included_hooks=""
+# @NOTE Multiple hook include disabled, as it doesn't give us the correct setting of hook_version and hook_root
 include_hook()
 {
   local hook=$1
   shift
 
   # check if already attempted (if not mark it as attempted)
-  case " $included_hooks " in
-    *" ${hook} "*)
-        debug --level 6 --topic "UTILITY->HOOK->INCLUDE" "include_hook [hook:${hook}][included_hooks:${included_hooks}] hook already included!"
-        return 1
-      ;;
-  esac
-  included_hooks="${included_hooks} ${hook}"
+#   case " $included_hooks " in
+#     *" ${hook} "*)
+#         debug --level 7 --topic "UTILITY->HOOK->INCLUDE" "include_hook [hook:${hook}][included_hooks:${included_hooks}] hook already included!"
+#         return 1
+#       ;;
+#   esac
+#   included_hooks="${included_hooks} ${hook}"
 
   if [ -f ${hook} ]; then
 
-    debug --level 7 --topic "UTILITY->HOOK->INCLUDE" "include_hook [hook:${hook}] : Including hook.  Handing off to _include_source ==> _include_source \"${hook}\" $@ "
+    debug --level 8 --topic "UTILITY->HOOK->INCLUDE" "include_hook [hook:${hook}] : Including hook.  Handing off to _include_source ==> _include_source \"${hook}\" $@ "
     _include_source "${hook}" $@
     local success=$?
     if [ $success -eq 0 ]; then
-      debug --level 6 --topic "UTILITY->HOOK->INCLUDE" "hook included \"${hook}\""
+      debug --level 7 --topic "UTILITY->HOOK->INCLUDE" "hook included \"${hook}\""
     else
       debug --level 4 --topic "UTILITY->HOOK->INCLUDE->FAIL" "hook include failed for \"${hook}\""
     fi
 
   else
 
-    debug --level 4 --topic "UTILITY->HOOK->INCLUDE->FAIL" "Hook could not be included as it was not found, or is not a file [hook:${hook}]"
+    debug --level 6 --topic "UTILITY->HOOK->INCLUDE->FAIL" "Hook could not be included as it was not found, or is not a file [hook:${hook}]"
 
   fi
 
@@ -214,6 +215,8 @@ hook_execute()
 
       if [ $success -gt 0 ]; then
         debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script return an error [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+      else
+        debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script executed [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
       fi
       ;;
     *)

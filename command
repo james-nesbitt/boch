@@ -13,15 +13,21 @@
 #
 # @TODO find a way past the described silliness
 
-# turn this to >0 if you want to get help instead of running a command
-help=0
+help="no"
+help_topic=""
 
 while [ $# -gt 0 ]
 do
   case "$1" in
     -h|--help)
-      help=1
+      # if an string with a colon (topic separator) was passed, take it as the help topic
+      if [ -n "$2" ] && [ "$2" != "${2/[a-z]*:/}" ]; then
+        help_topic=${2}
+        shift
+      fi
+      help="yes"
       ;;
+
     -v|--verbose)
       vflag=on
       # if an integer level was passed, take it, otherwise default to 5
@@ -70,10 +76,9 @@ source "${path_script}/_config"
 COMMAND=$1
 shift
 
-
   # Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
 if [ $debug -gt 3 ]; then
-  if [ $help -gt 0 ]; then
+  if [ $help == "yes" ]; then
     echo "
 COMMAND: final control settings: [
   >HELP MODE ENABLED
@@ -95,14 +100,23 @@ fi
 # Process command : pass the rest of the arguments to the command #
 ###################################################################
 
-if [ $help -gt 0 ]; then
+if [ $help != "no" ]; then
+
+  # create a help hook from the help topic
+  # @NOTE right now, the only help topics are hook names
+  # @TODO improve the help topic concept
+  topic="command"
+  if [ "$help_topic" != "" ]; then
+    topic="${topic}:${help_topic}"
+  fi
 
   # execute any existing pre hooks
-  debug --level 7 --topic "COMMAND" "Running global:hooks => hooks_execute command --state \"help\" \"${COMMAND}\""
-  hooks_execute command --state "help" "${COMMAND} $@"
-  success=$?
+  debug --level 7 --topic "COMMAND" "Running command:help hooks => hooks_execute \"flow/help}\" --state \"help\" ${COMMAND} ${hook} $@"
+  help_execute --topic "${topic}" ${COMMAND} $@
+  exit $?
 
 else
+
 
   # execute any existing pre hooks
   debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute command --state \"pre\" \"${COMMAND}\""

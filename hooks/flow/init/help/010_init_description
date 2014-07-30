@@ -19,6 +19,9 @@ FLOW: Init
 
 Initialize the current project
 
+
+@NOTE As with most flow commands, the init flow is primarily hook based.
+  To discover what actions are taken, examine the help for the hooks.
 "
 }
 

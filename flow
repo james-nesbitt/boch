@@ -6,19 +6,26 @@
 ############################
 # Process config Arguments #
 ############################
+# -h|--help {topic} : run help instead of the workflow
 # -v|--verbose {level} : output debugging info
 # -l|--log {level} : enable debug logging
 # -f|--force : ignore critical errors (don't halt)
 #
 # @TODO find a way past the described silliness
 
-help=0
+help="no"
+help_topic=""
 
 while [ $# -gt 0 ]
 do
   case "$1" in
     -h|--help)
-      help=1
+      # if an string with a colong (topic separator) was passed, take it as the help topic
+      if [ -n "$2" ] && [ "$2" != "${2/[a-z]*:/}" ]; then
+        help_topic=${2}
+        shift
+      fi
+      help="yes"
       ;;
 
     -v|--verbose)
@@ -72,7 +79,7 @@ shift
 # Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
   # Maybe print some debug info (debug command loses carriage returns, so we echo ourselves)
 if [ $debug -gt 3 ]; then
-  if [ $help -gt 0 ]; then
+  if [ $help == "yes" ]; then
     echo "
 WORKFLOW: final control settings: [
   >HELP MODE ENABLED
@@ -94,13 +101,20 @@ fi
 # Process workflow : pass the rest of the arguments to the flow #
 ####################################################################
 
-if [ $help -gt 0 ]; then
+if [ $help != "no" ]; then
+
+  # create a help hook from the help topic
+  # @NOTE right now, the only help topics are hook names
+  # @TODO improve the help topic concept
+  topic="flow"
+  if [ $help_topic != "" ]; then
+    topic="${topic}:${help_topic}"
+  fi
 
   # execute any existing pre hooks
-  debug --level 7 --topic "WORKFLOW" "Running flow:help hooks => hooks_execute \"flow/help}\" --state \"help\" ${WORKFLOW} $@"
-  hooks_execute "flow" --state "help"  ${WORKFLOW} $@
-  success=$?
-
+  debug --level 7 --topic "WORKFLOW" "Running flow:help hooks => hooks_execute \"flow/help}\" --state \"help\" ${WORKFLOW} ${hook} $@"
+  help_execute --topic "${topic}" ${WORKFLOW} $@
+  exit $?
 
 else
 
@@ -111,9 +125,12 @@ else
   # execute any existing pre hooks
   debug --level 7 --topic "WORKFLOW" "Running flow:pre hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"pre\" $@"
   hooks_execute "flow/${WORKFLOW}" $@
+  success=$?
 
   # execute any existing pre hooks
   debug --level 7 --topic "WORKFLOW" "Running flow:post hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"post\" $@"
   hooks_execute "flow/${WORKFLOW}" --state "post" $@
+
+  exit $success
 
 fi
