@@ -202,7 +202,7 @@ _ensure_file()
     fi
   else
     debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file => creating missing file [path:$path]"
-    #touch "${path}"
+    touch "${path}"
 
     local success=$?
     if [ $success -gt 0 ]; then

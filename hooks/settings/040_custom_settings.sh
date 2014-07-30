@@ -6,6 +6,9 @@
 hook_version=2
 hook_root="hook_settings_040"
 
+# path to custom settings
+path_customsettings="${path_data}/settings.sh"
+
 # description method
 hook_settings_040_description()
 {
@@ -25,9 +28,6 @@ hook->settings 040 : include a project specific settings.sh
 # execute method
 hook_settings_040_execute()
 {
-
-  # path to this management system
-  path_customsettings="$path_data/settings.sh"
 
   # Allow skipping this custom file stuff
   ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
