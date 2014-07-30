@@ -32,18 +32,24 @@ hook_settings_040_execute()
   # Allow skipping this custom file stuff
   ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
 
-  if [ ${ignore_root_custom_settings_file} -gt 0 ]; then
+  if [ ${ignore_root_custom_settings_file} -eq 0 ]; then
 
+    debug --level 8 --topic "HOOK->SETTINGS->040" "Importing all of the custom settings files : [all files:${path_customsettings}]"
     # try the default custom settings paths for includes
     if [ -n ${path_customsettings} ]; then
       for path in ${path_customsettings}; do
         if [ -f $path ]; then
-          debug --level 6 --topic "HOOK" "settings (040) :: Importing custom settings file : ${path}"
-          source $path $@
+          debug --level 6 --topic "HOOK->SETTINGS->040" "Importing custom settings file [file:${path}]"
+          _include_source $path $@
+        else
+          debug --level 7 --topic "HOOK->SETTINGS->040" "Custom settings file not found: ${path}"
         fi
       done
     fi
 
+  else
+    # we were told to skip custom files
+    debug --level 8 --topic "HOOK->SETTINGS->040" "Skipping importing custom settings files [${ignore_root_custom_settings_file}] : ${path_customsettings}"
   fi
 
 }

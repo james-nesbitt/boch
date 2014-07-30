@@ -140,7 +140,7 @@ _include_source()
     source ${target} $@
     return $?
   else
-    debug --level 4 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Could not include source item.  Item was not found, or is not a file"
+    debug --level 6 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Could not include source item.  Item was not found, or is not a file"
     return 1
   fi
 }
@@ -168,7 +168,7 @@ _ensure_folder()
       debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder => could not create folder.  Already exists but not as a directory [path:$path]"
       return 1
     else
-      debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_folder => folder already exists. No need to create it [path:$path]"
+      debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_folder => folder already exists. No need to create it [path:$path]"
       return 0
     fi
   else
@@ -197,7 +197,7 @@ _ensure_file()
       debug --level 6 --topic "UTILITY->FILEFOLDER" "_ensure_file => could not create file.  Already exists but as a directory [path:$path]"
       return 1
     else
-      debug --level 7 --topic "UTILITY->FILEFOLDER" "_ensure_file => file already exists, no need to create it [path:$path]"
+      debug --level 8 --topic "UTILITY->FILEFOLDER" "_ensure_file => file already exists, no need to create it [path:$path]"
        return 0
     fi
   else
