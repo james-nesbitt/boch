@@ -4,7 +4,7 @@
 #
 
 # path to a folder that contains various docker image builds
-path_build="${path_build:-"${path_manage}/build"}"
+path_build="${path_build:-"${path_manage}/builds"}"
 
 # command help function
 build_help()
@@ -90,7 +90,8 @@ build_execute()
     build_destroy ${flags}
     return $?
   else
-    build_build ${flags} --path "${path}"
+    build_build ${flags} --path "${path}
+"
     return $?
   fi
 }
