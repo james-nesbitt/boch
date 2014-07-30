@@ -29,7 +29,7 @@ hook_command_post_specific_050_execute()
   shift
 
   # Run all POST hooks for the custom command
-  execute_hooks "command/${command}" --state "post" $@
+  hooks_execute "command/${command}" --state "post" $@
   local success=$?
   if [ $success -gt 0 ]; then
     debug --level 8 --topic "HOOK:COMMAND:${COMMAND}:POST" "Command specific POST hooks run successfully"

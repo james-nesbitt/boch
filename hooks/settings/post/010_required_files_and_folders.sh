@@ -37,32 +37,32 @@ hook_settings_post_010_execute()
   #
   # Required Folders
   #
-  required_folders="${required_folders} ${path_data}"
-  for path in $required_folders
-  do
-    _ensure_folder $path
-    success=$?
-
-    if [ $success > 0 ]; then
-      debug --level 3 --topic "HOOK" "settings/post (010) :: Failed to create required folder: $path"
-    else
-      debug --level 8 --topic "HOOK" "settings/post (010) :: Created required folder: $path"
-    fi
-  done
-
-  #
-  # Required Files
-  #
-  required_files="${required_files} ${path_log}"
-  for file in $required_files
-  do
-    _ensure_file $file;
-    success=$?
-    if [ $success > 0 ]; then
-      debug --level 3 --topic "HOOK" "settings/post (010) :: Failed to create required file: $file"
-    else
-      debug --level 8 --topic "HOOK" "settings/post (010) :: Created required file: $file"
-    fi
-  done
+#   required_folders="${required_folders} ${path_data}"
+#   for path in $required_folders
+#   do
+#     _ensure_folder $path
+#     success=$?
+#
+#     if [ $success > 0 ]; then
+#       debug --level 3 --topic "HOOK" "settings/post (010) :: Failed to create required folder: $path"
+#     else
+#       debug --level 8 --topic "HOOK" "settings/post (010) :: Created required folder: $path"
+#     fi
+#   done
+#
+#   #
+#   # Required Files
+#   #
+#   required_files="${required_files} ${path_log}"
+#   for file in $required_files
+#   do
+#     _ensure_file $file;
+#     success=$?
+#     if [ $success > 0 ]; then
+#       debug --level 3 --topic "HOOK" "settings/post (010) :: Failed to create required file: $file"
+#     else
+#       debug --level 8 --topic "HOOK" "settings/post (010) :: Created required file: $file"
+#     fi
+#   done
 
 }

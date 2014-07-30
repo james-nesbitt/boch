@@ -239,7 +239,7 @@ docker_run()
 
       # execute any existing hooks
       debug --level 7 --topic "DOCKER ABSTRACTION" "Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
-      hooks_execute start --state "run_post" --image "${image} --version "${version} --container "${container}"
+      hooks_execute "docker/start" --state "post" --image "${image} --version "${version} --container "${container}"
     else
       debug --level 2 --topic "DOCKER ABSTRACTION" "Docker run failed. Not running any hooks"
     fi

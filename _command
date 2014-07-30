@@ -46,7 +46,7 @@ command_execute()
   shift
 
   # include the command source file
-  include_command $COMMAND $@
+  _include_command $COMMAND $@
 
   # default action
   local action="execute"

@@ -58,7 +58,10 @@ source ${path_manage}/_docker
 #
 
 # execute any existing settings hooks
-debug --level 7 --topic "CONFIG" "Running settings hooks => hooks_execute settings"
+debug --level 7 --topic "CONFIG" "Running settings pre hooks => hooks_execute settings --state pre"
 hooks_execute settings --state "pre" $@
+debug --level 7 --topic "CONFIG" "Running settings hooks => hooks_execute settings"
 hooks_execute settings
+debug --level 7 --topic "CONFIG" "Running settings post hooks => hooks_execute settings --state post"
 hooks_execute settings --state "post" $@
+debug --level 7 --topic "CONFIG" "Finished running settings hooks"

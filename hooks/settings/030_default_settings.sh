@@ -59,10 +59,10 @@ hook_settings_030_execute()
   _ensure_folder $path_source
 
   if [ $? == 0 ]; then
-    debug --level 8 --topic "HOOK" "settings/post (030) :: Created required folder for project source code, adding it to the mount path list: $path_source"
+    debug --level 8 --topic "HOOK" "settings (030) :: Created required folder for project source code, adding it to the mount path list: $path_source"
     Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_source}:/app/source"
   else
-    debug --level 3 --topic "HOOK" "settings (post) (030) :: Failed to create required folder for project source code path: $path_source"
+    debug --level 3 --topic "HOOK" "settings (030) :: Failed to create required folder for project source code path: $path_source"
   fi
 
 }

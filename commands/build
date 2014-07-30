@@ -81,7 +81,7 @@ build_execute()
   done
 
   # build on the flags (valid for both create and destroy)
-  flags="--image ${image}"
+  flags="${flags} --image ${image}"
   if [ -z ${version} ]; then
     flags="${flags} --version ${version}"
   fi
@@ -90,7 +90,7 @@ build_execute()
     build_destroy ${flags}
     return $?
   else
-    build_build ${flags} --path \"${path}\"
+    build_build ${flags} --path "${path}"
     return $?
   fi
 }
@@ -201,7 +201,7 @@ build_build()
   fi
 
   if _docker_image_exists "${tag}" ; then
-    if [ force -eq 0 ]; then
+    if [ $force -eq 0 ]; then
       debug --level 1 --topic "COMMAND->build" "build_build() :: error building custom image, image already exists: ${tag}"
     else
       debug --level 4 --topic "COMMAND->build" "build_build() :: image already exists, forcing build anyway due to force flag: ${tag}"

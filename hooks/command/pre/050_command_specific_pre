@@ -29,7 +29,7 @@ hook_command_pre_specific_060_execute()
   shift
 
   # Run all PRE hooks for the custom command
-  execute_hooks "command/${command}" --state "pre" $@
+  hooks_execute
   local success=$?
   if [ $success -gt 0 ]; then
     debug --level 8 --topic "HOOK:COMMAND:${COMMAND}:PRE" "Command specific PRE hooks run successfully"

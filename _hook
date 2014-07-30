@@ -44,7 +44,6 @@ hooks_execute()
   # require the first argument to be the command
   local hook=$1
   shift
-  local hook_function=""
 
   # base hooks path
   local paths=""
@@ -72,20 +71,20 @@ hooks_execute()
   done
 
   # loop through all of the paths and execute any functions found.
-  debug --level 8 --topic "UTILITY->HOOK" "hooks_execute [hook:${hook}] : executing any hooks in these paths: ${paths}"
+  debug --level 8 --topic "UTILITY->HOOKS->EXECUTE" "hooks_execute [hook:${hook}] : executing any hooks in these paths: ${paths}"
   for path in ${paths}; do
     if [ -d ${path} ]; then
         for hook in ${path}/*; do
-
           # include and execute the hook
-          hook_execute $hook $@
-
+          if [ -f ${hook} ] && [ -x ${hook} ]; then
+	    hook_execute $hook $@
+	  fi
         done
     else
-      debug --level 9 --topic "UTILITY->HOOK" "hooks_execute : Hook path doesn't exist: ${path} $@"
+      debug --level 9 --topic "UTILITY->HOOKS->EXECUTE" "hooks_execute : Hook path doesn't exist: ${path} $@"
     fi
   done
-  debug --level 7 --topic "UTILITY->HOOK" "hooks_execute : executed hooks: ${hook_list}"
+  debug --level 7 --topic "UTILITY->HOOKS->EXECUTE" "hooks_execute : executed hooks: ${hook_list}"
 }
 
 
@@ -121,17 +120,17 @@ hooks_list()
 
   # loop through all of the paths and execute any functions found.
   for path in ${paths}; do
-        debug --level 9 --topic "UTILITY->HOOK" "hooks_list : hooks list [path:$path]"
+        debug --level 9 --topic "UTILITY->HOOKS->LIST" "hooks_list : hooks list [path:$path]"
     if [ -d ${path} ]; then
       for hook in ${path}/*; do
-        debug --level 9 --topic "UTILITY->HOOK" "hooks_list : hooks list [hook:$hook]"
-        if [ -f ${hook} ]; then
+        debug --level 9 --topic "UTILITY->HOOKS->LIST" "hooks_list : hooks list [hook:$hook]"
+        if [ -f ${hook} ] && [ -x ${hook} ]; then
           hook_list="${hook_list} ${hook}"
         fi
       done
     fi
   done
-  debug --level 9 --topic "UTILITY->HOOK" "hooks_list : hooks list [hook:$hook] : $hook_list"
+  debug --level 9 --topic "UTILITY->HOOKS->LIST" "hooks_list : hooks list [hook:$hook] : $hook_list"
   echo "${hook_list}"
 }
 
@@ -144,20 +143,29 @@ include_hook()
   # check if already attempted (if not mark it as attempted)
   case " $included_hooks " in
     *" ${hook} "*)
-        debug --level 6 --topic "HOOK->INCLUDE" "include_hook [hook:${hook}][included_hooks:${included_hooks}] hook already included!"
+        debug --level 6 --topic "UTILITY->HOOK->INCLUDE" "include_hook [hook:${hook}][included_hooks:${included_hooks}] hook already included!"
         return 1
       ;;
   esac
   included_hooks="${included_hooks} ${hook}"
 
-  debug --level 7 --topic "HOOK->INCLUDE" "include_hook [hook:${hook}] : Including hook.  Handing off to _include_source ==> _include_source \"${hook}\" $@ "
-  _include_source "${hook}" $@
-  local success=$?
-  if [ $success -eq 0 ]; then
-    debug --level 6 --topic "HOOK->INCLUDE" "hook included \"${hook}\""
+  if [ -f ${hook} ]; then
+
+    debug --level 7 --topic "UTILITY->HOOK->INCLUDE" "include_hook [hook:${hook}] : Including hook.  Handing off to _include_source ==> _include_source \"${hook}\" $@ "
+    _include_source "${hook}" $@
+    local success=$?
+    if [ $success -eq 0 ]; then
+      debug --level 6 --topic "UTILITY->HOOK->INCLUDE" "hook included \"${hook}\""
+    else
+      debug --level 4 --topic "UTILITY->HOOK->INCLUDE->FAIL" "hook include failed for \"${hook}\""
+    fi
+
   else
-    debug --level 4 --topic "HOOK->INCLUDE" "hook include failed for \"${hook}\""
+
+    debug --level 4 --topic "UTILITY->HOOK->INCLUDE->FAIL" "Hook could not be included as it was not found, or is not a file [hook:${hook}]"
+
   fi
+
   return $sucess
 }
 
@@ -167,6 +175,8 @@ hook_execute()
   # hook is the first param
   local hook="$1"
   shift
+
+  debug --level 9 --topic "UTILITY->HOOK->EXECUTE" "hook_execute [hook:${hook}]: START"
 
   # default action
   local action="execute"
@@ -191,28 +201,31 @@ hook_execute()
   # include hook - capture the output, as this may be an older version hook
   include_hook ${hook}
 
-  debug --level 9 --topic "UTILITY->HOOK" "hook_execute : Included and Executing Hook script (source) [hook:$hook][hook_root:${hook_root}][hook_version:${hook_version}][args:$@]"
+  debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Included and Executing Hook script (source) [hook:$hook][hook_root:${hook_root}][hook_version:${hook_version}][args:$@]"
 
   # if the hook source set a hook_version, then react to the version
   case "$hook_version" in
     2)
       # version 2 hooks have methods named after the actions
       hook_function="${hook_root}_${action}"
-      debug --level 8 --topic "UTILITY->HOOK" "hook_execute : Executing Hook script (source) [action:$action][hook_version:${hook_version}][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
+      debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Executing Hook script (source) [action:$action][hook_version:${hook_version}][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
       eval ${hook_function} $@
       local success=$?
 
       if [ $success -gt 0 ]; then
-        debug --level 4 --topic "UTILITY->HOOK" "hook_execute : Hook script return an error, halting (source) [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
-        return $?
+        debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script return an error [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
       fi
       ;;
     *)
       # older version hooks execute inline.  they have only the execute action.
-      debug --level 6 --topic "UTILITY->HOOK" "hooks_execute : this hook source exists, but did not define any version.  Is this an older version hookfile? [hook:$hook][hook_version:${hook_function}]"
-      return 1
+      debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : this hook source exists, but did not define any version.  Is this an older version hookfile? [hook:$hook][hook_version:${hook_function}]"
+      success=1
       ;;
   esac
+
+  debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "hook_execute [hook:${hook}]: FINISH "
+
+  return $success
 }
 
 # create a usable short label for a hook
