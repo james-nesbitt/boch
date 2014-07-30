@@ -76,7 +76,7 @@ help_topic_help()
       fi
 
       # execute any existing pre hooks
-      debug --level 7 --topic "HELP" "Running help hooks => hooks_execute \"${topic}}\" --state \"help\" ${flags} $@"
+      debug --level 7 --topic "HELP" "Running help hooks => hooks_execute \"${topic}\" --state \"help\" ${flags} $@"
       hooks_execute ${topic} --state "help" ${flags} $@
       return $?
   esac

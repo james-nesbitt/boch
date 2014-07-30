@@ -67,11 +67,14 @@ done
 # path to the root of this project
 path_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 # include _config, which will do the rest of the work.
-source "${path_script}/_config"
+source "${path_script}/_init"
 
-##########################$######################
+# include the flow library
+library_include flow
+
+#################################################
 # Determine what workflow is supposed to be run #
-###########################$#####################
+#################################################
 # the first non-hyphenated argument is the flow
 WORKFLOW=$1
 shift
@@ -112,7 +115,7 @@ if [ "$help" == "yes" ]; then
   fi
 
   # execute any existing pre hooks
-  debug --level 7 --topic "WORKFLOW" "Running flow:help hooks => hooks_execute \"flow/help}\" --state \"help\" ${WORKFLOW} ${hook} $@"
+  debug --level 7 --topic "WORKFLOW" "Running flow:help hooks => help_execute --topic \"${topic}\" ${WORKFLOW} $@"
   help_execute --topic "${topic}" ${WORKFLOW} $@
   exit $?
 

@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# 060 Add any library hooks folder to the hooks path list
+#
+
+hook_version=2
+hook_root="hook_library_hook_library_060"
+
+# description method
+hook_library_hook_library_060_description()
+{
+  echo "If a library has a hooks folder, add it to the hooks path list"
+}
+
+# help method
+hook_library_hook_library_060_help()
+{
+  echo "
+Add an hooks folder from a library to the hooks list
+
+"
+}
+
+# execute method
+hook_library_hook_library_060_execute()
+{
+
+  local library=""
+  local path=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--library)
+	library=$2
+	shift
+	;;
+      -p|--path)
+	path=$2
+	shift
+	;;
+      *)
+	  break;; # terminate while loop
+    esac
+    shift
+  done
+
+  path="${path}/hooks"
+
+  if [ -d ${path} ]; then
+    debug --level 7 --topic "HOOKS->LIBRARY->060" "New library added has hooks, adding those hooks to the hooks paths [library:${library}][path:${path}]"
+    path_hooks="${path_hooks} ${path}"
+  fi
+
+}

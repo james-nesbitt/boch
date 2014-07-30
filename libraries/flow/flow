@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Flow Library
+#
+
+# nothing here really.  Flows are all hook based
+
+_flow="flow"

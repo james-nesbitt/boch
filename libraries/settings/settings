@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# Settings library
+#
+
+#
+# This library doesn't do too much yet,
+# other than run a lot of
+
+#############################
+# include setting overrides #
+#############################
+#
+# all of the usefull settings are made
+# in settings hooks
+#
+
+debug --level 7 --topic "SETTINGS" "Running settings hooks"
+
+# execute any existing settings hooks
+debug --level 8 --topic "SETTINGS" "Running settings pre hooks => hooks_execute settings --state pre"
+hooks_execute settings --state "pre" $@
+debug --level 8 --topic "SETTINGS" "Running settings hooks => hooks_execute settings"
+hooks_execute settings
+debug --level 8 --topic "SETTINGS" "Running settings post hooks => hooks_execute settings --state post"
+hooks_execute settings --state "post" $@
+debug --level 8 --topic "SETTINGS" "Finished running settings hooks"
+
+debug --level 7 --topic "SETTINGS" "Running settings hooks complete"

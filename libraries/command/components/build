@@ -41,7 +41,7 @@ can easily be built by passing the individual folder names to this command.
 build_execute()
 {
   # default build settings
-  local path="${path_build}/${default_build:-"project"}"
+  local path="${path_build}/${default_build:-"${Docker_image:-"project"}"}"
   local image="${Docker_image}"
   local version="${Docker_imageversion}"
 
@@ -90,8 +90,7 @@ build_execute()
     build_destroy ${flags}
     return $?
   else
-    build_build ${flags} --path "${path}
-"
+    build_build ${flags} --path "${path}"
     return $?
   fi
 }

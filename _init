@@ -55,26 +55,7 @@ library_include command
 library_include help
 # include docker functions - bash abstractions for docker operations
 library_include docker
+# include the settings library
+library_include settings
 
 debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES COMPLETE"
-
-####################################
-# include docker setting overrides #
-####################################
-#
-# Most of the usefull settings are made
-# in settings hooks
-#
-
-debug --level 7 --topic "CONFIG" "Running settings hooks"
-
-# execute any existing settings hooks
-debug --level 8 --topic "CONFIG" "Running settings pre hooks => hooks_execute settings --state pre"
-hooks_execute settings --state "pre" $@
-debug --level 8 --topic "CONFIG" "Running settings hooks => hooks_execute settings"
-hooks_execute settings
-debug --level 8 --topic "CONFIG" "Running settings post hooks => hooks_execute settings --state post"
-hooks_execute settings --state "post" $@
-debug --level 8 --topic "CONFIG" "Finished running settings hooks"
-
-debug --level 7 --topic "CONFIG" "Running settings hooks complete"
