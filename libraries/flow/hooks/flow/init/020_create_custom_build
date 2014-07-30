@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Build the project image
+#
+
+hook_version=2
+hook_root="hook_flow_init_020"
+
+
+# description method
+hook_flow_init_020_description()
+{
+  echo "build default project imags"
+}
+
+# help method
+hook_flow_init_020_help()
+{
+  echo "
+HOOK->FLOW->INIT->020: Build the default project image
+
+[-b|--build {build}] : specify an alternate build that should be built
+
+"
+}
+
+# execute method
+hook_flow_init_020_execute()
+{
+
+
+
+}

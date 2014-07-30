@@ -38,7 +38,7 @@ path_project="$(dirname ${path_manage})"
 # path to user home folder (in case)
 path_userhome="${HOME}"
 # path to a folder where the system can keep some data
-path_data="${path_project}/data"
+path_data="${path_project}/project"
 
 # Include utility functions
 source ${path_manage}/_utilities
