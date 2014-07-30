@@ -160,6 +160,7 @@ hook->command/help 050 : GENERIC HELP MESSAGE GOES HERE
 
 - explain the help system
 - explain the hook system
+   - explain that a command is actually run via a hook
 
 - list commands
 
