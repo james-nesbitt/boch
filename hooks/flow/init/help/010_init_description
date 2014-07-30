@@ -9,7 +9,7 @@ hook_version="2"
 # description hook method
 hook_core_init_help_010_description()
 {
-  echo "Init: definition for help"
+  echo "Show help for ./flow init"
 }
 
 hook_core_init_help_010_help()

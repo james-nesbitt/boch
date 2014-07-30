@@ -9,14 +9,14 @@ hook_root="hook_init_020"
 # description method
 hook_init_020_description()
 {
-  echo "flow->init hook 020: build default project images"
+  echo "build default project images"
 }
 
 # help method
 hook_init_020_help()
 {
   echo "
-Flow->init hook 020: Build the default project images
+HOOK->FLOW->INIT->020: Build the default project images
 
 [-b|--builds {builds}] : specify an alternate list of builds that should be built
 
@@ -26,6 +26,9 @@ Flow->init hook 020: Build the default project images
 # execute method
 hook_init_020_execute()
 {
-local thisone="this"
+
+
+
+  hook_init_020_description
 
 }

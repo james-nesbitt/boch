@@ -207,11 +207,11 @@ library_execute()
     else
       debug --level 6 --topic "LIBRARY:EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Command method returned an error"
     fi
-    exit $sucess
+    return $sucess
 
   else
     debug --level 6 --topic "LIBRARY:EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Could not find library or component"
-    exit 1
+    return 1
   fi
 }
 

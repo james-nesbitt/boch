@@ -46,64 +46,133 @@ hook_init_010_execute()
 ####
 # Important paths for the source code
 #
+# @NOTE you have access to the following system paths:
+#  - ${path_manage} : path to the folder that contains the commands
+#  - ${path_project} : root folder for your project (actually just one up from your manage path)
+#  - ${path_user} : user home
+#
+# @NOTE you could try changing the above paths in your settings file, but the results are not predictable
 
 # =path to custom settings and data=
-# various settings about custom configurations and
+# various settings about custom configurations
 #
-#path_data="\${path_manage}/data"
+# - settings.sh : this file
+#
+#path_data="${path_data}"
 
-# Project name.
-Project_name=\"${Project_name:-"project"}\"
+# path to the log file
+# @NOTE to enable logging try passing --log [{level}] to you command line
+#path_log="${path_log}"
 
-# Docker build images
+# path to Dockerfile builds for the project
+#path_build=${path_build}
+
+# hooks path
+#
+# @NOTE hooks paths contain script files, which if executable, are executed
+#   as events on core actions.  Read the ${path_hooks}/README.md for more info
+#
+# @NOTE we recommend that you add your own hooks folder to this path, so that you
+#   can add project specific hooks to the system
+path_projecthooks=\"\${path_data}/hooks\"
+path_hooks="\${path_hooks} \${path_projecthooks}"
+
+# you can use this command to create any missing paths
+ensure_folder \"\${path_projecthooks}\"
+#ensure_folder \"\${path_projecthooks}\\commands\\pre\"        <-- hooks run before any \"./command\" execution
+#ensure_folder \"\${path_projecthooks}\\commands\\build\\pre\" <-- hooks run before any \"./command build\"
+#ensure_folder \"\${path_projecthooks}\\flow\\init\"           <-- hooks run as actions for the \"init flow\"
+#ensure_folder \"\${path_projecthooks}\\settings\"             <-- settings hooks
+#ensure_folder \"\${path_projecthooks}\\settings\\pre\"        <-- early settings hooks
+#ensure_folder \"\${path_projecthooks}\\settings\\post\"       <-- late settings hooks
+
+###
+# Project settings
+#
+# some project related settings
+#
+
+# Project name : this gets used as a default all over the place
+project_name=\"${project_name:-"project"}\"
+
+###
+# Docker image configurations
+#
+
+# Project build images
+#
 # Generally needed to start making containers (a space separated queue of builds)
-# and are the default builds built with the build command.
+# and are the default docker builds built with the flow init command.
 # Change this if your build image has a different name, or if it has different
 # parent images that need building.
-#Docker_builds="${Docker_builds:-"wwwserver-cnpm wwwserver-cnpm-dev project"}"
+#
+# @NOTE you don't technically need any of these. If you use a project container that
+#   is built on a remote image, then the image will be pulled when you build your
+#   project image.
+# @NOTE is you want to use this, you will have to create a folder with a Dockerfile
+#   for each build, in the \${path_build} folder
+# @NOTE this is not something that is heavily enforced.  This is checked during
+#   \"./flow init\" but not before starting any builds
+#
+# @TODO make build check this before proceeding.
+#required_builds="${required_builds:-""}"
 
-# Default docker image created in build, used in start/run/shell
-# The docker image, which will be used for containers, (and building)
-#Docker_image="${Docker_image:-"project"}"
-#Docker_imageversion=\"latest\"
+# Project build and image
+#
+# which build (folder) should be used for project images (if it isn't built)
+#project_build="${project_build:-"project"}"
+# which image should we use for creating containers (and build it if it is missing)
+#project_image="${project_image:-"project"}"
+# which image version/tag should we use for containers
+#project_imageversion=\"${project_imageversion:-"latest"}\"
 
-# Docker container ID, used for start/stop/run etc
-#Docker_container=\"project_server\"
+###
+# Docker Container configurations
+#
 
 # OS hostname used inside the container (which would impact things like avahi)
-#Machine_hostname=\"\${Project_name}\"
+#machine_hostname=\"\${project_name}\"
 
 # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
-Machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
+# @NOTE these are arguments for \"docker run\". Check that docker command to learn more
+machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 
+###
 # Prefered shell configuration for the Machine
+#
 # Running as a shell is a temporary approach to getting shell access to a machine
 # but should be considered secondary to other methods of running commands on the
 # container.  It is a good plan for now but will be dropped in the future.
 #
-# @NOTE Running a shell creates a new container, and does not give access to an existing container
-Machine_shell=\"/bin/zsh\"
+# @NOTE Running a shell creates a new container, but does not give access to an existing container
+#
+# @NOTE if you are using our builds, then zsh is available
+machine_shell=\"/bin/zsh\"
 # arguments for docker run that should always be included when starting a shell: docker help run
-Machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
+# @NOTE you should probably take a look at docker run to learn more
+# @NOTE our builds have a developer user created
+machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
 
-# Build Mount list:
+###
+# Mount list:
 #
 # These are run time mounts, where the host FS can be changed
 # directly changing the container FS.
 #
 # @TODO get away from having to include the -v flag here, by finding a better format for this
-#
 
-# Add our project source to the box
+# create some variables for our sources
 # @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
-path_source=\"\${path_project}/source\"
-path_source_www=\"\${path_source}/www\"
+#path_source=\"\${path_project}/source\"
+#path_source_www=\"\${path_source}/www\"
 
 # Now that we have tested it, add the source folder to the mount
-# This is an example from what is already added == Machine_mountvolumes=\"\${Machine_mountvolumes} --volume=\${path_project}/source:/app/source\"
+# This is an example from what is already added by the system == machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source}:/app/source\"
+#machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source_www}:/app/source_www\"
 
 # Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
-Machine_mountvolumes=\"\${Machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+# @NOTE our builds have a developer user created
+machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
 
 " > $path
 

@@ -9,7 +9,7 @@ hook_root="hook_flow_help_050"
 # description method
 hook_flow_help_050_description()
 {
-  echo "hook->help: Main help handler"
+  echo "Main help handler for the ./flow tool"
 }
 
 # help method
@@ -129,23 +129,49 @@ hook_flow_help_050_help_generalhelp()
 {
   echo "
 hook->flow/help 050 : GENERIC HELP MESSAGE GOES HERE
+
+FLOW: HELP
+
+GENERAL INSTRUCTION ON HOW TO USE FLOW
+
+- explain the idea behind flow
+- explain that flow is entirely hook based
+  - explain why the system can't respond to an unknown flow
+- show how to get a list of hooks used in a flow
+
+- give examples for showing help for a flow      -> ./flow --help {flow}
+- give examples for showing help for a flow hook -> ./flow --help hook:{hook} {flow}
+
 "
 }
 
-hook_flow_help_050_help_unknowncommand()
+# no hooks found for this glow
+hook_flow_help_050_help_unknownflow()
 {
   echo "
 hook->flow/help 050 : UNKNOWN FLOW HELP MESSAGE GOES HERE [flow:$1]
+
+- explain that we found no hooks for this flow, so it does not technically exist
 "
+  # Include general help
+  hook_flow_help_050_help_generalhelp
 }
+# hook not found for this flow
 hook_flow_help_050_help_unknownhook()
 {
   echo "
 hook->flow/help 050 : UNKNOWN FLOW HOOK HELP MESSAGE GOES HERE [flow:$1][hook:$2]
+
+- explain that this hook was not found for this flow
+- explain what makes a valid hook
+- explain how to find a list of the active hooks for a flow
+
 "
+  # Include general help
+  hook_flow_help_050_help_generalhelp
 }
 
-
+# Show the help hooks for a flow
 hook_flow_help_050_help_flowhelp()
 {
   local FLOW=$1
@@ -153,9 +179,8 @@ hook_flow_help_050_help_flowhelp()
 
   debug --level 6 --topic "HOOK>FLOW->HELP->050" "handing off help to help hook for flow [flow:\"${FLOW}\"]"
   hooks_execute "flow/${FLOW}" --state "help" $@
-
 }
-
+# print a list of active hooks for a flow/state
 hook_flow_help_050_help_hooklist()
 {
   debug --level 7 --topic "HOOK>FLOW->HELP->050" "Executing hook list for command [flow:$1][state:$2][hooks:$3]"
@@ -175,7 +200,7 @@ ACTIVE HOOKS FOR STATE: ${state}
     echo "  -->${label} : ${description}"
   done
 }
-
+# show the help for a flow hook
 hook_flow_help_050_help_hookhelp()
 {
   local label=$1
@@ -188,7 +213,7 @@ HOOK HELP FOR: $label
 "
   hook_help ${hook} $@
 }
-
+# show a message when the hook being used is related to this help system
 hook_flow_help_050_help_hookhelpforbidden()
 {
   local label=$1
@@ -198,7 +223,8 @@ hook_flow_help_050_help_hookhelpforbidden()
   echo "
 HOOK HELP:
 ==========
-can't give hook help for: $label.  This hook is a part of the above message.
+can't give hook help for: $label.  This hook is a part of the above message, so is not
+considered a valid help target.
 "
 
 }

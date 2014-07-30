@@ -9,7 +9,7 @@ hook_root="hook_command_help_050"
 # description method
 hook_command_help_050_description()
 {
-  echo "hook->help: Main help handler"
+  echo "Main help handler for the command tool"
 }
 
 # help method
@@ -23,7 +23,9 @@ write generic help to the screen, or it will load and
 write command specific, and command and hook specific
 help to the screen.
 
-To get generic help try running wihtout a command.
+To get generic help try running without a command.
+$/> ./command --help
+
 "
 }
 # description method
@@ -66,12 +68,12 @@ hook_command_help_050_execute()
   else
 
     hook_command_help_050_help_commandhelp ${COMMAND} $@
-
     local subtopic=${topic#*:}
     topic=${topic/:${subtopic}/}
 
     case "${topic}" in
       "hook")
+
 	# subtopic is a hook
 	local hook="${subtopic}"
 	local helpfound="no"
@@ -87,7 +89,7 @@ hook_command_help_050_execute()
 	  else
 	    state="--state ${state}"
 	  fi
-	  local hooks="`hooks_list "command/${COMMAND}" ${state}`"
+	  local hooks="`hooks_list "command" ${state}` `hooks_list "command/${COMMAND}" ${state}`"
 
 	  if [ "$hooks" != "" ]; then
 	    for thishook in ${hooks}; do
@@ -106,17 +108,29 @@ hook_command_help_050_execute()
 	done
 
 	if [ "${helpfound}" == "no" ]; then
-	  hook_command_help_050_help_unknownhook ${FLOW} ${hook} $@
+	  hook_command_help_050_help_unknownhook ${COMMAND} ${hook} $@
 	fi
 
       ;;
       *)
-
 	debug --level 6 --topic "HOOK>COMMAND->HELP->050" "no help hook specified.  List all hooks instead."
 
 	# do a list of all of the hooks
 	local label=""
 	local states="pre execute post help"
+	for state in $states; do
+	  label="${state}"
+	  if [ "$state" == "execute" ]; then
+	    # execute is a placeholder for no state
+	    state=""
+	  else
+	    state="--state ${state}"
+	  fi
+	  local hooks="`hooks_list "command" ${state}`"
+	  if [ "$hooks" != "" ]; then
+	    hook_command_help_050_help_hooklist "GLOBAL (any command)" "${label}" "${hooks}"
+	  fi
+	done
 	for state in $states; do
 	  label="${state}"
 	  if [ "$state" == "execute" ]; then
@@ -131,7 +145,7 @@ hook_command_help_050_execute()
 	    hook_command_help_050_help_hooklist ${COMMAND} "${label}" "${hooks}"
 	  fi
 	done
-
+      ;;
     esac
 
   fi
@@ -143,6 +157,14 @@ hook_command_help_050_help_generalhelp()
 {
   echo "
 hook->command/help 050 : GENERIC HELP MESSAGE GOES HERE
+
+- explain the help system
+- explain the hook system
+
+- list commands
+
+- give examples for showing help for a command      -> ./command --help {command}
+- give examples for showing help for a command hook -> ./command --help hook:{hook} {command}
 "
 }
 # output message if help is requested for an unknow command
@@ -150,14 +172,25 @@ hook_command_help_050_help_unknowncommand()
 {
   echo "
 hook->command/help 050 : UNKNOWN COMMAND HELP MESSAGE GOES HERE [command:$1]
+
+- explain that his command is not known
+
 "
+  # Include general help
+  hook_command_help_050_help_generalhelp
 }
 # output message if help was requested for an unkown hook
 hook_command_help_050_help_unknownhook()
 {
   echo "
 hook->command/help 050 : UNKNOWN COMMAND HOOK HELP MESSAGE GOES HERE [command:$1][hook:$2]
+
+- explain that this hooks was not found for this command
+- explain what makes a valid hook
+- explain how to find out what hooks run for a command
 "
+  # include general help
+  hook_command_help_050_help_generalhelp
 }
 
 # output help for a specific command
@@ -165,7 +198,6 @@ hook_command_help_050_help_commandhelp()
 {
   local COMMAND=$1
   shift
-
   debug --level 6 --topic "HOOK>COMMAND->HELP->050" "handing off help to command help hook [command:\"${COMMAND}\"]"
   command_execute ${COMMAND} --action "help" $@
 }
@@ -174,12 +206,12 @@ hook_command_help_050_help_hooklist()
 {
   debug --level 7 --topic "HOOK>COMMAND->HELP->050" "Executing hook list for command [command:$1][state:$2][hooks:$3]"
 
-  local flow="$1"
+  local command="$1"
   local state="$2"
   local hooks="$3"
 
   echo "
-ACTIVE HOOKS FOR STATE: ${state}
+ACTIVE HOOKS: ${command}:${state}
 =============================================="
   shift
 
@@ -213,7 +245,8 @@ hook_command_help_050_help_hookhelpforbidden()
   echo "
 HOOK HELP:
 ==========
-can't give hook help for: $label.  This hook is a part of the above message.
+can't give hook help for: $label.  This hook is a part of the above message, so is not
+considered a valid help target.
 "
 
 }

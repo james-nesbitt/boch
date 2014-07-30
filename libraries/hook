@@ -14,6 +14,9 @@
 # 1 : an inline script, without any _help or _execute methods
 # 2 : a functional script with _help _description and _execute methods
 #
+# @TODO refactor to allow:
+#   - sort of all hooks (based on state, across paths)
+#   - allow hook exclusion
 
 ###
 # Run hooks for a command

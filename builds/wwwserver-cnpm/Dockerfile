@@ -9,7 +9,7 @@ MAINTAINER      james.nesbitt@wunderkraut.com
 RUN /usr/bin/yum update -y && yum clean -y all
 
 # Install some tools used here.
-RUN /usr/bin/yum install -y wget curl git
+RUN /usr/bin/yum install -y wget curl git tar unzip
 
 ## EPEL Dependency on CentOS 6 and Red Hat (RHEL) 6 ##
 RUN wget http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm && \
@@ -24,7 +24,8 @@ EXPOSE 9001
 
 # Install the mimimum services required to get a base platform (ssh service generates keys)
 RUN /usr/bin/yum install -y openssh-server && \
-    sed -i -e '/pam_loginuid\.so/ d' /etc/pam.d/sshd
+    sed -i -e '/pam_loginuid\.so/ d' /etc/pam.d/sshd && \
+    /usr/bin/ssh-keygen -A 
 EXPOSE 22
 
 # Install MariaDB

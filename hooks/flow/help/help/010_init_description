@@ -9,7 +9,7 @@ hook_version="2"
 # description hook method
 hook_core_init_help_010_description()
 {
-  echo "Flow:help: Generic instructions on how to use help"
+  echo "Generic instructions on how to use help with the ./flow tool"
 }
 
 hook_core_init_help_010_help()
@@ -18,6 +18,14 @@ hook_core_init_help_010_help()
 FLOW: HELP
 
 GENERAL INSTRUCTION ON HOW TO USE FLOW
+
+- explain the idea behind flow
+- explain that flow is entirely hook based
+  - explain why the system can't respond to an unknown flow
+- show how to get a list of hooks used in a flow
+
+- show examples of getting help for a flow
+- show examples of getting help for a flow hook
 
 "
 }

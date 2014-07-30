@@ -59,18 +59,17 @@ command_execute()
 
     debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${COMMAND} ] handing off to library_execute script: library_execute --component \"${COMMAND}\" --action \"${action}\" \"command\" $@"
     library_execute --component "${COMMAND}" --action "${action}" "command" $@
-    success=$?
-    if [ $success == 0 ]; then
-      echo "$result"
-      debug --level 8 --topic "COMMAND:EXECUTE" "${COMMAND} succeeded."
+    local success=$?
 
+    if [ $success -eq 0 ]; then
+      debug --level 8 --topic "COMMAND:EXECUTE" "${COMMAND} succeeded."
     else
       debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${COMMAND}.  Command method returned an error"
     fi
-    exit $sucess
+    return $success
 
   else
     debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${COMMAND}.  Could not find command"
-    exit 1
+    return 1
   fi
 }
