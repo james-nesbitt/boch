@@ -44,11 +44,12 @@ command_include()
       # mark success to show that we didn't find the library
       success=-1
       for path_command in ${path_commands}; do
-	path="${path_commands}/${command}"
+	path="${path_command}/${command}"
 
+	debug --level 9 --topic "COMMAND->INCLUDE" "checking command path [command:${command}][path:${path}]"
 	# do a quick check on if the path exists
 	# @NOTE technically we don't need to use this, as load_library does it as well, but we do it just to save effort
-	if [ -e ${path} ]; then
+	if [ -e "${path}" ]; then
 
 	  debug --level 8 --topic "COMMAND->INCLUDE" "Including command.  Handing off to library_load ==> library_load --library \"command:${command}\" --path \"${path}\" $@"
 	  library_load --library "command:${command}" --path "${path}" $@
