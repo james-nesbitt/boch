@@ -36,7 +36,7 @@ if not, here is a list of advantages:
 Vagrant is probably a good idea, in fact it is a much more mature
 and stable solution than this ...
 
-BUT 
+BUT
 
 There are a few things that this
 toolset does/could eventually provide that VAGRANT cannot.)
@@ -93,24 +93,9 @@ Container can be:
 
 The current configuration has certain expectations what files and folders are required, and for where things should be:
 
-/source/  <- where your project source is assumed to be
-  www <- The default web root, where the default nginx configuration expects to host a project site.
+@TODO update layout description
 
-/manage/ <- a root folder where all of the scripts and configurations for the project are kept (this repository!)
-  control <- the principle control script, which can run all the commands.
-  _utilities.sh <- a file with various tool functions.
-  _docker.sh <- abstraction for docker control, has functions for different docker operations.
-
-  commands/ <- contains 1 file per control command, with named function to implement the command, or provide help.
-  hooks/ <- a series of nested folders, each folder corresponding to a hook label.  In the folders are any number of scripts which are run as hooks.
-
-  build/  <- folder containing various docker container configuration
-  build/container <- docker container configuration : built on a parent, tailors the image to have project specific configurations
-  build/parent/ <- docker parent container configuration : a generic dev container with nginx, php etc.
-
-/* whatever else you want
-
-### "control" : the management script
+### "command" : the management script
 
 All of the management tools are worked into a single script manage/control.  The control script switches based on a command argument, and uses functions from the _docker.sh script to run docker commands.  Control has some base default configuration in it's header, and inludes overridable configurations from _settings.sh.   The control script is smart enough that it doesn't need to executed from any particular folder.
 
@@ -129,6 +114,10 @@ For a list of commands try this:
 $/> manage/control help
 $/> manage/control help {command}
 
+### "flow" : the workflow management script
+
+@TODO describe the flow command
+
 ### them images
 
 The build system is not aware of dependencies.
@@ -139,12 +128,9 @@ The default approach is to have a parent image shared across projects/containers
 
 The parent image is used as a base for all projects using this framework.  It has the basic docker functionality, with www server applications installed, and configured to run.
 
-The parent is CentOS 6.5 based, using nginx, php-fpm, mariaDB, running alsoo sshd, managed by supervisor
+The parent is CentOS 7 based, using nginx, php-fpm, mariaDB, running alsoo sshd, managed by supervisor
 
 The base Docker container is included as a Dockerfile in the manage/build/parent folder.  This only needs to be built once per host machine, and can be built using the build command.
-
-@BUGS:
-- Supervisor sometimes uses 100% CPU, I think that is not playing well with nginx.  I am considering switching to using simplevisor, which has less features but is more efficient.  Using simplevisor would mean losing the tcp client.
 
 #### the project image
 
@@ -152,33 +138,7 @@ The build system builds a custom image for your project, using the parent as a s
 
 ## A quick start
 
-1. STEP ZERO : You probably already did this
-
-  - Fork (git branch) or export this repo;
-
-2. STEP ONE : BUILD YOUR PROJECT CONTAINER
-
-  Q: Do you have the parent box?
-    If you don't then the build will pull it.  If you want you can build it first with $/> manage/control build --build {parent}
-
-  - Play with the contents of manage/_settings.sh if you want
-  - Play with the container build configuration (manage/build/container)
-  - Add your project source, probably to /source (unless you want to really play with the container configuration)
-  - RUN $/> manage/control [-v] build
-
-3. STEP TWO : Run the container
-
-  - RUN $/> manage/control [-v] start
-    (the first time this is run, it will create a container, other times it should resume it)
-
-4. OPTIONAL STEPS
-
-  - To get help RUN $/> manage/control help {command}
-    (there are lots of options, which should be investigated, especially for commit)
-  - To stop a container RUN $/> manage/control [-v] stop
-  - To see the output of a running container RUN $/> manage/control [-v] attach
-  - To save a changed container back to the image RUN $/> manage/control [-v] commit
-  - To get a temporary shell in a new container (for debugging) $/> manage/control [-v] shell
+@TODO Update for new library system
 
 # QUICK FAQ
 
@@ -189,23 +149,17 @@ Why can't I start my container:
        - check that the image was created
        - check the build output for an error
 
-Why does my container use 100%
-
-  - we have a problem with supervisord taking 100% CPU, I haven't
-    figured out why yet.
-
 I started my container but I don't see it?
 
-  - are you expecting a prompt or output, because the default conf
-    doesn't provide any
+  - are you expecting a prompt or output, because the default conf doesn't provide any
 
 I used the shell command, but my changes disappear
 
   - shell is meant to provide a temporary container based on the image
        - you can try --persistant to have the container stay
   - shell gives you a new container, not the same container
-    as you have in start.  
-  - shell is meant as a tools to debug the 
+    as you have in start.
+  - shell is meant as a tools to debug the
     container, or to make changes that are then commited to the
     image.
 

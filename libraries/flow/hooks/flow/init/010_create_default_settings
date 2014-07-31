@@ -92,7 +92,7 @@ hook_init_010_execute()
 # if you do load a library, and it has a hooks folder, those
 # hooks will automatically be activated.
 #
-#path_library=\"\${path_libraries} \${path_data}/libraries\"
+#libraries_addpath \"\${path_data}/libraries\"
 
 # Commands path
 #
