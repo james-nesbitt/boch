@@ -49,7 +49,7 @@ command_library_command_library_060_execute()
 
   if [ -d ${path} ]; then
     debug --level 7 --topic "HOOKS->LIBRARY->060" "New library added has commands, adding those commands to the commands paths [library:${library}][path:${path}]"
-    path_commands="${path_commands} ${path}"
+    commands_addpath "${path}"
   fi
 
 }
