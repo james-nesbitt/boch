@@ -53,7 +53,7 @@ hook_command_help_050_execute()
 
   debug --level 6 --topic "HOOK>COMMAND->HELP->050" "including command \"${COMMAND}\""
 
-  _include_command ${COMMAND}
+  command_include ${COMMAND}
   local success=$?
 
   if [ $success -gt 0 ]; then

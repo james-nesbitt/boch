@@ -40,7 +40,7 @@ hook_settings_post_010_execute()
   do
     if [ "$path" != "" ]; then
 
-      _ensure_folder $path
+      ensure_folder $path
       success=$?
 
       if [ $success -gt 0 ]; then
@@ -60,7 +60,7 @@ hook_settings_post_010_execute()
   do
     if [ "$file" != "" ]; then
 
-     _ensure_file $file;
+     ensure_file $file;
      success=$?
      if [ $success -gt 0 ]; then
 	debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required file: $file"

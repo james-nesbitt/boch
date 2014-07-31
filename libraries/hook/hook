@@ -23,6 +23,11 @@ debug --level 7 --topic "HOOKS" "Adding hooks library hooks to the hooks paths [
 #   - sort of all hooks (based on state, across paths)
 #   - allow hook exclusion
 
+hooks_addpath()
+{
+  path_hooks="${path_hooks} ${1}"
+}
+
 ###
 # Run hooks for a command
 #

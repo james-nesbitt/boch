@@ -83,7 +83,7 @@ build_multiple_execute()
   done
 
   # include the build command, whose hooks we will reuse
-  _include_command "build"
+  command_build "build"
 
   if [ "$action" == "destroy" ]; then    # test to see if the build exists
     local image=""
