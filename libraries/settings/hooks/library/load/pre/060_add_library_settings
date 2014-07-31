@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# 060 Add any library hooks folder to the hooks path list
+#
+
+hook_version=2
+hook_root="hook_library_settings_library_060"
+
+# description method
+hook_library_settings_library_060_description()
+{
+  echo "If a library has a settings file, include it"
+}
+
+# help method
+hook_library_settings_library_060_help()
+{
+  echo "
+Add any settings file that a library may have in it's folder
+
+"
+}
+
+# execute method
+hook_library_settings_library_060_execute()
+{
+
+  local library=""
+  local path=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--library)
+	library=$2
+	shift
+	;;
+      -p|--path)
+	path=$2
+	shift
+	;;
+      *)
+	  break;; # terminate while loop
+    esac
+    shift
+  done
+
+  path="${path}/settings"
+
+  if [ -f ${path} ] && [ -x ${path} ]; then
+    debug --level 7 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "New library has a settings file.  Adding it. [library:${library}][path:${path}]"
+    hooks_addpath "${path}"
+  fi
+
+}

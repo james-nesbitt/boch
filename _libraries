@@ -59,11 +59,15 @@ library_include()
       for path_library in ${path_libraries}; do
 	path="${path_library}/${library}"
 
-	library_load --library ${library} --path "${path_library}/${library}" $@
+	# check the path before trying to load it
+	if [ -e ${path} ]; then
+	  debug --level 8 --topic "LIBRARY->INCLUDE" "AAAAtrying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
+	  library_load --library "${library}" --path "${path_library}/${library}" $@
 
-	if [ $? -gt -1 ]; then
-	  success=$?
-	  break;
+	  if [ $? -gt -1 ]; then
+	    success=$?
+	    break;
+	  fi
 	fi
 
       done
@@ -103,13 +107,16 @@ library_include()
 	    # add the component name to the path
 	    path="${path}/${component}"
 
-	    # try to load the component as a library
-	    debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library component, handing off to library_load [library:${library}][component:${component}] =>  library_load --library \"${library}:${component}\" --path \"${path}\" $@"
-	    library_load --library "${library}:${component}" --path "${path}" $@
+	    # check that the path exists before trying to load it.
+	    if [ -e ${path} ]; then
+	      # try to load the component as a library
+	      debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "trying to load library component, handing off to library_load [library:${library}][component:${component}] =>  library_load --library \"${library}:${component}\" --path \"${path}\" $@"
+	      library_load --library "${library}:${component}" --path "${path}" $@
 
-	    if [ $? -gt -1 ]; then
-	      success=$?
-	      break
+	      if [ $? -gt -1 ]; then
+		success=$?
+		break
+	      fi
 	    fi
 
 	  fi

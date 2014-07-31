@@ -28,14 +28,19 @@ hook_settings_post_095_execute()
   if [ $debug -gt 3 ]; then
     echo "
   CONFIG: final control settings: [
-    >PATHS USED
+    >SINGLE PATHS USED
     -->path_project----------: ${path_project}
     -->path_execution--------: ${path_execution}
     -->path_manage-----------: ${path_manage}
-    -->path_libraries--------: ${path_libraries}
-    -->path_hooks------------: ${path_hooks}
     -->path_data-------------: ${path_data}
     -->path_source-----------: ${path_source}
+    >LIBRARIES
+    -->path_libraries--------: ${path_libraries}
+    -->libraries loaded------: ${included_libraries}
+    >COMMANDS
+    -->path_commands---------: ${path_commands}
+    >HOOKS
+    -->path_hooks------------: ${path_hooks}
     >PROJECT CONFIGURATION
     -->Project_name----------: ${project_name}
     >PROJECT DOCKER CONFIGURATIONS

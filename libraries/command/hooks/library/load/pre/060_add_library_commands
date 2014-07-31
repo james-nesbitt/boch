@@ -3,8 +3,8 @@
 # 060 Add any library commands folder to the commands path list
 #
 
-command_version=2
-command_root="command_library_command_library_060"
+hook_version=2
+hook_root="command_library_command_library_060"
 
 # description method
 command_library_command_library_060_description()
@@ -47,8 +47,9 @@ command_library_command_library_060_execute()
 
   path="${path}/commands"
 
+  debug --level 8 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added; checking for commands to the commands paths [library:${library}][path:${path}]"
   if [ -d ${path} ]; then
-    debug --level 7 --topic "HOOKS->LIBRARY->060" "New library added has commands, adding those commands to the commands paths [library:${library}][path:${path}]"
+    debug --level 7 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added has commands, adding those commands to the commands paths [library:${library}][path:${path}]"
     commands_addpath "${path}"
   fi
 

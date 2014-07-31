@@ -3,6 +3,24 @@
 # Utility functions
 #
 
+###
+# Path handling
+#
+#
+#
+
+_path_rootvar="path"
+path_add()
+{
+  local name=$1
+  local path=$2
+}
+path_get()
+{
+  local name=$1
+
+}
+
 #########################
 # Handle debug messages #
 #########################

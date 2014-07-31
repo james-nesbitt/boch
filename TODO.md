@@ -1,5 +1,10 @@
 = TODO LIST =
 
+== FLOW ==
+
+1. make a way to determine if a flow exists
+2. make a way to list all of the flows
+
 == HOOKS ==
 
 1. make it so that all hooks across hook folders are sorted before execution, so that they aren't executed in folder batche
