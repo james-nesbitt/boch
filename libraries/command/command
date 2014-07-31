@@ -6,39 +6,77 @@
 #
 # $1 : command name (without full path, but can be a subpath)
 #
-# @NOTE commands can only be included once
+# @NOTE commands are essentially libraries, but we load them differently
+#   as we have multiple locations where they can be
 
 # path to the command shell scripts
-path_commands="${path_commands:-"${path_manage}/commands"}"
+path_commands="${path_commands:-"${path_manage}/libraries/command/commands"}"
+
+commands_addpath()
+{
+  path_commands="${path_commands} ${1}"
+}
 
 # Include a command
-# @NOTE uses the library tools for handling multiple loads
-_include_command()
+command_include()
 {
-  local COMMAND=$1
+
+  # Get the command as the first parameter
+  local command=$1
   shift
 
-  debug --level 8 --topic "COMMAND:INCLUDE" "_include_command [command:${COMMAND}] : Including command.  Handing off to library_include ==> library_include --component \"${COMMAND}\" \"command\" $@ "
+  # define some local vars
+  local path=""
+  local path_command=""
+  local success=-1
 
-  # include command as a library component
-  library_include --component ${COMMAND} "command"
+  debug --level 9 --topic "COMMAND->INCLUDE->CALL->${command}" "called with \"command_include $@\" [paths:${path_commands}]"
 
-  if [ $? -eq 0 ]; then
-    debug --level 7 --topic "COMMAND:INCLUDE" "command included \"${COMMAND}\""
-    return 0
-  else
-    debug --level 6 --topic "COMMAND:INCLUDE" "command include failed for \"${COMMAND}\""
-    return 1
-  fi
+  # LIBRARY
+  case " $included_commands " in
+    *" ${command} "*)
+      debug --level 7 --topic "COMMAND->INCLUDE" "command already included! [command:${command}][included_commands:${included_commands}]"
+      success=0
+    ;;
+
+    *)
+
+      # mark success to show that we didn't find the library
+      success=-1
+      for path_command in ${path_commands}; do
+	path="${path_commands}/${command}"
+
+	# do a quick check on if the path exists
+	# @NOTE technically we don't need to use this, as load_library does it as well, but we do it just to save effort
+	if [ -e ${path} ]; then
+
+	  debug --level 8 --topic "COMMAND->INCLUDE" "Including command.  Handing off to library_load ==> library_load --library \"command:${command}\" --path \"${path}\" $@"
+	  library_load --library "command:${command}" --path "${path}" $@
+	  success=$?
+
+	  if [ $success -gt -1 ]; then
+	    debug --level 7 --topic "COMMAND->INCLUDE" "Command included [command:${command}]"
+	    break;
+	  fi
+
+	fi
+
+      done
+
+      if [ $success -eq -1 ]; then
+	debug --level 6 --topic "COMMAND:INCLUDE" "Command include failed [command:${command}]"
+      fi
+    ;;
+  esac
 }
 
 command_execute()
 {
-  local COMMAND=$1
+  local command=$1
   shift
 
   # include the command source file
-  _include_command $COMMAND $@
+  command_include ${command} $@
   if [ $? -eq 0 ]; then
 
     # default action
@@ -57,19 +95,19 @@ command_execute()
       shift
     done
 
-    debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${COMMAND} ] handing off to library_execute script: library_execute --component \"${COMMAND}\" --action \"${action}\" \"command\" $@"
-    library_execute --component "${COMMAND}" --action "${action}" "command" $@
+    debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${command} ] handing off to command_execute script: library_execute --action \"${action}\" \"command:${command}\" $@"
+    library_execute --action "${action}" "command:${command}" $@
     local success=$?
 
     if [ $success -eq 0 ]; then
-      debug --level 8 --topic "COMMAND:EXECUTE" "${COMMAND} succeeded."
+      debug --level 8 --topic "COMMAND:EXECUTE" "${command} succeeded."
     else
-      debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${COMMAND}.  Command method returned an error"
+      debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${command}.  Command method returned an error"
     fi
     return $success
 
   else
-    debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${COMMAND}.  Could not find command"
+    debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${command}.  Could not find command"
     return 1
   fi
 }

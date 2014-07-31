@@ -124,7 +124,7 @@ hook_settings_030_execute()
 
   # live mounts that are used for containers
   path_source="${path_project}/source"
-  _ensure_folder $path_source
+  ensure_folder $path_source
 
   if [ $? == 0 ]; then
     debug --level 8 --topic "HOOK->SETTINGS->030" "Created required folder for project source code, adding it to the mount path list: $path_source"

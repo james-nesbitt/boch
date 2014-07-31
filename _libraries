@@ -6,6 +6,10 @@
 # default library path
 path_libraries=${path_libraries:-"${path_manage}/libraries"}
 
+libraries_addpath()
+{
+  path_libraries="${path_libraries} ${1}"
+}
 
 library_include()
 {
@@ -55,7 +59,7 @@ library_include()
       for path_library in ${path_libraries}; do
 	path="${path_library}/${library}"
 
-	_library_load_library --library ${library} --path "${path_library}/${library}" $@
+	library_load --library ${library} --path "${path_library}/${library}" $@
 
 	if [ $? -gt -1 ]; then
 	  success=$?
@@ -100,8 +104,8 @@ library_include()
 	    path="${path}/${component}"
 
 	    # try to load the component as a library
-	    debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library component, handing off to _library_load_library [library:${library}][component:${component}] =>  _library_load_library --library \"${library}:${component}\" --path \"${path}\" $@"
-	    _library_load_library --library "${library}:${component}" --path "${path}" $@
+	    debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library component, handing off to library_load [library:${library}][component:${component}] =>  library_load --library \"${library}:${component}\" --path \"${path}\" $@"
+	    library_load --library "${library}:${component}" --path "${path}" $@
 
 	    if [ $? -gt -1 ]; then
 	      success=$?
@@ -131,7 +135,7 @@ library_include()
 
 # Remember included libraries so we can prevent repeats
 included_libraries=""
-_library_load_library()
+library_load()
 {
 
   local library=""
@@ -273,13 +277,13 @@ library_execute()
     success=$?
 
     # generate the library method
-    library_function="${library}_${action}"
+    library_function="${library##*:}_${action}"
   else
     library_include --component "${component}" "${library}" $@
     success=$?
 
     # generate the library method
-    library_function="${component}_${action}"
+    library_function="${component##*:}_${action}"
   fi
 
   if [ $success -eq 0 ]; then
