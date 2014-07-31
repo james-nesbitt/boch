@@ -27,6 +27,6 @@ HOOK->FLOW->INIT->POST->020: Build the required project images
 hook_init_post_020_execute()
 {
 
-
+echo "@TODO make reqiured builds"
 
 }
