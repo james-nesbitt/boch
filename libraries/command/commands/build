@@ -41,9 +41,9 @@ can easily be built by passing the individual folder names to this command.
 build_execute()
 {
   # default build settings
-  local path="${path_build}/${default_build:-"${Docker_image:-"project"}"}"
-  local image="${Docker_image}"
-  local version="${Docker_imageversion}"
+  local path="${path_build}/${project_image}"
+  local image="${project_image}"
+  local version="${project_imageversion}"
 
   # build or destroy
   local action="build"
@@ -56,7 +56,6 @@ build_execute()
       -b|--build)
         path="${path_build}/${2}"
         image="${2}"
-        version="latest"
         shift
         ;;
       -d|--destroy)

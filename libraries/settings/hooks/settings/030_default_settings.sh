@@ -52,7 +52,7 @@ hook_settings_030_execute()
   #
 
   # Project name : this gets used as a default all over the place
-  project_name=\"${project_name:-"project"}\"
+  project_name=\"${project_name:-project}\"
 
   ###
   # Docker image configurations
@@ -69,11 +69,11 @@ hook_settings_030_execute()
   # Project build and image
   #
   # which build (folder) should be used for project images (if it isn't built)
-  project_build="${project_build:-"project"}"
+  project_build="${project_build:-project}"
   # which image should we use for creating containers (and build it if it is missing)
-  project_image="${project_image:-"project"}"
+  project_image="${project_image:-project}"
   # which image version/tag should we use for containers
-  project_imageversion=\"${project_imageversion:-"latest"}\"
+  project_imageversion=\"${project_imageversion:-latest}\"
 
   ###
   # Docker Container configurations

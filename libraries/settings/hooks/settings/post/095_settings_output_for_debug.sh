@@ -37,17 +37,17 @@ hook_settings_post_095_execute()
     -->path_data-------------: ${path_data}
     -->path_source-----------: ${path_source}
     >PROJECT CONFIGURATION
-    -->Project_name----------: ${Project_name}
+    -->Project_name----------: ${project_name}
     >PROJECT DOCKER CONFIGURATIONS
-    -->Docker_container------: ${Docker_container}
-    -->Docker_image----------: ${Docker_image}
-    -->Docker_imageversion---: ${Docker_imageversion}
+    -->project_container-----: ${project_container}
+    -->project_image---------: ${project_image}
+    -->project_imageversion--: ${project_imageversion}
     >PROJECT MACHINE CONFIGURATIONS
-    -->Machine_hostname------: ${Machine_hostname}
-    -->Machine_mountvolumes--: ${Machine_mountvolumes}
-    -->Machine_shell---------: ${Machine_shell}
-    -->Machine_shellrunargs--: ${Machine_shellrunargs}
-    -->Machine_runargs-------: ${Machine_runargs}
+    -->Machine_hostname------: ${machine_hostname}
+    -->Machine_mountvolumes--: ${machine_mountvolumes}
+    -->Machine_shell---------: ${machine_shell}
+    -->Machine_shellrunargs--: ${machine_shellrunargs}
+    -->Machine_runargs-------: ${machine_runargs}
   ] (hooks/settings/post/095)"
   fi
 

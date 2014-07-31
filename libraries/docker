@@ -166,8 +166,8 @@ docker_run()
   local daemon="--detach=true"
 
   # default image and version, can be overriden with flags
-  image=${Docker_image}
-  version=${Docker_imageversion:-"latest"}
+  image=${project_image}
+  version=${project_imageversion:-"latest"}
 
   # default flags
   local flags=""

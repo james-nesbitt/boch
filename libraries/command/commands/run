@@ -18,9 +18,9 @@ Run a command in a new container.
 # Command execute function
 run_execute()
 {
-  image="${Docker_image}"
-  version="${Docker_imageversion}"
-  hostname="${Machine_hostname}"
+  image="${project_image}"
+  version="${project_imageversion}"
+  hostname="${machine_hostname}"
 
   # temp.  empty this to make the run a persistant container
   temp="--temporary"
