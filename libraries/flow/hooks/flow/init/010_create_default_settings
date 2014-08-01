@@ -75,7 +75,10 @@ hook_init_010_execute()
 # @NOTE to enable logging try passing --log [{level}] to you command line
 #path_log="${path_log}"
 
+# Build paths
+#
 # path to Dockerfile builds for the project
+#
 #path_build=${path_build}
 
 # Libraries path
@@ -92,7 +95,7 @@ hook_init_010_execute()
 # if you do load a library, and it has a hooks folder, those
 # hooks will automatically be activated.
 #
-#path_library=\"\${path_libraries} \${path_data}/libraries\"
+#libraries_addpath \"\${path_data}/libraries\"
 
 # Commands path
 #
@@ -150,7 +153,7 @@ project_name=\"${project_name:-project}\"
 #   is built on a remote image, then the image will be pulled when you build your
 #   project image.
 # @NOTE is you want to use this, you will have to create a folder with a Dockerfile
-#   for each build, in the \${path_build} folder
+#   for each build, in one of the \${path_builds} folders
 # @NOTE this is not something that is heavily enforced.  This is checked during
 #   \"./flow init\" but not before starting any builds
 #

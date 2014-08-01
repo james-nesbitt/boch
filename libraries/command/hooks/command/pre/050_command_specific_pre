@@ -31,6 +31,7 @@ hook_command_pre_specific_060_execute()
   # Run all PRE hooks for the custom command
   hooks_execute
   local success=$?
+  
   if [ $success -gt 0 ]; then
     debug --level 8 --topic "HOOK->COMMAND->PRE->050" "Command specific PRE hooks run successfully [command:${COMMAND}]"
   else

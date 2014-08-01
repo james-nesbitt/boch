@@ -240,7 +240,7 @@ hook_execute()
       local success=$?
 
       if [ $success -gt 0 ]; then
-        debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script return an error [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+        debug --level 7 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script return an error [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
       else
         debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script executed [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
       fi
