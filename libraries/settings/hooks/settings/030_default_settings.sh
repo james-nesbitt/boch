@@ -73,7 +73,7 @@ hook_settings_030_execute()
   # which image should we use for creating containers (and build it if it is missing)
   project_image="${project_image:-project}"
   # which image version/tag should we use for containers
-  project_imageversion=\"${project_imageversion:-latest}\"
+  project_imageversion="${project_imageversion:-latest}"
 
   ###
   # Docker Container configurations
@@ -84,7 +84,7 @@ hook_settings_030_execute()
 
   # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
   # @NOTE these are arguments for \"docker run\". Check that docker command to learn more
-  machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
+  machine_runargs="--tty" # --tty is needed for supervisord to run.
 
   ###
   # Prefered shell configuration for the Machine

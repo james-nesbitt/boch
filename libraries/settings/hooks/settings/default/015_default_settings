@@ -1,0 +1,114 @@
+#!/bin/sh
+#
+#
+#
+
+hook_version=2
+hook_root="hook_settings_default_015"
+
+hook_settings_default_015_description()
+{
+  echo "Add default core settings"
+}
+
+hook_settings_default_015_help()
+{
+  echo "
+HOOK->SETTINGS->DEFAULT->015 Add some default core configuration
+
+"
+}
+
+
+hook_settings_default_015_execute()
+{
+  echo "
+###
+# Project settings
+#
+# some project related settings
+#
+
+# Project name : this gets used as a default all over the place
+project_name="${project_name:-project}"
+
+###
+# Docker image configurations
+#
+
+# Project build images
+#
+# Generally needed to start making containers (a space separated queue of builds)
+# and are the default docker builds built with the flow init command.
+# Change this if your build image has a different name, or if it has different
+# parent images that need building.
+#
+# @NOTE you don't technically need any of these. If you use a project container that
+#   is built on a remote image, then the image will be pulled when you build your
+#   project image.
+# @NOTE is you want to use this, you will have to create a folder with a Dockerfile
+#   for each build, in one of the \${path_builds} folders
+# @NOTE this is not something that is heavily enforced.  This is checked during
+#   \"./flow init\" but not before starting any builds
+#
+# @TODO make build check this before proceeding.
+#required_builds=\"${required_builds:-""}\"
+
+# Project build and image
+#
+# which build (folder) should be used for project images (if it isn't built)
+#project_build=\"${project_build:-"project"}\"
+# which image should we use for creating containers (and build it if it is missing)
+#project_image=\"${project_image:-"project"}\"
+# which image version/tag should we use for containers
+#project_imageversion=\"${project_imageversion:-"latest"}\"
+
+###
+# Docker Container configurations
+#
+
+# OS hostname used inside the container (which would impact things like avahi)
+#machine_hostname=\"\${project_name}\"
+
+# Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
+# @NOTE these are arguments for \"docker run\". Check that docker command to learn more
+machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
+
+###
+# Prefered shell configuration for the Machine
+#
+# Running as a shell is a temporary approach to getting shell access to a machine
+# but should be considered secondary to other methods of running commands on the
+# container.  It is a good plan for now but will be dropped in the future.
+#
+# @NOTE Running a shell creates a new container, but does not give access to an existing container
+#
+# @NOTE if you are using our builds, then zsh is available
+machine_shell=\"/bin/zsh\"
+# arguments for docker run that should always be included when starting a shell: docker help run
+# @NOTE you should probably take a look at docker run to learn more
+# @NOTE our builds have a developer user created
+machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
+
+###
+# Mount list:
+#
+# These are run time mounts, where the host FS can be changed
+# directly changing the container FS.
+#
+# @TODO get away from having to include the -v flag here, by finding a better format for this
+
+# create some variables for our sources
+# @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
+#path_source=\"\${path_project}/source\"
+#path_source_www=\"\${path_source}/www\"
+
+# Now that we have tested it, add the source folder to the mount
+# This is an example from what is already added by the system == machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source}:/app/source\"
+#machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source_www}:/app/source_www\"
+
+# Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
+# @NOTE our builds have a developer user created
+machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+"
+}

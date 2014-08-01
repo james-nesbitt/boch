@@ -47,10 +47,10 @@ command_library_command_library_060_execute()
 
   path="${path}/commands"
 
-  debug --level 8 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added; checking for commands to the commands paths [library:${library}][path:${path}]"
+  debug --level 9 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added; checking for commands to the commands paths [library:${library}][path:${path}]"
   if [ -d ${path} ]; then
-    debug --level 7 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added has commands, adding those commands to the commands paths [library:${library}][path:${path}]"
     commands_addpath "${path}"
+    debug --level 8 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added has commands, adding those commands to the commands paths [library:${library}][path:${path}][newpaths:`commands_getpath`]"
   fi
 
 }

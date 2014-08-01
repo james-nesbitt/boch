@@ -11,7 +11,6 @@ List container processors
 
   -c|--container {container} : override the default container name with an ID or name of a running container
 
-@TODO check for existing and running container
 "
 }
 

@@ -65,7 +65,7 @@ library_include()
 
 	# check the path before trying to load it
 	if [ -e ${path} ]; then
-	  debug --level 8 --topic "LIBRARY->INCLUDE" "AAAAtrying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
+	  debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
 	  library_load --library "${library}" --path "${path_library}/${library}" $@
 
 	  if [ $? -gt -1 ]; then
@@ -151,10 +151,15 @@ library_load()
 
   local library=""
   local path=""
+  local corefile=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
+      -c|--core)
+	corefile=$2
+	shift
+	;;
       -l|--library)
 	library=$2
 	shift
@@ -172,6 +177,9 @@ library_load()
   if [ -z ${library} ] || [ -z ${path} ]; then
     debug --level 6 --topic "LIBRARY->LOAD" "no library specified [library:${library}][path:${path}]!"
     return 1
+  fi
+  if [ -z "${corefile}" ]; then
+    corefile="${library}"
   fi
 
   # check if already attempted to load this library (if not mark it as attempted)
@@ -197,11 +205,11 @@ library_load()
 
       # if the path is a directory then assume that the whole directory is the library root
       if [ -d ${path} ]; then
-	debug --level 8 --topic "LIBRARY->LOAD" "using path as library directory.[path:${path}]"
-	root_path="${path}/${library}"
+	root_path="${path}/${corefile}"
+	debug --level 8 --topic "LIBRARY->LOAD" "using path as library directory.[path:${root_path}]"
       else
 	root_path="${path}"
-	debug --level 8 --topic "LIBRARY->LOAD" "loading simple library (this library can't have components.) [path:${path}]"
+	debug --level 8 --topic "LIBRARY->LOAD" "loading simple library (this library can't have components.) [path:${root_path}]"
       fi
 
       if [ -f ${root_path} ] && [ -x ${root_path} ]; then
@@ -220,6 +228,12 @@ library_load()
 	    hooks_execute "library/load" --state "post" --library ${library} --path ${path} $@
 	  fi
 
+	  local path_librarylibraries="${path}/libraries"
+	  if [ -d "${path_librarylibraries}" ]; then
+	echo "ADD PROJECT LBIRRES : ${path_librarylibraries}"
+	    libraries_addpath ${path_librarylibraries}
+	  fi
+
 	  debug --level 6 --topic "LIBRARY->LOAD" "library loaded [library:${library}][path:${path}]"
 	  return 0
 	else
@@ -233,7 +247,7 @@ library_load()
 	fi
 
       else
-	debug --level 8 --topic "LIBRARY->LOAD" "library root handler does not exist or is not executable for \"${path}\""
+	debug --level 8 --topic "LIBRARY->LOAD" "library root handler does not exist or is not executable for \"${root_path}\""
 	return 1
       fi
     ;;

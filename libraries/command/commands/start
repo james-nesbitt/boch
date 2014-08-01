@@ -34,14 +34,13 @@ project Dockerfile
 # Command execute function
 start_execute()
 {
+  local image="${project_image}"
+  local version="${project_imageversion}"
 
-  image="${project_image}"
-  version="${project_imageversion}"
+  local container=""
+  local hostname=""
 
-  container=""
-  hostname=""
-
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
