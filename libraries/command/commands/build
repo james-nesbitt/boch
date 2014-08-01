@@ -4,7 +4,7 @@
 #
 
 # path to a folder that contains various docker image builds
-path_build="${path_build:-"${path_manage}/builds"}"
+path_builds="${path_builds:-"${path_manage}/builds"}"
 
 # command help function
 build_help()
@@ -19,21 +19,19 @@ purposes.
 
 Another use of the function is to build/rebuild/destroy one of the required
 parent images, that are the basis of the project specific container.
-If you keep all of your builds in the \${path_build} folder, then they
+If you keep all of your builds in a \${path_builds} folder, then they
 can easily be built by passing the individual folder names to this command.
 
   -b|--build {build} : override the build, the path to the Dockerfile
-    (as a sub-path of the build directory: ${path_build})
+    (as a sub-path of the one of the build directories: ${path_builds})
 
   -d|--destroy : delete/destroy the image instead of building it
 
   -i|--image {image} : overrides settings image name for new image
   -v|--version {version} : overrides settings image version for new image
 
-@NOTE by default, the only image build will be the single project specific
-  image (${path_build}/${default_build:-"project"})
-@NOTE the latest docker_build function uses \"latest\" as the default
-  image version.
+@NOTE the docker_build function uses \"latest\" as the default
+  image version/tag.
 "
 }
 
@@ -41,8 +39,8 @@ can easily be built by passing the individual folder names to this command.
 build_execute()
 {
   # default build settings
-  local path="${path_build}/${project_image}"
   local image="${project_image}"
+  local build="${project_image}"
   local version="${project_imageversion}"
 
   # build or destroy
@@ -54,8 +52,8 @@ build_execute()
   do
     case "$1" in
       -b|--build)
-        path="${path_build}/${2}"
         image="${2}"
+        build="${2}"
         shift
         ;;
       -d|--destroy)
@@ -89,8 +87,20 @@ build_execute()
     build_destroy ${flags}
     return $?
   else
-    build_build ${flags} --path "${path}"
-    return $?
+    local path=""
+
+    # determine which build folder has the build
+    for path_build in ${path_builds} do
+      path="${path_build}/${build}"
+      if [ -d ${path} ]; then
+	build_build ${flags} --path "${path}"
+	return $?
+      fi
+    done
+
+    # no matching build folder found anywhere
+    debug --level 8 --topic "COMMAND->BUIlD->EXECUTE" "No matching build found [build:${build}]"
+    return 1
   fi
 }
 
