@@ -30,6 +30,59 @@ Any new container has a file created here: ${hook_docker_run_post_020_registerpa
 hook_docker_run_post_020_execute()
 {
 
-echo "REGISTER CONTAINER WITH SYSTEM : $@"
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        local container=$2
+        shift
+        ;;
+      -d|--id)
+        local containerID=$2
+        shift
+        ;;
+      -e|--execute)
+        local command="${2}"
+        shift
+        ;;
+      -h|--hostname)
+        flags="${flags} --hostname=\"$2\""
+        shift
+        ;;
+      -i|--image)
+        local image="${2}"
+        shift
+        ;;
+      -n|--ip)
+        local ip="${2}"
+        shift
+        ;;
+      -v|--version)
+        local version="${2}"
+        shift
+        ;;
+      -P|--allports)
+        flags="${flags} --publish-all=true"
+        ;;
+      --startargs)
+        shift
+        break
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
 
+  local path="${hook_docker_run_post_020_registerpath}/$container"
+
+  echo "id:${containerID}
+container:${container}
+image:${image}
+version:${version}
+ip:${ip}
+args:$@"  > ${path}
+
+  debug --level 5 --topic "HOOK->DOCKER->RUN->POST->020" "Created container registration file : ${path}"
 }

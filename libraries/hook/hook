@@ -88,18 +88,26 @@ hooks_execute()
   done
 
   # loop through all of the paths and execute any functions found.
-  debug --level 8 --topic "HOOKS->EXECUTE" "hooks_execute [hook:${hook}] : executing any hooks in these paths: ${paths}"
+  debug --level 9 --topic "HOOKS->EXECUTE" "executing any hooks in these paths: ${paths}"
   local path=""
+  local path_hook=""
   for path in ${paths}; do
+
     if [ -d ${path} ]; then
-        for hook in ${path}/*; do
+        for path_hook in ${path}/*; do
+
           # include and execute the hook
-          if [ -f ${hook} ] && [ -x ${hook} ]; then
-	    hook_execute $hook $@
+          if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
+
+	    hook_execute $path_hook $@
 
 	    if [ $? -gt 0 ]; then
-	      debug --level 8 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}]"
+	      debug --level 8 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}][path:${path_hook}]"
 	      return 1
+	    fi
+	  else
+	    if [ -f ${path} ]; then
+	      debug --level 7 --topic "HOOKS->EXECUTE" "Possible hook ignored, as it is not executable or not [hook:${hook}][path:${path_hook}]"
 	    fi
 	  fi
         done
@@ -108,7 +116,7 @@ hooks_execute()
     fi
   done
   if [ "${hooks_list}" != "" ]; then
-    debug --level 7 --topic "HOOKS->EXECUTE" "executed hooks: ${hook_list}"
+    debug --level 8 --topic "HOOKS->EXECUTE" "executed hooks: ${hook_list}"
   fi
 }
 

@@ -42,7 +42,8 @@ ps_execute()
     # Run the ps function
     debug --level 5 --topic "COMMAND->PS" "handing off to docker abstraction ==> docker_top --container ${container}"
     docker_top --container "${container}"
-    return $?
+
+    return 0
 
   # start a new container based on the image
   else
