@@ -124,3 +124,20 @@ command_execute()
     return 1
   fi
 }
+
+# List all of the commands
+commands_list()
+{
+
+  local path
+  local path_command
+
+  for path_command in `commands_getpath`; do
+    for path in ${path_command}/*; do
+      if [ -e ${path} ]; then
+	echo "${path}"
+      fi
+    done
+  done
+
+}

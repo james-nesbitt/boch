@@ -146,17 +146,15 @@ hooks_list()
   # loop through all of the paths and execute any functions found.
   local path=""
   for path in ${paths}; do
-        debug --level 9 --topic "HOOKS->LIST" "hooks_list : hooks list [path:$path]"
     if [ -d ${path} ]; then
       for hook in ${path}/*; do
-        debug --level 9 --topic "HOOKS->LIST" "hooks_list : hooks list [hook:$hook]"
         if [ -f ${hook} ] && [ -x ${hook} ]; then
           hook_list="${hook_list} ${hook}"
         fi
       done
     fi
   done
-  debug --level 9 --topic "HOOKS->LIST" "hooks_list : hooks list [hook:$hook] : $hook_list"
+  debug --level 9 --topic "HOOKS->LIST" "hooks list [hook:$hook] : $hook_list"
   echo "${hook_list}"
 }
 
@@ -178,7 +176,7 @@ include_hook()
 
   if [ -f ${hook} ]; then
 
-    debug --level 8 --topic "UTILITY->HOOK->INCLUDE" "include_hook [hook:${hook}] : Including hook.  Handing off to _include_source ==> _include_source \"${hook}\" $@ "
+    debug --level 8 --topic "UTILITY->HOOK->INCLUDE" "Including hook.  Handing off to _include_source [hook:${hook}] ==> _include_source \"${hook}\" $@ "
     _include_source "${hook}" $@
     local success=$?
     if [ $success -eq 0 ]; then
@@ -228,33 +226,31 @@ hook_execute()
   # include hook - capture the output, as this may be an older version hook
   include_hook ${hook}
 
-  debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Included and Executing Hook script (source) [hook:$hook][hook_root:${hook_root}][hook_version:${hook_version}][args:$@]"
+  debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "Included and Executing Hook script (source) [hook:$hook][hook_root:${hook_root}][hook_version:${hook_version}][args:$@]"
 
   # if the hook source set a hook_version, then react to the version
   case "$hook_version" in
     2)
       # version 2 hooks have methods named after the actions
       hook_function="${hook_root}_${action}"
-      debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Executing Hook script (source) [action:$action][hook_version:${hook_version}][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
+      debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "Executing Hook script (source) [action:$action][hook_version:${hook_version}][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
       eval ${hook_function} $@
-      local success=$?
 
-      if [ $success -gt 0 ]; then
-        debug --level 7 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script return an error [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+      if [ $? -gt 0 ]; then
+        debug --level 7 --topic "UTILITY->HOOK->EXECUTE" "Hook script return an error [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+        return 1
       else
-        debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : Hook script executed [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+        debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "Hook script executed [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+        return 0
       fi
       ;;
     *)
       # older version hooks execute inline.  they have only the execute action.
-      debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "hook_execute : this hook source exists, but did not define any version.  Is this an older version hookfile? [hook:$hook][hook_version:${hook_function}]"
-      success=1
+      debug --level 6 --topic "UTILITY->HOOK->EXECUTE" "this hook source exists, but did not define any version.  Is this an older version hookfile? [hook:$hook][hook_version:${hook_function}]"
+      return 1
       ;;
   esac
 
-  debug --level 8 --topic "UTILITY->HOOK->EXECUTE" "hook_execute [hook:${hook}]: FINISH "
-
-  return $success
 }
 
 # create a usable short label for a hook

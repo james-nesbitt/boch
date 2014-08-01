@@ -3,8 +3,19 @@
 # COMMAND: Build a new image[:version] for a project
 #
 
+builds_addpath()
+{
+  list_add "path_builds" "${1}"
+}
+builds_getpath()
+{
+  list_get "path_builds"
+}
+
+
 # path to a folder that contains various docker image builds
-list_add "path_builds" "${path_manage}/builds"
+builds_addpath "${path_manage}/builds"
+builds_addpath "${path_data}/builds"
 
 # command help function
 build_help()
@@ -33,6 +44,14 @@ can easily be built by passing the individual folder names to this command.
 @NOTE the docker_build function uses \"latest\" as the default
   image version/tag.
 "
+  echo "Builds paths used in the system:"
+  for build in `builds_getpath`; do
+    echo " --> ${build}"
+  done
+  echo "Builds found in the system:"
+  for build in `build_list`; do
+    echo " --> ${build##*/}"
+  done
 }
 
 # command execute function
@@ -90,7 +109,7 @@ build_execute()
     local path=""
 
     # determine which build folder has the build
-    for path_build in ${path_builds} do
+    for path_build in `builds_getpath`; do
       path="${path_build}/${build}"
       if [ -d ${path} ]; then
 	build_build ${flags} --path "${path}"
@@ -226,4 +245,17 @@ build_build()
   debug --level 5 --topic "COMMAND->BUILD" "build_build() :: building custom image [ handing off to docker abstraction ] ==> docker_build ${flags} --path ${path}"
   docker_build ${flags} --path "${path}"
   return $?
+}
+
+build_list()
+{
+  local builds_path
+  local build_path
+  for builds_path in `builds_getpath`; do
+    for build_path in ${builds_path}/*; do
+      if [ -d ${build_path} ]; then
+	echo ${build_path}
+      fi
+    done
+  done
 }

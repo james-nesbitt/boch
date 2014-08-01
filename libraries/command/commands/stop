@@ -41,7 +41,7 @@ stop_execute()
   if _docker_container_running ${container}; then
     # Run the stop function
     debug --level 5 --topic "COMMAND->STOP" "handing off to docker abstraction [container:${container}] ==> docker_stop --container ${container}"
-    docker_stop --container "${container}"
+    local container=$(docker_stop --container "${container}")
     return $?
 
   else

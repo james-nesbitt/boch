@@ -144,7 +144,7 @@ docker_rmi()
 # -s|--shell "${command:-"/bin/bash"}" : run the provided command, instead of the default command.  Defaults to /bin/bash
 # Other Arguments
 # -h|--hostname ${hostname} : define the hostname to be used
-# -n|--hostname ${name} : define the container name
+# -n|--name ${name} : define the container name
 # -P|--allports ${name} : publish all opened ports for the container
 # -t|--temporary : make the image temporary, so that it doesnt exists after it is shut down
 # -u|--user : specify a container user to run the command
@@ -166,11 +166,12 @@ docker_run()
   local daemon="--detach=true"
 
   # default image and version, can be overriden with flags
-  image=${project_image}
-  version=${project_imageversion:-"latest"}
+  local image=${project_image}
+  local version=${project_imageversion:-"latest"}
 
   # default flags
   local flags=""
+  local hookflags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -192,6 +193,7 @@ docker_run()
         ;;
       -n|--name)
         flags="${flags} --name=\"$2\""
+        hook_flags="${hook_flags} --name=\"$2\""
         shift
         ;;
       -P|--allports)
@@ -209,6 +211,7 @@ docker_run()
         ;;
       -t|--temporary)
         flags="${flags} --rm"
+        hook_flags="${hook_flags} --temporary"
         daemon=""
         ;;
       -u|--username) flags="${flags} --username=\"$2\"" && shift;;
@@ -231,15 +234,15 @@ docker_run()
   else
     # run the docker command and capture the container ID
     debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-    container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
+    container=$(docker run ${daemon} ${flags} ${image}:${version} ${command})
 
     local success=$?
     if [ $success == 0 ]; then
       debug --level 5 --topic "DOCKER ABSTRACTION" "RESULTS of docker run => container started [ID:$container]"
 
       # execute any existing hooks
-      debug --level 7 --topic "DOCKER ABSTRACTION" "Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
-      hooks_execute "docker/start" --state "post" --image "${image}" --version "${version}" --container "${container}"
+      debug --level 3 --topic "DOCKER ABSTRACTION" "Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
+      hooks_execute "docker/run" --state "post" --image "${image}" --version "${version}" --container "${container} ${hookflags} $@"
     else
       debug --level 2 --topic "DOCKER ABSTRACTION" "Docker run failed. Not running any hooks"
     fi
@@ -286,6 +289,7 @@ docker_attach()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker attach succeeded. \"${container}\" container was attached"
+    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker attach failed."
   fi
@@ -329,6 +333,7 @@ docker_start()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker start succeeded. \"${container}\" container started"
+    hooks_execute "docker/start" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker start failed."
   fi
@@ -372,6 +377,7 @@ docker_stop()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker stop succeeded. \"${container}\" container stopped"
+    hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker stop failed."
   fi
@@ -790,7 +796,7 @@ _docker_container_exists()
 {
   local container=$1
   local exists="`inspect_docker_container_list --container $container`"
-  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
+  debug --level 7 --topic "DOCKER ABSTRACTION" "_docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
 
   if [ $? ] && [ -n "$exists" ]; then
     return 0
@@ -803,7 +809,7 @@ _docker_container_running()
 {
   local container=$1
   local running="`inspect_docker_container_list --running --container $container`"
-  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_running [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
+  debug --level 7 --topic "DOCKER ABSTRACTION" "_docker_container_running [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
   if [ $? ] && [ -n "$running" ]; then
     return 0

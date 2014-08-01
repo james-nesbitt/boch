@@ -18,19 +18,20 @@ Run a command in a new container.
 # Command execute function
 run_execute()
 {
-  image="${project_image}"
-  version="${project_imageversion}"
-  hostname="${machine_hostname}"
+  local image="${project_image}"
+  local version="${project_imageversion}"
+  local hostname="${machine_hostname}"
+  local name=""
 
   # temp.  empty this to make the run a persistant container
-  temp="--temporary"
+  local temp="--temporary"
 
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
       -c|--container)
-        flags="${flags} --name $2"
+        name="$2"
         shift
         ;;
       -h|--hostname)
@@ -54,6 +55,10 @@ run_execute()
     shift
   done
 
+  if [ "${name}" == "" ]; then
+    name="${image}_${version}"
+  fi
+
   # use the machine run or pass in a command
   command=${@:-${Machine_shell}}
 
@@ -61,7 +66,7 @@ run_execute()
   flags="${flags} ${Machine_shellrunargs} ${Machine_mountvolumes}"
 
   # Run the run function
-  debug --level 5 --topic "COMMAND" "run [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
-  docker_run ${temp} --image "${image}" --version "${version}" --hostname "${hostname}" --command "${command}" ${flags}
+  debug --level 5 --topic "COMMAND" "run [ handing off to docker abstraction ] ==> docker_run ${temp} --image /"${image}/" --version /"${version}/" --hostname /"${hostname}/" --name /"${name}/" --command /"${command}/" ${flags} $@/"
+  docker_run ${temp} --image "${image}" --version "${version}" --hostname "${hostname}" --name "${name}" --command "${command}" ${flags} $@
   return $?
 }
