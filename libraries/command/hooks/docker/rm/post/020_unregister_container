@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+#
+#
+
+hook_version=2
+hook_root="hook_docker_rm_post_020"
+
+hook_docker_rm_post_020_registerpath="${path_data}/containers"
+ensure_folder "${hook_docker_rm_post_020_registerpath}"
+
+# description hook
+hook_docker_rm_post_020_descrtiption()
+{
+  echo "de-register removed container from the system"
+}
+
+# help method
+hook_docker_rm_post_020_help()
+{
+  echo "
+HOOK->DOCKER->RUN->POST->020 De-register removed container from the system
+
+Remove container file created here: ${hook_docker_rm_post_020_registerpath}
+
+"
+}
+
+# execute method
+hook_docker_rm_post_020_execute()
+{
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        local container=$2
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  local path="${hook_docker_rm_post_020_registerpath}/$container"
+  rm ${path}
+  debug --level 5 --topic "HOOK->DOCKER->RM->POST->020" "Removed container registration file : ${path}"
+}

@@ -28,26 +28,31 @@ hook_settings_post_095_execute()
   if [ $debug -gt 3 ]; then
     echo "
   CONFIG: final control settings: [
-    >PATHS USED
+    >SINGLE PATHS USED
     -->path_project----------: ${path_project}
     -->path_execution--------: ${path_execution}
     -->path_manage-----------: ${path_manage}
-    -->path_libraries--------: ${path_libraries}
-    -->path_hooks------------: ${path_hooks}
     -->path_data-------------: ${path_data}
     -->path_source-----------: ${path_source}
+    >LIBRARIES
+    -->path_libraries--------: `libraries_getpath`
+    -->libraries loaded------: ${included_libraries}
+    >COMMANDS
+    -->path_commands---------: `commands_getpath`
+    >HOOKS
+    -->path_hooks------------: `hooks_getpath`
     >PROJECT CONFIGURATION
-    -->Project_name----------: ${Project_name}
+    -->Project_name----------: ${project_name}
     >PROJECT DOCKER CONFIGURATIONS
-    -->Docker_container------: ${Docker_container}
-    -->Docker_image----------: ${Docker_image}
-    -->Docker_imageversion---: ${Docker_imageversion}
+    -->project_container-----: ${project_container}
+    -->project_image---------: ${project_image}
+    -->project_imageversion--: ${project_imageversion}
     >PROJECT MACHINE CONFIGURATIONS
-    -->Machine_hostname------: ${Machine_hostname}
-    -->Machine_mountvolumes--: ${Machine_mountvolumes}
-    -->Machine_shell---------: ${Machine_shell}
-    -->Machine_shellrunargs--: ${Machine_shellrunargs}
-    -->Machine_runargs-------: ${Machine_runargs}
+    -->Machine_hostname------: ${machine_hostname}
+    -->Machine_mountvolumes--: ${machine_mountvolumes}
+    -->Machine_shell---------: ${machine_shell}
+    -->Machine_shellrunargs--: ${machine_shellrunargs}
+    -->Machine_runargs-------: ${machine_runargs}
   ] (hooks/settings/post/095)"
   fi
 

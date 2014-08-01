@@ -16,9 +16,9 @@ creates a new container and gives shell access to it
 # Command execute function
 shell_execute()
 {
-  image="${Docker_image}"
-  version="${Docker_imageversion}"
-  hostname="${Machine_hostname}"
+  image="${project_image}"
+  version="${project_imageversion}"
+  hostname="${machine_hostname}"
 
   # temp.  empty this to make the shell a persistant container
   temp="--temporary"
@@ -53,13 +53,13 @@ shell_execute()
   done
 
   # use the machine shell or pass in a command
-  command=${@:-${Machine_shell}}
+  command=${@:-${machine_shell}}
 
   # add default flags to the end of the flag list
-  flags="${flags} ${Machine_shellrunargs} ${Machine_mountvolumes}"
+  flags="${flags} ${machine_shellrunargs} ${machine_mountvolumes}"
 
   # Run the shell function
-  debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${flags} ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --allports ${Machine_mountvolumes} $@"
-  docker_run ${temp} --shell "${Machine_shell}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@
+  debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"
+  docker_run ${temp} --shell "${command}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@
   return $?
 }

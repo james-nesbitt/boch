@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Configurable settings for the project
+#
+
+hook_version=2
+hook_root="hook_settings_040"
+
+# description method
+hook_settings_040_description()
+{
+  echo "hook->settings 040 : include a project specific settings"
+}
+
+# help method
+hook_settings_040_help()
+{
+  echo "
+hook->settings 040 : include a project specific settings.sh
+
+"
+}
+
+
+# execute method
+hook_settings_040_execute()
+{
+
+  local path=${path_data}
+  ensure_folder $path
+
+  if [ $success -gt 0 ]; then
+    debug --level 3 --topic "HOOK->SETTINGS->040" "No custom data/project folder exists"
+  else
+    debug --level 8 --topic "HOOK->SETTINGS->POST->010" "Loading Data/Project folder as a library [path:$path]"
+    library_load --library "project" --path ${path_data} --core "settings"
+  fi
+
+}

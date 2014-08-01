@@ -144,7 +144,7 @@ docker_rmi()
 # -s|--shell "${command:-"/bin/bash"}" : run the provided command, instead of the default command.  Defaults to /bin/bash
 # Other Arguments
 # -h|--hostname ${hostname} : define the hostname to be used
-# -n|--hostname ${name} : define the container name
+# -n|--name ${name} : define the container name
 # -P|--allports ${name} : publish all opened ports for the container
 # -t|--temporary : make the image temporary, so that it doesnt exists after it is shut down
 # -u|--user : specify a container user to run the command
@@ -166,15 +166,21 @@ docker_run()
   local daemon="--detach=true"
 
   # default image and version, can be overriden with flags
-  image=${Docker_image}
-  version=${Docker_imageversion:-"latest"}
+  local image=${project_image}
+  local version=${project_imageversion:-"latest"}
 
   # default flags
   local flags=""
+  local hookflags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -c|--command)
+      -c|--container)
+        flags="${flags} --name=\"$2\""
+        hook_flags="${hook_flags} --container \"$2\""
+        shift
+        ;;
+      -e|--execute)
         command="${2}"
         shift
         ;;
@@ -188,10 +194,6 @@ docker_run()
         ;;
       -v|--version)
         version="${2}"
-        shift
-        ;;
-      -n|--name)
-        flags="${flags} --name=\"$2\""
         shift
         ;;
       -P|--allports)
@@ -209,6 +211,7 @@ docker_run()
         ;;
       -t|--temporary)
         flags="${flags} --rm"
+        hook_flags="${hook_flags} --temporary"
         daemon=""
         ;;
       -u|--username) flags="${flags} --username=\"$2\"" && shift;;
@@ -226,22 +229,26 @@ docker_run()
   # Run docker command
   if [ "${daemon}" == "" ]; then
     # run the docker command in the foreground (no hooks are run in this case)
-    debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    debug --level 5 --topic "DOCKER->START" "docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     docker run ${flags} ${image}:${version} ${command}
   else
     # run the docker command and capture the container ID
-    debug --level 5 --topic "DOCKER ABSTRACTION" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-    container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
-
+    debug --level 5 --topic "DOCKER->START" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    local container=`docker run ${daemon} ${flags} ${image}:${version} ${command}`
     local success=$?
-    if [ $success == 0 ]; then
-      debug --level 5 --topic "DOCKER ABSTRACTION" "RESULTS of docker run => container started [ID:$container]"
+
+    if [ $success -eq 0 ]; then
+      debug --level 5 --topic "DOCKER->START" "RESULTS of docker run => container started [ID:$container]"
+
+      local ip="`docker_inspect_getIP --container ${container}`"
 
       # execute any existing hooks
-      debug --level 7 --topic "DOCKER ABSTRACTION" "Running run_post hooks => hooks_execute start --state \"run_post\" --image \"${image}\" --version \"${version}\" --container \"${container}\""
-      hooks_execute "docker/start" --state "post" --image "${image}" --version "${version}" --container "${container}"
+      debug --level 8 --topic "DOCKER->START" "Running run_post hooks [flags:${hook_flags}] => hooks_execute \"docker/run\" --state \"post\" --image \"${image}\" --version \"${version}\" --id \"${container}\" ${hookflags} --startargs $@"
+      hooks_execute "docker/run" --state "post" --image "${image}" --version "${version}" --id "${container}" ${hook_flags} --ip "${ip}" --startargs $@
+
     else
-      debug --level 2 --topic "DOCKER ABSTRACTION" "Docker run failed. Not running any hooks"
+      debug --level 2 --topic "DOCKER->START" "Docker run failed."
+      hooks_execute "docker/run" --state "fail" --image "${image}" --version "${version}" --id "${container}" ${hook_flags} --ip "${ip}" --startargs $@
     fi
     return $success
   fi
@@ -286,8 +293,10 @@ docker_attach()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker attach succeeded. \"${container}\" container was attached"
+    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker attach failed."
+    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
   fi
   return $sucess
 }
@@ -329,8 +338,10 @@ docker_start()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker start succeeded. \"${container}\" container started"
+    hooks_execute "docker/start" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker start failed."
+    hooks_execute "docker/start" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
   fi
   return $sucess
 }
@@ -372,8 +383,10 @@ docker_stop()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker stop succeeded. \"${container}\" container stopped"
+    hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker stop failed."
+    hooks_execute "docker/stop" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
   fi
   return $sucess
 }
@@ -428,10 +441,11 @@ docker_rm()
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker rm succeeded. \"${container}\" container removed"
 
     # execute any existing hooks
-    debug --level 7 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute rm --state post --container \"${container}\""
-    hooks_execute rm --state post --container "${container}"
+    debug --level 7 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute docker/rm --state post --container \"${container}\""
+    hooks_execute "docker/rm" --state "post" --container "${container}"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker rm failed."
+    hooks_execute "docker/rm" --state "fail" --container "${container}"
   fi
   return $sucess
 }
@@ -484,46 +498,11 @@ docker_commit()
 
     # execute any existing hooks
     debug --level 7 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute commit --state post --image \"${image}\" --version \"${version}\" --container \"${container}\""
-    hooks_execute attach --state post --image "${image}" --version "${version}" --container "${container}"
+    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container}"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker commit failed."
+    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container}"
   fi
-  return $sucess
-}
-
-#
-# Get the inspect JSON for the container
-#
-# @NOTE that JSON is not very usefull, but if it was
-# then you could get all of the info that you want
-# about your container from this:
-# - base image
-# - IP
-# - forarded ports (already can get this from ps
-#
-# $1 : docker container
-#
-docker_inspect()
-{
-  # default flags
-  local flags=""
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -c|--container)
-        container="${2}"
-        shift
-        ;;
-      *)
-        break;; # terminate while loop
-    esac
-    shift
-  done
-
-  # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
-  docker inspect ${flags} ${container}
-  local success=$?
   return $sucess
 }
 
@@ -559,8 +538,10 @@ docker_pause()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker pause succeeded. \"${container}\" container was paused"
+    hooks_execute "docker/pause" --state "post" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker pause failed."
+    hooks_execute "docker/pause" --state "post" --container "${container} $@"
   fi
   return $sucess
 }
@@ -597,8 +578,10 @@ docker_unpause()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER ABSTRACTION" "Docker unpause succeeded. \"${container}\" container was unpaused"
+    hooks_execute "docker/unpause" --state "post" --container "${container} $@"
   else
     debug --level 2 --topic "DOCKER ABSTRACTION" "Docker unpause failed."
+    hooks_execute "docker/unpause" --state "fail" --container "${container} $@"
   fi
   return $sucess
 }
@@ -628,6 +611,7 @@ docker_top()
   # Run docker command
   debug --level 5 --topic "DOCKER ABSTRACTION" "docker_top [container:${container}][flags:${flags}] ==> docker top ${flags} ${container}"
   docker top ${flags} ${container}
+
   local success=$?
   return $sucess
 }
@@ -659,6 +643,68 @@ docker_logs()
   docker logs ${flags} ${container}
   local success=$?
   return $sucess
+}
+
+#
+# Get the inspect JSON for the container
+#
+# @NOTE that JSON is not very usefull, but if it was
+# then you could get all of the info that you want
+# about your container from this:
+# - base image
+# - IP
+# - forarded ports (already can get this from ps
+#
+# $1 : docker container
+#
+docker_inspect()
+{
+
+
+  # default flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -f|--format)
+        flags="${flags} --format=\"${2}\""
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Run docker command
+  debug --level 9 --topic "DOCKER ABSTRACTION" "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
+#  echo "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
+   docker inspect ${flags} ${container}
+  return $?
+}
+# get the IP address for a container
+docker_inspect_getIP()
+{
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  debug --level 9 --topic "DOCKER->INSPECT->GETIP" "get ip [container:${container}] ==> docker_inspect --format \"{{ .NetworkSettings.IPAddress }}\" --container \"${container}\""
+  docker inspect --format="{{ .NetworkSettings.IPAddress }}" "${container}"
 }
 
 #
@@ -790,7 +836,7 @@ _docker_container_exists()
 {
   local container=$1
   local exists="`inspect_docker_container_list --container $container`"
-  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
+  debug --level 7 --topic "DOCKER ABSTRACTION" "_docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
 
   if [ $? ] && [ -n "$exists" ]; then
     return 0
@@ -803,7 +849,7 @@ _docker_container_running()
 {
   local container=$1
   local running="`inspect_docker_container_list --running --container $container`"
-  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_container_running [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
+  debug --level 7 --topic "DOCKER ABSTRACTION" "_docker_container_running [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
   if [ $? ] && [ -n "$running" ]; then
     return 0

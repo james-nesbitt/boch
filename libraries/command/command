@@ -9,13 +9,18 @@
 # @NOTE commands are essentially libraries, but we load them differently
 #   as we have multiple locations where they can be
 
-# path to the command shell scripts
-path_commands="${path_commands:-"${path_manage}/libraries/command/commands"}"
 
 commands_addpath()
 {
-  path_commands="${path_commands} ${1}"
+  list_add "path_commands" "${1}"
 }
+commands_getpath()
+{
+  list_get "path_commands"
+}
+
+# path to the command shell scripts
+commands_addpath "${path_manage}/libraries/command/commands"
 
 # Include a command
 command_include()
@@ -30,7 +35,7 @@ command_include()
   local path_command=""
   local success=-1
 
-  debug --level 9 --topic "COMMAND->INCLUDE->CALL->${command}" "called with \"command_include $@\" [paths:${path_commands}]"
+  debug --level 8 --topic "COMMAND->INCLUDE->CALL->${command}" "called with \"command_include $@\" [paths:`commands_getpath`"
 
   # LIBRARY
   case " $included_commands " in
@@ -43,12 +48,13 @@ command_include()
 
       # mark success to show that we didn't find the library
       success=-1
-      for path_command in ${path_commands}; do
-	path="${path_commands}/${command}"
+      for path_command in `commands_getpath`; do
+	path="${path_command}/${command}"
 
+	debug --level 9 --topic "COMMAND->INCLUDE" "checking command path [command:${command}][path:${path}]"
 	# do a quick check on if the path exists
 	# @NOTE technically we don't need to use this, as load_library does it as well, but we do it just to save effort
-	if [ -e ${path} ]; then
+	if [ -e "${path}" ]; then
 
 	  debug --level 8 --topic "COMMAND->INCLUDE" "Including command.  Handing off to library_load ==> library_load --library \"command:${command}\" --path \"${path}\" $@"
 	  library_load --library "command:${command}" --path "${path}" $@
@@ -68,8 +74,15 @@ command_include()
       fi
     ;;
   esac
+
+  return $success
 }
 
+# Execute a command
+#
+# -a|--action {action} : specify a method to run other than 'execute'
+#
+# @NOTE the library handler runs a fail if the action fails
 command_execute()
 {
   local command=$1
@@ -102,12 +115,29 @@ command_execute()
     if [ $success -eq 0 ]; then
       debug --level 8 --topic "COMMAND:EXECUTE" "${command} succeeded."
     else
-      debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${command}.  Command method returned an error"
+      debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command.  Command method returned an error [command:${command}]"
     fi
     return $success
 
   else
-    debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command ${command}.  Could not find command"
+    debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed.  Could not find command [command:${command}]"
     return 1
   fi
+}
+
+# List all of the commands
+commands_list()
+{
+
+  local path
+  local path_command
+
+  for path_command in `commands_getpath`; do
+    for path in ${path_command}/*; do
+      if [ -e ${path} ]; then
+	echo "${path}"
+      fi
+    done
+  done
+
 }

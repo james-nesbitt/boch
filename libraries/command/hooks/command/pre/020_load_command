@@ -33,18 +33,11 @@ hook_command_pre_020_execute()
   local success=$?
 
   if [ $success -gt 0 ]; then
+    debug --level 4 --topic "HOOK->COMMAND->PRE->020" "Command load failed [command:${COMMAND}]"
 
-    # no command was found
-    hook_command_pre_020_notfound
-    debug --level 1 --topic "HOOK->COMMAND->PRE->020" "failed to load.  Unkown command [command:${COMMAND}]"
-
+    # execute any existing post hooks
+    debug --level 7 --topic "HOOK->COMMAND->050" "Running global:fail hooks => hooks_execute command --state \"fail\" \"${COMMAND}\" $@"
+    hooks_execute "command" --state "fail" "${COMMAND}" $@
     return 1
   fi
-}
-
-hook_command_pre_020_notfound()
-{
-echo "
-Command not found: Unknown command \"${COMMAND}' - try using 'control help' for instructions.
-"
 }

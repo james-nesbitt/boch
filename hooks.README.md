@@ -1,6 +1,0 @@
-
-HOOKS Folder
-
-A folder to contain folders with scripts, that are run as hooks
-on command states
-

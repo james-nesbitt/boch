@@ -25,16 +25,22 @@ HOOK->Command:pre:specific: Run any command specific PRE hooks
 hook_command_pre_specific_060_execute()
 {
 
-  local COMMAND=$1
+  local command=$1
   shift
 
+  if [ "${command}" == "" ]; then
+    # don't run any pre hooks if no command is specified
+    return
+  fi
+
   # Run all PRE hooks for the custom command
-  hooks_execute
+  hooks_execute "command/${command}" --state "pre"
   local success=$?
+
   if [ $success -gt 0 ]; then
-    debug --level 8 --topic "HOOK->COMMAND->PRE->050" "Command specific PRE hooks run successfully [command:${COMMAND}]"
+    debug --level 8 --topic "HOOK->COMMAND->PRE->050" "Command specific PRE hooks run successfully [command:${command}]"
   else
-    debug --level 6 --topic "HOOK->COMMAND->PRE->050" "Command specific PRE hooks failed to run [command:${COMMAND}]"
+    debug --level 6 --topic "HOOK->COMMAND->PRE->050" "Command specific PRE hooks failed to run [command:${command}]"
   fi
   return $success
 }

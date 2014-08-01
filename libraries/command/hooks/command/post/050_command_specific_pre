@@ -24,17 +24,22 @@ HOOK->Command:post:specific: Run any command specific POST hooks
 # execute method
 hook_command_post_specific_050_execute()
 {
-
-  local COMMAND=$1
+  local command=$1
   shift
+
+  if [ "${command}" == "" ]; then
+    # don't run any post hooks if no command is specified
+    return
+  fi
 
   # Run all POST hooks for the custom command
   hooks_execute "command/${command}" --state "post" $@
   local success=$?
+
   if [ $success -gt 0 ]; then
-    debug --level 8 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks run successfully [command:${COMMAND}]"
+    debug --level 8 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks run successfully [command:${command}]"
   else
-    debug --level 6 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks failed to run [command:${COMMAND}]"
+    debug --level 6 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks failed to run [command:${commands}]"
   fi
   return $success
 }

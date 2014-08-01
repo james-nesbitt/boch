@@ -9,217 +9,102 @@ hook_root="hook_init_010"
 # descriptoin method
 hook_init_010_description()
 {
-  echo "hook->init 010 : Create the default customs settings.sh, if it is missing"
+  echo "Populate the default customs settings file, Create it if missing"
 }
 
 # help method
 hook_init_010_help()
 {
   echo "
-hook->init 010 : Create the default customs settings.sh, if it is missing
+hook->init 010 : Populate the default customs settings.sh, Create it if missing
 
+This hook does two things:
+1. Makes sure that a custom settings file exists
+2. Populates the settings file with the contents of any hook->settings->default
+   hook that has not been added already.
+
+@NOTE this hook leaves little messages in the settings file to indicate that it
+  has added conents.  If you remove those messages, then the hook will think that
+  they were never added, and remove them.
 "
+  hook_settings_default_010_help_hooklist "default" "`hooks_list \"settings\" --state \"default\"`"
 }
 
 # execute method
 hook_init_010_execute()
 {
-  # path to this management system
-  path_customsettings="${path_customsettings:-"$path_data/settings.sh"}"
 
   # Allow skipping this
   ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
 
+  # make sure that we have a custom path
+  ensure_folder ${path_data}
+
+  # path to this management system
+  path="${path_customsettings:-"$path_data/settings"}"
+
   if [ $ignore_root_custom_settings_file -eq 0 ]; then
+
     if [ ! -f ${path_customsettings} ]; then
 
-    # @NOTE This loop is here, because path_customsettings is technically
-    # a space delimited list.  we will assume that the first item in the
-    # list is our special item that we can create during init.
+      # @NOTE This loop is here, because path_customsettings is technically
+      # a space delimited list.  we will assume that the first item in the
+      # list is our special item that we can create during init.
 
-    for path in $path_customsettings; do
-
-  debug --level 4 --topic "HOOK->INIT->010" "Creating missing default custom settings file [${path}]"
-  echo "
+      debug --level 5 --topic "HOOK->INIT->010" "Creating missing default custom settings file [${path}]"
+      echo "#!/bin/sh
+#
 # Overrideable configuration variables
-
-####
-# Important paths for the source code
-#
-# @NOTE you have access to the following system paths:
-#  - ${path_manage} : path to the folder that contains the commands
-#  - ${path_project} : root folder for your project (actually just one up from your manage path)
-#  - ${path_user} : user home
-#
-# @NOTE you could try changing the above paths in your settings file, but the results are not predictable
-
-#library_include --component {sub_library} {library}
-
-# =path to custom settings and data=
-# various settings about custom configurations
-#
-# @NOTE changing this isn't recommended, as it is aready in use.
-#   Hopefully we can all agree on a good
-#   place for it, and move it in the core.
-#
-# - settings.sh : this file
-# - log : log file
-# - ? hooks
-# - ? libraries
-# - ? commands
-#
-#path_data="${path_data}"
-
-
-# path to the log file
-# @NOTE to enable logging try passing --log [{level}] to you command line
-#path_log="${path_log}"
-
-# path to Dockerfile builds for the project
-#path_build=${path_build}
-
-# Libraries path
-#
-# path list for possible locations for library tools
-#
-# Libraries are function sets that can be included with
-# library_include  and have methods executed using
-# library_execute.
-# You don't need to use this system, but it is used
-# for all sorts of things, including command loading,
-# and the help system.  It has a lot of build in debugging
-#
-# if you do load a library, and it has a hooks folder, those
-# hooks will automatically be activated.
-#
-#path_library=\"\${path_libraries} \${path_data}/libraries\"
-
-# Commands path
-#
-# You can add custom commands to the system by putting in a folder
-# and adding that folder to the path_commands var
-#
-# @NOTE for more information read the README in ${path_manage}/libraries/command
-# @NOTE commands are themselves libraries, and behave as libraries do
-#
-#commands_addpath \"\${path_data}/commands}\"
-
-# hooks path
-#
-# @NOTE hooks paths contain script files, which if executable, are executed
-#   as events on core actions.  Read the ${path_hooks}/README.md for more info
-# @NOTE we recommend that you add your own hooks folder to this path, so that you
-#   can add project specific hooks to the system
-#
-#path_projecthooks=\"\${path_data}/hooks\"
-#hooks_addpath \"\${path_projecthooks}\"
-
-# you can use this command to create any missing hook paths
-#ensure_folder \"\${path_projecthooks}\"
-#ensure_folder \"\${path_projecthooks}/commands/pre\"        <-- hooks run before any \"./command\" execution
-#ensure_folder \"\${path_projecthooks}/commands/build/pre\" <-- hooks run before any \"./command build\"
-#ensure_folder \"\${path_projecthooks}/flow/init\"           <-- hooks run as actions for the \"init flow\"
-#ensure_folder \"\${path_projecthooks}/settings\"             <-- settings hooks
-#ensure_folder \"\${path_projecthooks}/settings/pre\"        <-- early settings hooks
-#ensure_folder \"\${path_projecthooks}/settings/post\"       <-- late settings hooks
-
-# @NOTE HOOK files must be executable, or they are ignored!!!!
-
-
-###
-# Project settings
-#
-# some project related settings
 #
 
-# Project name : this gets used as a default all over the place
-project_name=\"${project_name:-project}\"
+" > ${path}
 
-###
-# Docker image configurations
-#
-
-# Project build images
-#
-# Generally needed to start making containers (a space separated queue of builds)
-# and are the default docker builds built with the flow init command.
-# Change this if your build image has a different name, or if it has different
-# parent images that need building.
-#
-# @NOTE you don't technically need any of these. If you use a project container that
-#   is built on a remote image, then the image will be pulled when you build your
-#   project image.
-# @NOTE is you want to use this, you will have to create a folder with a Dockerfile
-#   for each build, in the \${path_build} folder
-# @NOTE this is not something that is heavily enforced.  This is checked during
-#   \"./flow init\" but not before starting any builds
-#
-# @TODO make build check this before proceeding.
-#required_builds=\"${required_builds:-""}\"
-
-# Project build and image
-#
-# which build (folder) should be used for project images (if it isn't built)
-#project_build=\"${project_build:-"project"}\"
-# which image should we use for creating containers (and build it if it is missing)
-#project_image=\"${project_image:-"project"}\"
-# which image version/tag should we use for containers
-#project_imageversion=\"${project_imageversion:-"latest"}\"
-
-###
-# Docker Container configurations
-#
-
-# OS hostname used inside the container (which would impact things like avahi)
-#machine_hostname=\"\${project_name}\"
-
-# Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
-# @NOTE these are arguments for \"docker run\". Check that docker command to learn more
-machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
-
-###
-# Prefered shell configuration for the Machine
-#
-# Running as a shell is a temporary approach to getting shell access to a machine
-# but should be considered secondary to other methods of running commands on the
-# container.  It is a good plan for now but will be dropped in the future.
-#
-# @NOTE Running a shell creates a new container, but does not give access to an existing container
-#
-# @NOTE if you are using our builds, then zsh is available
-machine_shell=\"/bin/zsh\"
-# arguments for docker run that should always be included when starting a shell: docker help run
-# @NOTE you should probably take a look at docker run to learn more
-# @NOTE our builds have a developer user created
-machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
-
-###
-# Mount list:
-#
-# These are run time mounts, where the host FS can be changed
-# directly changing the container FS.
-#
-# @TODO get away from having to include the -v flag here, by finding a better format for this
-
-# create some variables for our sources
-# @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
-#path_source=\"\${path_project}/source\"
-#path_source_www=\"\${path_source}/www\"
-
-# Now that we have tested it, add the source folder to the mount
-# This is an example from what is already added by the system == machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source}:/app/source\"
-#machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source_www}:/app/source_www\"
-
-# Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
-# @NOTE our builds have a developer user created
-machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
-
-" > $path
-
-        break
-
-      done
+      chmod ug+rwx ${path}
 
     fi
+
+    local hooks="`hooks_list settings --state default --file ${path}`"
+    local hook=""
+    for hook in ${hooks}; do
+
+      hook_version=""
+      hook_root=""
+
+      hook_include ${hook} $@
+
+      if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
+
+	echo "
+## SETTINGS FROM HOOK : ${hook_root} [leave this line to prevent this hook from adding these settings again]
+" >> ${path}
+	#echo "`hook_execute ${hook}`" >> ${path}
+	echo "`"${hook_root}_execute"`" >> ${path}
+
+	debug --level 6 --topic "HOOK->FLOW->INIT->010" "A hook provided default settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+      fi
+
+    done
+
   fi
+
+}
+
+# output a list (of hooks) for a state
+hook_settings_default_010_help_hooklist()
+{
+  debug --level 7 --topic "HOOK->SETTINGS->DEFAULT->010" "Listing active default settings hooks"
+
+  local state="$1"
+  local hooks="$2"
+
+  echo "
+ACTIVE HOOKS: ${state}
+=============================================="
+  shift
+
+  for hook in ${hooks}; do
+    local label="$(hook_label ${hook} $@)"
+    local description="$(hook_description ${hook} $@)"
+    echo "  -->${label} : ${description}"
+  done
 }
