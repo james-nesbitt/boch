@@ -54,17 +54,16 @@ hook_command_help_050_execute()
   debug --level 6 --topic "HOOK>COMMAND->HELP->050" "including command \"${COMMAND}\""
 
   command_include ${COMMAND}
-  local success=$?
 
-  if [ $success -gt 0 ]; then
+  if [ $? -gt 0 ]; then
 
     debug --level 6 --topic "HOOK>COMMAND->HELP->050" "command not found \"${COMMAND}\""
 
     if [ "${COMMAND}" != "" ]; then
       hook_command_help_050_help_unknowncommand ${COMMAND} $@
+    else
+      hook_command_help_050_help_generalhelp $@
     fi
-
-    hook_command_help_050_help_generalhelp $@
   else
 
     hook_command_help_050_help_commandhelp ${COMMAND} $@

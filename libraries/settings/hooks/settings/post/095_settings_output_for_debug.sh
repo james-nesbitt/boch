@@ -35,12 +35,12 @@ hook_settings_post_095_execute()
     -->path_data-------------: ${path_data}
     -->path_source-----------: ${path_source}
     >LIBRARIES
-    -->path_libraries--------: ${path_libraries}
+    -->path_libraries--------: `libraries_getpath`
     -->libraries loaded------: ${included_libraries}
     >COMMANDS
-    -->path_commands---------: ${path_commands}
+    -->path_commands---------: `commands_getpath`
     >HOOKS
-    -->path_hooks------------: ${path_hooks}
+    -->path_hooks------------: `hooks_getpath`
     >PROJECT CONFIGURATION
     -->Project_name----------: ${project_name}
     >PROJECT DOCKER CONFIGURATIONS

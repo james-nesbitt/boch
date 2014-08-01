@@ -37,11 +37,11 @@ hook_command_050_execute()
     debug --level 6 --topic "HOOK->COMMAND->050" "Command succeeded [command:${COMMAND}]"
 
   else
-    debug --level 2 --topic "HOOK->COMMAND->050" "Command execution failed [command:${COMMAND}]"
+    debug --level 4 --topic "HOOK->COMMAND->050" "Command execution failed [command:${COMMAND}]"
 
     # execute any existing post hooks
-    debug --level 7 --topic "HOOK->COMMAND->050" "Running global:fail hooks => hooks_execute global --state \"fail\" --command \"${COMMAND}\""
-    hooks_execute command --state "fail" --command "${COMMAND} $@"
+    debug --level 7 --topic "HOOK->COMMAND->050" "Running global:fail hooks => hooks_execute command --state \"fail\" \"${COMMAND}\" $@"
+    hooks_execute "command" --state "fail" "${COMMAND}" $@
   fi
   exit $sucess
 

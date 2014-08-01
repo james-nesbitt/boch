@@ -4,21 +4,41 @@
 #
 
 ###
-# Path handling
+# list handling
 #
 #
 #
-
-_path_rootvar="path"
-path_add()
+_list_rootvar=""
+list_reset()
 {
   local name=$1
-  local path=$2
+
+  local var="${_list_rootvar}${name}"
+  eval "$var=\"\""
+  debug --level 9 --topic "UTIITY->LIST->RESET" "Resetting lists var [list:${var}][value:${!var}]"
 }
-path_get()
+list_add()
+{
+  local name=$1
+  local list=$2
+
+  local var="${_list_rootvar}${name}"
+  local value="${list} ${!var}"
+  value=${value%% }
+  value=${value## }
+  eval "$var=\"${value}\""
+  debug --level 8 --topic "UTIITY->LIST->ADD" "Adding list to lists var [list:${var}][value:${!var}][added:${list}]"
+}
+list_get()
 {
   local name=$1
 
+  local var="${_list_rootvar}${name}"
+  local trimmed="${!var}"
+  trimmed=${trimmed%% }
+  trimmed=${trimmed## }
+  echo "${trimmed}"
+  debug --level 9 --topic "UTIITY->LIST->GET" "get lists var [list:${var}][value:${trimmed}]"
 }
 
 #########################

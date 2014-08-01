@@ -3,11 +3,6 @@
 # Hook related functionality
 #
 
-# add this library hooks to the hooks path
-# @note we need to do this manually, as these hooks do it for other libraries
-path_hooks="${path_hooks} ${path_manage}/libraries/hook/hooks"
-debug --level 7 --topic "HOOKS" "Adding hooks library hooks to the hooks paths [path_hooks:${path_hooks}"
-
 #
 # Hooks
 #
@@ -25,8 +20,17 @@ debug --level 7 --topic "HOOKS" "Adding hooks library hooks to the hooks paths [
 
 hooks_addpath()
 {
-  path_hooks="${path_hooks} ${1}"
+  list_add "path_hooks" "${1}"
 }
+hooks_getpath()
+{
+  list_get "path_hooks"
+}
+
+# add this library hooks to the hooks path
+# @note we need to do this manually, as these hooks do it for other libraries
+hooks_addpath "${path_manage}/libraries/hook/hooks"
+
 
 ###
 # Run hooks for a command
@@ -79,7 +83,7 @@ hooks_execute()
   done
 
   # build paths from hooks path parent, and hook
-  for path_parent in ${path_hooks}; do
+  for path_parent in `hooks_getpath`; do
     paths="${paths} ${path_parent}/${hook}"
   done
 
@@ -92,14 +96,19 @@ hooks_execute()
           # include and execute the hook
           if [ -f ${hook} ] && [ -x ${hook} ]; then
 	    hook_execute $hook $@
+
+	    if [ $? -gt 0 ]; then
+	      debug --level 8 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}]"
+	      return 1
+	    fi
 	  fi
         done
     else
-      debug --level 9 --topic "HOOKS->EXECUTE" "hooks_execute : Hook path doesn't exist: ${path} $@"
+      debug --level 9 --topic "HOOKS->EXECUTE" "Hook path doesn't exist: ${path} $@"
     fi
   done
   if [ "${hooks_list}" != "" ]; then
-    debug --level 7 --topic "HOOKS->EXECUTE" "hooks_execute : executed hooks: ${hook_list}"
+    debug --level 7 --topic "HOOKS->EXECUTE" "executed hooks: ${hook_list}"
   fi
 }
 
@@ -130,7 +139,7 @@ hooks_list()
   done
 
   # build paths from hooks path parent, and hook
-  for path_parent in ${path_hooks}; do
+  for path_parent in `hooks_getpath`; do
     paths="${paths} ${path_parent}/${hook}"
   done
 
