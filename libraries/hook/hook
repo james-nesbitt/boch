@@ -15,7 +15,6 @@
 # 2 : a functional script with _help _description and _execute methods
 #
 # @TODO refactor to allow:
-#   - sort of all hooks (based on state, across paths)
 #   - allow hook exclusion
 
 hooks_addpath()
@@ -82,32 +81,23 @@ hooks_execute()
     shift
   done
 
-  # build paths from hooks path parent, and hook
-  for path_parent in `hooks_getpath`; do
-    paths="${paths} ${path_parent}/${hook}"
-  done
 
   # loop through all of the paths and execute any functions found.
   debug --level 9 --topic "HOOKS->EXECUTE" "executing any hooks in these paths: ${paths}"
+  local paths=""
   local path=""
   local path_hook=""
-  for path in ${paths}; do
+  for path in `hooks_getpath`; do
+    path="${path}/${hook}"
 
     if [ -d ${path} ]; then
         for path_hook in ${path}/*; do
-
-          # include and execute the hook
           if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
-
-	    hook_execute $path_hook $@
-
-	    if [ $? -gt 0 ]; then
-	      debug --level 8 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}][path:${path_hook}]"
-	      return 1
-	    fi
+	    paths="${paths} ${path_hook##*/}:${path_hook}"
+	    debug --level 7 --topic "HOOKS->EXECUTE" "Hook discovered [hook:${hook}][path:${path_hook}]"
 	  else
 	    if [ -f ${path} ]; then
-	      debug --level 7 --topic "HOOKS->EXECUTE" "Possible hook ignored, as it is not executable or not [hook:${hook}][path:${path_hook}]"
+	      debug --level 7 --topic "HOOKS->EXECUTE" "Possible hook ignored, as it is not executable or not a file [hook:${hook}][path:${path_hook}]"
 	    fi
 	  fi
         done
@@ -115,8 +105,26 @@ hooks_execute()
       debug --level 9 --topic "HOOKS->EXECUTE" "Hook path doesn't exist: ${path} $@"
     fi
   done
-  if [ "${hooks_list}" != "" ]; then
-    debug --level 8 --topic "HOOKS->EXECUTE" "executed hooks: ${hook_list}"
+
+  if [ -n "${paths}" ]; then
+    # sort the paths
+    paths="`for path_hook in \`echo $paths\`; do
+      echo $path_hook
+    done | sort`"
+    for path_hook in ${paths}; do
+      path_hook="${path_hook##*:}"
+      # include and execute the hook
+      hook_execute $path_hook $@
+
+      if [ $? -gt 0 ]; then
+	debug --level 8 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}][path:${path_hook}]"
+	return 1
+      else
+	debug --level 9 --topic "==>HOOKS->EXECUTE" "executed hook [hook:${hook}]: ${path_hook##*/}"
+      fi
+    done
+
+    debug --level 8 --topic "HOOKS->EXECUTE" "executed hooks: ${paths}"
   fi
 }
 
