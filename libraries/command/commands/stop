@@ -38,7 +38,7 @@ stop_execute()
   done
 
 
-  if [ _docker_container_running ${container} ]; then
+  if _docker_container_running ${container}; then
     # Run the stop function
     debug --level 5 --topic "COMMAND->STOP" "handing off to docker abstraction [container:${container}] ==> docker_stop --container ${container}"
     docker_stop --container "${container}"
@@ -46,7 +46,7 @@ stop_execute()
 
   else
 
-    if [ _docker_container_exists ${container} ]; then
+    if _docker_container_exists ${container}; then
       debug --level 2 --topic "COMMAND->STOP" "docker stop not executed.  The container exists but is not running [container:${container}]"
     else
       debug --level 2 --topic "COMMAND->STOP" "docker stop not executed.  The container does not exist [container:${container}]"
