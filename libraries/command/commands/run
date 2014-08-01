@@ -11,7 +11,7 @@ Run a command in a new container.
 
 @NOTE this container is temporary, unless you pass --peristant
 
-@NOTE if you pass no command, then the defaul \${machine_shell} command is used
+@NOTE if you pass no command, then the default \${machine_shell} command is used
 "
 }
 

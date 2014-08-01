@@ -18,7 +18,7 @@ List container processors
 # command execute function
 ps_execute()
 {
-  container=${Docker_container}
+  container=${project_container}
 
   while [ $# -gt 0 ]
   do
@@ -37,8 +37,23 @@ ps_execute()
     shift
   done
 
-  # Run the ps function
-  debug --level 5 --topic "COMMAND" "ps [ handing off to docker abstraction ] ==> docker_top --container ${container}"
-  docker_top --container "${container}"
-  return $?
+  if _docker_container_running ${container}; then
+
+    # Run the ps function
+    debug --level 5 --topic "COMMAND->PS" "handing off to docker abstraction ==> docker_top --container ${container}"
+    docker_top --container "${container}"
+    return $?
+
+  # start a new container based on the image
+  else
+
+    if _docker_container_exists ${container}; then
+      # Run the run function
+      debug --level 5 --topic "COMMAND->PS" "container is not running ${container}"
+    else
+      debug --level 5 --topic "COMMAND->PS" "container does not exist ${container}"
+    fi
+    return 1
+  fi
+
 }
