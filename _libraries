@@ -230,7 +230,6 @@ library_load()
 
 	  local path_librarylibraries="${path}/libraries"
 	  if [ -d "${path_librarylibraries}" ]; then
-	echo "ADD PROJECT LBIRRES : ${path_librarylibraries}"
 	    libraries_addpath ${path_librarylibraries}
 	  fi
 
