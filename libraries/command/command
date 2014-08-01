@@ -78,6 +78,11 @@ command_include()
   return $success
 }
 
+# Execute a command
+#
+# -a|--action {action} : specify a method to run other than 'execute'
+#
+# @NOTE the library handler runs a fail if the action fails
 command_execute()
 {
   local command=$1

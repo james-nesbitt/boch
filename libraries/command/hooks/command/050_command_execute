@@ -24,6 +24,9 @@ that impements the functionality.  If the function fails, then run the fail hook
 }
 
 # execute function
+#
+# @NOTE that if a command fails, then the library handler will call the fail hook
+#
 hook_command_050_execute()
 {
   # Command is the first argument
@@ -31,18 +34,13 @@ hook_command_050_execute()
   shift
 
   command_execute $COMMAND $@
-  success=$?
-  if [ $success == 0 ]; then
-    echo "$result"
-    debug --level 6 --topic "HOOK->COMMAND->050" "Command succeeded [command:${COMMAND}]"
 
+  if [ $? -eq 0 ]; then
+    debug --level 6 --topic "HOOK->COMMAND->050" "Command succeeded [command:${COMMAND}]"
+    return 0
   else
     debug --level 4 --topic "HOOK->COMMAND->050" "Command execution failed [command:${COMMAND}]"
-
-    # execute any existing post hooks
-    debug --level 7 --topic "HOOK->COMMAND->050" "Running global:fail hooks => hooks_execute command --state \"fail\" \"${COMMAND}\" $@"
-    hooks_execute "command" --state "fail" "${COMMAND}" $@
+    return 1
   fi
-  exit $sucess
 
 }
