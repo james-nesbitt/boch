@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# Create the project image build
+#
+
+hook_version=2
+hook_root="hook_flow_init_030"
+
+
+# description method
+hook_flow_init_030_description()
+{
+  echo "Create default project image build"
+}
+
+# help method
+hook_flow_init_030_help()
+{
+  echo "
+HOOK->FLOW->INIT->030: Build the default project image
+
+[-b|--build {build}] : specify an specific build that should be copied as the new custom build
+
+"
+}
+
+# execute method
+hook_flow_init_030_execute()
+{
+
+  command_load build
+
+  project_build=${project_build:-project}
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--build)
+        project_build="${2}"
+        shift
+        ;;
+      -i|--image)
+        project_image="${2}"
+        shift
+        ;;
+      -v|--version)
+        project_version="${2}"
+        shift
+        ;;        
+      *)
+        break;
+    esac
+    shift
+  done
+
+  if [ -d "${path_data}" ] && [ ! -d "${path_data}/builds/${project_image}" ]; then
+
+    for path_build in `builds_getpath`; do
+      path_build="${path_build}/${project_build}"
+      if [ -d ${path_build} ]; then
+        ensure_folder "${path_data}/builds"
+        debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Creating custom build [build:${project_build}][image:${project_image}][version:${project_version}]"
+        cp "${path_build}" "${path_data}/builds/${project_image}"
+        build_addpath "${path_data}/builds"
+        return;
+      fi
+    done
+
+  fi
+
+}

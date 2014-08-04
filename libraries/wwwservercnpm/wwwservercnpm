@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# library: wwwserver-cnpm
+#
+# A library which includes some useful wwwserver builds, and
+# some related settings
+#
+
+# The build code should automatically recognize our library 
+

@@ -84,11 +84,11 @@ machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 # @NOTE Running a shell creates a new container, but does not give access to an existing container
 #
 # @NOTE if you are using our builds, then zsh is available
-machine_shell=\"/bin/zsh\"
+#machine_shell=\"/bin/zsh\"
 # arguments for docker run that should always be included when starting a shell: docker help run
 # @NOTE you should probably take a look at docker run to learn more
 # @NOTE our builds have a developer user created
-machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
+#machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
 
 ###
 # Mount list:
@@ -98,17 +98,8 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=deve
 #
 # @TODO get away from having to include the -v flag here, by finding a better format for this
 
-# create some variables for our sources
-# @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
-#path_source=\"\${path_project}/source\"
-#path_source_www=\"\${path_source}/www\"
-
 # Now that we have tested it, add the source folder to the mount
-# This is an example from what is already added by the system == machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source}:/app/source\"
-#machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source_www}:/app/source_www\"
+#machine_mountvolumes=\"\${machine_mountvolumes} --volume=some/path:/app/some_other_path\"
 
-# Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
-# @NOTE our builds have a developer user created
-machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
 "
 }

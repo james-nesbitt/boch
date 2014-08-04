@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# INIT:HOOK: Create the custom project folder
+#
+
+hook_version=2
+hook_root="hook_init_010"
+
+# descriptoin method
+hook_init_005_description()
+{
+  echo "Create the custom project folder, if missing."
+}
+
+# help method
+hook_init_005_help()
+{
+  echo "
+hook->init 010 : Create the custom folder for the project
+"
+}
+
+# execute method
+hook_init_005_execute()
+{
+
+  # what is the root path to the project folder
+  path_data="${path_data:-${path_project}/${project_name}}""
+
+  # make sure that we have a custom path
+  ensure_folder "${path_data}"
+
+}

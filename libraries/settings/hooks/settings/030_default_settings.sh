@@ -28,6 +28,12 @@ used, and what settings to pass to the docker abstraction.
 # execute method
 hook_settings_030_execute()
 {
+
+  # NOT Overrideable configuration variables
+  
+
+
+
   # Overrideable configuration variables
 
   ####
@@ -80,7 +86,7 @@ hook_settings_030_execute()
   #
 
   # OS hostname used inside the container (which would impact things like avahi)
-  machine_hostname="${Project_name}"
+  machine_hostname="${machine_hostname:-Project_name}"
 
   # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
   # @NOTE these are arguments for \"docker run\". Check that docker command to learn more
@@ -108,29 +114,5 @@ hook_settings_030_execute()
   # These are run time mounts, where the host FS can be changed
   # directly changing the container FS.
   #
-  # @TODO get away from having to include the -v flag here, by finding a better format for this
-
-  # create some variables for our sources
-  # @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
-  path_source="${path_project}/source"
-  #path_source_www="${path_source}/www"
-
-  # Now that we have tested it, add the source folder to the mount
-  # This is an example from what is already added by the system == Machine_mountvolumes=\"\${Machine_mountvolumes} --volume=\${path_project}/source:/app/source\"
-
-  # Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
-  # @NOTE our builds have a developer user created
-  #Machine_mountvolumes="${Machine_mountvolumes} --volume=${path_userhome}/.ssh:/home/developer/.ssh-host"
-
-  # live mounts that are used for containers
-  path_source="${path_project}/source"
-  ensure_folder $path_source
-
-  if [ $? == 0 ]; then
-    debug --level 8 --topic "HOOK->SETTINGS->030" "Created required folder for project source code, adding it to the mount path list: $path_source"
-    machine_mountvolumes="${machine_mountvolumes} --volume=${path_source}:/app/source"
-  else
-    debug --level 3 --topic "HOOK->SETTINGS->030" "Failed to create required folder for project source code path: $path_source"
-  fi
 
 }

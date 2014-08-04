@@ -98,12 +98,12 @@ command_execute()
     while [ $# -gt 0 ]
     do
       case "$1" in
-	-a|--action)
-	  action=$2
-	  shift
-	  ;;
-	*)
-	    break;; # terminate while loop
+	      -a|--action)
+	        action=$2
+	        shift
+	        ;;
+	      *)
+	        break;; # terminate while loop
       esac
       shift
     done
@@ -135,7 +135,7 @@ commands_list()
   for path_command in `commands_getpath`; do
     for path in ${path_command}/*; do
       if [ -e ${path} ]; then
-	echo "${path}"
+	      echo "${path}"
       fi
     done
   done
