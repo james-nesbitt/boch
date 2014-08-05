@@ -36,10 +36,10 @@ hook_command_post_specific_050_execute()
   hooks_execute "command/${command}" --state "post" $@
   local success=$?
 
-  if [ $success -gt 0 ]; then
+  if [ $success -eq 0 ]; then
     debug --level 8 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks run successfully [command:${command}]"
   else
-    debug --level 6 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks failed to run [command:${commands}]"
+    debug --level 6 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks failed to run [command:${command}]"
   fi
   return $success
 }

@@ -30,11 +30,11 @@ library_include()
   do
     case "$1" in
       -c|--component)
-	component=$2
-	shift
-	;;
+        component=$2
+        shift
+        ;;
       *)
-	  break;; # terminate while loop
+          break;; # terminate while loop
     esac
     shift
   done
@@ -45,7 +45,7 @@ library_include()
 
   local success=-1
 
-  debug --level 9 --topic "LIBRARY->INCLUDE->CALL->${library}" "called with \"include_library $@\" [paths:`libraries_getpath`]"
+  debug --level 9 --topic "LIBRARY->INCLUDE->" "Trying to includel library [library:${library}][component:${component}][library paths:`libraries_getpath`][included libraries:${included_libraries}]"
 
   # LIBRARY
   case " $included_libraries " in
@@ -61,18 +61,18 @@ library_include()
       # mark success to show that we didn't find the library
       success=-1
       for path_library in `libraries_getpath`; do
-	path="${path_library}/${library}"
+        path="${path_library}/${library}"
 
-	# check the path before trying to load it
-	if [ -e ${path} ]; then
-	  debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
-	  library_load --library "${library}" --path "${path_library}/${library}" $@
+        # check the path before trying to load it
+        if [ -e ${path} ]; then
+          debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
+          library_load --library "${library}" --path "${path_library}/${library}" $@
 
-	  if [ $? -gt -1 ]; then
-	    success=$?
-	    break;
-	  fi
-	fi
+          if [ $? -gt -1 ]; then
+            success=$?
+            break;
+          fi
+        fi
 
       done
     ;;
@@ -86,51 +86,51 @@ library_include()
       *" ${library}:${component} "*)
           # already included
 
-	  debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "component already included [library:${library}][component:${component}][[included_library_components:${included_library_components}]"
-	  success=0
-	;;
+          debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "component already included [library:${library}][component:${component}][[included_library_components:${included_library_components}]"
+          success=0
+        ;;
 
       *)
 
-	# mark success to show that we didn't find the library
-	success=-1
+        # mark success to show that we didn't find the library
+        success=-1
 
-	for path_library in `libraries_getpath`; do
-	  # get the library path
-	  path="${path_library}/${library}"
+        # if a component is of the form {parent}:{name} then split them, otherwise assume name={library}
+        # path will be {library}/{parent}/{name}
+        local component_parent="${component%:*}"
+        if [ -z ${component_parent} ]; then
+          component_parent=${component_parent:-${library}}
+        fi
+        local component_name="${component##*:}"
 
-	  # if the path is a directory then assume that the whole directory is the library root
-	  # if the path is not a directory, then it is a simple library and can't have components
+        for path_library in `libraries_getpath`; do
+          # get the library path
+          path="${path_library}/${library}/${component_parent}"
 
-	  if [ -d ${path} ]; then
+          # do a quick check on the path to save time
+          if [ -d ${path} ]; then
+            # full path to component
+            path="${path}/${component_name}"
 
-	    if [ -d "${path}/components" ]; then
-	      # library has a subfolder for components
-	      path="${path}/components"
-	    fi
-	    # add the component name to the path
-	    path="${path}/${component}"
+            # try to load the component as a library
+            debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "trying to load library component, handing off to library_load [library:${library}][component:${component}] =>  library_load --library \"${library}:${component}\" --path \"${path}\" $@"
+            library_load --library "${library}_${component}" --path "${path}" $@
+            success=$?
 
-	    # check that the path exists before trying to load it.
-	    if [ -e ${path} ]; then
-	      # try to load the component as a library
-	      debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "trying to load library component, handing off to library_load [library:${library}][component:${component}] =>  library_load --library \"${library}:${component}\" --path \"${path}\" $@"
-	      library_load --library "${library}:${component}" --path "${path}" $@
+            # if we found it then break (make a library_load return -1 to keep looking
+            if [ $success -gt 1 ]; then
+              break
+            fi
 
-	      if [ $? -gt -1 ]; then
-		success=$?
-		break
-	      fi
-	    fi
+          fi
 
-	  fi
-	done
+        done
 
-	if [ $success -eq -1 ]; then
-	  # library was not found
-	  debug --level 6 --topic "LIBRARY->INCLUDE->COMPONENT" "library component not found [library:${library}][component:${component}]"
-	  success=1
-	fi
+        if [ $success -eq -1 ]; then
+          # library was not found
+          debug --level 6 --topic "LIBRARY->INCLUDE->COMPONENT" "library component not found [library:${library}][component:${component}]"
+          success=1
+        fi
 
       ;;
     esac
@@ -157,19 +157,19 @@ library_load()
   do
     case "$1" in
       -c|--core)
-	corefile=$2
-	shift
-	;;
+        corefile=$2
+        shift
+        ;;
       -l|--library)
-	library=$2
-	shift
-	;;
+        library=$2
+        shift
+        ;;
       -p|--path)
-	path=$2
-	shift
-	;;
+        path=$2
+        shift
+        ;;
       *)
-	  break;; # terminate while loop
+          break;; # terminate while loop
     esac
     shift
   done
@@ -179,7 +179,7 @@ library_load()
     return 1
   fi
   if [ -z "${corefile}" ]; then
-    corefile="${library}"
+    corefile="${library##*:}"
   fi
 
   # check if already attempted to load this library (if not mark it as attempted)
@@ -199,55 +199,55 @@ library_load()
       debug --level 8 --topic "LIBRARY->LOAD" "trying to include library [library:${library}][path:${path}]"
 
       if [ ! -e ${path} ]; then
-	      debug --level 8 --topic "LIBRARY->LOAD" "library root does not exist [library:${library}][path:${path}]"
-	      return 1
+        debug --level 8 --topic "LIBRARY->LOAD" "library root does not exist [library:${library}][path:${path}]"
+        return 1
       fi
 
       # if the path is a directory then assume that the whole directory is the library root
       if [ -d ${path} ]; then
-	      root_path="${path}/${corefile}"
-	      debug --level 8 --topic "LIBRARY->LOAD" "using path as library directory.[path:${root_path}]"
+        root_path="${path}/${corefile}"
+        debug --level 8 --topic "LIBRARY->LOAD" "using path as library directory.[path:${root_path}]"
       else
-	      root_path="${path}"
-	      debug --level 8 --topic "LIBRARY->LOAD" "loading simple library (this library can't have components.) [path:${root_path}]"
+        root_path="${path}"
+        debug --level 8 --topic "LIBRARY->LOAD" "loading simple library (this library can't have components.) [path:${root_path}]"
       fi
 
       if [ -f ${root_path} ] && [ -x ${root_path} ]; then
 
         _libraries_hooks_exists
-	if [ $? -eq 0 ]; then
-	  hooks_execute "library/load" --state "pre" --library ${library} --path ${path} $@
-	fi
+        if [ $? -eq 0 ]; then
+          hooks_execute "library/load" --state "pre" --library ${library} --path ${path} $@
+        fi
 
-	debug --level 8 --topic "LIBRARY->LOAD" "Including library root.  Handing off to _include_source ==> _include_source \"${root_path}\" $@ "
-	_include_source "${root_path}" $@
+        debug --level 8 --topic "LIBRARY->LOAD" "Including library root.  Handing off to _include_source ==> _include_source \"${root_path}\" $@ "
+        _include_source "${root_path}" $@
 
-	if [ $? -eq 0 ]; then
-	  _libraries_hooks_exists
-	  if [ $? -eq 0 ]; then
-	    hooks_execute "library/load" --state "post" --library ${library} --path ${path} $@
-	  fi
+        if [ $? -eq 0 ]; then
+          _libraries_hooks_exists
+          if [ $? -eq 0 ]; then
+            hooks_execute "library/load" --state "post" --library ${library} --path ${path} $@
+          fi
 
-	  local path_librarylibraries="${path}/libraries"
-	  if [ -d "${path_librarylibraries}" ]; then
-	    libraries_addpath ${path_librarylibraries}
-	  fi
+          local path_librarylibraries="${path}/libraries"
+          if [ -d "${path_librarylibraries}" ]; then
+            libraries_addpath ${path_librarylibraries}
+          fi
 
-	  debug --level 6 --topic "LIBRARY->LOAD" "library loaded [library:${library}][path:${path}]"
-	  return 0
-	else
-	  debug --level 6 --topic "LIBRARY->LOAD" "library load failed  [library:{$library}][path:${path}]"
+          debug --level 6 --topic "LIBRARY->LOAD" "library loaded [library:${library}][path:${path}]"
+          return 0
+        else
+          debug --level 6 --topic "LIBRARY->LOAD" "library load failed  [library:{$library}][path:${path}]"
 
-	  _libraries_hooks_exists
-	  if [ $? -eq 0 ]; then
-	    hooks_execute "library/load" --state "fail" --library ${library} --path ${path} $@
-	  fi
-	  return 1
-	fi
+          _libraries_hooks_exists
+          if [ $? -eq 0 ]; then
+            hooks_execute "library/load" --state "fail" --library ${library} --path ${path} $@
+          fi
+          return 1
+        fi
 
       else
-	debug --level 8 --topic "LIBRARY->LOAD" "library root handler does not exist or is not executable for \"${root_path}\""
-	return 1
+        debug --level 8 --topic "LIBRARY->LOAD" "library root handler does not exist or is not executable for \"${root_path}\""
+        return 1
       fi
     ;;
   esac
@@ -276,15 +276,15 @@ library_execute()
   do
     case "$1" in
       -a|--action)
-	action=$2
-	shift
-	;;
+        action=$2
+        shift
+        ;;
       -c|--component)
-	component=$2
-	shift
-	;;
+        component=$2
+        shift
+        ;;
       *)
-	  break;; # terminate while loop
+          break;; # terminate while loop
     esac
     shift
   done

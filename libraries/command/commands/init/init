@@ -12,7 +12,10 @@ Initialize the local project.
 This command will create various files and folders often
 used by the management tools.
 
+@NOTE this command is heavily dependent on hooks to do the work.
 @NOTE used to be $/> ./flow init
+  This was moved to a command because so far it is the only flow,
+  which makes it pretty usefull.
 "
 }
 
@@ -20,6 +23,7 @@ used by the management tools.
 init_execute()
 {
 
+  local argscopy="$@"
   local flags=""
   while [ $# -gt 0 ]
   do
@@ -56,7 +60,15 @@ init_execute()
     shift
   done
 
-  # Run the stop function
-  debug --level 5 --topic "COMMAND" "running init hooks"
+  # Run all hooks for the custom command
+  hooks_execute "command/init" ${argscopy}
+  local success=$?
+
+  if [ $success -gt 0 ]; then
+    debug --level 8 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks run successfully [command:${command}]"
+  else
+    debug --level 6 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks failed to run [command:${commands}]"
+  fi
+  return $success
   return $?
 }

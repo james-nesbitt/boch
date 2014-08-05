@@ -118,17 +118,21 @@ if [ "$help" != "no" ]; then
 else
 
   # execute any existing pre hooks
-  debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute command --state \"pre\" \"${COMMAND}\""
+  debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute command --state \"pre\" \"${COMMAND}\" $@"
   hooks_execute command --state "pre" "${COMMAND} $@"
 
-  # execute any existing pre hooks
-  debug --level 7 --topic "COMMAND" "Running global:hooks => hooks_execute command \"${COMMAND}\""
+  # execute any existing standard hooks
+  debug --level 7 --topic "COMMAND" "Running global:hooks => hooks_execute command \"${COMMAND}\" $@"
   hooks_execute command "${COMMAND} $@"
   success=$?
 
   if [ $success == 0 ]; then
     # execute any existing post hooks
-    debug --level 7 --topic "COMMAND" "Running global:post hooks => hooks_execute command --state \"post\" \"${COMMAND}\""
+    debug --level 7 --topic "COMMAND" "Running global:post hooks => hooks_execute command --state \"post\" \"${COMMAND}\" $@"
+    hooks_execute command --state "post" "${COMMAND} $@"
+  else
+    # execute any existing fail hooks
+    debug --level 7 --topic "COMMAND" "Running global:fail hooks => hooks_execute command --state \"fail\" \"${COMMAND}\" $@"
     hooks_execute command --state "post" "${COMMAND} $@"
   fi
 

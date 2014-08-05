@@ -73,19 +73,21 @@ log=${log:-0}
 debug_set_level()
 {
   debug=${1}
-  debug --level 3 --topic "COMMAND" "Debug mode enabled/set (level:${debug})"
+  shift
+  debug --level 3 --topic "COMMAND" "Debug mode enabled/set (level:${debug}) $@"
 }
 # set the debug logging value
 debug_set_log()
 {
   log=${1}
-  debug --level 3 --topic "COMMAND" "Logging mode enabled/set (level:${log})"
+  shift
+  debug --level 3 --topic "COMMAND" "Logging mode enabled/set (level:${log}) $@"
 }
 # disable the "execution stop on critical" feature in debug()
 debug_disable_critical()
 {
   debug_critical_level=${1:--1}
-  debug --level 3 --topic "COMMAND" "Forced mode enabled"
+  debug --level 3 --topic "COMMAND" "Forced mode enabled $@"
 }
 
 # Create a debug entry

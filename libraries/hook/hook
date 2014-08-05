@@ -93,13 +93,13 @@ hooks_execute()
     if [ -d ${path} ]; then
         for path_hook in ${path}/*; do
           if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
-	    paths="${paths} ${path_hook##*/}:${path_hook}"
-	    debug --level 7 --topic "HOOKS->EXECUTE" "Hook discovered [hook:${hook}][path:${path_hook}]"
-	  else
-	    if [ -f ${path} ]; then
-	      debug --level 7 --topic "HOOKS->EXECUTE" "Possible hook ignored, as it is not executable or not a file [hook:${hook}][path:${path_hook}]"
-	    fi
-	  fi
+            paths="${paths} ${path_hook##*/}:${path_hook}"
+            debug --level 7 --topic "HOOKS->EXECUTE" "Hook discovered [hook:${hook}][path:${path_hook}]"
+          else
+            if [ -f ${path} ]; then
+              debug --level 7 --topic "HOOKS->EXECUTE" "Possible hook ignored, as it is not executable or not a file [hook:${hook}][path:${path_hook}]"
+            fi
+          fi
         done
     else
       debug --level 9 --topic "HOOKS->EXECUTE" "Hook path doesn't exist: ${path} $@"
@@ -117,10 +117,10 @@ hooks_execute()
       hook_execute $path_hook $@
 
       if [ $? -gt 0 ]; then
-	debug --level 8 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}][path:${path_hook}]"
-	return 1
+        debug --level 8 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}][path:${path_hook}]"
+        return 1
       else
-	debug --level 9 --topic "==>HOOKS->EXECUTE" "executed hook [hook:${hook}]: ${path_hook##*/}"
+        debug --level 9 --topic "==>HOOKS->EXECUTE" "executed hook [hook:${hook}]: ${path_hook##*/}"
       fi
     done
 
@@ -131,9 +131,6 @@ hooks_execute()
 # List all hooks
 hooks_list()
 {
-  # string to capture list of hooks implemented
-  local hook_list=""
-
   # require the first argument to be the command
   local hook=$1
   shift
@@ -149,29 +146,32 @@ hooks_list()
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
 
-  # build paths from hooks path parent, and hook
-  for path_parent in `hooks_getpath`; do
-    paths="${paths} ${path_parent}/${hook}"
-  done
-
   # loop through all of the paths and execute any functions found.
+  debug --level 9 --topic "HOOKS->LIST" "listing any hooks in these paths: `hooks_getpath`"
   local path=""
-  for path in ${paths}; do
+  local path_hook=""
+
+  # print all of the functions that match our hook, in any of the avaiable hook paths, but sorted based on integer prefix
+  for path in "`for path in `hooks_getpath`; do
+    path="${path}/${hook}"
+
     if [ -d ${path} ]; then
-      for hook in ${path}/*; do
-        if [ -f ${hook} ] && [ -x ${hook} ]; then
-          hook_list="${hook_list} ${hook}"
+      for path_hook in ${path}/*; do
+        if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
+          # create a string that will sort based on file prefix (the integer numbers)
+          echo "${path_hook##*/}:${path_hook}"
         fi
       done
     fi
+  done | sort`"; do
+    # print the hook without that sorting prefix that we added above
+    echo ${path##*:}
   done
-  debug --level 9 --topic "HOOKS->LIST" "hooks list [hook:$hook] : $hook_list"
-  echo "${hook_list}"
 }
 
 # included_hooks=""
@@ -249,14 +249,14 @@ hook_execute()
     2)
       # version 2 hooks have methods named after the actions
       local hook_function="${hook_root}_${action}"
-      debug --level 8 --topic "HOOKS->EXECUTE" "Executing Hook script (source) [action:$action][hook_version:${hook_version}][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
+      debug --level 8 --topic "HOOKS->EXECUTE" "Executing Hook script (source) [hook:${hook##*/}][action:$action][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
       eval ${hook_function} $@
 
       if [ $? -gt 0 ]; then
-        debug --level 7 --topic "HOOKS->EXECUTE" "Hook script return an error [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+        debug --level 7 --topic "HOOKS->EXECUTE" "Hook script return an error [hook:${hook##*/}][hook_function:${hook_function}]: ${hook_function} $@"
         return 1
       else
-        debug --level 6 --topic "HOOKS->EXECUTE" "Hook script executed [hook:$hook][hook_function:${hook_function}]: ${hook_function} $@"
+        debug --level 6 --topic "HOOKS->EXECUTE" "Hook script executed [hook:${hook##*/}][hook_function:${hook_function}]: ${hook_function} $@"
         return 0
       fi
       ;;

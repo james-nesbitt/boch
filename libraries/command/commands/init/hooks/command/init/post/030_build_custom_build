@@ -4,17 +4,17 @@
 #
 
 hook_version=2
-hook_root="hook_flow_init_030"
+hook_root="hook_command_init_post_030"
 
 
 # description method
-hook_flow_init_030_description()
+hook_command_init_post_030_description()
 {
   echo "build default project imags"
 }
 
 # help method
-hook_flow_init_030_help()
+hook_command_init_post_030_help()
 {
   echo "
 HOOK->FLOW->INIT->030: Build the default project image
@@ -25,10 +25,10 @@ HOOK->FLOW->INIT->030: Build the default project image
 }
 
 # execute method
-hook_flow_init_030_execute()
+hook_command_init_post_030_execute()
 {
 
-  command_load build
+  command_include build
 
   project_build=${project_build:-project}
 
@@ -47,15 +47,14 @@ hook_flow_init_030_execute()
       -v|--version)
         project_version="${2}"
         shift
-        ;;        
+        ;;
       *)
         break;
     esac
     shift
   done
-
-
+  
   debug --level 6 --topic "HOOK->COMMAND->INIT->POST->030" "Building custom project build [build:${project_build}]"
-  command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_version}"
+  #command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_version}"
 
 }

@@ -29,11 +29,6 @@ used, and what settings to pass to the docker abstraction.
 hook_settings_030_execute()
 {
 
-  # NOT Overrideable configuration variables
-  
-
-
-
   # Overrideable configuration variables
 
   ####
