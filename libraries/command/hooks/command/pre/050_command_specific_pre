@@ -34,6 +34,7 @@ hook_command_pre_specific_060_execute()
   fi
 
   # Run all PRE hooks for the custom command
+  debug --level 8 --topic "HOOK->COMMAND->PRE->050" "Executing command specific PRE hooksy [command:${command}]"
   hooks_execute "command/${command}" --state "pre" $@
   local success=$?
 

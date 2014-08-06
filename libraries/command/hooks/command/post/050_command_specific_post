@@ -17,7 +17,6 @@ hook_command_post_specific_050_help()
 {
   echo "
 HOOK->Command:post:specific: Run any command specific POST hooks
-
 "
 }
 

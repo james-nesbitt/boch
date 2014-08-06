@@ -19,7 +19,12 @@ hook_command_init_030_help()
   echo "
 HOOK->FLOW->INIT->030: Build the default project image
 
+This hook will run a docker build, createing a new system
+image for you to use for your project.
+
 [-b|--build {build}] : specify an specific build that should be copied as the new custom build
+[-i|--image {image}] : specify an image name for the new custom build
+[-v|--version {version}] : specify an specific version/tag for the new custom build
 
 "
 }
