@@ -53,7 +53,7 @@ hook_init_post_020_execute()
   for build in ${required_builds}; do
 
     debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Building required build [build:${build}]"
-    #command_execute "build" --build "${build}" --image "${build}" --version "${image_version}"
+    command_execute "build" --build "${build}" --image "${build}" --version "${image_version}"
 
   done
 
