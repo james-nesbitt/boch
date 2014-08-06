@@ -1,0 +1,105 @@
+#!/bin/sh
+#
+# Apply some default settings, if you are using the wwwserver library
+#
+
+hook_version=2
+hook_root="wwwserver_settings_030"
+
+# description method
+wwwserver_settings_030_description()
+{
+  echo "Default settings for the wwwserver-cnpm library and builds"
+}
+
+# help method
+wwwserver_settings_030_help()
+{
+  echo "
+LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from the wwwservercnpm library
+
+- explain settings for wwwserver-cnpm builds
+
+"
+}
+
+# execute method
+wwwserver_settings_030_execute()
+{
+  echo "
+#
+# Use the distributed wwwservercnpm builds and functionality
+#
+# Using this library assumes that you are using one of the www
+# server builds as a parent, and so these settings are added
+# to take advantage of that.
+#
+# most likely your project was initialized with the --wwwserver flag
+#
+
+##
+# Load the wwwserver library
+#
+library_load \"wwwservercnpm\"
+
+###
+# Docker image configurations
+#
+
+# Project build images
+#
+# Uncomment this line if you need the wwwserver-cnpm images built
+# before any custom project images are built.  Another option would
+# be to use the docker hosted equivalent as image parents
+#
+#required_builds=\"${required_builds:-"wwwserver-cnpm wwwserver-cnpm-dev"}\"
+
+###
+# Docker Container configurations
+#
+
+# OS hostname used inside the container (which would impact things like avahi)
+machine_hostname=\"\${project_name}\"
+
+# Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
+# @NOTE these are arguments for \"docker run\". Check that docker command to learn more
+machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
+
+###
+# Prefered shell configuration for the Machine
+#
+# @NOTE Running a shell creates a new container, but does not give access to an existing container
+#
+# @NOTE if you are using our builds, then zsh is available
+machine_shell=\"/bin/zsh\"
+# arguments for docker run that should always be included when starting a shell: docker help run
+# @NOTE you should probably take a look at docker run to learn more
+# @NOTE our builds have a developer user created, and a home directory created
+machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
+
+###
+# Mount list:
+#
+# These are run time mounts, where the host FS can be changed
+# directly changing the container FS.
+#
+# @TODO get away from having to include the -v flag here, by finding a better format for this
+
+# create some variables for our sources
+# @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
+path_source=\"\${path_project}/source\"
+path_source_www=\"\${path_source}/www\"
+
+# Now that we have tested it, add the source folder to the mount
+machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source_www}:/app/source_www\"
+
+# Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
+# @NOTE our builds have a developer user created
+machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+
+# SSH
+# Password based ssh is not a good option due to ...  some kind of failure on my part.
+# Consider mounting an authorized keys file along with other .ssh credentials
+machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+"
+}

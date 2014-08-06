@@ -10,6 +10,7 @@
 #   as we have multiple locations where they can be
 
 
+# list manager for command paths
 commands_addpath()
 {
   list_add "path_commands" "${1}"
@@ -17,6 +18,16 @@ commands_addpath()
 commands_getpath()
 {
   list_get "path_commands"
+}
+
+# list manager for included commands
+commands_addincluded()
+{
+  list_add "included_commands" "$1"
+}
+commands_getincluded()
+{
+  list_get "included_commands"
 }
 
 # path to the command shell scripts
@@ -30,52 +41,31 @@ command_include()
   local command=$1
   shift
 
-  # define some local vars
-  local path=""
-  local path_command=""
-  local success=-1
-
   debug --level 8 --topic "COMMAND->INCLUDE->CALL->${command}" "called with \"command_include $@\" [paths:`commands_getpath`"
 
   # LIBRARY
-  case " $included_commands " in
+  case " `commands_getincluded` " in
     *" ${command} "*)
       debug --level 7 --topic "COMMAND->INCLUDE" "command already included! [command:${command}][included_commands:${included_commands}]"
-      success=0
+      return 0
     ;;
 
     *)
 
-      # mark success to show that we didn't find the library
-      success=-1
-      for path_command in `commands_getpath`; do
-	path="${path_command}/${command}"
+      debug --level 8 --topic "COMMAND->INCLUDE" "Including command component.  Handing off to library_include ==> library_include --library \"command\" --component \"commands:${command}\" $@"
+      library_include --component "commands:${command}" "command" $@
+      local success=$?
 
-	debug --level 9 --topic "COMMAND->INCLUDE" "checking command path [command:${command}][path:${path}]"
-	# do a quick check on if the path exists
-	# @NOTE technically we don't need to use this, as load_library does it as well, but we do it just to save effort
-	if [ -e "${path}" ]; then
-
-	  debug --level 8 --topic "COMMAND->INCLUDE" "Including command.  Handing off to library_load ==> library_load --library \"command:${command}\" --path \"${path}\" $@"
-	  library_load --library "command:${command}" --path "${path}" $@
-	  success=$?
-
-	  if [ $success -gt -1 ]; then
-	    debug --level 7 --topic "COMMAND->INCLUDE" "Command included [command:${command}]"
-	    break;
-	  fi
-
-	fi
-
-      done
-
-      if [ $success -eq -1 ]; then
-	debug --level 6 --topic "COMMAND:INCLUDE" "Command include failed [command:${command}]"
+      if [ $success -eq 0 ]; then
+        commands_addincluded "${command}"
+        debug --level 7 --topic "COMMAND->INCLUDE" "Command included [command:${command}]"
+      else
+        debug --level 6 --topic "COMMAND:INCLUDE" "Command include failed [command:${command}]"
       fi
+      return $success
     ;;
   esac
 
-  return $success
 }
 
 # Execute a command
@@ -88,8 +78,6 @@ command_execute()
   local command=$1
   shift
 
-  # include the command source file
-  command_include ${command} $@
   if [ $? -eq 0 ]; then
 
     # default action
@@ -98,18 +86,18 @@ command_execute()
     while [ $# -gt 0 ]
     do
       case "$1" in
-	-a|--action)
-	  action=$2
-	  shift
-	  ;;
-	*)
-	    break;; # terminate while loop
+        -a|--action)
+          action=$2
+          shift
+          ;;
+        *)
+          break;; # terminate while loop
       esac
       shift
     done
 
-    debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${command} ] handing off to command_execute script: library_execute --action \"${action}\" \"command:${command}\" $@"
-    library_execute --action "${action}" "command:${command}" $@
+    debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${command} ] handing off to command_execute script: library_execute --action \"${action}\" --component \"commands:${command}\" \"command\" $@"
+    library_execute --action "${action}" --component "commands:${command}" "command" $@
     local success=$?
 
     if [ $success -eq 0 ]; then
@@ -135,7 +123,7 @@ commands_list()
   for path_command in `commands_getpath`; do
     for path in ${path_command}/*; do
       if [ -e ${path} ]; then
-	echo "${path}"
+              echo "${path}"
       fi
     done
   done

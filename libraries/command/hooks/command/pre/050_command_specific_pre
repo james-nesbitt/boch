@@ -34,7 +34,7 @@ hook_command_pre_specific_060_execute()
   fi
 
   # Run all PRE hooks for the custom command
-  hooks_execute "command/${command}" --state "pre"
+  hooks_execute "command/${command}" --state "pre" $@
   local success=$?
 
   if [ $success -gt 0 ]; then

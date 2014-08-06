@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# COMMAND: Initialize the local project
+#
+
+# command help function
+init_help()
+{
+  echo "
+Initialize the local project.
+
+This command will create various files and folders often
+used by the management tools.
+
+@NOTE this command is heavily dependent on hooks to do the work.
+@NOTE used to be $/> ./flow init
+  This was moved to a command because so far it is the only flow,
+  which makes it pretty usefull.
+"
+}
+
+# Command execute function
+init_execute()
+{
+
+  local argscopy="$@"
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--build)
+        project_build="${2}"
+        shift
+        ;;
+      -i|--image)
+        project_image="${2}"
+        shift
+        ;;
+
+      -h|--hostname)
+        machine_hostname="${2}"
+        shift
+        ;;
+      -n|--name)
+        project_name="${2}"
+        shift
+        ;;
+      -v|--version)
+        project_version="${2}"
+        shift
+        ;;
+      -w|--wwwserver)
+        debug --level 5 --topic "HOOK->COMMAND->COMMAND->INIT" "Loading WWWSERVERCNPM library as directory by command argument"
+        library_include "wwwservercnpm"
+
+       echo "HOOK PATHS: `hooks_getpath`"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # Run all hooks for the custom command
+  hooks_execute "command/init" ${argscopy}
+  local success=$?
+
+  if [ $success -gt 0 ]; then
+    debug --level 8 --topic "HOOK->COMMAND->COMMAND->INIT" "Command specific hooks run successfully [command:${command}]"
+  else
+    debug --level 6 --topic "HOOK->COMMAND->COMMAND->INIT" "Command specific hooks failed to run [command:${commands}]"
+  fi
+  return $success
+  return $?
+}

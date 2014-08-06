@@ -35,7 +35,7 @@ hook_settings_post_010_execute()
   #
   # Required Folders
   #
-  required_folders="${required_folders} ${path_data}"
+  required_folders="${required_folders}"
   for path in "${required_folders}"
   do
     if [ "$path" != "" ]; then
@@ -55,7 +55,7 @@ hook_settings_post_010_execute()
   #
   # Required Files
   #
-  required_files="${required_files} ${path_log}"
+  required_files="${required_files}"
   for file in "${required_files}"
   do
     if [ "$file" != "" ]; then

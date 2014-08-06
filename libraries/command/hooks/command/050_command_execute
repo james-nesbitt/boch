@@ -33,6 +33,8 @@ hook_command_050_execute()
   COMMAND=$1
   shift
 
+
+  debug --level 8 --topic "HOOK->COMMAND->050" "Command execute [command:${COMMAND}]"
   command_execute $COMMAND $@
 
   if [ $? -eq 0 ]; then
@@ -42,5 +44,4 @@ hook_command_050_execute()
     debug --level 4 --topic "HOOK->COMMAND->050" "Command execution failed [command:${COMMAND}]"
     return 1
   fi
-
 }
