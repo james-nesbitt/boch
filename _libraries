@@ -45,7 +45,7 @@ library_include()
 
   local success=-1
 
-  debug --level 9 --topic "LIBRARY->INCLUDE->" "Trying to includel library [library:${library}][component:${component}][library paths:`libraries_getpath`][included libraries:${included_libraries}]"
+  debug --level 8 --topic "LIBRARY->INCLUDE->" "Trying to includel library [library:${library}][component:${component}][library paths:`libraries_getpath`][included libraries:${included_libraries}]"
 
   # LIBRARY
   case " $included_libraries " in
@@ -175,7 +175,7 @@ library_load()
   done
 
   if [ -z ${library} ] || [ -z ${path} ]; then
-    debug --level 6 --topic "LIBRARY->LOAD" "no library specified [library:${library}][path:${path}]!"
+    debug --level 6 --topic "LIBRARY->LOAD" "no library or specified [library:${library}][path:${path}]!"
     return 1
   fi
   if [ -z "${corefile}" ]; then
@@ -216,6 +216,7 @@ library_load()
 
         _libraries_hooks_exists
         if [ $? -eq 0 ]; then
+          debug --level 9 --topic "LIBRARY->LOAD" "executing library pre hooks [library:${library}][path:${path}]"
           hooks_execute "library/load" --state "pre" --library ${library} --path ${path} $@
         fi
 
@@ -259,6 +260,7 @@ _libraries_hooks_exists()
 {
   if [ $_libraries_hooks_exist -eq 1 ]; then
     declare -f -F hooks_execute > /dev/null
+return $?
     _libraries_hooks_exist=$?
   fi
   return $_libraries_hooks_exist

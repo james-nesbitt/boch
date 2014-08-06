@@ -34,55 +34,47 @@ This hook does two things:
 hook_init_010_execute()
 {
 
-  # Allow skipping this
-  ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
-
   # path to this management system
   path="${path_customsettings:-"$path_data/settings"}"
 
-  if [ $ignore_root_custom_settings_file -eq 0 ]; then
+  if [ ! -f ${path} ]; then
 
-    if [ ! -f ${path_customsettings} ]; then
+    # @NOTE This loop is here, because path_customsettings is technically
+    # a space delimited list.  we will assume that the first item in the
+    # list is our special item that we can create during init.
 
-      # @NOTE This loop is here, because path_customsettings is technically
-      # a space delimited list.  we will assume that the first item in the
-      # list is our special item that we can create during init.
-
-      debug --level 5 --topic "HOOK->INIT->010" "Creating missing default custom settings file [${path}]"
-      echo "#!/bin/sh
+    debug --level 5 --topic "HOOK->INIT->010" "Creating missing default custom settings file [${path}]"
+    echo "#!/bin/sh
 #
 # Overrideable configuration variables
 #
 
 " > ${path}
 
-      chmod ug+rwx ${path}
-
-    fi
-
-    local hooks="`hooks_list settings --state default --file ${path}`"
-    local hook=""
-    for hook in ${hooks}; do
-
-      hook_version=""
-      hook_root=""
-
-      hook_include ${hook} $@
-
-      if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
-
-	echo "
-## SETTINGS FROM HOOK : ${hook_root} [leave this line to prevent this hook from adding these settings again]
-" >> ${path}
-	#echo "`hook_execute ${hook}`" >> ${path}
-	echo "`"${hook_root}_execute"`" >> ${path}
-
-	debug --level 6 --topic "HOOK->FLOW->INIT->010" "A hook provided default settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
-      fi
-
-    done
+    chmod ug+rwx ${path}
 
   fi
+
+  local hook=""
+  for hook in `hooks_list settings --state default --file ${path}`; do
+
+    hook_version=""
+    hook_root=""
+
+    hook_include ${hook} $@
+
+    if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
+
+      echo "
+## SETTINGS FROM HOOK : ${hook_root} [leave this line to prevent this hook from adding these settings again]
+" >> ${path}
+      #echo "`hook_execute ${hook}`" >> ${path}
+      echo "`"${hook_root}_execute"`" >> ${path}
+
+      debug --level 6 --topic "HOOK->FLOW->INIT->010" "A hook provided default settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+    fi
+
+  done
 
 }
 

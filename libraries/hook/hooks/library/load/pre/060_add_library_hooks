@@ -48,7 +48,7 @@ hook_library_hook_library_060_execute()
   path="${path}/hooks"
 
   if [ -d ${path} ]; then
-    debug --level 7 --topic "HOOKS->LIBRARY->060" "New library added has hooks, adding those hooks to the hooks paths [library:${library}][path:${path}]"
+    debug --level 5 --topic "HOOKS->LIBRARY->060" "New library added has hooks, adding those hooks to the hooks paths [library:${library}][path:${path}]"
     hooks_addpath "${path}"
   fi
 

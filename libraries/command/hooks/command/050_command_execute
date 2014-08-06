@@ -32,6 +32,9 @@ hook_command_050_execute()
   # Command is the first argument
   COMMAND=$1
   shift
+
+
+  debug --level 8 --topic "HOOK->COMMAND->050" "Command execute [command:${COMMAND}]"
   command_execute $COMMAND $@
 
   if [ $? -eq 0 ]; then

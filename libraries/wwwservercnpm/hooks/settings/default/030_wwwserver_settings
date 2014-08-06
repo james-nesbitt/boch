@@ -4,16 +4,16 @@
 #
 
 hook_version=2
-hook_root="030_wwwserver_settings"
+hook_root="wwwserver_settings_030"
 
 # description method
-030_wwwserver_settings_description()
+wwwserver_settings_030_description()
 {
   echo "Default settings for the wwwserver-cnpm library and builds"
 }
 
 # help method
-030_wwwserver_settings_help()
+wwwserver_settings_030_help()
 {
   echo "
 LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from the wwwservercnpm library
@@ -24,9 +24,23 @@ LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from 
 }
 
 # execute method
-030_wwwserver_settings_execute()
+wwwserver_settings_030_execute()
 {
   echo "
+#
+# Use the distributed wwwservercnpm builds and functionality
+#
+# Using this library assumes that you are using one of the www
+# server builds as a parent, and so these settings are added
+# to take advantage of that.
+#
+# most likely your project was initialized with the --wwwserver flag
+#
+
+##
+# Load the wwwserver library
+#
+library_load \"wwwservercnpm\"
 
 ###
 # Docker image configurations
@@ -35,7 +49,8 @@ LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from 
 # Project build images
 #
 # Uncomment this line if you need the wwwserver-cnpm images built
-# before any custom project images are built
+# before any custom project images are built.  Another option would
+# be to use the docker hosted equivalent as image parents
 #
 #required_builds=\"${required_builds:-"wwwserver-cnpm wwwserver-cnpm-dev"}\"
 

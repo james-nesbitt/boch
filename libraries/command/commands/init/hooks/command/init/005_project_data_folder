@@ -25,9 +25,9 @@ hook_init_005_execute()
 {
 
   # what is the root path to the project folder
-  path_data="${path_data:-${path_project}/${project_name}}"
+  path_data="${path_data:-${path_project}/project}"
 
-  debug -level 5 --topic "HOOK->COMMAND->INIT->005" "Making sure that we have a project folder"
+  debug --level 5 --topic "HOOK->COMMAND->INIT->005" "Making sure that we have a project folder "
   # make sure that we have a custom path
   ensure_folder "${path_data}"
 

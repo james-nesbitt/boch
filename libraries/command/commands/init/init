@@ -43,7 +43,6 @@ init_execute()
         ;;
       -n|--name)
         project_name="${2}"
-        path_data="${path_project}/${2}"
         shift
         ;;
       -v|--version)
@@ -51,7 +50,10 @@ init_execute()
         shift
         ;;
       -w|--wwwserver)
-        library_load wwwservercpnm
+        debug --level 5 --topic "HOOK->COMMAND->COMMAND->INIT" "Loading WWWSERVERCNPM library as directory by command argument"
+        library_include "wwwservercnpm"
+
+       echo "HOOK PATHS: `hooks_getpath`"
         shift
         ;;
       *)
@@ -65,9 +67,9 @@ init_execute()
   local success=$?
 
   if [ $success -gt 0 ]; then
-    debug --level 8 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks run successfully [command:${command}]"
+    debug --level 8 --topic "HOOK->COMMAND->COMMAND->INIT" "Command specific hooks run successfully [command:${command}]"
   else
-    debug --level 6 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks failed to run [command:${commands}]"
+    debug --level 6 --topic "HOOK->COMMAND->COMMAND->INIT" "Command specific hooks failed to run [command:${commands}]"
   fi
   return $success
   return $?
