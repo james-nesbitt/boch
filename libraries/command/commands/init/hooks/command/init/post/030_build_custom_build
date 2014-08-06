@@ -53,8 +53,8 @@ hook_command_init_post_030_execute()
     esac
     shift
   done
-  
+
   debug --level 6 --topic "HOOK->COMMAND->INIT->POST->030" "Building custom project build [build:${project_build}]"
-  #command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_version}"
+  command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_version}"
 
 }
