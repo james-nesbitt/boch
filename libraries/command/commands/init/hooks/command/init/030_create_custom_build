@@ -33,9 +33,11 @@ image for you to use for your project.
 hook_command_init_030_execute()
 {
 
-  command_include build
+  debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Creating custom build for the project"
 
-  project_build=${project_build:-project}
+  command_include "build"
+
+  project_build="${project_build:-template}"
 
   local flags=""
   while [ $# -gt 0 ]
@@ -61,9 +63,12 @@ hook_command_init_030_execute()
 
   if [ -d "${path_data}" ] && [ ! -d "${path_data}/builds/${project_image}" ]; then
 
+
     for path_build in `builds_getpath`; do
       path_build="${path_build}/${project_build}"
+
       if [ -d ${path_build} ]; then
+
         ensure_folder "${path_data}/builds"
         debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Creating custom build [build:${project_build}][image:${project_image}][version:${project_version}]"
         cp -R "${path_build}" "${path_data}/builds/${project_image}"

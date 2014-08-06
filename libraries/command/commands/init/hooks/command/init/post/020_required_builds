@@ -50,11 +50,19 @@ hook_init_post_020_execute()
   done
 
   local build=""
+
+  debug --level 6 --topic "HOOK->COMMAND->INIT->POST->020" "Required build [builds:${required_build}]"
   for build in ${required_builds}; do
+    if [ `_docker_image_exists "${build}"` -eq 0 ]; then
 
-    debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Building required build [build:${build}]"
-    command_execute "build" --build "${build}" --image "${build}" --version "${image_version}"
+      debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Required build exists [build:${build}]"
 
+    else
+
+      debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Building required build [build:${build}]"
+      command_execute "build" --build "${build}" --image "${build}" --version "${image_version}"
+
+    fi
   done
 
 }

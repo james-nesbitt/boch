@@ -91,15 +91,15 @@ path_source=\"\${path_project}/source\"
 path_source_www=\"\${path_source}/www\"
 
 # Now that we have tested it, add the source folder to the mount
-machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_source_www}:/app/source_www\"
+settings_mount_addmount \"\${path_source_www}:/app/source_www\"
 
 # Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
 # @NOTE our builds have a developer user created
-machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+settings_mount_addmount \"\${path_userhome}/.ssh:/home/developer/.ssh-host\"
 
 # SSH
 # Password based ssh is not a good option due to ...  some kind of failure on my part.
 # Consider mounting an authorized keys file along with other .ssh credentials
-machine_mountvolumes=\"\${machine_mountvolumes} --volume=\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+settings_mount_addmount \"\${path_userhome}/.ssh:/home/developer/.ssh-host\"
 "
 }

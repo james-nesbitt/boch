@@ -12,7 +12,6 @@ builds_getpath()
   list_get "path_builds"
 }
 
-
 # path to a folder that contains various docker image builds
 builds_addpath "${path_manage}/builds"
 builds_addpath "${path_data}/builds"

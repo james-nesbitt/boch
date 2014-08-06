@@ -28,9 +28,9 @@ HOOK->FLOW->INIT->030: Build the default project image
 hook_command_init_post_030_execute()
 {
 
-  command_include build
+  command_include "build"
 
-  project_build=${project_build:-project}
+  project_build="${project_build:-template}"
 
   local flags=""
   while [ $# -gt 0 ]
@@ -54,7 +54,19 @@ hook_command_init_post_030_execute()
     shift
   done
 
-  debug --level 6 --topic "HOOK->COMMAND->INIT->POST->030" "Building custom project build [build:${project_build}]"
-  command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_version}"
+  if _docker_image_exists "${project_image}" -eq 0; then
 
+    debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Custom project build already exists [build:${project_build}]"
+
+  else
+
+    debug --level 6 --topic "HOOK->COMMAND->INIT->POST->030" "Building custom project build [build:${project_build}]"
+    command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_version}"
+
+    if [ $? -eq 0 ]; then
+      debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Built custom project build [build:${project_build}]"
+    else
+      debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Could not build custom project build [build:${project_build}]"
+    fi
+  fi
 }

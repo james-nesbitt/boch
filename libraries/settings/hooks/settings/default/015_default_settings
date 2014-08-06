@@ -30,7 +30,7 @@ hook_settings_default_015_execute()
 #
 
 # Project name : this gets used as a default all over the place
-project_name="${project_name:-project}"
+project_name=\"${project_name:-project}\"
 
 ###
 # Docker image configurations
@@ -96,10 +96,9 @@ machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 # These are run time mounts, where the host FS can be changed
 # directly changing the container FS.
 #
-# @TODO get away from having to include the -v flag here, by finding a better format for this
 
-# Now that we have tested it, add the source folder to the mount
-#machine_mountvolumes=\"\${machine_mountvolumes} --volume=some/path:/app/some_other_path\"
+# Example of how to add a live mount for docker containers
+#settings_mount_addmount \"some/path/on/the/host:/some/path/on/the/container\"
 
 "
 }

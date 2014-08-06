@@ -42,7 +42,6 @@ init_execute()
         ;;
       -i|--image)
         project_image="${2}"
-        project_build="${2}"
         shift
         ;;
 
@@ -73,10 +72,10 @@ init_execute()
   hooks_execute "command/init" ${argscopy}
   local success=$?
 
-  if [ $success -gt 0 ]; then
+  if [ $success -eq 0 ]; then
     debug --level 8 --topic "HOOK->COMMAND->COMMAND->INIT" "Command specific hooks run successfully [command:${command}]"
   else
-    debug --level 6 --topic "HOOK->COMMAND->COMMAND->INIT" "Command specific hooks failed to run [command:${commands}]"
+    debug --level 6 --topic "HOOK->COMMAND->COMMAND->INIT" "Command specific hooks failed to run [command:${command}]"
   fi
   return $success
   return $?
