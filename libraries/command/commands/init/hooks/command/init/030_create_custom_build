@@ -69,6 +69,11 @@ hook_command_init_030_execute()
 
     debug --level 6 --topic "HOOK->COMMAND->INIT->030" "no matching custom build found [build:${project_build}][image:${project_image}][version:${project_version}]"
 
+  else
+
+    debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Custom build found in project folder [build:${project_build}][image:${project_image}][version:${project_version}]"
+    return 0
+
   fi
 
 }
