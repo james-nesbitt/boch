@@ -11,9 +11,14 @@ libraries_getpath()
 {
   list_get "path_libraries"
 }
-
-# default library path
-libraries_addpath "${path_manage}/libraries"
+libraries_addlibrary()
+{
+  list_add "libraries_loaded" "${1}"
+}
+libraries_getlibraries()
+{
+  list_get "libraries_loaded"
+}
 
 library_include()
 {
@@ -30,7 +35,11 @@ library_include()
   do
     case "$1" in
       -c|--component)
-        component=$2
+        component="$2"
+        shift
+        ;;
+      -p|--path)
+        path="$2"
         shift
         ;;
       *)
@@ -45,28 +54,42 @@ library_include()
 
   local success=-1
 
-  debug --level 8 --topic "LIBRARY->INCLUDE->" "Trying to includel library [library:${library}][component:${component}][library paths:`libraries_getpath`][included libraries:${included_libraries}]"
-
   # LIBRARY
-  case " $included_libraries " in
+  case " `libraries_getlibraries` " in
     *" ${library} "*)
-      debug --level 7 --topic "LIBRARY->INCLUDE" "library already included! [library:${library}][included_libraries:${included_libraries}]"
+      debug --level 7 --topic "LIBRARY->INCLUDE" "library already included! [library:${library}][included_libraries:`libraries_getlibraries`]"
       success=0
     ;;
 
     *)
-      # start off no success
-      success=-1
 
-      # mark success to show that we didn't find the library
-      success=-1
-      for path_library in `libraries_getpath`; do
-        path="${path_library}/${library}"
+      # if a path was sent in, then restrict our library loading to it.
+      if [ "${path}" == "" ]; then
+
+        # mark success to show that we didn't find the library
+        success=-1
+        for path_library in `libraries_getpath`; do
+          path="${path_library}/${library}"
+
+          # check the path before trying to load it
+          if [ -e ${path} ]; then
+            debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
+            library_load --library "${library}" --path "${path}" $@
+
+            if [ $? -gt -1 ]; then
+              success=$?
+              break;
+            fi
+          fi
+        done
+
+      # if not path was provided, then search for the library
+      else
 
         # check the path before trying to load it
         if [ -e ${path} ]; then
           debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
-          library_load --library "${library}" --path "${path_library}/${library}" $@
+          library_load --library "${library}" --path "${path}" $@
 
           if [ $? -gt -1 ]; then
             success=$?
@@ -74,7 +97,7 @@ library_include()
           fi
         fi
 
-      done
+      fi
     ;;
   esac
 
@@ -82,11 +105,11 @@ library_include()
   if [ "${component}" != "" ] && [ $success -eq 0 ]; then
 
     # check if already attempted to oad this library component (if not mark it as attempted)
-    case " $included_libraries " in
+    case " `libraries_getlibraries` " in
       *" ${library}:${component} "*)
           # already included
 
-          debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "component already included [library:${library}][component:${component}][[included_library_components:${included_library_components}]"
+          debug --level 3 --topic "LIBRARY->INCLUDE->COMPONENT" "component already included [library:${library}][component:${component}][[included_library_components:`libraries_getlibraries`]"
           success=0
         ;;
 
@@ -118,7 +141,7 @@ library_include()
             success=$?
 
             # if we found it then break (make a library_load return -1 to keep looking
-            if [ $success -gt 1 ]; then
+            if [ $success -gt -1 ]; then
               break
             fi
 
@@ -157,15 +180,15 @@ library_load()
   do
     case "$1" in
       -c|--core)
-        corefile=$2
+        corefile="$2"
         shift
         ;;
       -l|--library)
-        library=$2
+        library="$2"
         shift
         ;;
       -p|--path)
-        path=$2
+        path="$2"
         shift
         ;;
       *)
@@ -175,7 +198,7 @@ library_load()
   done
 
   if [ -z ${library} ] || [ -z ${path} ]; then
-    debug --level 6 --topic "LIBRARY->LOAD" "no library or specified [library:${library}][path:${path}]!"
+    debug --level 6 --topic "LIBRARY->LOAD" "no library or specified [library:${library}][path:${path}][core file:${corefile}]"
     return 1
   fi
   if [ -z "${corefile}" ]; then
@@ -183,15 +206,13 @@ library_load()
   fi
 
   # check if already attempted to load this library (if not mark it as attempted)
-  case " $included_libraries " in
-    *" ${library} "*)
-        debug --level 7 --topic "LIBRARY->LOAD" "library already include [library:${library}][included_libraries:${included_libraries}]"
+  case " `libraries_getlibraries`" in
+    *" ${library}:"*)
+        debug --level 6 --topic "LIBRARY->LOAD" "library already include [library:${library}][included_libraries:`libraries_getlibraries`]"
         return 0
       ;;
 
     *)
-      # add library
-      included_libraries="${included_libraries} ${library}"
 
       # init var
       local root_path=""
@@ -214,6 +235,9 @@ library_load()
 
       if [ -f ${root_path} ] && [ -x ${root_path} ]; then
 
+        # add library
+        libraries_addlibrary "${library}:${path}"
+
         _libraries_hooks_exists
         if [ $? -eq 0 ]; then
           debug --level 9 --topic "LIBRARY->LOAD" "executing library pre hooks [library:${library}][path:${path}]"
@@ -229,6 +253,8 @@ library_load()
             hooks_execute "library/load" --state "post" --library ${library} --path ${path} $@
           fi
 
+          # if a library has a libraries folder, add it to the list.  This could be done as a hook
+          # (as it is done for hooks, builds, commands) but I didn't know where to put it.
           local path_librarylibraries="${path}/libraries"
           if [ -d "${path_librarylibraries}" ]; then
             libraries_addpath ${path_librarylibraries}

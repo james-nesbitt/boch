@@ -100,6 +100,8 @@ hooks_execute()
     fi
   done
 
+  debug --level 8 --topic "HOOKS->EXECUTE" "Hooks execution finished [hook:${hook}]"
+  return 0
 }
 
 # List all hooks, in the sorted order
@@ -130,11 +132,11 @@ hooks_list()
   local hook_token=""
   for hook_token in `for path in ${hooks_paths}; do
     path="${path}/${hook}"
-
+debug --level 9 --topic "HOOK->INCLUDE" "Checking hook path [path:${path}]"
     if [ -d ${path} ]; then
       for path_hook in ${path}/*; do
         if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
-          # add a sorting pregix that will sort based on file prefix (the integer numbers) instead of the path
+          # add a sorting prefix that will sort based on file prefix (the integer numbers) instead of the path
           echo "${path_hook##*/}:${path_hook}"
         fi
       done
@@ -218,7 +220,7 @@ hook_execute()
         debug --level 6 --topic "HOOK->EXECUTE" "Hook script return an error [hook:${hook##*/}][hook_function:${hook_function}]: ${hook_function} $@"
         return 1
       else
-        debug --level 6 --topic "HOOK->EXECUTE" "Hook script executed [hook:${hook##*/}][hook_function:${hook_function}]: ${hook_function} $@"
+        debug --level 6 --topic "HOOK->EXECUTE" "Hook script executed [hook:${hook##*/}][hook_function:${hook_function}][path:${hook}]: ${hook_function} $@"
         return 0
       fi
       ;;
@@ -254,4 +256,50 @@ hook_help()
   shift
 
   hook_execute ${hook} --action "help" $@
+}
+
+# List all hooks, not in the sorted order
+# @NOTE as the hooks_list function is difficult to debug
+#   this function does something similar and outputs hooks lists
+hooks_list_debug()
+{
+  # require the first argument to be the command
+  local hook=$1
+  shift
+
+  # base hooks path
+  local paths=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -s|--state)
+        hook="${hook}/${2}"
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # print all of the functions that match our hook, in any of the avaiable hook paths, but sorted based on integer prefix
+  local hooks_paths="`hooks_getpath`"
+  local hook_token=""
+  for path in ${hooks_paths}; do
+    path="${path}/${hook}"
+    if [ -d ${path} ]; then
+echo "CHECKING HOOKS ROOT :${path} --> this root hooks path look like it may have hooks for our hook"
+      for path_hook in ${path}/*; do
+        if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
+          # add a sorting prefix that will sort based on file prefix (the integer numbers) instead of the path
+echo "VALID HOOK:${path_hook} --> "
+        else
+echo "INVALID HOOK :${path_hook} --> is not a file or is not executable"
+        fi
+      done
+    else
+echo "EMPTY HOOKS ROOT :${path} --> no matching hook folder found in this hooks root"
+    fi
+  done
 }

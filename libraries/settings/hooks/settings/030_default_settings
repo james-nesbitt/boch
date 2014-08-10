@@ -53,7 +53,7 @@ hook_settings_030_execute()
   #
 
   # Project name : this gets used as a default all over the place
-  project_name=\"${project_name:-project}\"
+  project_name="${project_name:-project}"
 
   ###
   # Docker image configurations
@@ -70,9 +70,9 @@ hook_settings_030_execute()
   # Project build and image
   #
   # which build (folder) should be used for project images (if it isn't built)
-  project_build="${project_build:-project}"
-  # which image should we use for creating containers (and build it if it is missing)
-  project_image="${project_image:-project}"
+  project_build="${project_build:-template}"
+  # which image should we use for creating containers (and build if it is missing)
+  project_image="${project_image:-${project_name}}"
   # which image version/tag should we use for containers
   project_imageversion="${project_imageversion:-latest}"
 
@@ -81,7 +81,7 @@ hook_settings_030_execute()
   #
 
   # OS hostname used inside the container (which would impact things like avahi)
-  machine_hostname="${machine_hostname:-Project_name}"
+  machine_hostname="${machine_hostname:-${project_name}}"
 
   # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
   # @NOTE these are arguments for \"docker run\". Check that docker command to learn more
@@ -109,5 +109,6 @@ hook_settings_030_execute()
   # These are run time mounts, where the host FS can be changed
   # directly changing the container FS.
   #
+  #  settings_mount_addmount "${path_on_host}:${path_on_container}"
 
 }

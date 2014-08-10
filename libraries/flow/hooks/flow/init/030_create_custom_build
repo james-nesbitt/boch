@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# Create the project image build
+#
+
+hook_version=2
+hook_root="hook_command_init_030"
+
+
+# description method
+hook_command_init_030_description()
+{
+  echo "Create default project image build"
+}
+
+# help method
+hook_command_init_030_help()
+{
+  echo "
+HOOK->FLOW->INIT->030: Build the default project image
+
+This hook will run a docker build, createing a new system
+image for you to use for your project.
+
+[-t|--template {template}] : specify an specific build that should be used as the new custom build
+[-b|--build {build}] : specify an specific build that should be copied as the new custom build
+[-i|--image {image}] : specify an image name for the new custom build
+[-v|--version {version}] : specify an specific version/tag for the new custom build
+
+"
+}
+
+# execute method
+hook_command_init_030_execute()
+{
+
+  debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Creating custom build for the project"
+
+  project_buildtemplate="${project_buildtemplate:-template}"
+
+  if [ -d "${path_data}" ] && [ ! -d "${path_data}/builds/${project_image}" ]; then
+
+    command_include "build"
+
+    local path_build="`build_find \"${project_buildtemplate}\"`"
+    if [ "${path_build}" != "" ]; then
+      ensure_folder "${path_data}/builds"
+      debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Creating custom build [build:${project_build}][image:${project_image}][version:${project_version}]"
+      cp -R "${path_build}" "${path_data}/builds/${project_image}"
+      builds_addpath "${path_data}/builds"
+      return 0;
+    fi
+
+    debug --level 6 --topic "HOOK->COMMAND->INIT->030" "no matching custom build found [build:${project_build}][image:${project_image}][version:${project_version}]"
+
+  else
+
+    debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Custom build found in project folder [build:${project_build}][image:${project_image}][version:${project_version}]"
+    return 0
+
+  fi
+
+}

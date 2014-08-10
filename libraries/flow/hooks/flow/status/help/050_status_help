@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->HELP->050 General help for the "status" flow
+#
+
+hook_version=2
+hook_root="hook_flow_status_help_050"
+
+# description method
+hook_flow_status_help_050_description()
+{
+  echo "General help text for the status flow"
+}
+
+# help method
+hook_flow_status_help_050_help()
+{
+  echo "
+HOOK->FLOW->STATUS->HELP->050 General help for the "status" flow
+
+This hook gives general help text for the status flow
+
+"
+}
+
+# execute method
+hook_flow_status_help_050_execute()
+{
+  echo "
+STATUS FLOW
+
+Usage:
+
+  $/> ./flow status <options>
+
+Options: (all used in hooks)
+
+This flow gives general status for the current project. It checks
+for existing matching images, containers etc.
+"
+}

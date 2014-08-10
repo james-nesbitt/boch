@@ -36,7 +36,7 @@ if not, here is a list of advantages:
 Vagrant is probably a good idea, in fact it is a much more mature
 and stable solution than this ...
 
-BUT 
+BUT
 
 There are a few things that this
 toolset does/could eventually provide that VAGRANT cannot.)
@@ -91,24 +91,7 @@ Container can be:
 
 ### the project layout
 
-The current configuration has certain expectations what files and folders are required, and for where things should be:
-
-/source/  <- where your project source is assumed to be
-  www <- The default web root, where the default nginx configuration expects to host a project site.
-
-/manage/ <- a root folder where all of the scripts and configurations for the project are kept (this repository!)
-  control <- the principle control script, which can run all the commands.
-  _utilities.sh <- a file with various tool functions.
-  _docker.sh <- abstraction for docker control, has functions for different docker operations.
-
-  commands/ <- contains 1 file per control command, with named function to implement the command, or provide help.
-  hooks/ <- a series of nested folders, each folder corresponding to a hook label.  In the folders are any number of scripts which are run as hooks.
-
-  build/  <- folder containing various docker container configuration
-  build/container <- docker container configuration : built on a parent, tailors the image to have project specific configurations
-  build/parent/ <- docker parent container configuration : a generic dev container with nginx, php etc.
-
-/* whatever else you want
+@TODO
 
 ### "control" : the management script
 
@@ -204,8 +187,8 @@ I used the shell command, but my changes disappear
   - shell is meant to provide a temporary container based on the image
        - you can try --persistant to have the container stay
   - shell gives you a new container, not the same container
-    as you have in start.  
-  - shell is meant as a tools to debug the 
+    as you have in start.
+  - shell is meant as a tools to debug the
     container, or to make changes that are then commited to the
     image.
 

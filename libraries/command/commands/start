@@ -74,7 +74,7 @@ start_execute()
   hostname="${hostname:-"${container}"}"
 
   # Add the default flags to the end of the flaglist
-  flags="${flags} ${machine_runargs} ${machine_mountvolumes}"
+  flags="${flags} ${machine_runargs} `settings_mount_getmounts`"
 
   # Check for an existing container
   if _docker_container_exists ${container}; then

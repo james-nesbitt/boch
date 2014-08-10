@@ -36,7 +36,7 @@ hook_settings_post_095_execute()
     -->path_source-----------: ${path_source}
     >LIBRARIES
     -->path_libraries--------: `libraries_getpath`
-    -->libraries loaded------: ${included_libraries}
+    -->libraries loaded------: `libraries_getlibraries`
     >COMMANDS
     -->path_commands---------: `commands_getpath`
     >HOOKS
@@ -49,7 +49,7 @@ hook_settings_post_095_execute()
     -->project_imageversion--: ${project_imageversion}
     >PROJECT MACHINE CONFIGURATIONS
     -->Machine_hostname------: ${machine_hostname}
-    -->Machine_mountvolumes--: ${machine_mountvolumes}
+    -->Machine_mountvolumes--: `settings_mount_getmounts`
     -->Machine_shell---------: ${machine_shell}
     -->Machine_shellrunargs--: ${machine_shellrunargs}
     -->Machine_runargs-------: ${machine_runargs}

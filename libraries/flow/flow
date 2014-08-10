@@ -3,6 +3,46 @@
 # Flow Library
 #
 
-# nothing here really.  Flows are all hook based
+flows_addflow()
+{
+  list_add "flows_list" $1
+}
+flows_getflows()
+{
+  list_get "flows_list"
+}
 
-_flow="flow"
+# check any libraries already loaded for new builds
+for path in `hooks_getpath`; do
+  if [ -d "${path}/flow" ]; then
+    for path in ${path}/flow/*; do
+      flows_addflow "${path##*/}"
+    done
+  fi
+done
+
+# list all flows
+# @NOTE this works by checking all hook paths for flow folders
+flows_list()
+{
+  local flow=""
+  for flow in `flows_getflows`; do
+    echo "${flow%%:*}"
+  done
+}
+
+# determing if a flow exists
+flow_exists()
+{
+  local flow="$1"
+
+  case " `flows_getflows` " in
+    *" ${flow}:"*)
+      return 0
+    ;;
+
+    *)
+      return 1
+    ;;
+  esac
+}

@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->010 Status header
+#
+
+hook_version=2
+hook_root="hook_flow_status_010"
+
+# description method
+hook_flow_status_010_description()
+{
+  echo "Status header"
+}
+
+# help method
+hook_flow_status_010_help()
+{
+ echo "HOOK->FLOW->STATUS->010 Status header
+
+This flow will include hooks, which will include information about
+various aspects of your system.
+
+Some flags that you might want to pass to this flow:
+ -f|--config : also print out project configurations (similar to using the global -v flag)
+"
+}
+
+# execute method
+hook_flow_status_010_execute()
+{
+  echo "
+Project status
+==============
+"
+  hook_flow_status_010_help
+}

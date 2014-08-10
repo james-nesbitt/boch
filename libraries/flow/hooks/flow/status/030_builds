@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->030 Project builds
+#
+
+hook_version=2
+hook_root="hook_flow_status_030"
+
+# description method
+hook_flow_status_030_description()
+{
+  echo "Simple project status tests"
+}
+
+# help method
+hook_flow_status_030_help()
+{
+ echo "HOOK->FLOW->STATUS->030 Project builds
+"
+}
+
+# execute method
+hook_flow_status_030_execute()
+{
+
+  local build="${project_build}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -i|--build)
+        build="$2"
+        shift
+        ;;
+    esac
+    shift
+  done
+
+  command_include "build"
+
+  echo "
+Project builds
+=============="
+
+  if [ "${build}" == "" ]; then
+    echo "no project build specified, the project_build variable is empty"
+  else
+    echo "-->project_build:${project_build}"
+    local path="`build_find $build`"
+    if [ -d "${path}" ]; then
+      echo "-->build found in path: ${path}"
+    else
+      echo "
+Build not found in the system
+"
+    fi
+  fi
+}

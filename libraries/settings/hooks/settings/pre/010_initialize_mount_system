@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# HOOK SETTINGS PRE 010 Initialize a mount system
+#
+
+hook_version=2
+hook_root="hook_settings_pre_010"
+
+
+settings_mount_addmount()
+{
+  list_add "machine_mountvolumes" $1
+}
+
+settings_mount_getmounts()
+{
+  # $1 would allow for different formats
+  case $1 in
+    *)
+      local mounts=""
+      local mount=""
+      for mount in `list_get "machine_mountvolumes"`; do
+        mounts="$mounts --volume=${mount}"
+      done
+      echo "${mounts}"
+  esac
+}
+
+# Description method
+hook_settings_pre_010_description()
+{
+  echo "Enable a system to add mounts to a start in settings"
+}
+
+# Help Method
+hook_settings_pre_010_help()
+{
+  echo "
+HOOK->SETTINGS->PRE->010 Machine mount tracking system
+
+This hook provides some functions for settings tracking of
+mount volumes to be used for any start commands
+
+This hook adds:
+  -- settings_mount_addmount \${mount}
+  -- settings_mount_getmounts
+"
+}
+
+# execute method
+hook_settings_pre_010_execute()
+{
+
+  debug --level 7 --topic "HOOK->SETTINGS->PRE->010" "Machine mount tracking is online"
+
+}

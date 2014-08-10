@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# 060 Add any library flow hooks to the flow list
+#
+
+hook_version=2
+hook_root="hook_flow_hook_library_060"
+
+# description method
+hook_flow_hook_library_060_description()
+{
+  echo "If a library has flow hooks, add them to the flows list"
+}
+
+# help method
+hook_flow_hook_library_060_help()
+{
+  echo "
+Add any flow hooks from a library to the flows list
+
+"
+}
+
+# execute method
+hook_flow_hook_library_060_execute()
+{
+
+  local library=""
+  local path=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--library)
+	library=$2
+	shift
+	;;
+      -p|--path)
+	path=$2
+	shift
+	;;
+      *)
+	  break;; # terminate while loop
+    esac
+    shift
+  done
+
+  path="${path}/hooks/flows"
+
+  if [ -d ${path} ]; then
+    debug --level 6 --topic "HOOKS->LIBRARY->060" "New library added has flows hooks, adding those flows to the flows list [library:${library}][path:${path}]"
+    local flow_path=""
+    for flow_path in ${path}/*; do
+      flows_addflow "${path}"
+    done
+  fi
+
+}

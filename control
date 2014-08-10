@@ -16,8 +16,7 @@
 help="no"
 help_topic=""
 
-while [ $# -gt 0 ]
-do
+while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help)
       # if an string with a colon (topic separator) was passed, take it as the help topic
@@ -80,7 +79,7 @@ shift
 if [ $debug -gt 3 ]; then
   if [ $help == "yes" ]; then
     echo "
-COMMAND: final control settings: [
+CONTROL: final control settings: [
   >HELP MODE ENABLED
   >COMMAND TO BE HELPED WITH
   -->Command:${COMMAND}
@@ -88,7 +87,7 @@ COMMAND: final control settings: [
 ]"
   else
     echo "
-COMMAND: final control settings: [
+CONTROL: final control settings: [
   >COMMAND TO BE EXECUTED
   -->Command:${COMMAND}
   -->Command Args:${@}
@@ -111,29 +110,30 @@ if [ "$help" != "no" ]; then
   fi
 
   # execute any existing pre hooks
-  debug --level 7 --topic "COMMAND" "Running command:help hooks => help_execute --topic \"${topic}\" ${COMMAND} $@"
+  debug --level 7 --topic "CONTROl" "Running command:help hooks => help_execute --topic \"${topic}\" ${COMMAND} $@"
   help_execute --topic "${topic}" ${COMMAND} $@
   exit $?
 
 else
 
   # execute any existing pre hooks
-  debug --level 7 --topic "COMMAND" "Running global:pre hooks => hooks_execute command --state \"pre\" \"${COMMAND}\" $@"
-  hooks_execute command --state "pre" "${COMMAND} $@"
+  debug --level 7 --topic "CONTROl" "Running global:pre hooks => hooks_execute command --state \"pre\" \"${COMMAND}\" $@"
+  hooks_execute "command" --state "pre" "${COMMAND} $@"
 
   # execute any existing standard hooks
-  debug --level 7 --topic "COMMAND" "Running global:hooks => hooks_execute command \"${COMMAND}\" $@"
-  hooks_execute command "${COMMAND} $@"
+  debug --level 7 --topic "CONTROl" "Running global:hooks => hooks_execute command \"${COMMAND}\" $@"
+
+  hooks_execute "command" "${COMMAND} $@"
   success=$?
 
-  if [ $success == 0 ]; then
+  if [ $success -eq 0 ]; then
     # execute any existing post hooks
-    debug --level 7 --topic "COMMAND" "Running global:post hooks => hooks_execute command --state \"post\" \"${COMMAND}\" $@"
-    hooks_execute command --state "post" "${COMMAND} $@"
+    debug --level 7 --topic "CONTROl" "Running global:post hooks => hooks_execute command --state \"post\" \"${COMMAND}\" $@"
+    hooks_execute "command" --state "post" "${COMMAND} $@"
   else
     # execute any existing fail hooks
-    debug --level 7 --topic "COMMAND" "Running global:fail hooks => hooks_execute command --state \"fail\" \"${COMMAND}\" $@"
-    hooks_execute command --state "post" "${COMMAND} $@"
+    debug --level 7 --topic "CONTROl" "Running global:fail hooks => hooks_execute command --state \"fail\" \"${COMMAND}\" $@"
+    hooks_execute "command" --state "post" "${COMMAND} $@"
   fi
 
 fi
