@@ -57,18 +57,18 @@ project_name=\"${project_name:-project}\"
 # Project build and image
 #
 # which build (folder) should be used for project images (if it isn't built)
-#project_build=\"${project_build:-"project"}\"
-# which image should we use for creating containers (and build it if it is missing)
-#project_image=\"${project_image:-"project"}\"
+project_build=\"${project_build:-"project"}\"
+# which image should we use for creating containers (and build if it is missing)
+project_image=\"${project_image:-"project"}\"
 # which image version/tag should we use for containers
-#project_imageversion=\"${project_imageversion:-"latest"}\"
+project_imageversion=\"${project_imageversion:-"latest"}\"
 
 ###
 # Docker Container configurations
 #
 
 # OS hostname used inside the container (which would impact things like avahi)
-#machine_hostname=\"\${project_name}\"
+machine_hostname=\"\${project_name}\"
 
 # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
 # @NOTE these are arguments for \"docker run\". Check that docker command to learn more

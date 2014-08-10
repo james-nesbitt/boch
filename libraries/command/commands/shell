@@ -56,7 +56,7 @@ shell_execute()
   command=${@:-${machine_shell}}
 
   # add default flags to the end of the flag list
-  flags="${flags} ${machine_shellrunargs} ${machine_mountvolumes}"
+  flags="${flags} ${machine_shellrunargs} `settings_mount_getmounts`"
 
   # Run the shell function
   debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"

@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->031 Project images
+#
+
+hook_version=2
+hook_root="hook_flow_status_031"
+
+# description method
+hook_flow_status_031_description()
+{
+  echo "Simple project status tests"
+}
+
+# help method
+hook_flow_status_031_help()
+{
+ echo "HOOK->FLOW->STATUS->031 Project images
+"
+}
+
+# execute method
+hook_flow_status_031_execute()
+{
+
+  local image="${project_image}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -i|--image)
+        image="$2"
+        shift
+        ;;
+    esac
+    shift
+  done
+
+  echo "
+Project images
+==============
+-->project_image: ${image}"
+
+if [ "${image}" == "" ]; then
+  echo "there is no image specfied for this project"
+else
+  if _docker_image_exists ${image}; then
+    echo "Occurences of related image in this system:
+REPOSITORY                        TAG                 IMAGE ID            CREATED             VIRTUAL SIZE"
+    inspect_docker_image_list --image "${image}"
+  else
+    echo "No matching images found [image:${image}]"
+  fi
+fi
+}

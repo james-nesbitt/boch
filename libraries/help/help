@@ -48,13 +48,13 @@ help_topic_help()
   do
     case "$1" in
       -t|--topic)
-	# if an string was passed, take it as the help topics (a list)
-	topic=$2
-	shift
-	;;
+    # if an string was passed, take it as the help topics (a list)
+    topic=$2
+    shift
+    ;;
 
       *)
-	break;; # terminate while loop
+    break;; # terminate while loop
     esac
     shift
   done
@@ -72,7 +72,7 @@ help_topic_help()
 
       # create a help hook from the help subtopic
       if [ "$subtopic" != "" ]; then
-	flags="${flags} --topic \"${subtopic}\""
+        flags="${flags} --topic \"${subtopic}\""
       fi
 
       # execute any existing pre hooks

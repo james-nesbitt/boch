@@ -50,7 +50,7 @@ hook_settings_post_090_execute()
   # hostname used inside the running container
   machine_hostname="${machine_hostname:-$project_container}"
   # live mounts that are used for containers
-  machine_mountvolumes="${machine_mountvolumes} --volume=${path_project}/source:/app/source"
+  settings_mount_addmount "${path_project}/source:/app/source"
   # Prefered shell/command for the Machine
   machine_shell=${machine_shell:-"/bin/bash"}
   # default run args for shell command

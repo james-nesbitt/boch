@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->020 General Project Configurations
+#
+
+hook_version=2
+hook_root="hook_flow_status_020"
+
+# description method
+hook_flow_status_020_description()
+{
+  echo "Simple project status tests"
+}
+
+# help method
+hook_flow_status_020_help()
+{
+ echo "HOOK->FLOW->STATUS->010 General Project status
+
+Prints to the console, a number of the currently used configurations
+if you include the \"--config\" argument.
+"
+}
+
+# execute method
+hook_flow_status_020_execute()
+{
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -f|--config)
+
+        echo "
+Project Configurations
+======================
+[
+  >SINGLE PATHS USED
+  -->path_project----------: ${path_project}
+  -->path_execution--------: ${path_execution}
+  -->path_manage-----------: ${path_manage}
+  -->path_data-------------: ${path_data}
+  -->path_source-----------: ${path_source}
+  >LIBRARIES
+  -->path_libraries--------: `libraries_getpath`
+  -->libraries loaded------: `libraries_getlibraries`
+  >COMMANDS
+  -->path_commands---------: `commands_getpath`
+  >HOOKS
+  -->path_hooks------------: `hooks_getpath`
+  >PROJECT CONFIGURATION
+  -->Project_name----------: ${project_name}
+  >PROJECT DOCKER CONFIGURATIONS
+  -->project_container-----: ${project_container}
+  -->project_image---------: ${project_image}
+  -->project_imageversion--: ${project_imageversion}
+  >PROJECT MACHINE CONFIGURATIONS
+  -->Machine_hostname------: ${machine_hostname}
+  -->Machine_mountvolumes--: ${machine_mountvolumes}
+  -->Machine_shell---------: ${machine_shell}
+  -->Machine_shellrunargs--: ${machine_shellrunargs}
+  -->Machine_runargs-------: ${machine_runargs}
+] (hooks/flow/status/020)
+"
+    esac
+    shift
+  done
+}

@@ -45,6 +45,8 @@ hook_docker_rm_post_020_execute()
   done
 
   local path="${hook_docker_rm_post_020_registerpath}/$container"
-  rm ${path}
-  debug --level 5 --topic "HOOK->DOCKER->RM->POST->020" "Removed container registration file : ${path}"
+  if [ -f "${path}" ]; then
+    rm ${path}
+    debug --level 5 --topic "HOOK->DOCKER->RM->POST->020" "Removed container registration file : ${path}"
+  fi
 }

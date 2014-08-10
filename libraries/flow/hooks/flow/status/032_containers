@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->032 Project containers
+#
+
+hook_version=2
+hook_root="hook_flow_status_032"
+
+# description method
+hook_flow_status_032_description()
+{
+  echo "Simple project status tests"
+}
+
+# help method
+hook_flow_status_032_help()
+{
+ echo "HOOK->FLOW->STATUS->032 Project containers
+"
+}
+
+# execute method
+hook_flow_status_032_execute()
+{
+  local image="${project_image}"
+  local container="${project_container}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="$2"
+        shift
+        ;;
+      -i|--image)
+        image="$2"
+        shift
+        ;;
+    esac
+    shift
+  done
+
+  echo "
+Project containers
+=================="
+
+if [ "${image}" != "" ]; then
+  echo "Containers related to the project image:
+-->project_image:${image}
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
+    inspect_docker_container_list --image "${image}"
+fi
+
+if [ "${container}" == "" ]; then
+  echo "there is no container specfied for this project"
+else
+  if _docker_container_exists ${container}; then
+    echo "
+Containers defined in the project:
+-->project_container: ${container}
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
+    inspect_docker_container_list --container "${container}"
+  else
+    echo "No matching containers found [container:${container}]"
+  fi
+fi
+}

@@ -659,8 +659,6 @@ docker_logs()
 #
 docker_inspect()
 {
-
-
   # default flags
   local flags=""
   while [ $# -gt 0 ]
@@ -689,7 +687,6 @@ docker_inspect()
 # get the IP address for a container
 docker_inspect_getIP()
 {
-
   while [ $# -gt 0 ]
   do
     case "$1" in

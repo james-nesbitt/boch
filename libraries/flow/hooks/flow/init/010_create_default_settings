@@ -34,65 +34,69 @@ This hook does two things:
 hook_init_010_execute()
 {
 
-  # Allow skipping this
-  ignore_root_custom_settings_file=${ignore_root_custom_settings_file:-0}
-
-  # make sure that we have a custom path
-  ensure_folder ${path_data}
-
   # path to this management system
   path="${path_customsettings:-"$path_data/settings"}"
 
-  if [ $ignore_root_custom_settings_file -eq 0 ]; then
+  debug --level 5 --topic "HOOK->COMMAND->INIT->010" "Populating default settings file [${path}]"
 
-    if [ ! -f ${path_customsettings} ]; then
 
-      # @NOTE This loop is here, because path_customsettings is technically
-      # a space delimited list.  we will assume that the first item in the
-      # list is our special item that we can create during init.
+  if [ ! -f ${path} ]; then
 
-      debug --level 5 --topic "HOOK->INIT->010" "Creating missing default custom settings file [${path}]"
-      echo "#!/bin/sh
+    # @NOTE This loop is here, because path_customsettings is technically
+    # a space delimited list.  we will assume that the first item in the
+    # list is our special item that we can create during init.
+
+    debug --level 6 --topic "HOOK->COMMAND->INIT->010" "Creating missing default custom settings file [${path}]"
+    echo "#!/bin/sh
 #
 # Overrideable configuration variables
 #
 
+#
+# @NOTE this file is constructed by various hooks run in sequence.  You may notice the same variables
+#   occuring multiple times across the files, from different sources. The last occurence takes precendence.
+#   If you want, remove any occurence of variables, and the settings won't be touched.
+# @NOTE if you remove the line which tells you which settings source the settings came from, then the default
+#   settings will be added again.
+
 " > ${path}
 
-      chmod ug+rwx ${path}
+    chmod ug+rwx ${path}
 
-    fi
+  else
+    debug --level 6 --topic "HOOK->COMMAND->INIT->010" "Default custom settings file already exists [${path}]"
+  fi
 
-    local hooks="`hooks_list settings --state default --file ${path}`"
-    local hook=""
-    for hook in ${hooks}; do
+  local hook=""
+  for hook in `hooks_list "settings" --state "default" --file ${path}`; do
 
-      hook_version=""
-      hook_root=""
+    hook_version=""
+    hook_root=""
 
-      hook_include ${hook} $@
+    hook_include ${hook} $@
 
-      if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
 
-	echo "
+    if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
+
+      echo "
 ## SETTINGS FROM HOOK : ${hook_root} [leave this line to prevent this hook from adding these settings again]
 " >> ${path}
-	#echo "`hook_execute ${hook}`" >> ${path}
-	echo "`"${hook_root}_execute"`" >> ${path}
+      #echo "`hook_execute ${hook}`" >> ${path}
+      echo "`"${hook_root}_execute"`" >> ${path}
 
-	debug --level 6 --topic "HOOK->FLOW->INIT->010" "A hook provided default settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
-      fi
+      debug --level 6 --topic "HOOK->COMMAND->INIT->010" "A hook provided default settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+    else
+      debug --level 6 --topic "HOOK->COMMAND->INIT->010" "A hook provided default settings, but it is already included in the settings file [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+    fi
 
-    done
-
-  fi
+  done
 
 }
 
 # output a list (of hooks) for a state
 hook_settings_default_010_help_hooklist()
 {
-  debug --level 7 --topic "HOOK->SETTINGS->DEFAULT->010" "Listing active default settings hooks"
+  debug --level 7 --topic "HOOK->COMMAND->INIT->010" "Listing active default settings hooks"
 
   local state="$1"
   local hooks="$2"

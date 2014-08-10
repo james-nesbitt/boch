@@ -83,19 +83,6 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=deve
 # These are run time mounts, where the host FS can be changed
 # directly changing the container FS.
 #
-# @TODO get away from having to include the -v flag here, by finding a better format for this
-
-# create some variables for our sources
-# @NOTE these folders assume we are using the default www root, and nginx conf.  Change this if you want to customize.
-path_source=\"\${path_project}/source\"
-path_source_www=\"\${path_source}/www\"
-
-# Now that we have tested it, add the source folder to the mount
-settings_mount_addmount \"\${path_source_www}:/app/source_www\"
-
-# Mount the external user .ssh folder in the developer user home directory, so it can be used for stuff
-# @NOTE our builds have a developer user created
-settings_mount_addmount \"\${path_userhome}/.ssh:/home/developer/.ssh-host\"
 
 # SSH
 # Password based ssh is not a good option due to ...  some kind of failure on my part.

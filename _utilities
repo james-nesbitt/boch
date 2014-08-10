@@ -20,10 +20,17 @@ list_reset()
 list_add()
 {
   local name=$1
-  local list=$2
+  local item=$2
 
   local var="${_list_rootvar}${name}"
-  local value="${list} ${!var}"
+  local value="${!var}"
+  case " ${!var} " in
+    *" ${item} "*)
+      # item is already in the list
+      return 0
+  esac
+
+  value="${item} ${value}"
   value=${value%% }
   value=${value## }
   eval "$var=\"${value}\""

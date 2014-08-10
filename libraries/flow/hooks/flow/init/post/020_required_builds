@@ -18,6 +18,7 @@ hook_init_post_020_help()
   echo "
 HOOK->FLOW->INIT->POST->020: Build the required project images
 
+[-w|--buildnow] : allow builds to occur, otherwise this hook is skipped
 [-b|--builds {builds}] : specify an alternate list of builds that should be built
 
 "
@@ -27,6 +28,34 @@ HOOK->FLOW->INIT->POST->020: Build the required project images
 hook_init_post_020_execute()
 {
 
-echo "@TODO make reqiured builds"
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -w|--buildnow)
+        build_execute_now=0
+        ;;
+    esac
+    shift
+  done
 
+  if [ ${build_execute_now} -eq 0 ]; then
+
+
+    debug --level 6 --topic "HOOK->COMMAND->INIT->POST->020" "Required build [builds:${required_build}]"
+    local build=""
+    for build in ${required_builds}; do
+      if [ `_docker_image_exists "${build}"` -eq 0 ]; then
+
+        debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Required build exists, skipping build [build:${build}]"
+
+      else
+
+        debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Building required build [build:${build}]"
+        command_execute "build" --build "${build}" --image "${build}" --version "${image_version}"
+
+      fi
+    done
+
+  fi
 }

@@ -47,8 +47,9 @@ hook_flow_help_050_execute()
 
   if [ "${FLOW}" == "" ]; then
 
-    debug --level 6 --topic "HOOK>FLOW->HELP->050" "command not found \"${FLOW}\""
+    # debug --level 6 --topic "HOOK>FLOW->HELP->050" "flow not found \"${FLOW}\""
     hook_flow_help_050_help_generalhelp $@
+    hook_flow_help_050_help_listflows $@
 
   else
 
@@ -58,66 +59,69 @@ hook_flow_help_050_execute()
     topic=${topic/:${subtopic}/}
 
     case "${topic}" in
+
+      # help for a specific hook
       "hook")
-	# subtopic is a hook
-	local hook="${subtopic}"
-	local helpfound="no"
+        # subtopic is a hook
+        local hook="${subtopic}"
+        local helpfound="no"
 
-	# do a list of all of the hooks, so we can try to match the subtopic
-	local label=""
-	local states="pre execute post help"
-	for state in $states; do
-	  label="${state}"
-	  if [ "$state" == "execute" ]; then
-	    # execute is a placeholder for no state
-	    state=""
-	  else
-	    state="--state ${state}"
-	  fi
-	  local hooks="`hooks_list "flow/${FLOW}" ${state}`"
+        # do a list of all of the hooks, so we can try to match the subtopic
+        local label=""
+        local states="pre execute post help"
+        for state in $states; do
+          label="${state}"
+          if [ "$state" == "execute" ]; then
+            # execute is a placeholder for no state
+            state=""
+          else
+            state="--state ${state}"
+          fi
+          local hooks="`hooks_list "flow/${FLOW}" ${state}`"
 
-	  if [ "$hooks" != "" ]; then
-	    for thishook in ${hooks}; do
-	      local hooklabel="`hook_label ${thishook}`"
-	      if [ "${hook}" == "${hooklabel}" ]; then
-	        helpfound="yes"
-		if [ "${label}" == "help" ]; then
-		  hook_flow_help_050_help_hookhelpforbidden $hook $thishook
-		else
-		  hook_flow_help_050_help_hookhelp $hook $thishook
-		fi
-		exit
-	      fi
-	    done
-	  fi
-	done
+          if [ "$hooks" != "" ]; then
+            for thishook in ${hooks}; do
+              local hooklabel="`hook_label ${thishook}`"
+              if [ "${hook}" == "${hooklabel}" ]; then
+                helpfound="yes"
+            if [ "${label}" == "help" ]; then
+              hook_flow_help_050_help_hookhelpforbidden $hook $thishook
+            else
+              hook_flow_help_050_help_hookhelp $hook $thishook
+            fi
+            exit
+              fi
+            done
+          fi
+        done
 
-	if [ "${helpfound}" == "no" ]; then
-	  hook_flow_help_050_help_unknownhook ${FLOW} ${hook} $@
-	fi
+        if [ "${helpfound}" == "no" ]; then
+          hook_flow_help_050_help_unknownhook ${FLOW} ${hook} $@
+        fi
 
       ;;
+
+      # generic help request
       *)
+        debug --level 6 --topic "HOOK>FLOW->HELP->050" "no help hook specified.  List all hooks instead."
 
-	debug --level 6 --topic "HOOK>FLOW->HELP->050" "no help hook specified.  List all hooks instead."
+        # do a list of all of the hooks
+        local label=""
+        local states="pre execute post help"
+        for state in $states; do
+          label="${state}"
+          if [ "$state" == "execute" ]; then
+            # execute is a placeholder for no state
+            state=""
+          else
+            state="--state ${state}"
+          fi
+          local hooks="`hooks_list "flow/${FLOW}" ${state}`"
 
-	# do a list of all of the hooks
-	local label=""
-	local states="pre execute post help"
-	for state in $states; do
-	  label="${state}"
-	  if [ "$state" == "execute" ]; then
-	    # execute is a placeholder for no state
-	    state=""
-	  else
-	    state="--state ${state}"
-	  fi
-	  local hooks="`hooks_list "flow/${FLOW}" ${state}`"
-
-	  if [ "$hooks" != "" ]; then
-	    hook_flow_help_050_help_hooklist ${FLOW} "${label}" "${hooks}"
-	  fi
-	done
+          if [ "$hooks" != "" ]; then
+            hook_flow_help_050_help_hooklist ${FLOW} "${label}" "${hooks}"
+          fi
+        done
 
       ;;
     esac
@@ -144,6 +148,15 @@ GENERAL INSTRUCTION ON HOW TO USE FLOW
 
 "
 }
+# list all of the flows in the system
+hook_flow_help_050_help_listflows()
+{
+  local flow=""
+  echo "List all flows found in the system:"
+  for flow in `flows_getflows`; do
+    echo "-->${flow}"
+  done
+}
 
 # no hooks found for this glow
 hook_flow_help_050_help_unknownflow()
@@ -165,7 +178,6 @@ hook->flow/help 050 : UNKNOWN FLOW HOOK HELP MESSAGE GOES HERE [flow:$1][hook:$2
 - explain that this hook was not found for this flow
 - explain what makes a valid hook
 - explain how to find a list of the active hooks for a flow
-
 "
   # Include general help
   hook_flow_help_050_help_generalhelp
@@ -209,8 +221,7 @@ hook_flow_help_050_help_hookhelp()
 
   echo "
 HOOK HELP FOR: $label
-=======================================================
-"
+======================================================="
   hook_help ${hook} $@
 }
 # show a message when the hook being used is related to this help system
@@ -224,7 +235,6 @@ hook_flow_help_050_help_hookhelpforbidden()
 HOOK HELP:
 ==========
 can't give hook help for: $label.  This hook is a part of the above message, so is not
-considered a valid help target.
-"
+considered a valid help target."
 
 }

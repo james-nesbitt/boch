@@ -12,9 +12,15 @@ builds_getpath()
   list_get "path_builds"
 }
 
-# path to a folder that contains various docker image builds
+# path to a core folder that contains various docker image builds
 builds_addpath "${path_manage}/builds"
-builds_addpath "${path_data}/builds"
+# check any libraries already loaded for new builds
+for library in `libraries_getlibraries`; do
+  library="${library##*:}/builds"
+  if [ -d "${library}" ]; then
+    builds_addpath "${path_data}/builds"
+  fi
+done
 
 # command help function
 build_help()
@@ -33,7 +39,8 @@ If you keep all of your builds in a \${path_builds} folder, then they
 can easily be built by passing the individual folder names to this command.
 
   -b|--build {build} : override the build, the path to the Dockerfile
-    (as a sub-path of the one of the build directories: ${path_builds})
+    as a sub-path of the one of the build directories:
+    ${path_builds}
 
   -d|--destroy : delete/destroy the image instead of building it
 
@@ -48,7 +55,7 @@ can easily be built by passing the individual folder names to this command.
     echo " --> ${build}"
   done
   echo "Builds found in the system:"
-  for build in `build_list`; do
+  for build in `builds_list`; do
     echo " --> ${build##*/}"
   done
 }
@@ -97,7 +104,7 @@ build_execute()
 
   # build on the flags (valid for both create and destroy)
   flags="${flags} --image ${image}"
-  if [ -z ${version} ]; then
+  if [ -n "${version}" ]; then
     flags="${flags} --version ${version}"
   fi
 
@@ -105,16 +112,12 @@ build_execute()
     build_destroy ${flags}
     return $?
   else
-    local path=""
+    local path="`build_find $build`"
 
-    # determine which build folder has the build
-    for path_build in `builds_getpath`; do
-      path="${path_build}/${build}"
-      if [ -d ${path} ]; then
-	build_build ${flags} --path "${path}"
-	return $?
-      fi
-    done
+    if [ -d ${path} ]; then
+      build_build ${flags} --path "${path}"
+      return $?
+    fi
 
     # no matching build folder found anywhere
     debug --level 8 --topic "COMMAND->BUIlD->EXECUTE" "No matching build found [build:${build}]"
@@ -122,6 +125,20 @@ build_execute()
   fi
 }
 
+# try to find a build in a build path
+build_find()
+{
+  local build=$1
+  local path=""
+
+  # determine which build folder has the build
+  for path_build in `builds_getpath`; do
+    path="${path_build}/${build}"
+    if [ -d ${path} ]; then
+      echo "${path}"
+    fi
+  done
+}
 
 # destroy function
 #
@@ -158,23 +175,23 @@ build_destroy()
   done
 
   local tag="${image}"
-  if [ -z $version ]; then
+  if [ -n "$version" ]; then
     tag="${tag}:${version}"
   fi
 
   if ! _docker_image_exists "${tag}"; then
-    if [ force -eq 0 ]; then
-      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: error destroying custom image, image doesn't exist: ${image}:${version}"
+    if [ $force -eq 0 ]; then
+      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: error destroying custom image, image doesn't exist: ${tag}"
     else
-      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: image doesn't exist, trying to delete anyway (because of --force): ${image}:${version}"
+      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: image doesn't exist, trying to delete anyway (because of --force): ${tag}"
     fi
   fi
-  if ! _docker_image_running "${image}:${version}"; then
+  if ! _docker_image_running "${tag}"; then
 
-    if [ force -eq 0 ]; then
-      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: error destroying custom image, image has running containers: ${image}:${version}"
+    if [ $force -eq 0 ]; then
+      debug --level 1 --topic "COMMAND->BUILD" "build_destroy() :: error destroying custom image, image has running containers: ${tag}"
     else
-      debug --level 4 --topic "COMMAND->BUILD" "build_destroy() :: trying to destroy custom image that has running containers (because of --force): ${image}:${version}"
+      debug --level 4 --topic "COMMAND->BUILD" "build_destroy() :: trying to destroy custom image that has running containers (because of --force): ${tag}"
     fi
   fi
 
@@ -246,15 +263,28 @@ build_build()
   return $?
 }
 
-build_list()
+builds_list()
 {
   local builds_path
   local build_path
   for builds_path in `builds_getpath`; do
     for build_path in ${builds_path}/*; do
       if [ -d ${build_path} ]; then
-	echo ${build_path}
+        echo ${build_path}
       fi
     done
   done
+}
+
+build_find()
+{
+  local build=$1
+  local path=::
+  for path in `builds_list`; do
+    if [ "${build}" == "${path##*/}" ]; then
+      echo "${path}"
+      return 0
+    fi
+  done
+  return 1
 }
