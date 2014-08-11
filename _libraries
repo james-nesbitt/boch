@@ -125,22 +125,18 @@ library_include()
           component_parent=${component_parent:-${library}}
         fi
         local component_name="${component##*:}"
-
-        for path_library in `libraries_getpath`; do
-          # get the library path
-          path="${path_library}/${library}/${component_parent}"
+        for path_library in `libraries_getlibraries`; do
+          # get the library path (libraries_getlibraries returns key:path pairs)
+          path="${path_library##*:}/${component_parent}/${component_name}"
 
           # do a quick check on the path to save time
-          if [ -d ${path} ]; then
-            # full path to component
-            path="${path}/${component_name}"
-
+          if [ -e ${path} ]; then
             # try to load the component as a library
-            debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "trying to load library component, handing off to library_load [library:${library}][component:${component}] =>  library_load --library \"${library}:${component}\" --path \"${path}\" $@"
+            debug --level 8 --topic "LIBRARY->INCLUDE->COMPONENT" "trying to load library component, handing off to library_load [library:${library}][component:${component_nme}] =>  library_load --library \"${library}:${component}\" --path \"${path}\" $@"
             library_load --library "${library}_${component}" --path "${path}" $@
             success=$?
 
-            # if we found it then break (make a library_load return -1 to keep looking
+            # if we found it then break (make a library_load return -1 to keep looking)
             if [ $success -gt -1 ]; then
               break
             fi

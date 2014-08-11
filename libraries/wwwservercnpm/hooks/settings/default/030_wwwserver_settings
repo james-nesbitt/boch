@@ -77,6 +77,9 @@ machine_shell=\"/bin/zsh\"
 # @NOTE our builds have a developer user created, and a home directory created
 machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
 
+# Which user to try to use for connecting/ssh
+project_containeruser=\"developer\"
+
 ###
 # Mount list:
 #
