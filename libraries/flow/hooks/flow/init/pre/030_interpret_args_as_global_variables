@@ -4,19 +4,19 @@
 #
 
 hook_version=2
-hook_root="hook_flow_init_003"
+hook_root="hook_flow_init_030"
 
 # descriptoin method
-hook_flow_init_003_description()
+hook_flow_init_030_description()
 {
   echo "Interpret the passed arguments as global variables"
 }
 
 # help method
-hook_flow_init_003_help()
+hook_flow_init_030_help()
 {
   echo "
-hook->init->003 : Create the custom folder for the project
+hook->init->030 : Create the custom folder for the project
 
 This hook will attempt to interpret the flow arguments into
 global variables, which will reduce the dependence on args
@@ -45,7 +45,7 @@ much, and can depend on global settings.
 }
 
 # execute method
-hook_flow_init_003_execute()
+hook_flow_init_030_execute()
 {
   # used only for the init flow, to tell hooks that it is ok to build things
   build_execute_now=-1

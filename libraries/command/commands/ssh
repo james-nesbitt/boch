@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+#  SSH into a container
+#
+# @NOTE SSH using passwords is not reliable.  Try to make sure that you have are
+#   using ssh keys, by mounting an authorized_keys folder into the user's home
+# @NOTE Naturally this doesn't work if your container doesn't have ssh running
+# @NOTE By default, the root user is used
+#
+
+ssh_help()
+{
+  echo "
+SSH into a container
+
+-c|--container {container} : which container to ssh into
+-u|--user {user} : which user to use
+
+-h|--host : ssh into the container using the host IP and an alternative port
+    Otherwise ssh will try to determine the IP of the container
+
+@NOTE SSH using passwords is not reliable.  Try to make sure that you have are
+  using ssh keys, by mounting an authorized_keys folder into the user's home
+@NOTE Naturally this doesn't work if your container doesn't have ssh running
+@NOTE By default, the root user is used
+"
+}
+
+ssh_execute()
+{
+  local container="${project_container}"
+  local user="${project_containeruser:-root}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="$2"
+        shift
+        ;;
+      -u|--user)
+        user="$2"
+        shift
+        ;;
+      -*)
+        echo >&2 "unknown flag $1 : ssh -c|--container {container}"
+        break;; # terminate while loop
+      *)
+        break;
+    esac
+    shift
+  done
+
+  local ip="`docker inspect --format="{{ .NetworkSettings.IPAddress }}" ${container}`"
+  ssh ${flags} ${user}@${ip} $@
+}
