@@ -25,12 +25,13 @@ EXPOSE 9001
 # Install the mimimum services required to get a base platform (ssh service generates keys)
 RUN /usr/bin/yum install -y openssh-server && \
     sed -i -e '/pam_loginuid\.so/ d' /etc/pam.d/sshd && \
-    /usr/bin/ssh-keygen -A 
+    /usr/bin/ssh-keygen -A
 EXPOSE 22
 
 # Install MariaDB
 RUN /usr/bin/yum install -y mariadb-server mariadb
 ADD etc_my.cnf.d_server.cnf /etc/my.cnf.d/server.cnf
+ADD etc_my.cnf /etc/my.cnf
 RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mysql --log-error=/var/log/mariadb/error.log --pid-file=/var/run/mariadb/mariadb.pid --socket=/var/run/mariadb/mariadb.sock --bind=0.0.0.0 --port=3306
 EXPOSE 3306
 
@@ -62,6 +63,5 @@ ADD app /app
 RUN /bin/chown -R :nginx /app
 
 # Command that will run when the server starts
-USER root
 USER root
 CMD /usr/bin/supervisord --nodaemon --configuration /etc/supervisord.conf
