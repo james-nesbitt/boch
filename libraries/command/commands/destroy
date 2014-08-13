@@ -1,0 +1,159 @@
+#!/bin/sh
+#
+# COMMAND: Destroy an existing image[:version]
+#
+# @NOTE this command is dependent on the build command
+#
+
+command_include "build"
+
+
+# command help function
+destroy_help()
+{
+  echo "
+Destroy a project related docker image.
+
+The intention with this command is to remove the project specific
+image.
+
+  -i|--image {image} : overrides settings image name for new image
+  -v|--version {version} : overrides settings image version for new image
+
+@NOTE the docker_build function uses \"latest\" as the default
+  image version/tag.
+"
+  echo "Builds paths used in the system:"
+  for build in `destroy_getpath`; do
+    echo " --> ${build}"
+  done
+  echo "Builds found in the system:"
+  for build in `destroy_list`; do
+    echo " --> ${build##*/}"
+  done
+}
+
+# command execute function
+destroy_execute()
+{
+  # default build settings
+  local image="${project_image}"
+  local build="${project_image}"
+  local version="${project_imageversion}"
+
+  # build or destroy
+  local action="build"
+
+  # local flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--build)
+        image="${2}"
+        build="${2}"
+        shift
+        ;;
+      -f|--force)
+        flags="${flags} --force"
+        ;;
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -v|--version)
+        version="${2}"
+        shift
+        ;;
+      *)
+        echo >&2 "unknown flag $1 : destroy [-f|--force] [-i|--image {image}] [-v|--version {version}]"
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # build on the flags (valid for both create and destroy)
+  flags="${flags} --image ${image}"
+  if [ -n "${version}" ]; then
+    flags="${flags} --version ${version}"
+  fi
+
+  destroy_destroy ${flags}
+  return $?
+}
+
+# destroy function
+#
+# @TODO add --force action: which would force it to be deleted
+destroy_destroy()
+{
+  # don't force delete images by default
+  local force=0
+
+  # local flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -f|--force)
+        force=1
+        flags="${flags} --force"
+        ;;
+      -i|--image)
+        local image="${2}"
+        flags="${flags} --image ${image}"
+        shift
+        ;;
+      -v|--version)
+        local version="${2}"
+        flags="${flags} --version ${version}"
+        shift
+        ;;
+      *)
+        echo >&2 "unknown flag $1 : destroy_destroy [-f|--force] -i|--image {image} [-v|--version {version}]"
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  if [ -n "${image}" ]; then
+    local tag="${image}"
+    if [ -n "$version" ]; then
+      tag="${tag}:${version}"
+    fi
+
+    if docker_image_exists "${tag}"; then
+
+      if docker_image_running "${tag}"; then
+
+        if [ $force -eq 0 ]; then
+          debug --level 5 --topic "COMMAND->DESTROY" "destroy_destroy() :: error destroying custom image, image has running containers: ${tag}"
+        else
+          # run the rmi method
+          debug --level 5 --topic "COMMAND->DESTROY" "destroy_destroy() :: trying to destroy custom image that has running containers (because of --force): ${tag}"
+          docker_rmi ${flags}
+          return $?
+        fi
+
+      else
+        # run the rmi method
+        debug --level 5 --topic "COMMAND->DESTROY" "destroy_destroy() :: destroying custom image [ handing off to docker abstraction ] ==> docker_rmi ${flags}"
+        docker_rmi ${flags}
+        return $?
+      fi
+
+    else
+      if [ $force -eq 0 ]; then
+        debug --level 5 --topic "COMMAND->DESTROY" "destroy_destroy() :: error destroying custom image, image doesn't exist: ${tag}"
+      else
+        # run the rmi method
+        debug --level 5 --topic "COMMAND->DESTROY" "destroy_destroy() :: image doesn't exist, trying to delete anyway (because of --force): ${tag}"
+        docker_rmi ${flags}
+        return $?
+      fi
+    fi
+
+  else
+    debug --level 5 --topic "COMMAND->DESTROY" "destroy_destroy() :: no image specified."
+  fi
+}

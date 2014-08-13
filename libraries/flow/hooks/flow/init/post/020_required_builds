@@ -41,11 +41,10 @@ hook_init_post_020_execute()
 
   if [ ${build_execute_now} -eq 0 ]; then
 
-
     debug --level 6 --topic "HOOK->COMMAND->INIT->POST->020" "Required build [builds:${required_build}]"
     local build=""
     for build in ${required_builds}; do
-      if [ `_docker_image_exists "${build}"` -eq 0 ]; then
+      if [ `docker_image_exists "${build}"` -eq 0 ]; then
 
         debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Required build exists, skipping build [build:${build}]"
 

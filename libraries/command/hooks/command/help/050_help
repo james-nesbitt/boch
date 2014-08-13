@@ -209,13 +209,11 @@ hook->command/help 050 : UNKNOWN command HOOK HELP MESSAGE GOES HERE [command:$1
 hook_command_help_050_help_commandlist()
 {
   local path
-  local command
   echo "
 Known commands
 =============="
   for path in `commands_list`; do
-    command="${path##*/}"
-    echo "--> ${command##*/}"
+    echo "--> ${path}"
   done
 }
 # output help for a specific command

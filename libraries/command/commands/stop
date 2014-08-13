@@ -10,14 +10,15 @@ stop_help()
 Stop the container if it is running
 
   -c|--container {container} : override the default container name with an ID or name of a running container
-
+  -t|--time {seconds} : number of seconds to wait before stopping the container (defaul is 0)
 "
 }
 
 # command execute function
 stop_execute()
 {
-  container=${project_container}
+  local container=${project_container}
+  local seconds=0
 
   flags=""
   while [ $# -gt 0 ]
@@ -25,6 +26,10 @@ stop_execute()
     case "$1" in
       -c|--container)
         container="${2}"
+        shift
+        ;;
+      -t|--time)
+        seconds="${2}"
         shift
         ;;
       -*)
@@ -37,18 +42,20 @@ stop_execute()
     shift
   done
 
-  if _docker_container_running ${container}; then
+  if docker_container_running ${container}; then
+    flags="${flags} --time=${seconds}"
+
     # Run the stop function
-    debug --level 5 --topic "COMMAND->STOP" "handing off to docker abstraction [container:${container}] ==> docker_stop --container ${container}"
-    local container=$(docker_stop --container "${container}")
+    debug --level 5 --topic "COMMAND->STOP" "handing off to docker abstraction [container:${container}] ==> docker_stop --container \"${container}\" ${flags}"
+    local container=$(docker_stop --container "${container}" ${flags})
     return $?
 
   else
 
-    if _docker_container_exists ${container}; then
-      debug --level 2 --topic "COMMAND->STOP" "docker stop not executed.  The container exists but is not running [container:${container}]"
+    if docker_container_exists ${container}; then
+      debug --level 5 --topic "COMMAND->STOP" "docker stop not executed.  The container exists but is not running [container:${container}]"
     else
-      debug --level 2 --topic "COMMAND->STOP" "docker stop not executed.  The container does not exist [container:${container}]"
+      debug --level 5 --topic "COMMAND->STOP" "docker stop not executed.  The container does not exist [container:${container}]"
     fi
     return 1
   fi

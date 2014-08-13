@@ -27,8 +27,5 @@ RUN yum install -y wget git zsh sudo vim && \
     chown -R developer:developer /home/developer && \
     echo "developer        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/developer && \
     gpasswd -a nginx developer && \
-    gpasswd -a developer nginx
-
-# Include RVM and bundler for compass/sass access
-RUN curl -sSL https://get.rvm.io | bash -s stable --ruby=2.1 && \
-    gem install bundler
+    gpasswd -a developer nginx && \
+    gpasswd -a developer mysql

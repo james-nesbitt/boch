@@ -2,38 +2,23 @@
 #
 # Command functionality
 #
-# include a command source
+# @NOTE commands are essentially libraries, with components. For
+#   more information about libraries and components, check the
+#   _libraries include in the manage root.
 #
-# $1 : command name (without full path, but can be a subpath)
+# A command is a command library component that is designed as a
+# mid-level docker abstraction, to perform essentially a single
+# docker task.  Each command sites on top of one or more related
+# low level docker abstractions, but is aware of the project
+# configuration, and is generally responsible for validation and
+# verification before execution.
 #
-# @NOTE commands are essentially libraries, but we load them differently
-#   as we have multiple locations where they can be
+# As library components, commands can be found in any library,
+# in a 'commands' sub-folder, but the core commands can be found
+# as components in the commands library itself.
+#
 
-
-# list manager for command paths
-commands_addpath()
-{
-  list_add "path_commands" "${1}"
-}
-commands_getpath()
-{
-  list_get "path_commands"
-}
-
-# list manager for included commands
-commands_addincluded()
-{
-  list_add "included_commands" "$1"
-}
-commands_getincluded()
-{
-  list_get "included_commands"
-}
-
-# path to the command shell scripts
-commands_addpath "${path_manage}/libraries/command/commands"
-
-# Include a command
+# Include a command : really just hands off to library include
 command_include()
 {
 
@@ -41,31 +26,16 @@ command_include()
   local command=$1
   shift
 
-  debug --level 8 --topic "COMMAND->INCLUDE->CALL->${command}" "called with \"command_include $@\" [paths:`commands_getpath`"
+  debug --level 8 --topic "COMMAND->INCLUDE" "Including command component.  Handing off to library_include ==> library_include --library \"command\" --component \"commands:${command}\" $@"
+  library_include --component "commands:${command}" "command" $@
+  local success=$?
 
-  # LIBRARY
-  case " `commands_getincluded` " in
-    *" ${command} "*)
-      debug --level 7 --topic "COMMAND->INCLUDE" "command already included! [command:${command}][included_commands:${included_commands}]"
-      return 0
-    ;;
-
-    *)
-
-      debug --level 8 --topic "COMMAND->INCLUDE" "Including command component.  Handing off to library_include ==> library_include --library \"command\" --component \"commands:${command}\" $@"
-      library_include --component "commands:${command}" "command" $@
-      local success=$?
-
-      if [ $success -eq 0 ]; then
-        commands_addincluded "${command}"
-        debug --level 7 --topic "COMMAND->INCLUDE" "Command included [command:${command}]"
-      else
-        debug --level 6 --topic "COMMAND:INCLUDE" "Command include failed [command:${command}]"
-      fi
-      return $success
-    ;;
-  esac
-
+  if [ $success -eq 0 ]; then
+    debug --level 7 --topic "COMMAND->INCLUDE" "Command included [command:${command}]"
+  else
+    debug --level 6 --topic "COMMAND:INCLUDE" "Command include failed [command:${command}]"
+  fi
+  return $success
 }
 
 # Execute a command
@@ -73,6 +43,7 @@ command_include()
 # -a|--action {action} : specify a method to run other than 'execute'
 #
 # @NOTE the library handler runs a fail if the action fails
+# @NOTE use the 'help' action to display help for a command
 command_execute()
 {
   local command=$1
@@ -116,16 +87,5 @@ command_execute()
 # List all of the commands
 commands_list()
 {
-
-  local path
-  local path_command
-
-  for path_command in `commands_getpath`; do
-    for path in ${path_command}/*; do
-      if [ -e ${path} ]; then
-              echo "${path}"
-      fi
-    done
-  done
-
+  echo "`libraries_list_components \"commands\"`"
 }

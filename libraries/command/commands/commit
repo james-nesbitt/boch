@@ -13,7 +13,6 @@ commit an existing container to a new version
  -i|--image : specify an image name to commit to
  -v|--version : specify an image version to commit to
 
-@TODO check for existing container
 "
 }
 
@@ -21,9 +20,9 @@ commit an existing container to a new version
 commit_execute()
 {
   #default values
-  container=${project_container}
-  image=${project_image}
-  version=${project_imageversion}
+  local container=${project_container}
+  local image=${project_image}
+  local version=${project_imageversion}
 
   while [ $# -gt 0 ]
   do
@@ -50,8 +49,18 @@ commit_execute()
     shift
   done
 
-  # Run the commit function
-  debug --level 5 --topic "COMMAND" "commit [ handing off to docker abstraction ] ==> docker_commit --image \"${image}\" --version \"${version}\" --container \"${container}\""
-  docker_commit --image "${image}" --version "${version}" --container "${container}"
-  return $?
+
+  if docker_container_exists ${container}; then
+
+    # Run the commit function
+    debug --level 5 --topic "COMMAND->COMMIT" "[ handing off to docker abstraction ] ==> docker_commit --image \"${image}\" --version \"${version}\" --container \"${container}\""
+    docker_commit --image "${image}" --version "${version}" --container "${container}"
+    return $?
+
+  else
+
+    debug --level 5 --topic "COMMAND->COMMIT" "Could not commit becuase the container does not exists [container:${container}]"
+    return 1
+
+  fi
 }

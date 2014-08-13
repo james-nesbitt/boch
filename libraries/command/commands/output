@@ -17,7 +17,7 @@ Output the container process logs
 # command execute function
 output_execute()
 {
-  container=${project_container}
+  local container=${project_container}
 
   while [ $# -gt 0 ]
   do
@@ -36,8 +36,13 @@ output_execute()
     shift
   done
 
-  # Run the logs function
-  debug --level 5 --topic "COMMAND" "output [ handing off to docker abstraction ] ==> docker_logs --container ${container}"
-  docker_logs --container "${container}"
-  return $?
+  if docker_container_running ${container}; then
+    # Run the logs function
+    debug --level 5 --topic "COMMAND->OUTPUT" "[ handing off to docker abstraction ] ==> docker_logs --container ${container}"
+    docker_logs --container "${container}"
+    return $?
+  else
+    debug --level 5 --topic "COMMAND->OUTPUT" "Could not output logs for the container as it is not running, or does not exist [container:${container}]"
+    return 1
+  fi
 }

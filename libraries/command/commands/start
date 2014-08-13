@@ -77,11 +77,17 @@ start_execute()
   flags="${flags} ${machine_runargs} `settings_mount_getmounts`"
 
   # Check for an existing container
-  if _docker_container_exists ${container}; then
-    # Run the start function
-    debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
-    docker_start --container ${container}
-    return $?
+  if docker_container_exists ${container}; then
+
+    if docker_container_running ${container}; then
+      debug --level 5 --topic "COMMAND" "didn't start container as it was already running [container:${container}]"
+      return 0
+    else
+      # Run the start function
+      debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
+      docker_start --container ${container}
+      return $?
+    fi
 
   # start a new container based on the image
   else

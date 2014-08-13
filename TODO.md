@@ -45,6 +45,7 @@ There are a lot of commands/hooks that don't do safety checks on params
 
 There is no security review:
 
-- the list management tools execute some var code that could be unsafe
+- the list management tools (_utilities) execute some var code that could be unsafe
 - the hook manager executes various functions using eval()
+- there are two functions in the docker library that use eval() to apply greps
 

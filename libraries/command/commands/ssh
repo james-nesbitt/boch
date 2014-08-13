@@ -52,6 +52,6 @@ ssh_execute()
     shift
   done
 
-  local ip="`docker inspect --format="{{ .NetworkSettings.IPAddress }}" ${container}`"
+  local ip="$(docker_inspect_getIP ${container})"
   ssh ${flags} ${user}@${ip} $@
 }
