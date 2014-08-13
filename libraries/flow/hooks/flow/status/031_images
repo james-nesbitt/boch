@@ -45,10 +45,10 @@ Project images
 if [ "${image}" == "" ]; then
   echo "there is no image specfied for this project"
 else
-  if _docker_image_exists ${image}; then
+  if docker_image_exists ${image}; then
     echo "Occurences of related image in this system:
 REPOSITORY                        TAG                 IMAGE ID            CREATED             VIRTUAL SIZE"
-    inspect_docker_image_list --image "${image}"
+    docker_inspect_image_list --image "${image}"
   else
     echo "No matching images found [image:${image}]"
   fi

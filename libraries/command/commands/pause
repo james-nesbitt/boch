@@ -25,7 +25,7 @@ pause_execute()
   # Default direction (pause versus unpause)
   local pause="pause"
   # Container default
-  container=${project_container}
+  local container="${project_container}"
 
   flags=""
   while [ $# -gt 0 ]
@@ -47,18 +47,33 @@ pause_execute()
     shift
   done
 
-  # un-pause a paused container
-  if [ "${pause}" == "unpause" ]; then
-    # Run the pause function
-    debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
-    docker_unpause --container ${container}
-    return $?
+  if docker_container_running ${container}; then
 
-  # pause the container
+    # un-pause a paused container
+    if [ "${pause}" == "unpause" ]; then
+      # Run the pause function
+      debug --level 5 --topic "COMMAND->PAUSE" "[ handing off to docker pause abstraction ] ==> docker_pause --container ${container}"
+      docker_unpause --container ${container}
+      return $?
+
+    # pause the container
+    else
+      # Run the pause function
+      debug --level 5 --topic "COMMAND->PAUSE" "[ handing off to docker unpause abstraction ] ==> docker_unpause --container ${container}"
+      docker_pause --container ${container}
+      return $?
+    fi
+
   else
-    # Run the pause function
-    debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
-    docker_pause --container ${container}
-    return $?
+
+    if docker_container_exists "${container}"; then
+      # Run the run function
+      debug --level 5 --topic "COMMAND->PAUSE" "Could not pause|unpause as the container is not running ${container}"
+    else
+      debug --level 5 --topic "COMMAND->PAUSE" "Could not pause|unpause as the container does not exist ${container}"
+    fi
+    return 1
+
   fi
+
 }

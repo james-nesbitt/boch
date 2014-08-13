@@ -74,13 +74,13 @@ docker_build() {
   [ -n "${image}" ] && tag="--tag=${image}:${version:-latest}"
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
+  debug --level 5 --topic "DOCKER" "docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
   docker build ${clean} ${tag} ${path}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker build run. '${image:-"Keyed"}' image created"
+    debug --level 6 --topic "DOCKER" "Docker build run. '${image:-"Keyed"}' image created"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker build failed."
+    debug --level 2 --topic "DOCKER" "Docker build failed."
   fi
   return $success
 }
@@ -125,13 +125,13 @@ docker_rmi()
   [ -n "${version}" ] && tag="${image}:${version}" || tag="${image}"
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rmi [image:${image}][version:${version}][flags:${flags}][tag:${tag}] ==> docker rmi ${flags} ${tag}"
+  debug --level 5 --topic "DOCKER" "docker_rmi [image:${image}][version:${version}][flags:${flags}][tag:${tag}] ==> docker rmi ${flags} ${tag}"
   docker rmi ${flags} ${tag}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker rmi succeeded. \"${image}:${version}\" image removed"
+    debug --level 6 --topic "DOCKER" "Docker rmi succeeded. \"${image}:${version}\" image removed"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker rmi failed."
+    debug --level 2 --topic "DOCKER" "Docker rmi failed."
   fi
   return $sucess
 }
@@ -257,8 +257,9 @@ docker_run()
 #
 # Attach to a running container`
 #
-# -n|--noinput : don't attach stdin to the operation
 # -c|--container : container ID or name
+# -n|--noinput : don't attach stdin to the operation
+# -s|--signlas : pass signals to the container
 #
 # @TODO parameter validation
 # @TODO test if the container exists and is running
@@ -276,7 +277,7 @@ docker_attach()
       -n|--noinput)
         flags="${flags} --no-stdin=true"
         ;;
-      -p|--sigproxy)
+      -s|--signals)
         flags="${flags} --sig-proxy=true"
         ;;
       -*) echo >&2 "docker_attach(): unknown flag $1 : attach [-n|--noinput] [-p|--sigproxy] -c|--container {container}";;
@@ -286,17 +287,19 @@ docker_attach()
     shift
   done
 
+  # execute pre hoosk
+  hooks_execute "docker/attach" --state "pre" --image "${image}" --version "${version}" --container "${container} ${flags} $@"
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
   docker attach ${flags} ${container}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker attach succeeded. \"${container}\" container was attached"
-    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
+    debug --level 6 --topic "DOCKER" "Docker attach succeeded. \"${container}\" container was attached"
+    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container} ${flags} $@"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker attach failed."
-    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
+    debug --level 2 --topic "DOCKER" "Docker attach failed."
+    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container} ${flags} $@"
   fi
   return $sucess
 }
@@ -332,15 +335,18 @@ docker_start()
     flags="${flags} $@"
   fi
 
+  # execute pre hooks
+  hooks_execute "docker/start" --state "pre" --image "${image}" --version "${version}" --container "${container} $@"
+
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
   docker start ${flags} ${container}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker start succeeded. \"${container}\" container started"
+    debug --level 6 --topic "DOCKER" "Docker start succeeded. \"${container}\" container started"
     hooks_execute "docker/start" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker start failed."
+    debug --level 2 --topic "DOCKER" "Docker start failed."
     hooks_execute "docker/start" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
   fi
   return $sucess
@@ -365,7 +371,11 @@ docker_stop()
         container="${2}"
         shift
         ;;
-      -*) echo >&2 "docker_stop(): unknown flag $1 : stop -c|--container {container}";;
+      -c|--time)
+        flags="${flags} --time=$2"
+        shift
+        ;;
+      -*) echo >&2 "docker_stop(): unknown flag $1 : stop -c|--container {container} [-t|--time {seconds}]";;
       *)
         break;; # terminate while loop
     esac
@@ -377,15 +387,18 @@ docker_stop()
     flags="${flags} $@"
   fi
 
+  # execute pre hooks
+  hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
+
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
   docker stop ${flags} ${container}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker stop succeeded. \"${container}\" container stopped"
+    debug --level 6 --topic "DOCKER" "Docker stop succeeded. \"${container}\" container stopped"
     hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker stop failed."
+    debug --level 2 --topic "DOCKER" "Docker stop failed."
     hooks_execute "docker/stop" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
   fi
   return $sucess
@@ -430,21 +443,19 @@ docker_rm()
   fi
 
   # execute any existing hooks
-  debug --level 7 --topic "DOCKER ABSTRACTION" "Running pre hooks => hooks_execute rm --state pre --container \"${container}\""
-  hooks_execute rm --state pre --container "${container}"
+  hooks_execute "docker/rm" --state "pre" --container "${container}"
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_rm [container:${container}][flags:${flags}] ==> docker rm ${flags} ${container}"
   docker rm ${flags} ${container}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker rm succeeded. \"${container}\" container removed"
+    debug --level 6 --topic "DOCKER" "Docker rm succeeded. \"${container}\" container removed"
 
     # execute any existing hooks
-    debug --level 7 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute docker/rm --state post --container \"${container}\""
     hooks_execute "docker/rm" --state "post" --container "${container}"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker rm failed."
+    debug --level 2 --topic "DOCKER" "Docker rm failed."
     hooks_execute "docker/rm" --state "fail" --container "${container}"
   fi
   return $sucess
@@ -486,21 +497,17 @@ docker_commit()
   done
 
   # execute any existing hooks
-  debug --level 7 --topic "DOCKER ABSTRACTION" "Running pre hooks => hooks_execute commit --state pre --image \"${image}\" --version \"${version}\" --container \"${container}\""
   hooks_execute attach --state pre --image "${image}" --version "${version}" --container "${container}"
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_commit [image:${image}][version:${version}][container:${container}][flags:${flags}] ==> docker commit ${container} ${image}:${version}"
+  debug --level 5 --topic "DOCKER" "docker_commit [image:${image}][version:${version}][container:${container}][flags:${flags}] ==> docker commit ${container} ${image}:${version}"
   docker commit ${flags} ${container} ${image}:${version}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker commit succeeded. \"${container}\" container committed to ${image}:${version}"
-
-    # execute any existing hooks
-    debug --level 7 --topic "DOCKER ABSTRACTION" "Running post hooks => hooks_execute commit --state post --image \"${image}\" --version \"${version}\" --container \"${container}\""
+    debug --level 6 --topic "DOCKER" "Docker commit succeeded. \"${container}\" container committed to ${image}:${version}"
     hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container}"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker commit failed."
+    debug --level 2 --topic "DOCKER" "Docker commit failed."
     hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container}"
   fi
   return $sucess
@@ -532,15 +539,18 @@ docker_pause()
     shift
   done
 
+  # execute pre hooks
+  hooks_execute "docker/pause" --state "pre" --container "${container} $@"
+
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_pause [container:${container}][flags:${flags}] ==> docker pause ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_pause [container:${container}][flags:${flags}] ==> docker pause ${flags} ${container}"
   docker pause ${flags} ${container}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker pause succeeded. \"${container}\" container was paused"
+    debug --level 6 --topic "DOCKER" "Docker pause succeeded. \"${container}\" container was paused"
     hooks_execute "docker/pause" --state "post" --container "${container} $@"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker pause failed."
+    debug --level 2 --topic "DOCKER" "Docker pause failed."
     hooks_execute "docker/pause" --state "post" --container "${container} $@"
   fi
   return $sucess
@@ -572,15 +582,18 @@ docker_unpause()
     shift
   done
 
+  # execute pre hooks
+  hooks_execute "docker/unpause" --state "pre" --container "${container} $@"
+
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_unpause [container:${container}][flags:${flags}] ==> docker unpause ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_unpause [container:${container}][flags:${flags}] ==> docker unpause ${flags} ${container}"
   docker unpause ${flags} ${container}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER ABSTRACTION" "Docker unpause succeeded. \"${container}\" container was unpaused"
+    debug --level 6 --topic "DOCKER" "Docker unpause succeeded. \"${container}\" container was unpaused"
     hooks_execute "docker/unpause" --state "post" --container "${container} $@"
   else
-    debug --level 2 --topic "DOCKER ABSTRACTION" "Docker unpause failed."
+    debug --level 2 --topic "DOCKER" "Docker unpause failed."
     hooks_execute "docker/unpause" --state "fail" --container "${container} $@"
   fi
   return $sucess
@@ -609,7 +622,7 @@ docker_top()
   done
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_top [container:${container}][flags:${flags}] ==> docker top ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_top [container:${container}][flags:${flags}] ==> docker top ${flags} ${container}"
   docker top ${flags} ${container}
 
   local success=$?
@@ -639,7 +652,7 @@ docker_logs()
   done
 
   # Run docker command
-  debug --level 5 --topic "DOCKER ABSTRACTION" "docker_logs [container:${container}][flags:${flags}] ==> docker logs ${flags} ${container}"
+  debug --level 5 --topic "DOCKER" "docker_logs [container:${container}][flags:${flags}] ==> docker logs ${flags} ${container}"
   docker logs ${flags} ${container}
   local success=$?
   return $sucess
@@ -679,9 +692,8 @@ docker_inspect()
   done
 
   # Run docker command
-  debug --level 9 --topic "DOCKER ABSTRACTION" "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
-#  echo "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
-   docker inspect ${flags} ${container}
+  debug --level 9 --topic "DOCKER" "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
+  docker inspect ${flags} ${container}
   return $?
 }
 # get the IP address for a container
@@ -711,22 +723,30 @@ docker_inspect_getIP()
 # -a|--all : @NOTE removed - this would search all build commits, which is really not something we want.
 # -q|--idonly : return only image IDs
 #
-inspect_docker_image_list()
+docker_inspect_image_list()
 {
   # filter text for grep
   local filter=""
 
   # start with an empty argument list
-  local flags=""
+  local flags="| sed \"1 d\" "
   while [ $# -gt 0 ]
   do
-    case "$1" in
+    case "$1" in\
+      -d|--id)
+        # this is a container id
+        filter="${filter} | grep -i \"\\s${2:0:12}\\s\" "
+        shift
+        ;;
       -i|--image)
-        filter="${2}"
+        filter="${filter} | grep -i \"^${2}\\s\" "
+        shift
+        ;;
+      -v|--version)
+        filter="${filter} | grep -i \"\\s${2}\\s\" "
         shift
         ;;
       -q|--idonly)  flags="$flags --quiet";;
-      -*) echo >&2 "docker_image_list(): unknown flag $1 : inspect_docker_image_list [-q|--idonly] [-i|--image {image}]";;
       *)
           break;; # terminate while loop
     esac
@@ -734,48 +754,42 @@ inspect_docker_image_list()
   done
 
   # Run docker command
-  if [ -n $image ]; then
-    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} | grep -i \"${filter}\""
-    echo "`docker images ${flags} | grep -i "${filter}"`"
-  else
-    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_image_list [flags:${flags}] ==> docker images ${flags}"
-    echo "`docker images ${flags}`"
-  fi
+  debug --level 9 --topic "DOCKER" "docker_inspect_image_list [flags:${flags}][filter:${filter}] ==> docker images ${flags} ${filter}"
+  eval "docker images ${flags} ${filter}"
+
 }
 
 # check if docker image $1 exists (has been built)
-_docker_image_exists()
+docker_image_exists()
 {
   local image=$1
-  local exists="`inspect_docker_image_list --image ${image}`"
-  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_image_exists [image:${image}] ==> inspect_docker_image_list --image ${image} ==> ${exists}"
 
-  if [ $? ] && [ -n "$exists" ]; then
+  if [ "${image##*:}" == "${image}" ]; then
+    local exists="`docker_inspect_image_list --image \"${image}\"`"
+    local success=$?
+    debug --level 6 --topic "DOCKER" "docker_image_exists [image:${image}] ==> docker_inspect_image_list --image ${image} ==> ${exists}"
+  else
+    local exists="`docker_inspect_image_list --image \"${image%%:*}\" --version \"${image##*:}\"`"
+    local success=$?
+    debug --level 6 --topic "DOCKER" "docker_image_exists [image:${image%%:*}][version:${image##*:}] ==> docker_inspect_image_list --image ${image%%:*} --version ${image##*:} ==> ${exists}"
+  fi
+
+  if [ $success ] && [ -n "${exists}" ]; then
     return 0
   else
     return 1
   fi
 }
-# check if any docker containers using image $1 are running
-_docker_image_running()
-{
-  local image=$1
-  local running="`inspect_docker_container_list --running --image ${image}`"
-  debug --level 6 --topic "DOCKER ABSTRACTION" "_docker_image_running [image:${image}] ==> inspect_docker_container_list --running --image ${image} ==> ${running}"
 
-  if [ $? ] && [ -n "${running}" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
 
 #
 # Check if a container exists - and if it is running
 #
 # -c|container {container} : container name or ID to filter for (@NOTE Filter arg)
 # -i|--image {image} : image name to filter for (@NOTE Filter arg)
+# -v|--version {version} : image version to filter for (@NOTE Filter arg)
 #
+# AND
 # -r|--running : only check for running containers
 # -q|--id : return only the container ID
 #
@@ -784,29 +798,40 @@ _docker_image_running()
 #
 # @TODO allow retrieval of just specific fields from docker_ps
 # @TODO make this function handle multiple filters per execution.
-inspect_docker_container_list()
+docker_inspect_container_list()
 {
   # assume we want to check even for containers that are not running
   local all="--all"
   # start with an empty argument list
   local flags=""
+
   # text for which we will grep
-  local filter=""
+  local filter="| sed \"1 d\" "
 
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -c|--container)
-        filter="$2"
+      -n|--name)
+        # this is a container name
+        filter="${filter} | grep -i \"\\s${2}\s*$\" "
+        shift
+        ;;
+      -d|--id)
+        # this is a container id
+        filter="${filter} | grep -i \"^${2:0:12}\\s\" "
         shift
         ;;
       -i|--image)
-        filter="$2"
+        filter="${filter} | grep -i \"\\s${2}:\" "
+        shift
+        ;;
+      -v|--version)
+        filter="${filter} | grep -i \":${2}\\s\" "
         shift
         ;;
       -q|--idonly)  flags="$flags --quiet";;
       -r|--running)  all="";;
-      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-c|--container {container}] [-q|--idonly] [-r|--running] -c|--container {container} ]";;
+      -*) echo >&2 "docker_container_list(): unknown flag $1 : exists [-n|--name {container}] [-d|--id {id}] [-q|--idonly] [-r|--running] -c|--container {container} ]";;
       *)
           break;; # terminate while loop
     esac
@@ -814,41 +839,59 @@ inspect_docker_container_list()
   done
 
   # Run docker command
-  local result=""
-  local success=0
-  if [ -n $container ]; then
-    # PRINTING This debug will break the function
-    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all} | grep -i ${filter}"
-    # @NOTE I debated about the grep -i flag, but ignoring case-collision in container name seems to be best.
-    echo "`docker ps ${flags} ${all} | grep -i ${filter}`"
-  else
-    # PRINTING This debug will break the function
-    debug --level 9 --topic "DOCKER ABSTRACTION" "inspect_docker_container_list listing the docker container => docker ps ${flags} ${all}"
-    echo "`docker ps ${flags} ${all}`"
-  fi
+  debug --level 9 --topic "DOCKER" "docker_inspect_container_list listing the docker container => docker ps ${flags} ${all} ${filter}"
+  eval "docker ps ${flags} ${all} ${filter}"
+  return $?
 }
 
+
 # check if docker container $1 exists (has ever been started with `docker run`)
-_docker_container_exists()
+docker_container_exists()
 {
   local container=$1
-  local exists="`inspect_docker_container_list --container $container`"
-  debug --level 7 --topic "DOCKER ABSTRACTION" "_docker_container_exists [container:$container] ==> inspect_docker_container_list --container $container ==> ${exists}"
 
-  if [ $? ] && [ -n "$exists" ]; then
+  local exists="`docker_inspect_container_list --name $container`"
+  local success=$?
+  debug --level 7 --topic "DOCKER" "_docker_container_exists [container:$container] ==> docker_inspect_container_list --name $container ==> ${exists}"
+
+  if [ $success ] && [ -n "$exists" ]; then
     return 0
   else
     return 1
   fi
 }
 # check if docker container $1 is running
-_docker_container_running()
+docker_container_running()
 {
   local container=$1
-  local running="`inspect_docker_container_list --running --container $container`"
-  debug --level 7 --topic "DOCKER ABSTRACTION" "_docker_container_running [container:$container] ==> inspect_docker_container_list --running --container $container ==> ${running}"
 
-  if [ $? ] && [ -n "$running" ]; then
+  local running="`docker_inspect_container_list --running --name $container`"
+
+  debug --level 7 --topic "DOCKER" "_docker_container_running [container:$container] ==> docker_inspect_container_list --running --name $container ==> ${running}"
+
+  if [ -n "$running" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# check if any docker containers using image $1 are running
+docker_image_running()
+{
+  local image=$1
+
+  if [ "${image##*:}" == "${image}" ]; then
+    local running="`docker_inspect_image_list --image \"${image}\"`"
+    local success=$?
+    debug --level 7 --topic "DOCKER" "_docker_image_running [image:${image}] ==> docker_inspect_container_list --running --image ${image} ==> ${running}"
+  else
+    local running="`docker_inspect_container_list --image \"${image%%:*}\" --version \"${image##*:}\"`"
+    local success=$?
+    debug --level 7 --topic "DOCKER" "_docker_image_running [image:${image}] ==> docker_inspect_container_list --running --image ${image%%:*} --version ${image##*:}==> ${running}"
+  fi
+
+  if [ -n "${running}" ]; then
     return 0
   else
     return 1

@@ -354,3 +354,21 @@ library_execute()
   fi
 }
 
+# list all existing components of a type
+libraries_list_components()
+{
+  local subpath="$1"
+  local component_path=""
+  local library_path=""
+  local path=""
+  for library_path in `libraries_getlibraries`; do
+    path="${library_path##*:}/${subpath}"
+    if [ -d "${path}" ]; then
+      for component_path in ${path}/*; do
+        if [ -d "${component_path}" ] || [ -x "${component_path}" ]; then
+          echo "${component_path##*/}:${component_path}"
+        fi
+      done
+    fi
+  done
+}

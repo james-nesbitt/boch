@@ -48,7 +48,7 @@ hook_command_init_post_030_execute()
 
   if [ ${build_execute_now} -eq 0 ]; then
 
-    if _docker_image_exists "${project_image}" -eq 0; then
+    if docker_image_exists "${project_image}" -eq 0; then
 
       debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Custom project build already exists [build:${project_build}]"
 

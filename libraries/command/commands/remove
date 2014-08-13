@@ -11,6 +11,7 @@ Delete the container
 
   -c|--container {container} : override the default container name with an ID or name of a running container
 
+@NOTE this does not remove the image, for that try the destroy command
 @TODO ask for confirmation
 "
 }
@@ -28,7 +29,7 @@ remove_execute()
         shift
         ;;
       -*)
-        echo >&2 "unknown flag $1 : stop [-c|--container] {container}"
+        echo >&2 "unknown flag $1 : remove [-c|--container] {container}"
         exit
         ;;
       *)
@@ -37,10 +38,9 @@ remove_execute()
     shift
   done
 
+  if docker_container_exists ${container}; then
 
-  if _docker_container_exists ${container}; then
-
-    if  _docker_container_running ${container}; then
+    if  docker_container_running ${container}; then
 
       debug --level 2 --topic "COMMAND->REMOVE" "docker remove not executed.  The container exists but is running.  Stop it first [container:${container}]"
       return 1
