@@ -17,41 +17,25 @@
 # @TODO refactor to allow:
 #   - allow hook exclusion
 
-hooks_addpath()
-{
-  list_add "path_hooks" "${1}"
-}
 hooks_getpath()
 {
-  list_get "path_hooks"
+  echo "`libraries_list_subpath \"hooks\"`"
 }
 
-# add this library hooks to the hooks path
-# @note we need to do this manually, as these hooks do it for other libraries
-hooks_addpath "${path_manage}/libraries/hook/hooks"
-
-
 ###
-# Run hooks for a command
+# Run hooks for an operation
 #
 # Conceptually, the function arguments determine
 # a number of paths, and all function in those
 # paths are executed
 #
-# $1 : command
+# $1 : operation
 # -s|--state {state} : state e.g. pre or post
 # $@ : passed to the hook functions
 #
-
-# path to a folder that has shell scripts which execute hooks for commands
-# @NOTE this is a space delimited list of paths, executed in order
-path_hooks="${path_hooks:-"${path_manage}/hooks"}"
-
-#hook_root=""
-#hook_version=""
 hooks_execute()
 {
-  # require the first argument to be the command
+  # require the first argument to be the operation
   local hook=$1
   shift
 
@@ -132,7 +116,7 @@ hooks_list()
   local hook_token=""
   for hook_token in `for path in ${hooks_paths}; do
     path="${path}/${hook}"
-debug --level 9 --topic "HOOK->INCLUDE" "Checking hook path [path:${path}]"
+    debug --level 9 --topic "HOOK->INCLUDE" "Checking hook path [path:${path}]"
     if [ -d ${path} ]; then
       for path_hook in ${path}/*; do
         if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
