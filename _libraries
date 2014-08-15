@@ -358,6 +358,7 @@ library_execute()
 libraries_list_components()
 {
   local subpath="$1"
+
   local component_path=""
   local library_path=""
   local path=""
