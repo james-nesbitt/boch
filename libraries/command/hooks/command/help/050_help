@@ -79,82 +79,82 @@ hook_command_help_050_execute()
       topic=${topic/:${subtopic}/}
 
       case "${topic}" in
-    "hook")
+        "hook")
 
-      # subtopic is a hook
-      local hook="${subtopic}"
-      local helpfound="no"
+          # subtopic is a hook
+          local hook="${subtopic}"
+          local helpfound="no"
 
-      # do a list of all of the hooks
-      local label=""
-      local states="pre execute post help"
-      for state in $states; do
-        label="${state}"
-        if [ "$state" == "execute" ]; then
+          # do a list of all of the hooks
+          local label=""
+          local states="pre execute post help"
+          for state in $states; do
+            label="${state}"
+            if [ "$state" == "execute" ]; then
+              # execute is a placeholder for no state
+              state=""
+            else
+              state="--state ${state}"
+            fi
+            local hooks="`hooks_list "command" ${state}` `hooks_list "command/${command}" ${state}`"
+
+            if [ "$hooks" != "" ]; then
+              for thishook in ${hooks}; do
+                local hooklabel="`hook_label ${thishook}`"
+                if [ "${hook}" == "${hooklabel}" ]; then
+                  helpfound="yes"
+                  if [ "${label}" == "help" ]; then
+                    hook_command_help_050_help_hookhelpforbidden $hook $thishook
+                  else
+                    hook_command_help_050_help_hookhelp $hook $thishook
+                  fi
+                exit
+                fi
+              done
+            fi
+          done
+
+          if [ "${helpfound}" == "no" ]; then
+            hook_command_help_050_help_unknownhook ${command} ${hook} $@
+          fi
+
+        ;;
+      *)
+        debug --level 6 --topic "HOOK->COMMAND->HELP->050" "no help hook specified.  List all hooks instead."
+
+        # do a list of all of the hooks
+        local label=""
+        local states="pre execute post help"
+        if [ "${show_global_hooks}" == "yes" ]; then
+          for state in $states; do
+            label="${state}"
+            if [ "$state" == "execute" ]; then
           # execute is a placeholder for no state
           state=""
-        else
+            else
           state="--state ${state}"
-        fi
-        local hooks="`hooks_list "command" ${state}` `hooks_list "command/${command}" ${state}`"
-
-        if [ "$hooks" != "" ]; then
-          for thishook in ${hooks}; do
-        local hooklabel="`hook_label ${thishook}`"
-        if [ "${hook}" == "${hooklabel}" ]; then
-          helpfound="yes"
-          if [ "${label}" == "help" ]; then
-            hook_command_help_050_help_hookhelpforbidden $hook $thishook
-          else
-            hook_command_help_050_help_hookhelp $hook $thishook
-          fi
-          exit
-        fi
+            fi
+            local hooks="`hooks_list "command" ${state}`"
+            if [ "$hooks" != "" ]; then
+          hook_command_help_050_help_hooklist "GLOBAL (any command)" "${label}" "${hooks}"
+            fi
           done
         fi
-      done
-
-      if [ "${helpfound}" == "no" ]; then
-        hook_command_help_050_help_unknownhook ${command} ${hook} $@
-      fi
-
-    ;;
-    *)
-      debug --level 6 --topic "HOOK->COMMAND->HELP->050" "no help hook specified.  List all hooks instead."
-
-      # do a list of all of the hooks
-      local label=""
-      local states="pre execute post help"
-      if [ "${show_global_hooks}" == "yes" ]; then
         for state in $states; do
           label="${state}"
           if [ "$state" == "execute" ]; then
-        # execute is a placeholder for no state
-        state=""
+            # execute is a placeholder for no state
+            state=""
           else
-        state="--state ${state}"
+            state="--state ${state}"
           fi
-          local hooks="`hooks_list "command" ${state}`"
+          local hooks="`hooks_list "command/${command}" ${state}`"
+
           if [ "$hooks" != "" ]; then
-        hook_command_help_050_help_hooklist "GLOBAL (any command)" "${label}" "${hooks}"
+            hook_command_help_050_help_hooklist ${command} "${label}" "${hooks}"
           fi
         done
-      fi
-      for state in $states; do
-        label="${state}"
-        if [ "$state" == "execute" ]; then
-          # execute is a placeholder for no state
-          state=""
-        else
-          state="--state ${state}"
-        fi
-        local hooks="`hooks_list "command/${command}" ${state}`"
-
-        if [ "$hooks" != "" ]; then
-          hook_command_help_050_help_hooklist ${command} "${label}" "${hooks}"
-        fi
-      done
-    ;;
+      ;;
       esac
 
     fi

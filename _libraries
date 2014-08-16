@@ -191,7 +191,7 @@ library_load()
   done
 
   if [ -z ${library} ] || [ -z ${path} ]; then
-    debug --level 6 --topic "LIBRARY->LOAD" "no library or specified [library:${library}][path:${path}][core file:${corefile}]"
+    debug --level 6 --topic "LIBRARY->LOAD" "no library or library path specified [library:${library}][path:${path}][core file:${corefile}]"
     return 1
   fi
   if [ -z "${corefile}" ]; then
@@ -228,7 +228,7 @@ library_load()
 
       if [ -f ${root_path} ] && [ -x ${root_path} ]; then
 
-        # add library
+        # register the library as a path
         _libraries_addlibrary "${library}:${path}"
 
         # run pre hooks
@@ -356,10 +356,13 @@ libraries_list_components()
 {
   local subpath="$1"
 
+  local components_path=""
   local component_path=""
-  for component_path in `libraries_list_subpath $subpath`/*; do
-    if [ -d "${component_path}" ] || [ -x "${component_path}" ]; then
-      echo "${component_path##*/}:${component_path}"
-    fi
+  for components_path in `libraries_list_subpath $subpath`; do
+    for component_path in ${components_path}/*; do
+      if [ -d "${component_path}" ] || [ -x "${component_path}" ]; then
+        echo "${component_path##*/}:${component_path}"
+      fi
+    done
   done
 }
