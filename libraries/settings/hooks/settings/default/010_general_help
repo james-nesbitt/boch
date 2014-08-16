@@ -49,6 +49,7 @@ hook_settings_default_010_execute()
 #
 #path_data="${path_data}"
 
+####
 # Log file
 #
 # path to the log file
@@ -56,9 +57,8 @@ hook_settings_default_010_execute()
 #
 #path_log="${path_log}"
 
-# Libraries path
-#
-# path list for possible locations for library tools
+####
+# Load Libraries
 #
 # Libraries are function sets that can be included with
 # library_include  and have methods executed using
@@ -72,9 +72,10 @@ hook_settings_default_010_execute()
 #
 # @NOTE your custom project folder is treated as a library, so
 #   it gets all of the features of a library.  It can also contain
-#   it's own libraries
+#   it's own libraries.  The best place to put new libraries
+#   is in the libraries sub-folder of your project.
 #
-# Already added by the system : libraries_addpath \"\${path_data}/libraries\"
+#library_include "library_name"
 
 "
 }
