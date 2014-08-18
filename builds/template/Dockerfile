@@ -19,7 +19,9 @@ ADD     etc_nginx_confd/project.conf /etc/nginx/conf.d/project.conf
 # Add an ssh setup for the user from conf (done during build to get ssh in and out permissions)
 ADD     dev_dotssh /home/developer/.ssh
 RUN     /bin/chown -R developer:developer /home/developer/.ssh
-RUN     /bin/chmod go-rwx /home/developer/.ssh
+RUN     /bin/chmod -R go-rwx /home/developer/.ssh && \
+        /bin/chnod go+r /home/developer/.ssh/* && \
+        /bin/chmod go-rwx /home/developer/ssh/id_rsa
 
 # ADD Drush aliases
 ADD     etc_drush /home/developer/.drush
