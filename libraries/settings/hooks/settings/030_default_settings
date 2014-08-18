@@ -80,6 +80,9 @@ hook_settings_030_execute()
   # Docker Container configurations
   #
 
+  # User used inside the container
+  machine_username="${machine_username:-root}"
+
   # OS hostname used inside the container (which would impact things like avahi)
   machine_hostname="${machine_hostname:-${project_name}}"
 
