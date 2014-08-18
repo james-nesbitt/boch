@@ -67,6 +67,9 @@ project_imageversion=\"${project_imageversion:-"latest"}\"
 # Docker Container configurations
 #
 
+# what username gets used inside the machine (for ssh mainly)
+machine_username=\"${machine_username:-root}\"
+
 # OS hostname used inside the container (which would impact things like avahi)
 machine_hostname=\"\${project_name}\"
 

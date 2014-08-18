@@ -16,13 +16,6 @@ ADD etc_php.ini /etc/php.ini
 # Add nginx conf for the source
 ADD     etc_nginx_confd/project.conf /etc/nginx/conf.d/project.conf
 
-# Add an ssh setup for the user from conf (done during build to get ssh in and out permissions)
-ADD     dev_dotssh /home/developer/.ssh
-RUN     /bin/chown -R developer:developer /home/developer/.ssh
-RUN     /bin/chmod -R go-rwx /home/developer/.ssh && \
-        /bin/chnod go+r /home/developer/.ssh/* && \
-        /bin/chmod go-rwx /home/developer/ssh/id_rsa
-
 # ADD Drush aliases
 ADD     etc_drush /home/developer/.drush
 RUN     /bin/chown -R developer:developer /home/developer/.drush
@@ -31,6 +24,13 @@ RUN     /bin/chown -R developer:developer /home/developer/.drush
 ADD     dev_bin /home/developer/bin
 RUN     /bin/chown -R developer:developer /home/developer/bin
 
-# Make the databases
+# Add an ssh setup for the user from conf (done during build to get ssh in and out permissions)
+ADD     dev_dotssh /home/developer/.ssh
+RUN     /bin/chown -R developer:developer /home/developer/.ssh
+RUN     /bin/chmod -R go-rwx /home/developer/.ssh && \
+        /bin/chmod go+r /home/developer/.ssh/* && \
+        /bin/chmod go-rwx /home/developer/.ssh/id_rsa
+
+# Make the databases (first start the maria server - which can take up to 5 seconds)
 RUN     (/usr/bin/mysqld_safe &) && sleep 5 && \
         mysql -uroot -e "CREATE DATABASE project; GRANT ALL ON project.*  TO project@localhost IDENTIFIED BY 'project';"

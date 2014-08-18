@@ -18,8 +18,15 @@ wwwserver_settings_030_help()
   echo "
 LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from the wwwservercnpm library
 
-- explain settings for wwwserver-cnpm builds
+- explain the library
 
+- explain the library_load call
+
+- explain settings for wwwserver-cnpm builds
+  - explain when you need to use the required_builds (or why you might want to)
+  - explain the developer user
+  - explain ssh settings
+  - explain the mount
 "
 }
 
@@ -45,6 +52,11 @@ library_load \"wwwservercnpm\"
 ###
 # Docker image configurations
 #
+# @NOTE many of these settings overload above settings with new 
+#   values that work when using builds from the wwwserver library
+#   You should choose values that work for you, either keeping
+#   these new values or removing them and using the classic values
+#
 
 # Project build images
 #
@@ -57,6 +69,9 @@ library_load \"wwwservercnpm\"
 ###
 # Docker Container configurations
 #
+
+# User used inside the containers, for shell and ssh 
+machine_username=\"developer\"
 
 # OS hostname used inside the container (which would impact things like avahi)
 machine_hostname=\"\${project_name}\"
@@ -75,10 +90,7 @@ machine_shell=\"/bin/zsh\"
 # arguments for docker run that should always be included when starting a shell: docker help run
 # @NOTE you should probably take a look at docker run to learn more
 # @NOTE our builds have a developer user created, and a home directory created
-machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
-
-# Which user to try to use for connecting/ssh
-project_containeruser=\"developer\"
+machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} --user=\${machine_username}\"
 
 ###
 # Mount list:
@@ -88,8 +100,7 @@ project_containeruser=\"developer\"
 #
 
 # SSH
-# Password based ssh is not a good option due to ...  some kind of failure on my part.
-# Consider mounting an authorized keys file along with other .ssh credentials
-settings_mount_addmount \"\${path_userhome}/.ssh:/home/developer/.ssh-host\"
+# @NOTE this lets your container used do ssh like the host user (selinux may block this on the host)
+settings_mount_addmount \"\${path_userhome}/.ssh:/home/\${machine_username}/.ssh-host\"
 "
 }

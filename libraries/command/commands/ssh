@@ -29,7 +29,7 @@ SSH into a container
 ssh_execute()
 {
   local container="${project_container}"
-  local user="${project_containeruser:-root}"
+  local user="${machine_username:-root}"
 
   local flags=""
   while [ $# -gt 0 ]
