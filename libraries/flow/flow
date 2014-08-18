@@ -9,11 +9,11 @@ flows_getflows()
   local flow_path=""
   local flow=""
   local allpaths="`libraries_list_subpath \"hooks/flow\"`"
-  for flow_path in ${allpaths}; do
+  echo "`for flow_path in ${allpaths}; do
     for flow in ${flow_path}/*; do
-      echo "${flow}"
+      echo "${flow##*/}"
     done
-  done
+  done | sort -u`"
 }
 
 # determing if a flow exists
@@ -21,13 +21,12 @@ flow_exists()
 {
   local flow="$1"
 
-  case " `flows_getflows` " in
-    *" ${flow}:"*)
-      return 0
-    ;;
+  local allpaths="`libraries_list_subpath \"hooks/flow\"`"
+  for flow_path in ${allpaths}; do
+   if [ -d "${flow_path}/$flow" ]; then
+    return 0
+   fi
+  done
 
-    *)
-      return 1
-    ;;
-  esac
+  return 1
 }

@@ -115,7 +115,7 @@ if [ "$help" == "yes" ]; then
   fi
 
   # execute any existing pre hooks
-  debug --level 7 --topic "WORKFLOW" "Running flow:help hooks => help_execute --topic \"${topic}\" ${WORKFLOW} $@"
+  debug --level 2 --topic "WORKFLOW" "Running flow:help hooks => help_execute --topic \"${topic}\" ${WORKFLOW} $@"
   help_execute --topic "${topic}" ${WORKFLOW} $@
   exit $?
 
