@@ -47,7 +47,7 @@ wwwserver_settings_030_execute()
 ##
 # Load the wwwserver library
 #
-library_load \"wwwservercnpm\"
+library_include \"wwwservercnpm\"
 
 ###
 # Docker image configurations
@@ -100,7 +100,7 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} 
 #
 
 # SSH
-# @NOTE this lets your container used do ssh like the host user (selinux may block this on the host)
+# @NOTE this lets your container user do ssh like the host user (selinux may block this on the host)
 settings_mount_addmount \"\${path_userhome}/.ssh:/home/\${machine_username}/.ssh-host\"
 "
 }

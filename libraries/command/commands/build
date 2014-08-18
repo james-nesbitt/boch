@@ -3,24 +3,10 @@
 # COMMAND: Build a new image[:version] for a project
 #
 
-builds_addpath()
-{
-  list_add "path_builds" "${1}"
-}
 builds_getpath()
 {
-  list_get "path_builds"
+  echo "`libraries_list_subpath \"builds\"`"
 }
-
-# path to a core folder that contains various docker image builds
-builds_addpath "${path_manage}/builds"
-# check any libraries already loaded for new builds
-for library in `libraries_getlibraries`; do
-  library="${library##*:}/builds"
-  if [ -d "${library}" ]; then
-    builds_addpath "${path_data}/builds"
-  fi
-done
 
 # command help function
 build_help()
