@@ -48,7 +48,7 @@ help_topic_help()
   do
     case "$1" in
       -t|--topic)
-    # if an string was passed, take it as the help topics (a list)
+    # if a string was passed, take it as the help topics (a list)
     topic=$2
     shift
     ;;

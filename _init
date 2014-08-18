@@ -47,9 +47,6 @@ source ${path_manage}/_libraries
 
 debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES"
 
-# default library path
-libraries_addpath "${path_manage}/libraries"
-
 # include utility functions for running hooks
 library_include "hook"
 # include docker functions - bash abstractions for docker operations

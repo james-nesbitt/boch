@@ -3,15 +3,9 @@
 # Library handling
 #
 
-libraries_addpath()
-{
-  list_add "path_libraries" "${1}"
-}
-libraries_getpath()
-{
-  list_get "path_libraries"
-}
-libraries_addlibrary()
+# register a library with the system
+# @NOTE don't use this, as all it does is rememeber the path
+_libraries_addlibrary()
 {
   list_add "libraries_loaded" "${1}"
 }
@@ -63,13 +57,16 @@ library_include()
 
     *)
 
-      # if a path was sent in, then restrict our library loading to it.
+      # if a path was sent in, then we will try to search for it.
       if [ "${path}" == "" ]; then
 
         # mark success to show that we didn't find the library
         success=-1
-        for path_library in `libraries_getpath`; do
-          path="${path_library}/${library}"
+
+        local path_libraries="`libraries_getlibraries` core:${path_manage}"
+        debug --level 8 --topic "LIBRARY->INCLUDE" "library include! [library:${library}][included_libraries:${path_libraries}]"
+        for path_library in ${path_libraries}; do
+          path="${path_library##*:}/libraries/${library}"
 
           # check the path before trying to load it
           if [ -e ${path} ]; then
@@ -194,7 +191,7 @@ library_load()
   done
 
   if [ -z ${library} ] || [ -z ${path} ]; then
-    debug --level 6 --topic "LIBRARY->LOAD" "no library or specified [library:${library}][path:${path}][core file:${corefile}]"
+    debug --level 6 --topic "LIBRARY->LOAD" "no library or library path specified [library:${library}][path:${path}][core file:${corefile}]"
     return 1
   fi
   if [ -z "${corefile}" ]; then
@@ -231,61 +228,45 @@ library_load()
 
       if [ -f ${root_path} ] && [ -x ${root_path} ]; then
 
-        # add library
-        libraries_addlibrary "${library}:${path}"
+        # register the library as a path
+        _libraries_addlibrary "${library}:${path}"
 
-        _libraries_hooks_exists
-        if [ $? -eq 0 ]; then
-          debug --level 9 --topic "LIBRARY->LOAD" "executing library pre hooks [library:${library}][path:${path}]"
-          hooks_execute "library/load" --state "pre" --library ${library} --path ${path} $@
-        fi
+        # run pre hooks
+        _libraries_hooks_execute "library/load" --state "pre" --library ${library} --path ${path} $@
 
         debug --level 8 --topic "LIBRARY->LOAD" "Including library root.  Handing off to _include_source ==> _include_source \"${root_path}\" $@ "
+
         _include_source "${root_path}" $@
+        local success=$?
 
-        if [ $? -eq 0 ]; then
-          _libraries_hooks_exists
-          if [ $? -eq 0 ]; then
-            hooks_execute "library/load" --state "post" --library ${library} --path ${path} $@
-          fi
-
-          # if a library has a libraries folder, add it to the list.  This could be done as a hook
-          # (as it is done for hooks, builds, commands) but I didn't know where to put it.
-          local path_librarylibraries="${path}/libraries"
-          if [ -d "${path_librarylibraries}" ]; then
-            libraries_addpath ${path_librarylibraries}
-          fi
+        if [ $success -eq 0 ] || [ $success -eq 255 ]; then
+          # run post hooks
+          _libraries_hooks_execute "library/load" --state "post" --library ${library} --path ${path} $@
 
           debug --level 6 --topic "LIBRARY->LOAD" "library loaded [library:${library}][path:${path}]"
           return 0
         else
-          debug --level 6 --topic "LIBRARY->LOAD" "library load failed  [library:{$library}][path:${path}]"
-
-          _libraries_hooks_exists
-          if [ $? -eq 0 ]; then
-            hooks_execute "library/load" --state "fail" --library ${library} --path ${path} $@
-          fi
+          debug --level 5 --topic "LIBRARY->LOAD" "library load failed  [library:{$library}][path:${path}]"
+          # run fail hooks
+          _libraries_hooks_execute "library/load" --state "fail" --library ${library} --path ${path} $@
           return 1
         fi
 
       else
-        debug --level 8 --topic "LIBRARY->LOAD" "library root handler does not exist or is not executable for \"${root_path}\""
+        debug --level 5 --topic "LIBRARY->LOAD" "library root handler does not exist or is not executable for \"${root_path}\""
         return 1
       fi
     ;;
   esac
 }
 
-# has hooks been loaded yet?
-_libraries_hooks_exist=1
-_libraries_hooks_exists()
+# this is a safe hooks executor, for handling cases where the hooks library has not been loaded yet.
+_libraries_hooks_execute()
 {
-  if [ $_libraries_hooks_exist -eq 1 ]; then
-    declare -f -F hooks_execute > /dev/null
-return $?
-    _libraries_hooks_exist=$?
+  declare -f -F hooks_execute > /dev/null
+  if [ $? -eq 0 ]; then
+    hooks_execute $@
   fi
-  return $_libraries_hooks_exist
 }
 
 library_execute()
@@ -344,31 +325,44 @@ library_execute()
       debug --level 8 --topic "LIBRARY->EXECUTE" "Library execute succeeded [library:${library}][component:${component}][action:${action}]."
 
     else
-      debug --level 6 --topic "LIBRARY->EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Command method returned an error"
+      debug --level 5 --topic "LIBRARY->EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Command method returned an error"
     fi
     return $sucess
 
   else
-    debug --level 6 --topic "LIBRARY->EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Could not find library or component"
+    debug --level 5 --topic "LIBRARY->EXECUTE" "Command execution failed for library [library:${library}][component:${component}][action:${action}].  Could not find library or component"
     return 1
   fi
+}
+
+# return list of paths to libraries containing a folder/subpath
+# @NOTE return paths are to the subfolder
+libraries_list_subpath()
+{
+  local subpath="$1"
+
+  local library_path=""
+  local path=""
+  for library_path in `libraries_getlibraries`; do
+    path="${library_path##*:}/${subpath}"
+    if [ -d "${path}" ]; then
+      echo "${path}"
+    fi
+  done
 }
 
 # list all existing components of a type
 libraries_list_components()
 {
   local subpath="$1"
+
+  local components_path=""
   local component_path=""
-  local library_path=""
-  local path=""
-  for library_path in `libraries_getlibraries`; do
-    path="${library_path##*:}/${subpath}"
-    if [ -d "${path}" ]; then
-      for component_path in ${path}/*; do
-        if [ -d "${component_path}" ] || [ -x "${component_path}" ]; then
-          echo "${component_path##*/}:${component_path}"
-        fi
-      done
-    fi
+  for components_path in `libraries_list_subpath $subpath`; do
+    for component_path in ${components_path}/*; do
+      if [ -d "${component_path}" ] || [ -x "${component_path}" ]; then
+        echo "${component_path##*/}:${component_path}"
+      fi
+    done
   done
 }

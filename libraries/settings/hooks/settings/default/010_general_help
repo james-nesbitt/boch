@@ -29,7 +29,7 @@ hook_settings_default_010_execute()
 #  - \${path_manage} : path to the folder that contains the all of these tools for managing docker
 #  - \${path_project} : root folder for your project (actually just one up from your manage path)
 #        (this is often not used for anything other than the root of other default variables)
-#  - \${path_user} : user home
+#  - \${path_userhome} : user home
 #        (also not really used for anything yet)
 #
 # @NOTE you could try changing the above paths in your settings file, but the results are not predictable
@@ -49,6 +49,7 @@ hook_settings_default_010_execute()
 #
 #path_data="${path_data}"
 
+####
 # Log file
 #
 # path to the log file
@@ -56,19 +57,8 @@ hook_settings_default_010_execute()
 #
 #path_log="${path_log}"
 
-# Build paths
-#
-# path to Dockerfile builds for the project
-#
-# There are builds in the manage system, but you can put custom ones
-# into your project path as well.  These become available with the
-# build command.
-#
-#${path_builds}
-
-# Libraries path
-#
-# path list for possible locations for library tools
+####
+# Load Libraries
 #
 # Libraries are function sets that can be included with
 # library_include  and have methods executed using
@@ -82,41 +72,10 @@ hook_settings_default_010_execute()
 #
 # @NOTE your custom project folder is treated as a library, so
 #   it gets all of the features of a library.  It can also contain
-#   it's own libraries
+#   it's own libraries.  The best place to put new libraries
+#   is in the libraries sub-folder of your project.
 #
-# Already added by the system : libraries_addpath \"\${path_data}/libraries\"
-
-# Commands path
-#
-# You can add custom commands to the system by putting in a folder
-# and adding that folder to the path_commands var
-#
-# @NOTE for more information read the README in ${path_manage}/libraries/command
-# @NOTE commands are themselves libraries, and behave as libraries do
-#
-# Already added by the system : commands_addpath \"\${path_data}/commands}\"
-
-# hooks path
-#
-# @NOTE hooks paths contain script files, which if executable, are executed
-#   as events on core actions.  Read the ${path_hooks}/README.md for more info
-# @NOTE we recommend that you add your own hooks folder to this path, so that you
-#   can add project specific hooks to the system
-#
-# Already added by the system : hooks_addpath \"\${path_projecthooks}\"
-
-# you can use this command to create any missing hook paths
-# ./hooks
-# ./hooks/commands/pre         <-- hooks run before any \"./command\" execution
-# ./hooks/commands/build/pre   <-- hooks run before any \"./command build\"
-# ./hooks/flow/init            <-- hooks run as actions for the \"init flow\"
-# ./hooks/settings             <-- settings hooks
-# ./hooks/settings/pre         <-- early settings hooks
-# ./hooks/settings/post        <-- late settings hooks
-# ./hooks/docker/run           <-- run after docker run is executed
-# ./hooks/library/load/post     <-- run after a library is loaded
-
-# @NOTE HOOK files must be executable, or they are ignored!!!!
+#library_include "library_name"
 
 "
 }

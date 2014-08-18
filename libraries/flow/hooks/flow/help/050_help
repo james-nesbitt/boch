@@ -154,7 +154,7 @@ hook_flow_help_050_help_listflows()
   local flow=""
   echo "List all flows found in the system:"
   for flow in `flows_getflows`; do
-    echo "-->${flow}"
+    echo "-->${flow##*/}"
   done
 }
 

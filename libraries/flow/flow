@@ -3,32 +3,17 @@
 # Flow Library
 #
 
-flows_addflow()
-{
-  list_add "flows_list" $1
-}
+# list all flows in the system
 flows_getflows()
 {
-  list_get "flows_list"
-}
-
-# check any libraries already loaded for new builds
-for path in `hooks_getpath`; do
-  if [ -d "${path}/flow" ]; then
-    for path in ${path}/flow/*; do
-      flows_addflow "${path##*/}"
-    done
-  fi
-done
-
-# list all flows
-# @NOTE this works by checking all hook paths for flow folders
-flows_list()
-{
+  local flow_path=""
   local flow=""
-  for flow in `flows_getflows`; do
-    echo "${flow%%:*}"
-  done
+  local allpaths="`libraries_list_subpath \"hooks/flow\"`"
+  echo "`for flow_path in ${allpaths}; do
+    for flow in ${flow_path}/*; do
+      echo "${flow##*/}"
+    done
+  done | sort -u`"
 }
 
 # determing if a flow exists
@@ -36,13 +21,12 @@ flow_exists()
 {
   local flow="$1"
 
-  case " `flows_getflows` " in
-    *" ${flow}:"*)
-      return 0
-    ;;
+  local allpaths="`libraries_list_subpath \"hooks/flow\"`"
+  for flow_path in ${allpaths}; do
+   if [ -d "${flow_path}/$flow" ]; then
+    return 0
+   fi
+  done
 
-    *)
-      return 1
-    ;;
-  esac
+  return 1
 }
