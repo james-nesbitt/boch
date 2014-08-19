@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# 060 Add any library commands folder to the commands path list
+#
+
+hook_version=2
+hook_root="command_library_command_library_060"
+
+# description method
+command_library_command_library_060_description()
+{
+  echo "If a library has a commands folder, add it to the commands path list"
+}
+
+# help method
+command_library_command_library_060_help()
+{
+  echo "
+Add an commands folder from a library to the commands list
+
+"
+}
+
+# execute method
+command_library_command_library_060_execute()
+{
+
+  local library=""
+  local path=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--library)
+	library=$2
+	shift
+	;;
+      -p|--path)
+	path=$2
+	shift
+	;;
+      *)
+	  break;; # terminate while loop
+    esac
+    shift
+  done
+
+  path="${path}/commands"
+
+  debug --level 9 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added; checking for commands to the commands paths [library:${library}][path:${path}]"
+  if [ -d ${path} ]; then
+    commands_addpath "${path}"
+    debug --level 6 --topic "HOOKS->COMMAND->LIBRARY->LOAD:060" "New library added has commands, adding those commands to the commands paths [library:${library}][path:${path}][newpaths:`commands_getpath`]"
+  fi
+
+}

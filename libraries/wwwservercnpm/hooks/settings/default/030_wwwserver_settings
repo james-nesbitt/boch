@@ -33,8 +33,7 @@ LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from 
 # execute method
 wwwserver_settings_030_execute()
 {
-  echo "
-#
+  echo "#
 # Use the distributed wwwservercnpm builds and functionality
 #
 # Using this library assumes that you are using one of the www
@@ -77,7 +76,7 @@ machine_username=\"developer\"
 machine_hostname=\"\${project_name}\"
 
 # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
-# @NOTE these are arguments for \"docker run\". Check that docker command to learn more
+# @NOTE these are arguments for \"docker run\". Check the docker command to learn more
 machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 
 ###
