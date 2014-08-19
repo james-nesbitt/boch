@@ -2,28 +2,41 @@
 #
 # Shared help system
 #
-# @NOTE the help system is entirely hook based, using a hook state of "help"
-#
 
+###
+# maintain a list of hook scopes for help, so that
+#
+# add to the list
+help_scope_add()
+{
+  list_add "help_scope" $@
+}
+# retrieve the help topic list
+help_scope_get()
+{
+  list_get "help_scope"
+}
+
+# primary help execute method
+#
+# @NOTE Try to use this if you want to get help on a topic
+#
 help_execute()
 {
-
   # this function should respond to bad usage
-  if [ "$1" == "" ]; then
-
-    help_notopic_help $@
-
+  if [ -z "$1" ]; then
+    help_notopic_help
+    return $?
   else
-
     help_topic_help $@
-
+    return $?
   fi
 }
 
 # this is not likely to ever happen, unless it was called incorrectly
 help_notopic_help()
 {
-echo "
+  echo "
 GENERIC HELP MESSAGE FOR NO TOPIC
 
 - explain how the help system works
@@ -33,52 +46,35 @@ GENERIC HELP MESSAGE FOR NO TOPIC
 
 @NOTE this is likely being shown because of a developer error
 "
-
 }
 
 help_topic_help()
 {
+  local topic="$1"
+  shift
 
-  # default topic stuff
-  local topic="help"
+  debug --level 5 --topic "HELP" "Running help hooks => hooks_execute \"help/${topic}\" $@"
+  hooks_execute "help/${topic}" $@
+  return $?
+}
 
-  # hook flags
-  local flags=""
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -t|--topic)
-    # if a string was passed, take it as the help topics (a list)
-    topic=$2
-    shift
-    ;;
-
-      *)
-    break;; # terminate while loop
-    esac
-    shift
+# provide the list help for all active help scopes
+help_topic_list()
+{
+  local scope=""
+  local topic=""
+  for scope in $@; do
+    if [ "${scope}" != "${scope%:*}" ]; then
+      topic="${scope##*:}"
+      scope="${scope%:*}"
+    fi
+    debug --level 7 --topic "HELP->TOPICLIST" "Running list action on topic help hooks [scope:${scope}][topic:${topic}]"
+    hooks_execute "help/${scope}" --action "list" ${topic}
   done
+}
 
-  # separate the topic from the subtopic
-  local subtopic=${topic#*:}
-  topic=${topic/:${subtopic}/}
-
-  case "${topic}" in
-    *)
-      # for most scenarios, the subtopic is a hook
-      # but it is most likely something like the hook format
-      # Here we assume that the topic has help hooks that
-      # receive a --topic argument
-
-      # create a help hook from the help subtopic
-      if [ "$subtopic" != "" ]; then
-        flags="${flags} --topic \"${subtopic}\""
-      fi
-
-      # execute any existing pre hooks
-      debug --level 7 --topic "HELP" "Running help hooks => hooks_execute \"${topic}\" --state \"help\" ${flags} $@"
-      hooks_execute ${topic} --state "help" ${flags} $@
-      return $?
-  esac
-
+# list all the topics that have been added to scope
+help_scope_list()
+{
+  help_topic_list `help_scope_get`
 }

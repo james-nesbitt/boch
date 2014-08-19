@@ -26,7 +26,7 @@ This hook gives general help text for the init flow
 # execute method
 hook_flow_init_help_050_execute()
 {
-  echo "INIT FLOW
+  echo "FLOW: INIT
 
 The init flow is flow designed to initialize a project root
 to prepare it for use with the command tools, and further flows

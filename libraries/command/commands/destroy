@@ -5,8 +5,8 @@
 # @NOTE this command is dependent on the build command
 #
 
+# load the build command
 command_include "build"
-
 
 # command help function
 destroy_help()

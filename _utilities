@@ -171,6 +171,45 @@ fi
 # function
 #
 
+# try to shorten paths by replacing library paths
+path_shorten()
+{
+  local path="${1}"
+
+  local library=""
+  for library in `libraries_getlibraries`; do
+    case "${path}" in
+      *"${library##*:}"*)
+        echo "${library%:*}~${path#${library##*:}/hooks/}"
+        return 0
+        ;;
+    esac
+  done
+
+  echo "${path}"
+  return 0
+}
+# reverse the path_shorten process
+path_expand()
+{
+  local path=${1};
+
+  if [ "${path}" != "${path#*~}" ]; then
+    local library=""
+    for library in `libraries_getlibraries`; do
+      case "${path}" in
+        *"${library%:*}~"*)
+          library_include "${library%:*}"
+          echo "${library##*:}/${path#${library%:*}~}"
+          return 0
+          ;;
+      esac
+    done
+  fi
+
+  echo "${path}"
+}
+
 #
 # Include a file using source
 #
@@ -179,7 +218,7 @@ fi
 #
 _include_source()
 {
-  local target=$1
+  local target="`path_expand \"$1\"`"
   shift
 
   if [ -f ${target} ]; then
