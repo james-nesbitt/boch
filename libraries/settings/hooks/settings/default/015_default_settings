@@ -67,7 +67,7 @@ project_imageversion=\"${project_imageversion:-"latest"}\"
 # Docker Container configurations
 #
 
-# what username gets used inside the machine (for ssh mainly)
+# what username gets used inside the machine (for ssh and shell access mainly)
 machine_username=\"${machine_username:-root}\"
 
 # OS hostname used inside the container (which would impact things like avahi)
@@ -85,13 +85,11 @@ machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 # container.  It is a good plan for now but will be dropped in the future.
 #
 # @NOTE Running a shell creates a new container, but does not give access to an existing container
-#
-# @NOTE if you are using our builds, then zsh is available
-#machine_shell=\"/bin/zsh\"
+#machine_shell=\"/bin/bash\"
 # arguments for docker run that should always be included when starting a shell: docker help run
 # @NOTE you should probably take a look at docker run to learn more
-# @NOTE our builds have a developer user created
-#machine_shellrunargs=\"--publish-all=true --env HOME=/home/developer --user=developer\"
+# You may want to add TTY environment variables such as --env HOME=/root
+#machine_shellrunargs=\"--publish-all=true --user=${machine_username}\"
 
 ###
 # Mount list:

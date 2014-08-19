@@ -106,7 +106,7 @@ library_include()
       *" ${library}:${component} "*)
           # already included
 
-          debug --level 3 --topic "LIBRARY->INCLUDE->COMPONENT" "component already included [library:${library}][component:${component}][[included_library_components:`libraries_getlibraries`]"
+          debug --level 3 --topic "LIBRARY->INCLUDE->COMPONENT" "component already included! [library:${library}][component:${component}][[included_library_components:`libraries_getlibraries`]"
           success=0
         ;;
 
@@ -201,7 +201,7 @@ library_load()
   # check if already attempted to load this library (if not mark it as attempted)
   case " `libraries_getlibraries`" in
     *" ${library}:"*)
-        debug --level 6 --topic "LIBRARY->LOAD" "library already include [library:${library}][included_libraries:`libraries_getlibraries`]"
+        debug --level 6 --topic "LIBRARY->LOAD" "library already included [library:${library}][included_libraries:`libraries_getlibraries`]"
         return 0
       ;;
 

@@ -35,12 +35,12 @@ hook_init_010_execute()
 {
 
   # path to this management system
-  path="${path_customsettings:-"$path_data/settings"}"
+  local path="${path_customsettings:-"${path_data}/settings"}"
 
   debug --level 5 --topic "HOOK->COMMAND->INIT->010" "Populating default settings file [${path}]"
 
 
-  if [ ! -f ${path} ]; then
+  if [ ! -f "${path}" ]; then
 
     # @NOTE This loop is here, because path_customsettings is technically
     # a space delimited list.  we will assume that the first item in the
@@ -74,7 +74,6 @@ hook_init_010_execute()
     hook_root=""
 
     hook_include ${hook} $@
-
 
     if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
 

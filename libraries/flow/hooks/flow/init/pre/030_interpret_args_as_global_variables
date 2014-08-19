@@ -50,7 +50,7 @@ hook_flow_init_030_execute()
   # used only for the init flow, to tell hooks that it is ok to build things
   build_execute_now=-1
 
-  project_buildtemplate="${project_buildtemplate:-template}"
+  project_buildtemplate="${project_buildtemplate:-}"
 
   local flags=""
   while [ $# -gt 0 ]

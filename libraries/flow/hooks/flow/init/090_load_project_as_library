@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# Configurable settings for the project
+#
+
+hook_version=2
+hook_root="hook_flow_init_090"
+
+# description method
+hook_flow_init_090_description()
+{
+  echo "Load the custom project/data folder as a library"
+}
+
+# help method
+hook_flow_init_090_help()
+{
+  echo "
+hook->settings->040 : include a project as a library
+
+This hooks attempts to load the custom data/project folder as a library,
+to include any settings from the folder. This needs to be done so that
+any post hooks have access to the project settings, if we have only just
+now created the project folder.
+
+@NOTE there is a chance that elements created in an existing project
+  folder are not loaded, but most libraries should be late checking
+  libraries for their requirements.
+"
+}
+
+# execute method
+hook_flow_init_090_execute()
+{
+
+  # library_load checks to see if a library is already loaded, so no worries about
+  # reloading an existing project folder.
+
+  library_load --library "project" --path "${path_data}" --core "settings"
+
+  if [ $? -gt 0 ]; then
+    debug --level 3 --topic "HOOK->FLOW->INIT->090" "No custom data/project folder exists"
+  else
+    debug --level 5 --topic "HOOK->FLOW->INIT->090" "Loaded Data/Project folder as a library [path:${path_data}]"
+  fi
+
+  # don't fail, even if we had problems.  This shouldn't break anything
+  return 0
+}

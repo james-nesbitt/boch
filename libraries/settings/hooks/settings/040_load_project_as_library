@@ -39,10 +39,10 @@ hook_settings_040_execute()
 
   library_load --library "project" --path "${path_data}" --core "settings"
 
-  if [ $success -gt 0 ]; then
+  if [ $? -gt 0 ]; then
     debug --level 3 --topic "HOOK->SETTINGS->040" "No custom data/project folder exists"
   else
-    debug --level 8 --topic "HOOK->SETTINGS->040" "Loaded Data/Project folder as a library [path:$path]"
+    debug --level 8 --topic "HOOK->SETTINGS->040" "Loaded Data/Project folder as a library [path:${path_data}]"
   fi
 
   # don't fail, even if we had problems.  This shouldn't break anything

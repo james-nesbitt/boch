@@ -23,6 +23,7 @@ settings_mount_getmounts()
         mounts="$mounts --volume=${mount}"
       done
       echo "${mounts}"
+      ;;
   esac
 }
 
