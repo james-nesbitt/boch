@@ -67,5 +67,13 @@ resources.
 Typical workflow for using this flow, is to run it once to get a project
 folder, and then run it again after making changes to the settings in the
 project folder.
+
+@NOTE I suggest that you run the command like this:
+  1. Give yourself a project folder like this:
+       $/> ./flow init --name {a_project_name} --wwwserver
+  2. Then make changes to /project/settings, /project/builds/{name}/Dockerfile, and add your
+     pub key to /project/builds/{name}/dev_dotssh/authorized_keys
+  3. Then then run the flow again like this:
+       $/> ./flow init --buildnow
 "
 }
