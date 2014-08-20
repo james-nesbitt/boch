@@ -43,7 +43,7 @@ hook_help_command_050_execute()
     hook_help_command_050_help_generalhelp $@
 
     help_scope_add "command"
-    help_topic_list
+    help_scope_list
 
   else
 
@@ -60,7 +60,6 @@ hook_help_command_050_execute()
       hook_help_command_050_help_commandhelp ${command} $@
 
       help_scope_add "command:${command}"
-      help_scope_add "command"
       help_scope_list
 
     fi
@@ -69,13 +68,19 @@ hook_help_command_050_execute()
 }
 
 # method to list all command topics in scope
-hook_command_help_050_list()
+hook_help_command_050_list()
 {
   local scope=""
   if [ -n "${1}" ]; then
     scope="command/${1}"
+
+    echo "HOOKS THAT ACT ON $1 COMMAND OPERATIONS:
+"
   else
     scope="command"
+
+    echo "HOOKS THAT ACT ON ALL COMMAND OPERATIONS:
+"
   fi
 
   # list all hooks that act on this scope

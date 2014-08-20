@@ -36,13 +36,13 @@ hook_help_flow_050_execute()
   flow=$1
   shift
 
-  if [ -z "$flow" ]; then
+  if [ -z "${flow}" ]; then
 
     hook_help_flow_050_help_generalhelp $@
 
   else
 
-    if flow_exists "$flow"; then
+    if flow_exists "${flow}"; then
 
       hook_help_flow_050_help_flowhelp "${flow}" $@
 
@@ -66,6 +66,9 @@ hook_help_flow_050_list()
   local scope=""
   if [ -n "${1}" ]; then
     scope="flow/${1}"
+
+    echo "HOOKS THAT OPERATE ON THE ${1} FLOW:
+"
   else
     scope="flow"
   fi

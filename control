@@ -20,7 +20,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     -h|--help)
       # if an string with a colon (topic separator) was passed, take it as the help topic
-      if [ -n "$2" ] && [ "$2" != "${2/[a-z]*:/}" ]; then
+      if [ -n "$2" ] && [ "$2" != "${2##*:}" ]; then
         helptopic=${2}
         shift
       fi
@@ -101,14 +101,14 @@ fi
 
 if [ "$help" != "no" ]; then
 
+  # run the help handler for commands
+  debug --level 5 --topic "COMMAND" "Running flow:help hooks => help_execute \"command\" ${COMMAND} $@"
+  help_execute "command" ${COMMAND} $@
+
   if [ -n "${helptopic}" ]; then
     # run the help handler for whatever help topic was passed in
     debug --level 5 --topic "COMMAND" "Running help hooks for help topic =>help_execute \"${helptopic%:*}\" \"${helptopic##*:}\" $@"
     help_execute "${helptopic%:*}" "${helptopic##*:}" $@
-  else
-    # run the help handler for commands
-    debug --level 5 --topic "COMMAND" "Running flow:help hooks => help_execute \"command\" ${COMMAND} $@"
-    help_execute "command" ${COMMAND} $@
   fi
 
 else

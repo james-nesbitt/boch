@@ -39,6 +39,8 @@ build_find()
 # command help function
 build_help()
 {
+  # this command uses these docker scopes, so help might be needed for them
+  help_scope_add "docker:docker_build"
 
   echo "
 Build a project related docker image.

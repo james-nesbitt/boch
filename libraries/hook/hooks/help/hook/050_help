@@ -38,11 +38,9 @@ hook_help_hook_050_execute()
 
   else
 
-    debug --level 6 --topic "HOOK->HOOK->HELP-050" "Running help for hook [hook:`hook_label \"${hook}\"`][path:${hook}]"
+    debug --level 6 --topic "HOOK->HOOK->HELP-050" "Running help for hook [hook:`hook_label \"${hook}\"`][path:${hook}][fullpath:`path_expand \"${hook}\"`]"
     if [ -f "`path_expand \"${hook}\"`" ]; then
-      echo "
-HELP FOR HOOK : ${hook}"
-      hook_execute "${hook}" --action "help" $@
+      hook_help_hook_050_help_hook "${hook}"
     else
       hook_help_hook_050_help_unknownhook "${hook}"
     fi
@@ -97,22 +95,59 @@ hook_help_hook_050_list()
 hook_help_hook_050_help_generalhelp()
 {
   echo "
-hook->help->hook->050 : GENERIC HELP MESSAGE GOES HERE
+hook->help->hook->050 : Getting help information about a hook
 
-- explain the help system
-- explain the hook system
+This message is a part of the general help system, and how it
+can be used to get help about hooks.
 
-- give examples for showing help for a hook      -> ./command|flow --help {hook:/hook}
+Hooks in the system are individual scripts that can be dropped
+in around the system, and respond to events.
+
+The hooks system has it's own help provider, which can be used
+to get more information about the hook system itself.  Every hook
+has a help method. in which it can respond to requests for
+more help about it's implementation.
+
+Both $/>./control and $/>flow allow the passing of a specific
+hook help request to get information about a specific request
+
+For example, with a command, when you execute a generic help
+request, you will get some help information about the command
+following by a list of hooks that operate on the command scope.
+
+$/> ./control --help command
+
+HOOKS FOR command THAT ACTIVATE IN STATE post
+--> 050_command_specific_post : HOOK->Command:post:specific: Run any command specific POST hooks (hook:command~command/post/050_command_specific_post)
+
+You can get help for a particular hook by adding the hook path
+to the --help command like this:
+
+$/> ./control --help \"hook:command~command/post/050_command_specific_post\" command
+
 "
+}
+# Output help for a hook
+hook_help_hook_050_help_hook()
+{
+  local hook="$1"
+  shift
+
+  echo "
+HELP FOR HOOK: ${hook}
+"
+  hook_execute "${hook}" --action "help" $@
 }
 # output message if help is requested for an unknow command
 hook_help_hook_050_help_unknownhook()
 {
   echo "
-hook->help->hook->050 : UNKNOWN hook HELP MESSAGE GOES HERE [hook:$1]
+HELP REQUEST FOR UNKNOWN HOOK $1
 
-you asked for help information about a hook in the system that cannot be found."
-  # Include general help
-  hook_help_hook_050_help_generalhelp
+you asked for help information about a hook in the system that cannot be found.
+
+Perhaps the hook is not in scope for this help process, or you mistyped it
+Try to copy the hook name from the hook list in the generic help.
+"
 }
 

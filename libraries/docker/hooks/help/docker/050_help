@@ -4,18 +4,18 @@
 #
 
 hook_version="2"
-hook_root="hook_command_help_050"
+hook_root="hook_help_docker_050"
 
 show_global_hooks="no"
 
 # description method
-hook_command_help_050_description()
+hook_help_docker_050_description()
 {
   echo "Main help handler for the command tool"
 }
 
 # help method
-hook_command_help_050_help()
+hook_help_docker_050_help()
 {
   echo "
 hook->help: Main help handler
@@ -30,121 +30,57 @@ $/> ./command --help
 
 "
 }
-# description method
-hook_command_help_050_execute()
+# execute method
+hook_help_docker_050_execute()
 {
-  # help functions have some flags
-  local hook=""
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -t|--topic)
-        topic=$2
-        shift
-        ;;
+  if [ -n "${1}" ]; then
+
+    case "${1}" in
+      "docker_build")
+        echo "
+HELP FOR docker_build
+
+@TODO Make docs for docker functions
+"
+      ;;
       *)
-          break;; # terminate while loop
+        echo "
+hook->command/help 050 : UNKNOWN scope for docker HELP MESSAGE GOES HERE [scope:$1]
+
+- explain that this scope is not known
+
+"
+      ;;
     esac
-    shift
-  done
-
-  # Command is the first argument
-  command=$1
-  shift
-
-  if [ -z "$command" ]; then
-
-    hook_command_help_050_help_generalhelp $@
 
   else
 
-    debug --level 6 --topic "HOOK->COMMAND->HELP->050" "including command \"${command}\""
-
-    command_include ${command}
-
-    if [ $? -gt 0 ]; then
-
-      debug --level 6 --topic "HOOK->COMMAND->HELP->050" "command not found \"${command}\""
-      hook_command_help_050_help_unknowncommand ${command} $@
-
-    else
-
-      hook_command_help_050_help_commandhelp ${command} $@
-
-      if [ -z "${topic}" ]; then
-        help_topic "${topic}"
-      else
-        help_scope_add "command"
-        help_scope_add "command/${command}"
-
-        help_topic_list
-      fi
-
-    fi
-
-  fi
-}
-
-# generic help message for the command help system
-# @TODO put some usefull material here
-hook_command_help_050_help_generalhelp()
-{
-  echo "
+    echo "
 hook->command/help 050 : GENERIC HELP MESSAGE GOES HERE
 
 - explain the help system
-- explain the hook system
-  - explain that a command is actually run via a hook
-
-- give examples for showing help for a command      -> ./command --help {command}
-- give examples for showing help for a command hook -> ./command --help \"hook:{hook}\" {command}
-"
-
-  hook_command_help_050_help_commandlist
-
-}
-# output message if help is requested for an unknow command
-hook_command_help_050_help_unknowncommand()
-{
-  echo "
-hook->command/help 050 : UNKNOWN command HELP MESSAGE GOES HERE [command:$1]
-
-- explain that his command is not known
+- explain the docker library
+- explain how to include the library and use it's functions
 
 "
-  # Include general help
-  hook_command_help_050_help_generalhelp
-}
-# output message if help was requested for an unkown hook
-hook_command_help_050_help_unknownhook()
-{
-  echo "
-hook->command/help 050 : UNKNOWN command HOOK HELP MESSAGE GOES HERE [command:$1][hook:$2]
 
-- explain that this hooks was not found for this command
-- explain what makes a valid hook
-- explain how to find out what hooks run for a command
-"
-  # include general help
-  hook_command_help_050_help_generalhelp
+  fi
 }
-# List all of the commands
-hook_command_help_050_help_commandlist()
+# list method
+hook_help_docker_050_list()
 {
-  local path
-  echo "
-Known commands
-=============="
-  for path in `commands_list`; do
-    echo "--> ${path}"
-  done
-}
-# output help for a specific command
-hook_command_help_050_help_commandhelp()
-{
-  local command=$1
-  shift
-  debug --level 6 --topic "HOOK->COMMAND->HELP->050" "handing off help to command help hook [command:\"${command}\"]"
-  command_execute ${command} --action "help" $@
-}
+  if [ -n "${1}" ]; then
 
+    case "${1}" in
+      "docker_build")
+        echo "HELP TOPICS IN SCOPE FOR DOCKER:
+--> docker_build : Build a new docker image from a local build (docker:docker_buid)"
+      ;;
+    esac
+
+  else
+
+    echo "LIST OF HELP TOPICS FOR DOCKER SCOPE"
+
+  fi
+}
