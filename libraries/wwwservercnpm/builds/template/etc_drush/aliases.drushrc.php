@@ -32,7 +32,7 @@ $aliases['project'] = array(
   ),
   'path-aliases' => array(
     '%files' => '/app/source/www/sites/default/files',
-    '%dump-dir' => '/app/source/DB',
+    '%dump-dir' => '/tmp',
   ),
   'command-specific' => array(
     'sql-sync' => array(
