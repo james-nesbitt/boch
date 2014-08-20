@@ -21,8 +21,13 @@ $aliases['dev'] = array(
   'uri' => 'project.dev',
   'root' => '/var/www/project.dev',
   'remote-host' => 'project.dev',
-  'remote-user' => 'developer',
-  'path-aliases' => array('%dump-dir' => 'tmp/'),
+  'remote-user' => 'stage',
+  'ssh-options' => '-i /home/developer/.ssh-host/id_rsa',
+  'path-aliases' => array(
+    '%drush' => '/usr/bin/drush',
+    '%files' => 'sites/default/files',
+    '%dump-dir' => '/tmp'
+  ),
   'command-specific' => array(
     'sql-sync' => array(
       'no-cache' => TRUE,
@@ -47,8 +52,13 @@ $aliases['stage'] = array(
   'uri' => 'project.stage',
   'root' => '/var/www/project.stage',
   'remote-host' => 'project.stage',
-  'remote-user' => 'developer',
-  'path-aliases' => array('%dump-dir' => 'tmp/'),
+  'remote-user' => 'stage',
+  'ssh-options' => '-i /home/developer/.ssh-host/id_rsa',
+  'path-aliases' => array(
+    '%drush' => '/usr/bin/drush',
+    '%files' => 'sites/default/files',
+    '%dump-dir' => '/tmp'
+  ),
   'command-specific' => array(
     'sql-sync' => array(
       'no-cache' => TRUE,
@@ -73,8 +83,13 @@ $aliases['prod'] = array(
   'uri' => 'project.prod',
   'root' => '/var/www/project.prod',
   'remote-host' => 'project.prod',
-  'remote-user' => 'developer',
-  'path-aliases' => array('%dump-dir' => 'tmp/'),
+  'remote-user' => 'prod',
+  'ssh-options' => '-i /home/developer/.ssh-host/id_rsa',
+  'path-aliases' => array(
+    '%drush' => '/usr/bin/drush',
+    '%files' => 'sites/default/files',
+    '%dump-dir' => '/tmp'
+  ),
   'command-specific' => array(
     'sql-sync' => array(
       'no-cache' => TRUE,
