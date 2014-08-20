@@ -12,8 +12,12 @@ Goals and bonus things in the project
 3. document the flow system;
 4. explain the hooks system;
 
-== SETTINGS ==
+== HELP ==
 
+1. The help system is usefull, but it is not very legible to new users.  It
+   puts out too much garbage, and doesn't do enough helping.
+   It had great abstraction, but could use an implementation refactor in
+   control and flow implementations.
 
 == LIBRARIES ==
 
@@ -26,10 +30,15 @@ The following are ideas for libraries that should be started
 
 == COMMANDS ==
 
+1. Command output for success and fail should be written.  Right now it can
+   be completely silent.  This has happenned because it wasn't certain if
+   commands were going to become complete abstractions, which would not
+   want output.
+
 The following commands would be a good idea:
 
-1. export/import : docker has this functionality, why don't we?
-2. source copy : branching source will be usefull for some future flow 
+2. export/import : docker has this functionality, why don't we?
+3. source copy : branching source will be usefull for some future flow
       concepts, so that different containers are using different source
       folders, and won't conflict
 
