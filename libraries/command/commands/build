@@ -3,28 +3,45 @@
 # COMMAND: Build a new image[:version] for a project
 #
 
-builds_addpath()
-{
-  list_add "path_builds" "${1}"
-}
+# list all the paths that contain builds in the system
 builds_getpath()
 {
-  list_get "path_builds"
+  echo "`libraries_list_subpath \"builds\"`"
+}
+# List all the builds in the system
+builds_list()
+{
+  local builds_path
+  local build_path
+  for builds_path in `builds_getpath`; do
+    for build_path in ${builds_path}/*; do
+      if [ -d ${build_path} ]; then
+        echo ${build_path}
+      fi
+    done
+  done
+}
+# find the path to a particular build
+build_find()
+{
+  local build=$1
+  local path=::
+  for path in `builds_list`; do
+    if [ "${build}" == "${path##*/}" ]; then
+      echo "${path}"
+      return 0
+    fi
+  done
+  return 1
 }
 
-# path to a core folder that contains various docker image builds
-builds_addpath "${path_manage}/builds"
-# check any libraries already loaded for new builds
-for library in `libraries_getlibraries`; do
-  library="${library##*:}/builds"
-  if [ -d "${library}" ]; then
-    builds_addpath "${path_data}/builds"
-  fi
-done
 
 # command help function
 build_help()
 {
+  # this command uses these docker scopes, so help might be needed for them
+  help_scope_add "docker:docker_build"
+
   echo "
 Build a project related docker image.
 
@@ -48,7 +65,7 @@ can easily be built by passing the individual folder names to this command.
 @NOTE the docker_build function uses \"latest\" as the default
   image version/tag.
 "
-  echo "Builds paths used in the system:"
+  echo "Paths in the system that container builds:"
   for build in `builds_getpath`; do
     echo " --> ${build}"
   done
@@ -187,30 +204,4 @@ build_build()
   debug --level 5 --topic "COMMAND->BUILD" "build_build() :: building custom image [ handing off to docker abstraction ] ==> docker_build ${flags} --path ${path}"
   docker_build ${flags} --path "${path}"
   return $?
-}
-
-builds_list()
-{
-  local builds_path
-  local build_path
-  for builds_path in `builds_getpath`; do
-    for build_path in ${builds_path}/*; do
-      if [ -d ${build_path} ]; then
-        echo ${build_path}
-      fi
-    done
-  done
-}
-
-build_find()
-{
-  local build=$1
-  local path=::
-  for path in `builds_list`; do
-    if [ "${build}" == "${path##*/}" ]; then
-      echo "${path}"
-      return 0
-    fi
-  done
-  return 1
 }

@@ -9,7 +9,7 @@ hook_root="hook_flow_status_031"
 # description method
 hook_flow_status_031_description()
 {
-  echo "Simple project status tests"
+  echo "Analyze images used in the project"
 }
 
 # help method

@@ -55,7 +55,9 @@ hooks_execute()
         shift
         ;;
       -s|--state)
-        state="${2}"
+        if [ "$2" != "execute" ]; then
+          state="${2}"
+        fi
         shift
         ;;
       *)
@@ -102,7 +104,9 @@ hooks_list()
   do
     case "$1" in
       -s|--state)
-        hook="${hook}/${2}"
+        if [ "$2" != "execute" ]; then
+          hook="${hook}/${2}"
+        fi
         shift
         ;;
       *)
@@ -135,10 +139,10 @@ hooks_list()
 hook_include()
 {
   debug --level 9 --topic "HOOK->INCLUDE" "Hook include run : $@"
-  local hook=$1
+  local hook="`path_expand \"${1}\"`"
   shift
 
-  if [ -f ${hook} ]; then
+  if [ -f "${hook}" ]; then
 
     debug --level 9 --topic "HOOK->INCLUDE" "Including hook.  Handing off to _include_source [hook:${hook}] ==> _include_source \"${hook}\" $@ "
     _include_source "${hook}" $@
@@ -161,11 +165,12 @@ hook_include()
 # execute a hook method (must be loaded already)
 hook_execute()
 {
-  # hook is the first param
-  local hook="$1"
+  # hook path is the first param
+  local path="$1"
+  local hook="${path##*/}"
   shift
 
-  debug --level 9 --topic "HOOK->EXECUTE" "hook_execute [hook:${hook}]: START"
+  debug --level 9 --topic "HOOK->EXECUTE" "hook_execute [hook:${path}]: START"
 
   # default action
   local action="execute"
@@ -187,42 +192,60 @@ hook_execute()
   hook_version=""
   hook_root=""
 
-  debug --level 8 --topic "HOOK->EXECUTE" "Including and Executing Hook script (source) [hook:$hook][hook_root:${hook_root}][hook_version:${hook_version}][args:$@]"
+  # include hook
+  hook_include ${path}
 
-  # include hook - capture the output, as this may be an older version hook
-  hook_include ${hook}
+  if [ $? -gt 0 ]; then
+    debug --level 6 --topic "HOOK->EXECUTE" "this hook could not be included [hook:${path}]"
+    return 1
+  fi
+
+  debug --level 8 --topic "HOOK->EXECUTE" "Included and Executing Hook script (source) [hook:${hook}][hook_root:${hook_root}][hook_version:${hook_version}][args:$@]"
 
   # if the hook source set a hook_version, then react to the version
-  case "$hook_version" in
-    2)
-      # version 2 hooks have methods named after the actions
-      local hook_function="${hook_root}_${action}"
-      debug --level 8 --topic "HOOK->EXECUTE" "Executing Hook script (source) [hook:${hook##*/}][action:$action][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
-      eval ${hook_function} $@
+  if [ -n "${hook_version}" ]; then
+    case "$hook_version" in
+      2)
+        # version 2 hooks have methods named after the actions
+        local hook_function="${hook_root}_${action}"
+        debug --level 8 --topic "HOOK->EXECUTE" "Executing Hook script (source) [hook:${hook}][action:$action][hook_root:${hook_root}][hook_function:${hook_function}]: ${hook_function} $@"
+        eval ${hook_function} $@
 
-      if [ $? -gt 0 ]; then
-        debug --level 6 --topic "HOOK->EXECUTE" "Hook script return an error [hook:${hook##*/}][hook_function:${hook_function}]: ${hook_function} $@"
-        return 1
-      else
-        debug --level 6 --topic "HOOK->EXECUTE" "Hook script executed [hook:${hook##*/}][hook_function:${hook_function}][path:${hook}]: ${hook_function} $@"
+        if [ $? -gt 0 ]; then
+          debug --level 6 --topic "HOOK->EXECUTE" "Hook script return an error [hook:${hook}][hook_function:${hook_function}]: ${hook_function} $@"
+          return 1
+        else
+          debug --level 6 --topic "HOOK->EXECUTE" "Hook script executed [hook:${hook}][hook_function:${hook_function}][path:${hook}]: ${hook_function} $@"
+          return 0
+        fi
+        ;;
+      *)
+        # older version hooks execute inline.  they have only the execute action.
+        debug --level 6 --topic "HOOK->EXECUTE" "this hook source exists, but returned an unknown hook version.  No action was executed. [hook:${hook}][hook_version:${hook_function}]"
         return 0
-      fi
-      ;;
-    *)
-      # older version hooks execute inline.  they have only the execute action.
-      debug --level 6 --topic "HOOK->EXECUTE" "this hook source exists, but did not define any version.  No action was executed as we assume this an older version hookfile [hook:$hook][hook_version:${hook_function}]"
-      return 0
-      ;;
-  esac
-
+        ;;
+    esac
+  else
+    # older version hooks execute inline.  they have only the execute action.
+    debug --level 6 --topic "HOOK->EXECUTE" "this hook source exists, but did not define any version.  No action was executed as we assume this an older version hookfile [hook:${hook}][hook_version:${hook_function}]"
+    return 0
+  fi
 }
 
 # create a usable short label for a hook
 hook_label()
 {
-  local hook=$1
-
-  echo ${hook##*/}
+  echo "${1##*/}"
+}
+# print the path to the hook (remove the project path if it exists)
+hook_path()
+{
+  echo "${1#${path_project}/}"
+}
+# print the path to the hook (remove the project path if it exists)
+hook_helppath()
+{
+  echo "hook:`path_shorten ${1}`"
 }
 
 # show the description hook echo for a hook
@@ -231,7 +254,7 @@ hook_description()
   local hook=$1
   shift
 
-  hook_execute ${hook} --action "description" $@
+  hook_execute "${hook}" --action "description" $@
 }
 # show the help contents for a hook
 hook_help()
@@ -239,7 +262,7 @@ hook_help()
   local hook=$1
   shift
 
-  hook_execute ${hook} --action "help" $@
+  hook_execute "${hook}" --action "help" $@
 }
 
 # List all hooks, not in the sorted order

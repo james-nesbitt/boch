@@ -48,14 +48,16 @@ hook_command_init_post_030_execute()
 
   if [ ${build_execute_now} -eq 0 ]; then
 
+    debug --level 6 --topic "HOOK->COMMAND->INIT->POST->030" "Trying to build custom build [build:${project_build}]"
+
     if docker_image_exists "${project_image}" -eq 0; then
 
       debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Custom project build already exists [build:${project_build}]"
 
     else
 
-      debug --level 6 --topic "HOOK->COMMAND->INIT->POST->030" "Building custom project build [build:${project_build}]"
-      command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_version}"
+      debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Building custom project build [build:${project_build}]"
+      command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_imageversion}"
 
       if [ $? -eq 0 ]; then
         debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Built custom project build [build:${project_build}]"
@@ -64,5 +66,7 @@ hook_command_init_post_030_execute()
       fi
     fi
 
+  else
+    debug --level 5 --topic "HOOK->COMMAND->INIT->POST->030" "Not attempting to build the project build, as were not instructed to do so [build:${project_build}]"
   fi
 }

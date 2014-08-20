@@ -81,23 +81,23 @@ debug_set_level()
 {
   debug=${1}
   shift
-  debug --level 3 --topic "COMMAND" "Debug mode enabled/set (level:${debug}) $@"
+  debug --level 3 --topic "UTILITY->DEBUG" "Debug mode enabled/set (level:${debug}) $@"
 }
 # set the debug logging value
 debug_set_log()
 {
   log=${1}
   shift
-  debug --level 3 --topic "COMMAND" "Logging mode enabled/set (level:${log}) $@"
+  debug --level 3 --topic "UTILITY->DEBUG" "Logging mode enabled/set (level:${log}) $@"
 }
 # disable the "execution stop on critical" feature in debug()
 debug_disable_critical()
 {
   debug_critical_level=${1:--1}
-  debug --level 3 --topic "COMMAND" "Forced mode enabled $@"
+  debug --level 3 --topic "UTILITY->DEBUG" "Forced mode enabled $@"
 }
 
-# Create a debug entry
+# Create a debug entry/message
 debug()
 {
 
@@ -171,6 +171,141 @@ fi
 # function
 #
 
+# try to shorten paths by replacing library paths
+path_shorten()
+{
+  local path="${1}"
+
+  local library=""
+  for library in `libraries_getlibraries`; do
+    case "${path}" in
+      *"${library##*:}"*)
+        echo "${library%:*}~${path#${library##*:}/}"
+        return 0
+        ;;
+    esac
+  done
+
+  case "${path}" in
+    *"${path_data}"*)
+      echo "project~${path#${path_data}/}"
+      return 0
+      ;;
+    *"${path_manage}"*)
+      echo "manage~${path#${path_manage}/}"
+      return 0
+      ;;
+    *"${path_project}"*)
+      echo "root~${path#${path_project}/}"
+      return 0
+      ;;
+    *"${path_userhome}"*)
+      echo "user~${path#${path_userhome}/}"
+      return 0
+      ;;
+  esac
+
+  echo "${path}"
+  return 0
+}
+# reverse the path_shorten process
+path_expand()
+{
+  local path=${1};
+
+  if [ "${path}" != "${path#*~}" ]; then
+
+    case "${path}" in
+      *"root~"*)
+        echo "${path_project}/${path#project~}"
+        ;;
+      *"data~"*)
+        echo "${path_data}/${path#data~}"
+        ;;
+      *"manage~"*)
+        echo "${path_manage}/${path#manage~}"
+        ;;
+      *"user~"*)
+        echo "${path_userhome}/${path#user~}"
+        ;;
+      *)
+        local library=""
+        for library in `libraries_getlibraries`; do
+          case "${path}" in
+            *"${library%:*}~"*)
+              #This can cause problems if debugging is enabled: library_include "${library%:*}"
+              echo "${library##*:}/${path#${library%:*}~}"
+              return 0
+              ;;
+          esac
+        done
+        ;;
+    esac
+
+  fi
+
+  echo "${path}"
+}
+
+path_exists()
+{
+  local type="any"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -d|--directory)
+        type="dir"
+        shift
+        ;;
+      -f|--file)
+        type="file"
+        shift
+        ;;
+      -x|--executable)
+        type="exec"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  local path="`path_expand ${1}`"
+  shift
+
+  case "${type}" in
+    "file")
+      if [ -f "${file}" ]; then
+        return 0
+      else
+        return 1
+      fi
+      ;;
+    "dir")
+      if [ -d "${file}" ]; then
+        return 0
+      else
+        return 1
+      fi
+      ;;
+    "exec")
+      if [ -f "${file}" ] && [ -x "${file}" ]; then
+        return 0
+      else
+        return 1
+      fi
+      ;;
+    *)
+      if [ -e "${file}" ]; then
+        return 0
+      else
+        return 1
+      fi
+      ;;
+  esac
+}
 #
 # Include a file using source
 #
@@ -179,7 +314,7 @@ fi
 #
 _include_source()
 {
-  local target=$1
+  local target="`path_expand \"$1\"`"
   shift
 
   if [ -f ${target} ]; then

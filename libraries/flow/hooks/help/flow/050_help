@@ -1,0 +1,130 @@
+#!/bin/sh
+#
+# hook:help Main help handler
+#
+
+hook_version="2"
+hook_root="hook_help_flow_050"
+
+# description method
+hook_help_flow_050_description()
+{
+  echo "Main help handler for the flow tool"
+}
+
+# help method
+hook_help_flow_050_help()
+{
+  echo "
+hook->help: Main help handler
+
+This hook is the primary flow help executor.  It will
+write generic help to the screen, or it will try to
+output generic help for a flow, by running all of the
+hooks for a flow --state \"help\"
+
+To get generic help try running without a flow name
+$/> ./flow --help
+
+"
+}
+# description method
+hook_help_flow_050_execute()
+{
+
+  # flow is the first argument
+  flow=$1
+  shift
+
+  if [ -z "${flow}" ]; then
+
+    hook_help_flow_050_help_generalhelp $@
+
+  else
+
+    if flow_exists "${flow}"; then
+
+      hook_help_flow_050_help_flowhelp "${flow}" $@
+
+      help_scope_add "flow:${flow}"
+      help_scope_add "flow"
+      help_scope_list
+
+    else
+
+        debug --level 6 --topic "HOOK->HELP->FLOW->050" "flow not found [flow:${flow}]"
+        hook_help_flow_050_help_unknownflow "${flow}" $@
+
+    fi
+
+  fi
+}
+
+# method to list all flow topics in scope
+hook_help_flow_050_list()
+{
+  local scope=""
+  if [ -n "${1}" ]; then
+    scope="flow/${1}"
+
+    echo "HOOKS THAT OPERATE ON THE ${1} FLOW:
+"
+  else
+    scope="flow"
+  fi
+
+  # list all hooks that act on this scope
+  help_topic_list "hook:${scope}"
+}
+
+# generic help message for the command help system
+# @TODO put some usefull material here
+hook_help_flow_050_help_generalhelp()
+{
+  echo "
+hook->help->flow->050 : GENERIC FLOW HELP MESSAGE GOES HERE
+
+- explain the help system
+- explain the hook system
+  - explain that a flow is actually a set of hooks
+
+- give examples for showing help for a flow      -> ./flow --help {flow}
+- give examples for showing help for a flow hook -> ./flow --help \"hook:{hook}\" {flow}
+"
+
+  hook_help_flow_050_help_flowlist
+
+}
+# output message if help is requested for an unknow command
+hook_help_flow_050_help_unknownflow()
+{
+  echo "
+hook->help->flow->050 : UNKNOWN flow HELP MESSAGE GOES HERE [flow:$1]
+
+- explain that his flow is not known
+
+"
+  # Include general help
+  hook_help_flow_050_help_generalhelp
+}
+
+# List all of the flows
+hook_help_flow_050_help_flowlist()
+{
+  local flow
+  echo "
+Known flows
+==========="
+  for flow in `flows_getflows`; do
+    echo "--> ${flow}"
+  done
+}
+# output help for a specific flow
+hook_help_flow_050_help_flowhelp()
+{
+  local flow=$1
+  shift
+  debug --level 6 --topic "HOOK->HELP->FLOW->050" "handing off help to help hooks for flow -> hooks_execute \"flow/${flow}\" --state \"help\" $@"
+  hooks_execute "flow/${flow}" --state "help" $@
+}
+

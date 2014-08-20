@@ -6,5 +6,5 @@
 # some related settings
 #
 
-# The build code should automatically recognize our library 
-
+# The build code should automatically recognize our library
+# and our settings are kept in the settings file

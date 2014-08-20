@@ -1,0 +1,141 @@
+#!/bin/sh
+#
+# hook:help Main help handler
+#
+
+hook_version="2"
+hook_root="hook_help_command_050"
+
+show_global_hooks="no"
+
+# description method
+hook_help_command_050_description()
+{
+  echo "Main help handler for the command tool"
+}
+
+# help method
+hook_help_command_050_help()
+{
+  echo "
+hook->help: Main help handler
+
+This hook is the primary command help executor.  It will
+write generic help to the screen, or it will load and
+write command specific, and command and hook specific
+help to the screen.
+
+To get generic help try running without a command.
+$/> ./command --help
+
+"
+}
+# description method
+hook_help_command_050_execute()
+{
+
+  # Command is the first argument
+  command=$1
+  shift
+
+  if [ -z "$command" ]; then
+
+    hook_help_command_050_help_generalhelp $@
+
+    help_scope_add "command"
+    help_scope_list
+
+  else
+
+    debug --level 6 --topic "HOOK->HELP->COMMAND->050" "including command \"${command}\""
+    command_include ${command}
+
+    if [ $? -gt 0 ]; then
+
+      debug --level 6 --topic "HOOK->HELP->COMMAND->050" "command not found \"${command}\""
+      hook_help_command_050_help_unknowncommandhelp ${command} $@
+
+    else
+
+      hook_help_command_050_help_commandhelp ${command} $@
+
+      help_scope_add "command:${command}"
+      help_scope_list
+
+    fi
+
+  fi
+}
+
+# method to list all command topics in scope
+hook_help_command_050_list()
+{
+  local scope=""
+  if [ -n "${1}" ]; then
+    scope="command/${1}"
+
+    echo "HOOKS THAT ACT ON $1 COMMAND OPERATIONS:
+"
+  else
+    scope="command"
+
+    echo "HOOKS THAT ACT ON ALL COMMAND OPERATIONS:
+"
+  fi
+
+  # list all hooks that act on this scope
+  help_topic_list "hook:${scope}"
+}
+
+# generic help message for the command help system
+# @TODO put some usefull material here
+hook_help_command_050_help_generalhelp()
+{
+  echo "
+hook->help->command->050 : GENERIC HELP MESSAGE GOES HERE
+
+- explain the help system
+- explain the hook system
+  - explain that a command is actually run via a hook
+
+- give examples for showing help for a command      -> ./command --help {command}
+- give examples for showing help for a command hook -> ./command --help \"hook:{hook}\" {command}
+"
+
+  hook_help_command_050_help_commandlist
+
+}
+# output message if help is requested for an unknow command
+hook_help_command_050_help_unknowncommandhelp()
+{
+  echo "
+hook->help->command->050 : UNKNOWN command [command:$1]
+
+You have tried to get help for a command that we could not find in the system.
+
+The command \"${1}\" was not found in the system.
+
+"
+  # Include general help
+  hook_help_command_050_help_generalhelp
+}
+# List all of the commands
+hook_help_command_050_help_commandlist()
+{
+  local path
+  echo "
+Known commands
+=============="
+  for path in `commands_list`; do
+    echo "--> ${path}"
+  done
+}
+# output help for a specific command
+hook_help_command_050_help_commandhelp()
+{
+  local command=$1
+  shift
+  debug --level 6 --topic "HOOK->HELP->COMMAND->050" "handing off help to command help hook [command:\"${command}\"]"
+  command_execute ${command} --action "help" $@
+}
+

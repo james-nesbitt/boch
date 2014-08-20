@@ -26,8 +26,13 @@ This hook gives general help text for the init flow
 # execute method
 hook_flow_init_help_050_execute()
 {
-  echo "
-INIT FLOW
+  echo "FLOW: INIT
+
+The init flow is flow designed to initialize a project root
+to prepare it for use with the command tools, and further flows
+
+The hooks for init should be safe to repeat the action.  The changes
+made in each hook should be non-destructive where possible.
 
 Usage:
 
@@ -54,12 +59,21 @@ Options: (in general these are converted to global vars in the first hook)
   [-s|--wwwserver] : include the wwwserver as a dependency; this will allow
     that library to affect the project through default dependencies.
 
-The init flow is flow designed to initialize a project root
-to prepare it for use with the command tools, and further flows
-
 The flow is of course entirely hook based, but some standard
 parts of the flow are about making sure that there is a custom
 folder for the project, some custom settings, and other project
 resources.
+
+Typical workflow for using this flow, is to run it once to get a project
+folder, and then run it again after making changes to the settings in the
+project folder.
+
+@NOTE I suggest that you run the command like this:
+  1. Give yourself a project folder like this:
+       $/> ./flow init --name {a_project_name} --wwwserver
+  2. Then make changes to /project/settings, /project/builds/{name}/Dockerfile, and add your
+     pub key to /project/builds/{name}/dev_dotssh/authorized_keys
+  3. Then then run the flow again like this:
+       $/> ./flow init --buildnow
 "
 }

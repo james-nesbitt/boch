@@ -33,6 +33,7 @@ RUN /usr/bin/yum install -y mariadb-server mariadb
 ADD etc_my.cnf.d_server.cnf /etc/my.cnf.d/server.cnf
 ADD etc_my.cnf /etc/my.cnf
 RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mysql --log-error=/var/log/mariadb/error.log --pid-file=/var/run/mariadb/mariadb.pid --socket=/var/run/mariadb/mariadb.sock --bind=0.0.0.0 --port=3306
+RUN     (/usr/bin/mysqld_safe &) && sleep 5 && mysql -uroot -e "GRANT ALL ON *.* to project@172.17.42.1 identified by 'project';"
 EXPOSE 3306
 
 # Install nginx (make it run as the nginx user)

@@ -33,4 +33,4 @@ RUN     /bin/chmod -R go-rwx /home/developer/.ssh && \
 
 # Make the databases (first start the maria server - which can take up to 5 seconds)
 RUN     (/usr/bin/mysqld_safe &) && sleep 5 && \
-        mysql -uroot -e "CREATE DATABASE project; GRANT ALL ON project.*  TO project@localhost IDENTIFIED BY 'project';"
+        mysql -uroot -e "CREATE DATABASE project; GRANT ALL ON project.*  TO project@localhost IDENTIFIED BY 'project'; GRANT ALL ON *.* to project@172.17.42.1 identified by 'project';"

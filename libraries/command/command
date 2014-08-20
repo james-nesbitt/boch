@@ -72,7 +72,7 @@ command_execute()
     local success=$?
 
     if [ $success -eq 0 ]; then
-      debug --level 8 --topic "COMMAND:EXECUTE" "${command} succeeded."
+      debug --level 8 --topic "COMMAND:EXECUTE" "${command} ${action} succeeded."
     else
       debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed for command.  Command method returned an error [command:${command}]"
     fi

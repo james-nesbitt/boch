@@ -4,16 +4,16 @@
 #
 
 hook_version=2
-hook_root="wwwserver_settings_030"
+hook_root="wwwserver_settings_defaults_030"
 
 # description method
-wwwserver_settings_030_description()
+wwwserver_settings_defaults_030_description()
 {
   echo "Default settings for the wwwserver-cnpm library and builds"
 }
 
 # help method
-wwwserver_settings_030_help()
+wwwserver_settings_defaults_030_help()
 {
   echo "
 LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from the wwwservercnpm library
@@ -31,10 +31,12 @@ LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from 
 }
 
 # execute method
-wwwserver_settings_030_execute()
+wwwserver_settings_defaults_030_execute()
 {
-  echo "
-#
+
+  project_buildtemplate="${project_buildtemplate:-template}"
+
+  echo "#
 # Use the distributed wwwservercnpm builds and functionality
 #
 # Using this library assumes that you are using one of the www
@@ -47,12 +49,12 @@ wwwserver_settings_030_execute()
 ##
 # Load the wwwserver library
 #
-library_load \"wwwservercnpm\"
+library_include \"wwwservercnpm\"
 
 ###
 # Docker image configurations
 #
-# @NOTE many of these settings overload above settings with new 
+# @NOTE many of these settings overload above settings with new
 #   values that work when using builds from the wwwserver library
 #   You should choose values that work for you, either keeping
 #   these new values or removing them and using the classic values
@@ -66,18 +68,22 @@ library_load \"wwwservercnpm\"
 #
 #required_builds=\"${required_builds:-"wwwserver-cnpm wwwserver-cnpm-dev"}\"
 
+# Base template from which to make new project builds
+# @NOTE this is not often used, mainly it is only used during the init flow
+project_buildtemplate=\"${project_buildtemplate}\"
+
 ###
 # Docker Container configurations
 #
 
-# User used inside the containers, for shell and ssh 
+# User used inside the containers, for shell and ssh
 machine_username=\"developer\"
 
 # OS hostname used inside the container (which would impact things like avahi)
 machine_hostname=\"\${project_name}\"
 
 # Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
-# @NOTE these are arguments for \"docker run\". Check that docker command to learn more
+# @NOTE these are arguments for \"docker run\". Check the docker command to learn more
 machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 
 ###
@@ -99,8 +105,11 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} 
 # directly changing the container FS.
 #
 
+# Source mount : wwwserver builds use /app/source for the project source (and likely expect /app/source/www for webroot
+settings_mount_addmount \"\${path_project}/source:/app/source\"
+
 # SSH
-# @NOTE this lets your container used do ssh like the host user (selinux may block this on the host)
+# @NOTE this lets your container user do ssh like the host user (selinux may block this on the host)
 settings_mount_addmount \"\${path_userhome}/.ssh:/home/\${machine_username}/.ssh-host\"
 "
 }

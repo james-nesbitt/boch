@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# HOOK->FLOW->STATUS->020 General Project Configurations
+# HOOK->FLOW->STATUS->020 General Project Configurations output
 #
 
 hook_version=2
@@ -9,13 +9,13 @@ hook_root="hook_flow_status_020"
 # description method
 hook_flow_status_020_description()
 {
-  echo "Simple project status tests"
+  echo "Simple project settings output"
 }
 
 # help method
 hook_flow_status_020_help()
 {
- echo "HOOK->FLOW->STATUS->010 General Project status
+ echo "HOOK->FLOW->STATUS->020 Output some common project configurations
 
 Prints to the console, a number of the currently used configurations
 if you include the \"--config\" argument.

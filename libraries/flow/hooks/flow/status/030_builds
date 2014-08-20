@@ -9,7 +9,7 @@ hook_root="hook_flow_status_030"
 # description method
 hook_flow_status_030_description()
 {
-  echo "Simple project status tests"
+  echo "Analyze builds used in the project"
 }
 
 # help method
