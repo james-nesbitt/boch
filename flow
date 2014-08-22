@@ -106,13 +106,13 @@ fi
 
 if [ "$help" == "yes" ]; then
 
-  debug --level 5 --topic "WORKFLOW" "Running flow:help hooks => help_execute \"flow\" ${WORKFLOW}\" $@"
-  help_execute "flow" ${WORKFLOW} $@
+  debug --level 5 --topic "WORKFLOW" "Running flow:help hooks => help_execute \"flow:${WORKFLOW}\" $@"
+  help_execute "flow:${WORKFLOW}" $@
 
   if [ -n "${helptopic}" ]; then
     # run the help handler for whatever help topic was passed in
-    debug --level 5 --topic "COMMAND" "Running help hooks for help topic =>help_execute \"${helptopic%:*}\" \"${helptopic##*:}\" $@"
-    help_execute "${helptopic%:*}" "${helptopic##*:}" $@
+    debug --level 5 --topic "COMMAND" "Running help hooks for help topic =>help_execute \"${helptopic}\" $@"
+    help_execute "${helptopic}"$@
   fi
 
 else

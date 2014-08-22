@@ -57,8 +57,8 @@ library_include()
 
     *)
 
-      # if a path was sent in, then we will try to search for it.
-      if [ "${path}" == "" ]; then
+      # if no path was sent in, then we will try to search for it.
+      if [ -z "${path}" ]; then
 
         # mark success to show that we didn't find the library
         success=-1
@@ -88,10 +88,7 @@ library_include()
           debug --level 8 --topic "LIBRARY->INCLUDE" "trying to load library, handing off to library_load [library:${library}] =>  library_load --library \"${library}\" --path \"${path}\" $@"
           library_load --library "${library}" --path "${path}" $@
 
-          if [ $? -gt -1 ]; then
-            success=$?
-            break;
-          fi
+          success=$?
         fi
 
       fi
@@ -99,7 +96,7 @@ library_include()
   esac
 
   # COMPONENT
-  if [ "${component}" != "" ] && [ $success -eq 0 ]; then
+  if [ -n "${component}" ] && [ $success -eq 0 ]; then
 
     # check if already attempted to oad this library component (if not mark it as attempted)
     case " `libraries_getlibraries` " in
@@ -190,7 +187,7 @@ library_load()
     shift
   done
 
-  if [ -z ${library} ] || [ -z ${path} ]; then
+  if [ -z "${library}" ] || [ -z "${path}" ]; then
     debug --level 6 --topic "LIBRARY->LOAD" "no library or library path specified [library:${library}][path:${path}][core file:${corefile}]"
     return 1
   fi
@@ -246,7 +243,7 @@ library_load()
           debug --level 6 --topic "LIBRARY->LOAD" "library loaded [library:${library}][path:${path}]"
           return 0
         else
-          debug --level 5 --topic "LIBRARY->LOAD" "library load failed  [library:{$library}][path:${path}]"
+          debug --level 5 --topic "LIBRARY->LOAD" "library load failed  [library:${library}][path:${path}][success:${success}]"
           # run fail hooks
           _libraries_hooks_execute "library/load" --state "fail" --library ${library} --path ${path} $@
           return 1

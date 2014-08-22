@@ -318,11 +318,11 @@ _include_source()
   shift
 
   if [ -f ${target} ]; then
-    debug --level 8 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Including source item"
-    source ${target} $@
+    debug --level 8 --topic "UTILITY->INCLUDE" "Including source item [target:${target}]"
+    source ${target} --source-include-path "${target%/*}/" $@
     return $?
   else
-    debug --level 6 --topic "UTILITY->INCLUDE" "_include_source [target:${target}] : Could not include source item.  Item was not found, or is not a file"
+    debug --level 6 --topic "UTILITY->INCLUDE" "Could not include source item.  Item was not found, or is not a file [target:${target}]"
     return 1
   fi
 }
