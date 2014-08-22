@@ -20,6 +20,8 @@ help_scope_get()
 # primary help execute method
 #
 # @NOTE Try to use this if you want to get help on a topic
+#       and you want it to react to a missing topic with a
+#       general help message
 #
 help_execute()
 {
@@ -48,13 +50,24 @@ GENERIC HELP MESSAGE FOR NO TOPIC
 "
 }
 
+# A callable help handler for a help topic
 help_topic_help()
 {
-  local topic="$1"
+  local scope="$1"
+  local topic=""
   shift
 
-  debug --level 5 --topic "HELP" "Running help hooks => hooks_execute \"help/${topic}\" $@"
-  hooks_execute "help/${topic}" $@
+  # split the primary scope handler from the topic
+  if [ "${scope}" != "${scope%:*}" ]; then
+    topic="${scope##*:}"
+    scope="${scope%:*}"
+    if [ "${topic}" == "general" ]; then
+      topic=""
+    fi
+  fi
+
+  debug --level 5 --topic "HELP" "Running help hooks => hooks_execute \"help/${scope}\" ${topic} $@"
+  hooks_execute "help/${scope}" ${topic} $@
   return $?
 }
 
@@ -63,6 +76,7 @@ help_topic_list()
 {
   local scope=""
   local topic=""
+
   for scope in $@; do
     if [ "${scope}" != "${scope%:*}" ]; then
       topic="${scope##*:}"

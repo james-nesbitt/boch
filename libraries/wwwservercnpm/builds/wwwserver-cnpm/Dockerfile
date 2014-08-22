@@ -46,9 +46,9 @@ EXPOSE 80 443
 
 # Install php-fpm (libX11 and libX11-common come with php-gd)
 RUN /usr/bin/yum install -y php-fpm php-common \
-    php-pecl-apc php-cli php-pear php-pdo php-mysqlnd php-pgsql php-pecl-mongo \
+    php-pecl-apc php-cli php-pear php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml php-mysqlnd
+    php-mcrypt php-xml
 ADD etc_php-fpm.conf /etc/php-fpm.conf
 ADD etc_php-fpm.d_www.conf /etc/php-fpm.d/www.conf
 ADD etc_php.ini /etc/php.ini
