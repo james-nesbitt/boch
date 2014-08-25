@@ -67,7 +67,7 @@ hook_help_help_050_list()
 "
   echo "LIBRARIES THAT SHOULD HAVE HELP TOPICS:"
   local library=""
-  for library in `libraries_getlibraries`; do
+  for library in `libraries_list`; do
     if [ "${library%:*}" != "help" ]; then
       echo "--> ${library%:*} (${library%:*}:general)"
     fi

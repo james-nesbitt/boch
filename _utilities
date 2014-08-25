@@ -36,6 +36,14 @@ list_add()
   eval "$var=\"${value}\""
   debug --level 8 --topic "UTIITY->LIST->ADD" "Adding list to lists var [list:${var}][value:${!var}][added:${list}]"
 }
+list_remove()
+{
+echo "@TODO Remove item from list"
+}
+list_replace()
+{
+echo "@TODO Replace old item with new item in list"
+}
 list_get()
 {
   local name=$1
@@ -172,12 +180,13 @@ fi
 #
 
 # try to shorten paths by replacing library paths
+# @DEPENDS on libraries
 path_shorten()
 {
   local path="${1}"
 
   local library=""
-  for library in `libraries_getlibraries`; do
+  for library in `libraries_list`; do
     case "${path}" in
       *"${library##*:}"*)
         echo "${library%:*}~${path#${library##*:}/}"
@@ -209,6 +218,7 @@ path_shorten()
   return 0
 }
 # reverse the path_shorten process
+# @DEPENDS on libraries
 path_expand()
 {
   local path=${1};
@@ -230,7 +240,7 @@ path_expand()
         ;;
       *)
         local library=""
-        for library in `libraries_getlibraries`; do
+        for library in `libraries_list`; do
           case "${path}" in
             *"${library%:*}~"*)
               #This can cause problems if debugging is enabled: library_include "${library%:*}"
@@ -246,24 +256,28 @@ path_expand()
 
   echo "${path}"
 }
-
-path_exists()
+# return boolean on if a path exists
+path_is()
 {
   local type="any"
 
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -d|--directory)
+      -d|--dir|--directory)
         type="dir"
-        shift
         ;;
       -f|--file)
         type="file"
-        shift
         ;;
-      -x|--executable)
+      -l|--library)
+        type="library"
+        ;;
+      -x|--exec|--executable)
         type="exec"
+        ;;
+      -t|--type)
+        type="${2}"
         shift
         ;;
       *)
@@ -275,121 +289,170 @@ path_exists()
   local path="`path_expand ${1}`"
   shift
 
+  debug --level 9 --topic "UTILITIES->PATH->IS" "Path check [type:${type}][path:${path}]"
   case "${type}" in
     "file")
-      if [ -f "${file}" ]; then
+      if [ -f "${path}" ]; then
         return 0
-      else
-        return 1
       fi
       ;;
     "dir")
-      if [ -d "${file}" ]; then
+      if [ -d "${path}" ]; then
         return 0
       else
         return 1
       fi
       ;;
     "exec")
-      if [ -f "${file}" ] && [ -x "${file}" ]; then
+      if [ -f "${path}" ] && [ -x "${path}" ]; then
         return 0
-      else
-        return 1
+      fi
+      ;;
+    "library")
+      #interesting case, either an exec file, or a folder with an exec files of the same name
+      if [ -f "${path}" ] && [ -x "${path}" ]; then
+        return 0
+      fi
+      if [ -d "${path}" ]; then
+        path="${path}/${path##*/}"
+        if [ -f "${path}" ] && [ -x "${path}" ]; then
+          return 0
+        fi
       fi
       ;;
     *)
-      if [ -e "${file}" ]; then
+      if [ -e "${path}" ]; then
         return 0
+      fi
+      ;;
+  esac
+
+  return 1
+}
+# include a source file at a given path
+# @NOTE path must be a file, and mist be executable
+path_include()
+{
+  local path="`path_expand \"$1\"`"
+  shift
+
+  if path_is --exec "${path}"; then
+    debug --level 8 --topic "UTILITY->PATH->INCLUDE" "Including source item [path:${path}]"
+    source ${path} --source-include-path "${path%/*}/" $@
+    return $?
+  else
+    debug --level 6 --topic "UTILITY->PATH->INCLUDE" "Could not include source item.  Item was not found, or is not a file [path:${path}]"
+    return 1
+  fi
+}
+# List contents of a path
+path_contents()
+{
+  local path="`path_expand \"$1\"`"
+  local type="any"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -d|--directory)
+        type="dir"
+        ;;
+      -f|--file)
+        type="file"
+        ;;
+      -l|--library)
+        type="file"
+        ;;
+      -x|--executable)
+        type="exec"
+        ;;
+      -t|--type)
+        type="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  local path_item=""
+  for path_item in ${path}/*; do
+    if path_is --type "${type}" "{path_item}"; then
+      echo "${path_item}"
+    fi
+  done
+}
+# make sure that a path exists
+path_ensure()
+{
+  local path="${1}"
+  local type="dir"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -d|--dir|--directory)
+        type="dir"
+        ;;
+      -f|--file)
+        type="file"
+        ;;
+      -t|--type)
+        type="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  case "${type}" in
+    "file")
+      if [ -e $path ]; then
+        if [ -d $path ]; then
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file.  Already exists but as a directory [path:$path]"
+          return 1
+        else
+          debug --level 8 --topic "UTILITY->PATH->ENSURE" "file already exists, no need to create it [path:$path]"
+          return 0
+        fi
       else
-        return 1
+        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing file [path:$path]"
+        touch "${path}"
+        local success=$?
+        if [ $success -gt 0 ]; then
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file [path:$path]"
+        fi
+        return $success
+      fi
+      ;;
+    "dir")
+      if [ -e "${path}" ]; then
+        if [ -f "${path}" ]; then
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder.  Already exists but not as a directory [path:$path]"
+          return 1
+        else
+          debug --level 8 --topic "UTILITY->PATH->ENSURE" "folder already exists. No need to create it [path:$path]"
+          return 0
+        fi
+      else
+        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing folder [path:$path]"
+        mkdir -p "${path}"
+        local success=$?
+        if [ $success -gt 0 ]; then
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder [path:$path]"
+        fi
+        return $success
       fi
       ;;
   esac
 }
-#
-# Include a file using source
-#
-# $1 : path to target to include
-# $@ : additional arguments to pass to source command
-#
-_include_source()
+
+# test if a function exists
+function_exists()
 {
-  local target="`path_expand \"$1\"`"
-  shift
-
-  if [ -f ${target} ]; then
-    debug --level 8 --topic "UTILITY->INCLUDE" "Including source item [target:${target}]"
-    source ${target} --source-include-path "${target%/*}/" $@
-    return $?
-  else
-    debug --level 6 --topic "UTILITY->INCLUDE" "Could not include source item.  Item was not found, or is not a file [target:${target}]"
-    return 1
-  fi
-}
-
-####
-# File and folder functions
-#
-# Various operations in the system require a path or file
-# exist.  These two functions will create the path or
-# return an error if they can't
-#
-
-# Create an empty folder, if it doesn't already exist
-#
-# $1 : folder path
-#
-ensure_folder()
-{
-  # Take the path from the first argument
-  local path=$1
-  debug --level 9 --topic "UTILITY->FILEFOLDER->FILE->FOLDER" "ensure_folder [path:$path]"
-
-  if [ -e $path ]; then
-    if [ -f $path ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER->FILE->FOLDER" "could not create folder.  Already exists but not as a directory [path:$path]"
-      return 1
-    else
-      debug --level 8 --topic "UTILITY->FILEFOLDER->FILE->FOLDER" "folder already exists. No need to create it [path:$path]"
-      return 0
-    fi
-  else
-    debug --level 8 --topic "UTILITY->FILEFOLDER->FILE->FOLDER" "creating missing folder [path:$path]"
-    mkdir -p ${path}
-    local success=$?
-    if [ $success -gt 0 ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER->FILE->FOLDER" "could not create folder [path:$path]"
-    fi
-    return $success
-  fi
-}
-
-# Create an empty file, if it doesn't already exist
-#
-# $1 : file path
-#
-ensure_file()
-{
-  # Take the path from the first argument
-  local path=$1
-  debug --level 9 --topic "UTILITY->FILEFOLDER->FILE" "ensure_file [path:$path]"
-
-  if [ -e $path ]; then
-    if [ -d $path ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER->FILE" "could not create file.  Already exists but as a directory [path:$path]"
-      return 1
-    else
-      debug --level 8 --topic "UTILITY->FILEFOLDER->FILE" "file already exists, no need to create it [path:$path]"
-       return 0
-    fi
-  else
-    debug --level 8 --topic "UTILITY->FILEFOLDER->FILE" "creating missing file [path:$path]"
-    touch "${path}"
-
-    local success=$?
-    if [ $success -gt 0 ]; then
-      debug --level 6 --topic "UTILITY->FILEFOLDER->FILE" "could not create file [path:$path]"
-    fi
-    return $success
-  fi
+  declare -f -F "${1}" > /dev/null
+  return $?
 }

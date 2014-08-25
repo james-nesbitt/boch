@@ -29,7 +29,7 @@ hook_settings_035_execute()
 {
   local library_path=""
   local path=""
-  for library_path in `libraries_getlibraries`; do
+  for library_path in `libraries_list`; do
     case "${library_path%:*}" in
       "project"|"settings")
         debug --level 8 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "Skipping libraries that are hardcoded to not use settings (the project library, and the settings library) [library:${library}][path:${path}]"
@@ -39,7 +39,7 @@ hook_settings_035_execute()
 
         if [ -f "${path}" ] && [ -x "${path}" ]; then
           debug --level 6 --topic "HOOKS->SETTINGS->035" "Loaded library has a settings file.  Adding it. [library:${library%%*:}][path:${path}]"
-          _include_source "${path}"
+          path_include "${path}"
         fi
       ;;
     esac

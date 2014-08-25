@@ -44,7 +44,7 @@ hook_command_init_030_execute()
 
       local path_build="`build_find \"${project_buildtemplate}\"`"
       if [ "${path_build}" != "" ]; then
-        ensure_folder "${path_data}/builds"
+        path_ensure --dir "${path_data}/builds"
         cp -R "${path_build}" "${path_data}/builds/${project_image}"
         debug --level 5 --topic "HOOK->COMMAND->INIT->030" "Created custom build [${path_build} => ${path_data}/builds/${project_image}]"
       else

@@ -36,6 +36,6 @@ hook_init_005_execute()
 
   debug --level 5 --topic "HOOK->COMMAND->INIT->005" "Making sure that we have a project folder "
   # make sure that we have a custom path
-  ensure_folder "${path_data}"
+  path_ensure --dir "${path_data}"
 
 }

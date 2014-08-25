@@ -19,7 +19,7 @@
 #
 
 # Include a command : really just hands off to library include
-command_include()
+command_load()
 {
 
   # Get the command as the first parameter
@@ -27,7 +27,7 @@ command_include()
   shift
 
   debug --level 8 --topic "COMMAND->INCLUDE" "Including command component.  Handing off to library_include ==> library_include --library \"command\" --component \"commands:${command}\" $@"
-  library_include --component "commands:${command}" "command" $@
+  library_load --component "${command}" "command" $@
   local success=$?
 
   if [ $success -eq 0 ]; then
@@ -68,7 +68,7 @@ command_execute()
     done
 
     debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${command} ] handing off to command_execute script: library_execute --action \"${action}\" --component \"commands:${command}\" \"command\" $@"
-    library_execute --action "${action}" --component "commands:${command}" "command" $@
+    library_execute --action "${action}" --component "${command}" "command" $@
     local success=$?
 
     if [ $success -eq 0 ]; then

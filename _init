@@ -48,15 +48,15 @@ source ${path_manage}/_libraries
 debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES"
 
 # include utility functions for running hooks
-library_include "hook"
+library_load "hook"
 # include help related functions (not debug, which is in utilities to get it loaded early.)
-library_include "help"
+library_load "help"
 # include docker functions - bash abstractions for docker operations
-library_include "docker"
+library_load "docker"
 # include command related functions
-library_include "command"
+library_load "command"
 
 # include the settings library
-library_include "settings"
+library_load "settings"
 
 debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES COMPLETE"
