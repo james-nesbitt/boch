@@ -4,27 +4,25 @@
 #
 
 hook_version=2
-hook_root="hook_library_settings_library_060"
+hook_root="hook_library_settings_library_pre_060"
 
 # description method
-hook_library_settings_library_060_description()
+hook_library_settings_library_pre_060_description()
 {
   echo "If a library has a settings file, include it"
 }
 
 # help method
-hook_library_settings_library_060_help()
+hook_library_settings_library_pre_060_help()
 {
   echo "
 Add any settings file that a library may have in it's folder
-
 "
 }
 
 # execute method
-hook_library_settings_library_060_execute()
+hook_library_settings_library_pre_060_execute()
 {
-
   local library=""
   local path=""
 

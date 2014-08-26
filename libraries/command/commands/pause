@@ -23,7 +23,7 @@ any CPU-Usage by the processes, without losing their state.
 pause_execute()
 {
   # Default direction (pause versus unpause)
-  local pause="pause"
+  local action="pause"
   # Container default
   local container="${project_container}"
 
@@ -36,7 +36,7 @@ pause_execute()
         shift
         ;;
       -u|--unpause)
-        pause="unpause"
+        action="unpause"
         ;;
       -*)
         echo >&2 "unknown flag $1 : pause [-c|--container] {container} [-u|--unpause]"
@@ -47,15 +47,14 @@ pause_execute()
     shift
   done
 
-  if docker_container_running ${container}; then
+  if docker_container_running "${container}"; then
 
     # un-pause a paused container
-    if [ "${pause}" == "unpause" ]; then
+    if [ "${action}" == "unpause" ]; then
       # Run the pause function
       debug --level 5 --topic "COMMAND->PAUSE" "[ handing off to docker pause abstraction ] ==> docker_pause --container ${container}"
       docker_unpause --container ${container}
       return $?
-
     # pause the container
     else
       # Run the pause function
@@ -67,7 +66,6 @@ pause_execute()
   else
 
     if docker_container_exists "${container}"; then
-      # Run the run function
       debug --level 5 --topic "COMMAND->PAUSE" "Could not pause|unpause as the container is not running ${container}"
     else
       debug --level 5 --topic "COMMAND->PAUSE" "Could not pause|unpause as the container does not exist ${container}"

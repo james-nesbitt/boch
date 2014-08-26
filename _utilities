@@ -277,13 +277,16 @@ path_is()
   while [ $# -gt 0 ]
   do
     case "$1" in
+      -b|--build)
+        type="build"
+        ;;
       -d|--dir|--directory)
         type="dir"
         ;;
       -f|--file)
         type="file"
         ;;
-      -l|--library)
+      -l|--lib|--library)
         type="library"
         ;;
       -x|--exec|--executable)
@@ -304,6 +307,11 @@ path_is()
 
   debug --level 9 --topic "UTILITIES->PATH->IS" "Path check [type:${type}][path:${path}]"
   case "${type}" in
+    "build")
+      if [ -d "${path}" ] && [ -f "${path}/Dockerfile" ]; then
+        return 0
+      fi
+      ;;
     "file")
       if [ -f "${path}" ]; then
         return 0

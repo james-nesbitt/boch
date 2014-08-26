@@ -6,7 +6,7 @@
 #
 
 # load the build command
-command_include "build"
+command_load "build"
 
 # command help function
 destroy_help()
@@ -15,7 +15,7 @@ destroy_help()
 Destroy a project related docker image.
 
 The intention with this command is to remove the project specific
-image.
+image, but any image can be deleted.
 
   -i|--image {image} : overrides settings image name for new image
   -v|--version {version} : overrides settings image version for new image
@@ -23,14 +23,6 @@ image.
 @NOTE the docker_build function uses \"latest\" as the default
   image version/tag.
 "
-  echo "Builds paths used in the system:"
-  for build in `destroy_getpath`; do
-    echo " --> ${build}"
-  done
-  echo "Builds found in the system:"
-  for build in `destroy_list`; do
-    echo " --> ${build##*/}"
-  done
 }
 
 # command execute function
