@@ -6,13 +6,8 @@
 * documentation can now go into the various folders, as all scripts are now looking for executable files only.
 
 1. document the help system;
-2. rewrite the command documentation;
-3. document the flow system;
-4. explain the hooks system.
-
-== SETTINGS ==
-
-1. make the mount system more abstract : abstraction is there, but the loading of build paths is hardcoded into the build command
+2. document the flow system;
+3. explain the hooks system.
 
 == LIBRARIES ==
 
@@ -22,11 +17,23 @@ The following are ideas for libraries that should be started
 2. drush : drush integration (requires some way to connect into the containers,
      or you have to be able to
 
+== UTILITIES ==
+
+1. a "debug_reset" function would be nice, to set the debug level back to an unset value after running debug_set_level
+
+== SETTINGS ==
+
+
+== HELP ==
+
+
+== DOCKER ==
+
+1. The docker API has no natural way to read documentation (It would be necessary to repeat all comments from the api file)
+
 == COMMANDS ==
 
-The following commands would be a good idea:
-
-1. ssh : ssh into the container - this has certain container requiredments (sshd and a user?).
+1. commands don't output very usefull output.  We likely need a messaging system, similar to debug
 
 == FLOW ==
 
