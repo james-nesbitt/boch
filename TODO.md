@@ -11,6 +11,8 @@
 
 == LIBRARIES ==
 
+1. autorun a library_init method after loading the library?
+
 The following are ideas for libraries that should be started
 
 1. boot2docker : to implement hooks that integrate better with boot2ocker
@@ -29,7 +31,7 @@ The following are ideas for libraries that should be started
 
 == DOCKER ==
 
-1. The docker API has no natural way to read documentation (It would be necessary to repeat all comments from the api file)
+1. The docker API has no natural way to output help information (It would be necessary to repeat all comments from the api file)
 
 == COMMANDS ==
 
@@ -48,6 +50,8 @@ it confusing to trace errors.
 
 There are a lot of commands/hooks that don't do safety checks on params
 
+1. settings are loaded twice - once when the library is loaded, but again on a settings hook (040)
+
 == SECURITY ==
 
 There is no security review:
@@ -56,3 +60,5 @@ There is no security review:
 - the hook manager executes various functions using eval()
 - there are two functions in the docker library that use eval() to apply greps
 
+* No code executes with any escalated permission;
+* Code could run in elevated permissions inside a container.

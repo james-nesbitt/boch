@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Help hander
+#
+
+
+# help method
+settings_help()
+{
+  settings_help_generalhelp
+}
+
+
+# generic help message for the command help system
+# @TODO put some usefull material here
+settings_help_generalhelp()
+{
+  echo "
+GENERIC SETTINGS HELP MESSAGE GOES HERE
+
+- explain what the purpose of this library is
+- explain what the default state hooks are used for
+"
+}

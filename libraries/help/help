@@ -165,10 +165,15 @@ help_helplist()
 "
   echo "LIBRARIES THAT SHOULD HAVE HELP TOPICS:"
   local library=""
-  for library in `libraries_list`; do
-    if [ "${library%:*}" != "help" ]; then
-      echo "--> ${library%:*} (${library%:*}:general)"
-    fi
+  for library in `libraries_list | sort`; do
+    case "${library%:*}" in
+      "core"|"help")
+        ;;
+      *)
+        if library_include "${library%:*}" "help"; then
+          echo "--> ${library%:*} (${library%:*}:general)"
+        fi
+    esac
   done
 }
 

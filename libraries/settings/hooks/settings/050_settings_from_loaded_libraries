@@ -40,7 +40,7 @@ hook_settings_035_execute()
         if path_is --exec "${path}"; then
           debug --level 6 --topic "HOOKS->SETTINGS->035" "Loaded library has a settings file.  Adding it. [library:${library}][path:${path}]"
           #path_include "${path}"
-          library_include "${library%:*}" "settings"
+#            library_include "${library%:*}" "settings"
         fi
       ;;
     esac

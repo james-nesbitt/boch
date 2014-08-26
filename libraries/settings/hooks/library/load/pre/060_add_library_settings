@@ -46,14 +46,14 @@ hook_library_settings_library_060_execute()
   done
 
   case "${library}" in
-    "project"|"settings")
+    "settings")
       debug --level 8 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "Skipping libraries that are hardcoded to not use settings (the project library, and the settings library) [library:${library}][path:${path}]"
     ;;
     *)
       path="${path}/settings"
 
       if [ -f ${path} ] && [ -x ${path} ]; then
-        debug --level 6 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "New library has a settings file.  Adding it. [library:${library}][path:${path}]"
+        debug --level 7 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "New library has a settings file.  Adding it. [library:${library}][path:${path}]"
         path_include "${path}"
       fi
     ;;
