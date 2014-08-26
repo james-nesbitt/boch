@@ -52,7 +52,10 @@ list_get()
   local trimmed="${!var}"
   trimmed=${trimmed%% }
   trimmed=${trimmed## }
-  echo "${trimmed}"
+  local value=""
+  for value in ${trimmed}; do
+    echo "${value}"
+  done
   debug --level 9 --topic "UTIITY->LIST->GET" "get lists var [list:${var}][value:${trimmed}]"
 }
 
@@ -87,9 +90,19 @@ log=${log:-0}
 # Set the debugging level
 debug_set_level()
 {
+  if [ -z ${original_debug} ]; then
+    original_debug=${debug}
+  fi
   debug=${1}
   shift
   debug --level 3 --topic "UTILITY->DEBUG" "Debug mode enabled/set (level:${debug}) $@"
+}
+# reset debug level to
+debug_reset_level()
+{
+  if [ -n ${original_debug} ]; then
+    debug=${original_debug}
+  fi
 }
 # set the debug logging value
 debug_set_log()
@@ -108,7 +121,6 @@ debug_disable_critical()
 # Create a debug entry/message
 debug()
 {
-
   # 0= not critical, 1= critical - execution will stop
   local critical=0
 
@@ -265,13 +277,16 @@ path_is()
   while [ $# -gt 0 ]
   do
     case "$1" in
+      -b|--build)
+        type="build"
+        ;;
       -d|--dir|--directory)
         type="dir"
         ;;
       -f|--file)
         type="file"
         ;;
-      -l|--library)
+      -l|--lib|--library)
         type="library"
         ;;
       -x|--exec|--executable)
@@ -292,6 +307,11 @@ path_is()
 
   debug --level 9 --topic "UTILITIES->PATH->IS" "Path check [type:${type}][path:${path}]"
   case "${type}" in
+    "build")
+      if [ -d "${path}" ] && [ -f "${path}/Dockerfile" ]; then
+        return 0
+      fi
+      ;;
     "file")
       if [ -f "${path}" ]; then
         return 0

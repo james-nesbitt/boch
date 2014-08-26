@@ -65,7 +65,6 @@ can easily be built by passing the individual folder names to this command.
 "
   echo "Paths in the system that container builds:"
 
-  libraries_contents --subpath "hooks"
   for build in `builds_getpath`; do
     echo " --> ${build}"
   done
@@ -80,7 +79,7 @@ build_execute()
 {
   # default build settings
   local image="${project_image}"
-  local build="${project_image}"
+  local build="${project_build:-${project_image}}"
   local version="${project_imageversion}"
 
   # local flags
@@ -119,14 +118,8 @@ build_execute()
 
   local path="`build_find $build`"
 
-  if [ -d ${path} ]; then
-    build_build ${flags} --path "${path}"
-    return $?
-  fi
-
-  # no matching build folder found anywhere
-  debug --level 8 --topic "COMMAND->BUIlD->EXECUTE" "No matching build found [build:${build}]"
-  return 1
+  build_build ${flags} --path "${path}"
+  return $?
 }
 
 # try to find a build in a build path
@@ -183,25 +176,28 @@ build_build()
   done
 
   local tag="${image}"
-  if [ -z $version ]; then
+  if [ -z "$version" ]; then
     tag="${tag}:${version}"
   fi
 
   if docker_image_exists "${tag}" ; then
     if [ $force -eq 0 ]; then
-      debug --level 1 --topic "COMMAND->BUILD" "build_build() :: error building custom image, image already exists: ${tag}"
+      debug --level 4 --topic "COMMAND->BUILD" "build_build() :: error building custom image, image already exists: ${tag}"
+      return 1
     else
       debug --level 4 --topic "COMMAND->BUILD" "build_build() :: image already exists, forcing build anyway due to force flag: ${tag}"
     fi
   fi
 
   # test to see if the build exists
-  if [ ! -d ${path} ]; then
-    debug --level 1 --topic "COMMAND->BUILD" "build_build() :: error building custom image, path to build doesn't exist: ${path}"
+  if path_is --build "${path}" ]; then
+    # Run the build function
+    debug --level 5 --topic "COMMAND->BUILD" "build_build() :: building custom image [ handing off to docker abstraction ] ==> docker_build ${flags} --path ${path}"
+    docker_build ${flags} --path "${path}"
+    return $?
+  else
+    debug --level 5 --topic "COMMAND->BUILD" "build_build() :: error building custom image, path to build doesn't exist or is not a build path [path:${path}]"
+    return 1
   fi
 
-  # Run the build function
-  debug --level 5 --topic "COMMAND->BUILD" "build_build() :: building custom image [ handing off to docker abstraction ] ==> docker_build ${flags} --path ${path}"
-  docker_build ${flags} --path "${path}"
-  return $?
 }

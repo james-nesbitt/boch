@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Help hander
+#
+
+
+# help method
+wwwservercnpm_help()
+{
+  wwwservercnpm_help_generalhelp
+}
+
+# method to list all flow topics in scope
+wwwservercnpm_helplist()
+{
+  echo ""
+}
+
+# generic help message for the command help system
+# @TODO put some usefull material here
+wwwservercnpm_help_generalhelp()
+{
+  echo "
+GENERIC WWWSERVER HELP MESSAGE GOES HERE
+
+- explain what the purpose of this library is
+- explain when to include this library
+- demonstrate how to include this library during ./flow init --wwwserver
+"
+}

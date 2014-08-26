@@ -96,14 +96,18 @@ libraries_contents()
 # returns 0 for loaded, 1 for not loaded
 library_loaded()
 {
-  case " `libraries_list`" in
-    *" ${1}:"*)
-        return 0
-      ;;
-    *)
-      return 1
-      ;;
-  esac
+  local library=""
+  for library in `libraries_list`; do
+    case " ${library} " in
+      *" ${1}:"*)
+          debug --level 9 --topic "LIBRARY->LOADED" "library is already loaded [library:${library}]"
+          return 0
+        ;;
+    esac
+  done
+
+  debug --level 9 --topic "LIBRARY->LOADED" "library is NOT already loaded [library:${library}]"
+  return 1
 }
 
 # this is a safe hooks executor, for handling cases where the hooks library has not been loaded yet.
@@ -151,7 +155,6 @@ library_load()
   shift
 
   local success=-1
-
 
   if library_loaded "${library}"; then
     # library is already loaded
@@ -295,6 +298,8 @@ _library_load()
     else
       debug --level 8 --topic "LIBRARY->_LOAD" "library is a simple library (this library can't have components or includes.) [path:${path}]"
     fi
+
+    debug --level 8 --topic "LIBRARY->_LOAD" "Now loading library [library:${library}][path:${path}]"
 
     # register the library as a path
     list_add "libraries_loaded" "${library}:${path}"

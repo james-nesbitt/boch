@@ -3,9 +3,36 @@
 # Settings library
 #
 
+###
+# Mount related functions
+#
+#
+
+# Add a mount to the system (of the form host:container)
+settings_mount_addmount()
+{
+  list_add "machine_mountvolumes" $1
+}
+# get a list of added mounts
+settings_mount_getmounts()
+{
+  # $1 would allow for different formats
+  case $1 in
+    *)
+      local mounts=""
+      local mount=""
+      for mount in `list_get "machine_mountvolumes"`; do
+        mounts="$mounts --volume=${mount}"
+      done
+      echo "${mounts}"
+      ;;
+  esac
+}
+
 #
 # This library doesn't do too much yet,
-# other than run a lot of
+# other than run a lot of hooks
+#
 
 #############################
 # include setting overrides #

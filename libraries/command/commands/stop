@@ -42,7 +42,7 @@ stop_execute()
     shift
   done
 
-  if docker_container_running ${container}; then
+  if docker_container_running "${container}"; then
     flags="${flags} --time ${seconds}"
 
     # Run the stop function
@@ -52,7 +52,7 @@ stop_execute()
 
   else
 
-    if docker_container_exists ${container}; then
+    if docker_container_exists "${container}"; then
       debug --level 5 --topic "COMMAND->STOP" "docker stop not executed.  The container exists but is not running [container:${container}]"
     else
       debug --level 5 --topic "COMMAND->STOP" "docker stop not executed.  The container does not exist [container:${container}]"
