@@ -32,16 +32,16 @@ now created the project folder.
 # execute method
 hook_flow_init_090_execute()
 {
-
-  # library_load checks to see if a library is already loaded, so no worries about
-  # reloading an existing project folder.
-
-  library_load --library "project" --path "${path_data}" --core "settings"
-
-  if [ $? -gt 0 ]; then
-    debug --level 3 --topic "HOOK->FLOW->INIT->090" "No custom data/project folder exists"
-  else
-    debug --level 5 --topic "HOOK->FLOW->INIT->090" "Loaded Data/Project folder as a library [path:${path_data}]"
+  if ! library_loaded "project"; then
+    # library_load checks to see if a library is already loaded, so no worries about
+    # reloading an existing project folder.
+    library_load --path "${path_data}" "project"
+    if [ $? -gt 0 ]; then
+      debug --level 3 --topic "HOOK->FLOW->INIT->090" "No custom data/project folder exists"
+      return 1
+    else
+      debug --level 5 --topic "HOOK->FLOW->INIT->090" "Loaded Data/Project folder as a library [path:${path_data}]"
+    fi
   fi
 
   # don't fail, even if we had problems.  This shouldn't break anything

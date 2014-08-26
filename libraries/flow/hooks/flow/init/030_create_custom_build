@@ -38,15 +38,16 @@ hook_command_init_030_execute()
     debug --level 5 --topic "HOOK->COMMAND->INIT->030" "Not creating a custom build for the project, as no template was specified."
   else
 
-    if [ -d "${path_data}" ] && [ ! -d "${path_data}/builds/${project_image}" ]; then
+    local path_build="${path_data}/builds/${project_image}"
+    if [ -d "${path_data}" ] && [ ! -d "${path_build}" ]; then
 
-      command_include "build"
+      command_load "build"
 
-      local path_build="`build_find \"${project_buildtemplate}\"`"
-      if [ "${path_build}" != "" ]; then
-        path_ensure --dir "${path_data}/builds"
-        cp -R "${path_build}" "${path_data}/builds/${project_image}"
-        debug --level 5 --topic "HOOK->COMMAND->INIT->030" "Created custom build [${path_build} => ${path_data}/builds/${project_image}]"
+      local path_template="`build_find \"${project_buildtemplate}\"`"
+      if path_is --dir "${path_template}"; then
+        path_ensure --dir "${path_build%/*}"
+        cp -R "${path_template}" "${path_build}"
+        debug --level 5 --topic "HOOK->COMMAND->INIT->030" "Created custom build [`path_shorten \"${path_template}\"` => `path_shorten \"${path_build}\"`]"
       else
         debug --level 6 --topic "HOOK->COMMAND->INIT->030" "no matching custom build found [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
       fi
@@ -59,4 +60,44 @@ hook_command_init_030_execute()
     fi
 
   fi
+}
+
+libraries_contents2()
+{
+  local subpath=""
+  local type="exec"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -d|--dir|--directory)
+        type="dir"
+        ;;
+      -f|--file)
+        type="file"
+        ;;
+      -l|--library)
+        type="library"
+        ;;
+      -x|--executable)
+        type="exec"
+        ;;
+      -s|--subpath)
+        subpath="/${2}"
+        shift
+        ;;
+      -t|--type)
+        type="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  local library=""
+  for library in `libraries_list`; do
+    path_contents --type "${type}" "`library_path \"${library}\"`${subpath}"
+  done
 }

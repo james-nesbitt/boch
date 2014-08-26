@@ -34,7 +34,7 @@ list_add()
   value=${value%% }
   value=${value## }
   eval "$var=\"${value}\""
-  debug --level 8 --topic "UTIITY->LIST->ADD" "Adding list to lists var [list:${var}][value:${!var}][added:${list}]"
+  debug --level 8 --topic "UTIITY->LIST->ADD" "Adding list to lists var [list:${var}][value:${!var}][added:${item}]"
 }
 list_remove()
 {
@@ -260,6 +260,7 @@ path_expand()
 path_is()
 {
   local type="any"
+  local corefile=""
 
   while [ $# -gt 0 ]
   do
@@ -286,7 +287,7 @@ path_is()
     shift
   done
 
-  local path="`path_expand ${1}`"
+  local path="`path_expand \"${1}\"`"
   shift
 
   debug --level 9 --topic "UTILITIES->PATH->IS" "Path check [type:${type}][path:${path}]"
@@ -348,7 +349,6 @@ path_include()
 # List contents of a path
 path_contents()
 {
-  local path="`path_expand \"$1\"`"
   local type="any"
 
   while [ $# -gt 0 ]
@@ -376,9 +376,11 @@ path_contents()
     shift
   done
 
+  local path="`path_expand \"$1\"`"
+  shift
   local path_item=""
   for path_item in ${path}/*; do
-    if path_is --type "${type}" "{path_item}"; then
+    if path_is --type "${type}" "${path_item}"; then
       echo "${path_item}"
     fi
   done
@@ -386,7 +388,7 @@ path_contents()
 # make sure that a path exists
 path_ensure()
 {
-  local path="${1}"
+  local path=""
   local type="dir"
 
   while [ $# -gt 0 ]
@@ -394,6 +396,9 @@ path_ensure()
     case "$1" in
       -d|--dir|--directory)
         type="dir"
+        ;;
+      -e|--exec)
+        type="exec"
         ;;
       -f|--file)
         type="file"
@@ -408,22 +413,38 @@ path_ensure()
     shift
   done
 
+  local path="${1}"
+  shift
+
   case "${type}" in
-    "file")
+    "file"|"exec")
       if [ -e $path ]; then
         if [ -d $path ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file.  Already exists but as a directory [path:$path]"
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file.  Already exists but as a directory [type:${type}][path:$path]"
           return 1
         else
-          debug --level 8 --topic "UTILITY->PATH->ENSURE" "file already exists, no need to create it [path:$path]"
+
+          if [ "${type}" == "exec" ]; then
+            if [ ! -x "${path}" ]; then
+              chmod u+x "${path}"
+              debug --level 8 --topic "UTILITY->PATH->ENSURE" "file already exists, but was not executable; no need to create it, but marked it executable [type:${type}][path:$path]"
+            fi
+          else
+            debug --level 8 --topic "UTILITY->PATH->ENSURE" "file already exists, no need to create it [type:${type}][path:$path]"
+          fi
           return 0
         fi
       else
-        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing file [path:$path]"
+        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing file [type:${type}][path:$path]"
         touch "${path}"
         local success=$?
         if [ $success -gt 0 ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file [path:$path]"
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file [type:${type}][path:$path]"
+        fi
+
+        if [ "${type}" == "exec" ]; then
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "making file executable [type:${type}][path:$path]"
+          chmod u+x "${path}"
         fi
         return $success
       fi
@@ -431,18 +452,18 @@ path_ensure()
     "dir")
       if [ -e "${path}" ]; then
         if [ -f "${path}" ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder.  Already exists but not as a directory [path:$path]"
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder.  Already exists but not as a directory [type:${type}][path:$path]"
           return 1
         else
-          debug --level 8 --topic "UTILITY->PATH->ENSURE" "folder already exists. No need to create it [path:$path]"
+          debug --level 8 --topic "UTILITY->PATH->ENSURE" "folder already exists. No need to create it [type:${type}][path:$path]"
           return 0
         fi
       else
-        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing folder [path:$path]"
+        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing folder [type:${type}][path:$path]"
         mkdir -p "${path}"
         local success=$?
         if [ $success -gt 0 ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder [path:$path]"
+          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder [type:${type}][path:$path]"
         fi
         return $success
       fi

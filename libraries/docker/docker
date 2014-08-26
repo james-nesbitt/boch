@@ -22,7 +22,7 @@ docker_init()
     shift
   done
 
-  _include_source "${path}/docker.api" $@
+  path_include "${path}api" $@
 
   _lib_docker_init=$?
 }
@@ -32,5 +32,3 @@ _lib_docker_init=${_lib_docker_init:--1}
 if [ $_lib_docker_init -eq -1 ]; then
   docker_init $@
 fi
-
-

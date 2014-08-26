@@ -44,7 +44,7 @@ GENERIC HELP MESSAGE FOR NO TOPIC
 - explain how the help system works
 - explain that a help topic has not been passed
 
-- give some examples of a proper help request   --> ./flow --help , ./command --help {command}
+- give some examples of a proper help request   --> ./help , ./flow --help , ./command --help {command}
 
 @NOTE this is likely being shown because of a developer error
 "
@@ -53,42 +53,199 @@ GENERIC HELP MESSAGE FOR NO TOPIC
 # A callable help handler for a help topic
 help_topic_help()
 {
-  local scope="$1"
-  local topic=""
+  debug --level 9 --topic "HELP->TOPIC" "Executing help : $@"
+  local scope="${1}"
   shift
 
+  handler="${scope%:*}"
+  topic="${scope##*:}"
+
   # split the primary scope handler from the topic
-  if [ "${scope}" != "${scope%:*}" ]; then
-    topic="${scope##*:}"
-    scope="${scope%:*}"
-    if [ "${topic}" == "general" ]; then
-      topic=""
-    fi
+  if [ "${handler}" == "${scope}" ]; then
+    scope=""
+  fi
+  if [ "${topic}" == "general" ]; then
+    topic=""
   fi
 
-  debug --level 5 --topic "HELP" "Running help hooks => hooks_execute \"help/${scope}\" ${topic} $@"
-  hooks_execute "help/${scope}" ${topic} $@
-  return $?
+  if [ "${handler}" != "help" ]; then
+    debug --level 6 --topic "HELP->TOPIC" "Including help handler [handler:${handler}]"
+    library_include "${handler}" "help"
+  fi
+
+  debug --level 7 --topic "HELP->TOPIC" "Executing help handler [topic:${topic}][handler:${handler}]"
+  library_execute --action "help" "${handler}" $topic $@
+  debug --level 7 --topic "HELP->TOPIC" "Executing help hooks [topic:${topic}][handler:${handler}]"
+  hooks_execute "help/${handler}" ${topic} $@
+
 }
 
 # provide the list help for all active help scopes
 help_topic_list()
 {
-  local scope=""
-  local topic=""
+  debug --level 9 --topic "HELP->TOPICLIST" "Executing help topic list : $@"
+  local scope="${1}"
+  shift
 
-  for scope in $@; do
-    if [ "${scope}" != "${scope%:*}" ]; then
-      topic="${scope##*:}"
-      scope="${scope%:*}"
-    fi
-    debug --level 7 --topic "HELP->TOPICLIST" "Running list action on topic help hooks [scope:${scope}][topic:${topic}]"
-    hooks_execute "help/${scope}" --action "list" ${topic}
-  done
+  # split the primary scope handler from the topic
+  handler="${scope%:*}"
+  topic="${scope##*:}"
+  if [ "${handler}" == "${scope}" ]; then
+    scope=""
+  fi
+  if [ "${topic}" == "general" ]; then
+    topic=""
+  fi
+
+  if [ "${handler}" != "help" ]; then
+    debug --level 6 --topic "HELP->TOPICLIST" "Including help handler [handler:${handler}]"
+    library_include "${handler}" "help"
+  fi
+
+  debug --level 7 --topic "HELP->TOPICLIST" "Running list action on topic [topic:${topic}][handler:${handler}]"
+  library_execute --action "helplist" "${handler}" $topic $@
+  debug --level 7 --topic "HELP->TOPICLIST" "Running list action on topic help hooks [topic:${topic}][handler:${handler}]"
+  hooks_execute "help/${handler}" --action "helplist" ${topic}
 }
 
 # list all the topics that have been added to scope
 help_scope_list()
 {
-  help_topic_list `help_scope_get`
+  local scope=""
+  for scope in `help_scope_get`; do
+    help_topic_list "${scope}"
+  done
 }
+
+####
+# Help Handler
+#
+# For any other library we would put this into
+# an include called help, which in this library
+# is the same filename as the library handler
+# so we just keep it here, and hack past that in
+# the help executor
+
+# execute method
+help_help()
+{
+  local topic="$1"
+  case "${topic}" in
+    init)
+      help_help_topic_init
+      ;;
+    hooks)
+      help_help_topic_hooks
+      ;;
+    project)
+      help_help_topic_project
+      ;;
+    libraries)
+      help_help_topic_libraries
+      ;;
+    *)
+      if [ -n "${topic}" ]; then
+        help_help_unknowntopic "${topic}" $@
+      fi
+
+      help_help_general
+    ;;
+  esac
+
+}
+
+# list help topics method
+help_helplist()
+{
+  echo "SYSTEM HELP TOPICS
+--> System initialization (help:init)
+--> Libraries (help:libraries)
+--> Hooks (help:hooks)
+--> The project folder (help:project)
+"
+  echo "LIBRARIES THAT SHOULD HAVE HELP TOPICS:"
+  local library=""
+  for library in `libraries_list`; do
+    if [ "${library%:*}" != "help" ]; then
+      echo "--> ${library%:*} (${library%:*}:general)"
+    fi
+  done
+}
+
+
+help_help_general()
+{
+ echo "HOOK->HELP->HELP->050 This is the generic help handler for the toolset
+
+- give a description on how the system works
+- explain that there are two primary scripts (control and flow)
+
+- explain what help topic are
+  - explain that help topics have a semicolon separator
+  - give some examples of hooks
+  - explain that the {topic}:general topic has a specific purpose
+  - explain that a list of system help topics will be listed below
+
+- explain that help topics are library specific
+  - explain that a list of libraries follows
+  - warn that this list of libraries depends on what libraries are
+    currently loaded.
+"
+
+  help_scope_add "help"
+
+  help_scope_list
+}
+
+# Unknow topic message
+help_help_unknowntopic()
+{
+  topic="$1"
+
+ echo "HOOK->HELP->HELP->050 UNKNOWN TOPIC MESSAGE
+
+Could not find any help for your topic: ${topic}
+
+"
+}
+
+help_help_topic_init()
+{
+ echo "HOOK->HELP->HELP->050 Help topic handler for system initialization
+
+- explain how init works
+- explain what the _init script is
+"
+}
+
+help_help_topic_libraries()
+{
+ echo "HOOK->HELP->HELP->050 Help topic handler for libraries
+
+- explain what libraries are
+- discuss what libraries can container
+- explain how libraries are included
+
+- suggest including a library in your project folder
+"
+}
+
+help_help_topic_hooks()
+{
+ echo "HOOK->HELP->HELP->050 Help topic handler for hooks
+
+- shortly explain hooks
+- suggest looking for help on topic hook:
+"
+}
+
+help_help_topic_project()
+{
+ echo "HOOK->HELP->HELP->050 Help topic handler for the project folder
+
+- explain that the project folder is for your project
+- explain that the project folder is a library
+  - explain how to get help on libraries
+"
+}
+

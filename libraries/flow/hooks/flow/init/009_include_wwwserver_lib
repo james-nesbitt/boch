@@ -38,8 +38,10 @@ hook_flow_init_009_execute()
   do
     case "$1" in
       -s|--wwwserver)
-        debug --level 5 --topic "HOOK->FLOW->INIT->009 Loading the wwwserver library as directed by command line arguments."
-        library_include wwwservercnpm
+        if ! library_loaded "wwwservercnpm"; then
+          debug --level 5 --topic "HOOK->FLOW->INIT->009 Loading the wwwserver library as directed by command line arguments."
+          library_load "wwwservercnpm"
+        fi
         ;;
     esac
     shift

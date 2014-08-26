@@ -37,7 +37,7 @@ hook_flow_status_030_execute()
     shift
   done
 
-  command_include "build"
+  command_load "build"
 
   echo "
 Project builds

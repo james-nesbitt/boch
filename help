@@ -98,5 +98,5 @@ fi
 # Process Help topic #
 ######################
 
-debug --level 5 --topic "HELP" "Running help hooks for help topic => help_execute \"${topic}\" $@"
+debug --level 5 --topic "HELP" "Running help handler for help topic => help_execute \"${topic}\" $@"
 help_execute "${topic}" $@

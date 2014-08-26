@@ -19,7 +19,14 @@
 
 hooks_getpath()
 {
-  echo "`libraries_list_subpath \"hooks\"`"
+  local library=""
+  local path=""
+  for library in `libraries_list`; do
+    path="`library_path \"${library}\"`/hooks"
+    if path_is --dir "${path}"; then
+      echo "${path}"
+    fi
+  done
 }
 
 ###

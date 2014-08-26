@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# Help hander
+#
+
+# execute method
+docker_help()
+{
+  if [ -n "${1}" ]; then
+
+    case "${1}" in
+      "docker_build")
+        echo "
+HELP FOR docker_build
+
+@TODO Make docs for docker functions
+"
+      ;;
+      *)
+        echo "
+UNKNOWN scope for docker HELP MESSAGE GOES HERE [scope:$1]
+
+- explain that this scope is not known
+
+"
+      ;;
+    esac
+
+  else
+
+    echo "
+GENERIC DOCKER HELP MESSAGE GOES HERE
+
+- explain the help system
+- explain the docker library
+- explain how to include the library and use it's functions
+
+"
+
+    help_scope_add "docker"
+    help_scope_list
+
+  fi
+}
+# list method
+docker_helplist()
+{
+  if [ -n "${1}" ]; then
+
+    case "${1}" in
+      "docker_build")
+        echo "HELP TOPICS IN SCOPE FOR DOCKER:
+--> docker_build : Build a new docker image from a local build (docker:docker_buid)"
+        ;;
+      "docker")
+        echo "LIST OF HELP TOPICS FOR DOCKER SCOPE - this will be a list of all of the docker functions"
+        ;;
+      *)
+        echo "UNKNOWN DOCKER HELP LIST SCOPE ${1}"
+        ;;
+    esac
+
+  fi
+}

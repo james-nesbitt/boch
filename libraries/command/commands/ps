@@ -42,8 +42,6 @@ ps_execute()
     debug --level 5 --topic "COMMAND->PS" "handing off to docker abstraction ==> docker_top --container ${container}"
     docker_top --container "${container}"
 
-    return 0
-
   # start a new container based on the image
   else
 
@@ -53,7 +51,6 @@ ps_execute()
     else
       debug --level 5 --topic "COMMAND->PS" "container does not exist ${container}"
     fi
-    return 1
 
   fi
 

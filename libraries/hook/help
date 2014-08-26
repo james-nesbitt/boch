@@ -1,32 +1,15 @@
 #!/bin/sh
 #
-# hook:help Main help handler for hook help
+# Help hander
 #
 
-hook_version="2"
-hook_root="hook_help_hook_050"
 
-show_global_hooks="no"
+################
+# HELP HANDLER #
+################
 
 # description method
-hook_help_hook_050_description()
-{
-  echo "Main help handler for hooks"
-}
-
-# help method
-hook_help_hook_050_help()
-{
-  echo "
-hook->help: Main help handler
-
-This hook is the primary hook help executor for any hook
-The hook will search out a hook and provide either a list entry
-or a full help description for a hook.
-"
-}
-# description method
-hook_help_hook_050_execute()
+hook_help()
 {
   # hook is the first argument
   local hook="$1"
@@ -34,21 +17,21 @@ hook_help_hook_050_execute()
 
   if [ -z "${hook}" ]; then
 
-    hook_help_hook_050_help_generalhelp $@
+    hook_help_generalhelp $@
 
   else
 
     debug --level 6 --topic "HOOK->HOOK->HELP-050" "Running help for hook [hook:`hook_label \"${hook}\"`][path:${hook}][fullpath:`path_expand \"${hook}\"`]"
     if [ -f "`path_expand \"${hook}\"`" ]; then
-      hook_help_hook_050_help_hook "${hook}"
+      hook_help_hook "${hook}"
     else
-      hook_help_hook_050_help_unknownhook "${hook}"
+      hook_help_unknownhook "${hook}"
     fi
   fi
 }
 
 # method to list all topics in scope
-hook_help_hook_050_list()
+hook_helplist()
 {
   local scope="$1"
   local states="pre execute post"
@@ -92,7 +75,7 @@ hook_help_hook_050_list()
 
 # generic help message for the command help system
 # @TODO put some usefull material here
-hook_help_hook_050_help_generalhelp()
+hook_help_generalhelp()
 {
   echo "
 hook->help->hook->050 : Getting help information about a hook
@@ -128,7 +111,7 @@ $/> ./control --help \"hook:command~command/post/050_command_specific_post\" com
 "
 }
 # Output help for a hook
-hook_help_hook_050_help_hook()
+hook_help_hook()
 {
   local hook="$1"
   shift
@@ -139,7 +122,7 @@ HELP FOR HOOK: ${hook}
   hook_execute "${hook}" --action "help" $@
 }
 # output message if help is requested for an unknow command
-hook_help_hook_050_help_unknownhook()
+hook_help_unknownhook()
 {
   echo "
 HELP REQUEST FOR UNKNOWN HOOK $1
@@ -150,4 +133,5 @@ Perhaps the hook is not in scope for this help process, or you mistyped it
 Try to copy the hook name from the hook list in the generic help.
 "
 }
+
 

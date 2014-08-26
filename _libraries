@@ -11,23 +11,7 @@ _libraries_addlibrary()
 }
 # add the core manage folder as a library, even though it isn't really a library
 # this just makes some things easier
-_libraries_addlibrary "core:${path_manage}/libraries"
-
-# return list of paths to libraries containing a folder/subpath
-# @NOTE return paths are to the subfolder
-libraries_list_subpath()
-{
-  local subpath="$1"
-
-  local library_path=""
-  local path=""
-  for library_path in `libraries_list`; do
-    path="${library_path##*:}/${subpath}"
-    if [ -d "${path}" ]; then
-      echo "${path}"
-    fi
-  done
-}
+_libraries_addlibrary "core:${path_manage}"
 
 # retrieve the list of loaded libraries
 libraries_list()
@@ -65,6 +49,63 @@ library_path()
   echo "${library##*:}"
 }
 
+# list all contents of a subpath in any library
+# @NOTE this is used for components and hooks, which can exist in
+#       any library.
+libraries_contents()
+{
+  local subpath=""
+  local type="exec"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -d|--dir|--directory)
+        type="dir"
+        ;;
+      -f|--file)
+        type="file"
+        ;;
+      -l|--library)
+        type="library"
+        ;;
+      -x|--executable)
+        type="exec"
+        ;;
+      -s|--subpath)
+        subpath="/${2}"
+        shift
+        ;;
+      -t|--type)
+        type="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  local library=""
+  for library in `libraries_list`; do
+    path_contents --type "${type}" "`library_path \"${library}\"`${subpath}"
+  done
+}
+
+# boolean responder for if a library is loaded
+# returns 0 for loaded, 1 for not loaded
+library_loaded()
+{
+  case " `libraries_list`" in
+    *" ${1}:"*)
+        return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 # this is a safe hooks executor, for handling cases where the hooks library has not been loaded yet.
 # this is necessary for the case of loading the hooks library, and any libraries before that.
 _libraries_hooks_execute()
@@ -82,19 +123,12 @@ library_load()
   local component=""
   local path=""
   local subpath=""
-  local corefile=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -c|--component)
         component="${2}"
-        shift
-        ;;
-      -f|--corefile)
-        # if a component is passed, then this path os for the component
-        # @NOTE Only used if the library is a directory
-        corefile="$2"
         shift
         ;;
       -p|--path)
@@ -118,28 +152,26 @@ library_load()
 
   local success=-1
 
-  library_loaded "${library}"
-  success=$?
-  if [ $success -eq 0 ]; then
+
+  if library_loaded "${library}"; then
     # library is already loaded
-    debug --level 6 --topic "LIBRARY->LOAD" "library already loaded [library:${library}]"
+    debug --level 7 --topic "LIBRARY->LOAD" "library already loaded [library:${library}]"
     success=0
   else
 
     if [ -z "${component}" ] && [ -n "${path}" ]; then
 
-      path_exists --type "library" "${path}"
-      success=$?
-      if [ $success -eq 0 ]; then
-        _library_load --library "${library}" --path "${path}" --corefile "${corefile}"
+      if path_is --library "${path}"; then
+        _library_load --library "${library}" --path "${path}" $@
         success=$?
         if [ $success -eq 0 ]; then
-          debug --level 6 --topic "LIBRARY->LOAD" "suggested path library loaded [library:${library}][path:${path}][corefile:${corefile}][success:${success}]"
+          debug --level 7 --topic "LIBRARY->LOAD" "suggested path library loaded [library:${library}][path:${path}][success:${success}]"
         else
-          debug --level 6 --topic "LIBRARY->LOAD" "suggested path library load failed [library:${library}][path:${path}][corefile:${corefile}][success:${success}]"
+          debug --level 7 --topic "LIBRARY->LOAD" "suggested path library load failed [library:${library}][path:${path}][success:${success}]"
         fi
       else
-        debug --level 6 --topic "LIBRARY->LOAD" "suggested path for library not found, or not a library [library:${library}][path:${path}][corefile:${corefile}][success:${success}]"
+        success=1
+        debug --level 6 --topic "LIBRARY->LOAD" "suggested path for library not found, or not a library [library:${library}][path:${path}][success:${success}]"
       fi
 
     else
@@ -147,39 +179,41 @@ library_load()
       local path_library=""
       for path_library in `libraries_list`
       do
-        path="`library_path "${path_library}"`/${library}"
+        path="`library_path "${path_library}"`/libraries/${library}"
 
-        if path_is --type "library" "${path}"; then
+        if path_is --library "${path}"; then
           debug --level 9 --topic "LIBRARY->LOAD" "library exists [library:${library}][path:${path}][success:${success}]"
-          _library_load --library "${library}" --path "${path}"
+          _library_load --library "${library}" --path "${path}" $@
           success=$?
           if [ $success -eq 0 ]; then
-            debug --level 5 --topic "LIBRARY->LOAD" "library found and loaded [library:${library}][path:${path}][corefile:${corefile}][success:${success}]"
+            debug --level 7 --topic "LIBRARY->LOAD" "library found and loaded [library:${library}][path:${path}][success:${success}]"
           else
-            debug --level 5 --topic "LIBRARY->LOAD" "library found but load failed [library:${library}][path:${path}][corefile:${corefile}][success:${success}]"
+            debug --level 6 --topic "LIBRARY->LOAD" "library found but load failed [library:${library}][path:${path}][success:${success}]"
           fi
 
           break
         else
           success=1
-          debug --level 7 --topic "LIBRARY->LOAD" "library path does not exist [library:${library}][path:${path}][success:${success}]"
+          debug --level 9 --topic "LIBRARY->LOAD" "library path does not exist [library:${library}][path:${path}][success:${success}]"
         fi
       done
 
       if [ $success -lt 0 ]; then
-        debug --level 6 --topic "LIBRARY->LOAD" "library could not be found [library:${library}][path:${path}][corefile:${corefile}][success:${success}]"
+        debug --level 6 --topic "LIBRARY->LOAD" "library could not be found [library:${library}][path:${path}][success:${success}]"
         success=1
       fi
+
     fi
 
   fi
 
+  # handle component if library is now loaded, and a component was requested
   if [ $success -eq 0 ] && [ -n "${component}" ]; then
 
     if [ -n "${path}" ]; then
-      path_is --type "library" "${path}"
-      if [ $? -eq 0 ]; then
-        _library_load --library "${component}" --path "${path}" --corefile "${corefile}"
+
+      if path_is --type "library" "${path}"; then
+        _library_load --library "${component}" --path "${path}"
         local success=$?
         if [ $success -eq 0 ]; then
           debug --level 7 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loaded [library:${library}][component:${component}]"
@@ -193,20 +227,23 @@ library_load()
       fi
     else
       # if no subpath was passed in, the fake a plural of the library name
+
       if [ -z "${subpath}" ]; then
-        subpath="${component}s"
+        subpath="${library}s"
       fi
 
-      for library in `libraries_list`; do
-        component_contents_path="`library_path \"${library}\"`/${subpath}/${component}"
-        path_is --type "library" "${path}"
-        if [ $? -eq 0 ]; then
-          _library_load --library "${component}" --path "${path}" --corefile "${corefile}"
-          if [ $? -eq 0 ]; then
-            debug --level 7 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loaded [library:${library}][component:${component}]"
+      local this_library=""
+      for this_library in `libraries_list`; do
+        path="`library_path \"${this_library}\"`/${subpath}/${component}"
+        if path_is --type "library" "${path}"; then
+          _library_load --library "${component}" --path "${path}"
+          success=$?
+          if [ $success -eq 0 ]; then
+            debug --level 7 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loaded [library:${library}][component:${component}][in library:${this_library}]"
           else
-            debug --level 6 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loading failed [library:${library}][component:${component}]"
+            debug --level 6 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loading failed [library:${library}][component:${component}][in library:${this_library}]"
           fi
+          return $success
         fi
       done
 
@@ -231,16 +268,10 @@ _library_load()
 {
   local library=""
   local path=""
-  local corefile=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -f|--corefile)
-        # @NOTE Only used if the library is a directory
-        corefile="$2"
-        shift
-        ;;
       -l|--library)
         library="$2"
         shift
@@ -255,19 +286,14 @@ _library_load()
     shift
   done
 
-  if path_is --type "library" "${path}"; then
+  if path_is --library "${path}"; then
     local path_include="${path}"
 
-    if path_is --type "directory" "${path}"; then
-      if [ -z "${corefile}" ]; then
-        corefile="${path##*/}"
-        debug --level 8 --topic "LIBRARY->_LOAD" "library is a directory based lib. No corefile suggested, so auto-determining it [library:${library}][path:${path}][corefile:${corefile}]"
-      else
-        debug --level 8 --topic "LIBRARY->_LOAD" "library is a directory based lib. Corefile suggested [library:${library}][path:${path}][corefile:${corefile}]"
-      fi
-      path_include="${path}/${corefile}"
+    if path_is --dir "${path}"; then
+      debug --level 8 --topic "LIBRARY->_LOAD" "library is a directory based lib [library:${library}][path:${path}]"
+      path_include="${path}/${path##*/}"
     else
-        debug --level 8 --topic "LIBRARY->_LOAD" "library is a simple library (this library can't have components or includes.) [path:${path}]"
+      debug --level 8 --topic "LIBRARY->_LOAD" "library is a simple library (this library can't have components or includes.) [path:${path}]"
     fi
 
     # register the library as a path
@@ -298,7 +324,49 @@ _library_load()
 # Include a file in a library root
 library_include()
 {
-echo "LIBRARY_INCLUDE"
+  # empty defaults
+  local library=""
+  local component=""
+  local include=""
+  local subpath=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--component)
+        component="$2"
+        shift
+        ;;
+      -s|--subpath)
+        subpath="$2"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # library is the first thing loaded, include is the second
+  local library="$1"
+  local include="$2"
+  shift 2
+
+  local path=""
+  if [ -z "${component}" ]; then
+    library_load "${library}"
+    library="`libraries_list_get \"${library}\"`"
+    path="`library_path \"${library}\"`"
+  else
+    library_load --component "${component}" "${library}"
+    library="`libraries_list_get \"${component}\"`"
+    path="`library_path \"${library}\"`"
+  fi
+
+  path="${path}/${subpath}${include}"
+  debug --level 5 --topic "LIBRARY->INCLUDE" "Including library component file [library:${library%:*}][component:${component}][path:${path}] : $@"
+  path_include "${path}"
+  return $?
 }
 # Execute a library handler function
 # @NOTE this function tries to make sure that hte library is loaded
@@ -314,11 +382,11 @@ library_execute()
   do
     case "$1" in
       -a|--action)
-        action=$2
+        action="$2"
         shift
         ;;
       -c|--component)
-        component=$2
+        component="$2"
         shift
         ;;
       *)
@@ -336,7 +404,7 @@ library_execute()
     library_load "${library}" $@
     success=$?
     if [ $success -eq 0 ]; then
-      _library_execute --action "${action}" "${library}"
+      _library_execute --action "${action}" "${library}" $@
     fi
   else
     library_load --component "${component}" "${library}" $@
@@ -381,11 +449,9 @@ _library_execute()
 
   # include the library
   if [ -z "${component}" ]; then
-    library_load "${library}" $@
     success=$?
     library_function="${library}_${action}"
   else
-    library_load --component "${component}" "${library}" $@
     success=$?
     library_function="${component}_${action}"
     debug --level 8 --topic "LIBRARY->_EXECUTE" "library execute is for a component [library:${library}][action:${action}][function:${library_function}]"
@@ -406,62 +472,4 @@ _library_execute()
     debug --level 7 --topic "LIBRARY->_EXECUTE" "Library execute method was not found in the library [library:${library}][action:${action}]."
     return 1
   fi
-}
-
-# list all contents of a subpath in any library
-# @NOTE this is used for components and hooks, which can exist in
-#       any library.
-libraries_subpath_list()
-{
-  local subpath="$1"
-  local type="exec"
-
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -d|--directory)
-        type="dir"
-        ;;
-      -f|--file)
-        type="file"
-        ;;
-      -l|--library)
-        type="library"
-        ;;
-      -x|--executable)
-        type="exec"
-        ;;
-      -t|--type)
-        type="${2}"
-        shift
-        ;;
-      *)
-        break;
-    esac
-    shift
-  done
-
-  local library=""
-  local library_path=""
-  local library_path_contents=""
-  for library in `libraries_list`; do
-    library_path="`library_path \"${library}\"`'"
-    for library_path_contents in `path_contents --type \"${type}\" \"${library_path}\"`; do
-      echo "${content_path##*/}:${content_path}"
-    done
-  done
-}
-
-# boolean responder for if a library is loaded
-# returns 0 for loaded, 1 for not loaded
-library_loaded()
-{
-  case " `libraries_list`" in
-    *" ${library}:"*)
-        return 0
-      ;;
-    *)
-      return 1
-      ;;
-  esac
 }
