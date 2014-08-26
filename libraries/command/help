@@ -1,0 +1,113 @@
+#!/bin/sh
+#
+# Help hander
+#
+
+# description method
+command_help()
+{
+echo "HELP : $@"
+  # Command is the first argument
+  command=$1
+  shift
+
+  if [ -z "$command" ]; then
+
+    command_help_generalhelp $@
+
+    help_scope_add "command"
+    help_scope_list
+
+  else
+
+    debug --level 6 --topic "COMMAND->HELP" "including command \"${command}\""
+    command_load ${command}
+
+    if [ $? -gt 0 ]; then
+
+      debug --level 6 --topic "COMMAND->HELP" "command not found \"${command}\""
+      command_help_unknowncommandhelp ${command} $@
+
+    else
+
+      command_help_commandhelp ${command} $@
+
+      help_scope_add "command:${command}"
+      help_scope_list
+
+    fi
+
+  fi
+}
+
+# method to list all command topics in scope
+command_helplist()
+{
+  local scope=""
+  if [ -n "${1}" ] && [ "${1}" != "command" ]; then
+    scope="command/${1}"
+    echo "HOOKS THAT ACT ON $1 COMMAND OPERATIONS:
+"
+  else
+    scope="command"
+    echo "HOOKS THAT ACT ON ALL COMMAND OPERATIONS:
+"
+  fi
+
+  # list all hooks that act on this scope
+   help_topic_list "hook:${scope}"
+}
+
+# generic help message for the command help system
+# @TODO put some usefull material here
+command_help_generalhelp()
+{
+  echo "
+GENERIC HELP MESSAGE FOR COMMANDS GOES HERE
+
+- explain the help system
+- explain the hook system
+  - explain that a command is actually run via a hook
+
+- give examples for showing help for a command      -> ./command --help {command}
+- give examples for showing help for a command hook -> ./command --help \"hook:{hook}\" {command}
+"
+
+  command_help_commandlist
+
+}
+# output message if help is requested for an unknow command
+command_help_unknowncommandhelp()
+{
+  echo "
+UNKNOWN command [command:$1]
+
+You have tried to get help for a command that we could not find in the system.
+
+The command \"${1}\" was not found in the system.
+
+"
+  # Include general help
+  command_help_generalhelp
+}
+# List all of the commands
+command_help_commandlist()
+{
+  local path
+  echo "
+Known commands
+=============="
+  local command=""
+  for path in `commands_list | sort`; do
+    command="${path%:*}"
+    echo "--> ${command} (command:${command})"
+  done
+}
+# output help for a specific command
+command_help_commandhelp()
+{
+  local command=$1
+  shift
+  debug --level 6 --topic "COMMAND->HELP" "handing off help to command help hook [command:\"${command}\"]"
+  command_execute ${command} --action "help" $@
+}

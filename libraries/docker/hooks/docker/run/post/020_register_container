@@ -7,7 +7,7 @@ hook_version=2
 hook_root="hook_docker_run_post_020"
 
 hook_docker_run_post_020_registerpath="${path_data}/containers"
-ensure_folder "${hook_docker_run_post_020_registerpath}"
+path_ensure --dir "${hook_docker_run_post_020_registerpath}"
 
 # description hook
 hook_docker_run_post_020_descrtiption()

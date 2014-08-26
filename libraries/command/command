@@ -19,21 +19,21 @@
 #
 
 # Include a command : really just hands off to library include
-command_include()
+command_load()
 {
 
   # Get the command as the first parameter
   local command=$1
   shift
 
-  debug --level 8 --topic "COMMAND->INCLUDE" "Including command component.  Handing off to library_include ==> library_include --library \"command\" --component \"commands:${command}\" $@"
-  library_include --component "commands:${command}" "command" $@
+  debug --level 8 --topic "COMMAND->LOAD" "Loading command component.  Handing off to library_load ==> library_load --library \"command\" --component \"${command}\" $@"
+  library_load --component "${command}" "command" $@
   local success=$?
 
   if [ $success -eq 0 ]; then
-    debug --level 7 --topic "COMMAND->INCLUDE" "Command included [command:${command}]"
+    debug --level 7 --topic "COMMAND->LOAD" "Command loaded [command:${command}]"
   else
-    debug --level 6 --topic "COMMAND:INCLUDE" "Command include failed [command:${command}]"
+    debug --level 6 --topic "COMMAND:LOAD" "Command load failed [command:${command}]"
   fi
   return $success
 }
@@ -68,7 +68,7 @@ command_execute()
     done
 
     debug --level 7 --topic "COMMAND:EXECUTE" "command [ ${command} ] handing off to command_execute script: library_execute --action \"${action}\" --component \"commands:${command}\" \"command\" $@"
-    library_execute --action "${action}" --component "commands:${command}" "command" $@
+    library_execute --action "${action}" --component "${command}" "command" $@
     local success=$?
 
     if [ $success -eq 0 ]; then
@@ -87,5 +87,8 @@ command_execute()
 # List all of the commands
 commands_list()
 {
-  echo "`libraries_list_components \"commands\"`"
+  local path=""
+  for path in `libraries_contents --library --subpath "commands"`; do
+    echo "${path##*/}:${path}"
+  done
 }

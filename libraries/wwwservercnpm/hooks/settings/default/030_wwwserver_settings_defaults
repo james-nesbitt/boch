@@ -49,7 +49,7 @@ wwwserver_settings_defaults_030_execute()
 ##
 # Load the wwwserver library
 #
-library_include \"wwwservercnpm\"
+library_load \"wwwservercnpm\"
 
 ###
 # Docker image configurations

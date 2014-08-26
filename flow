@@ -70,7 +70,7 @@ path_script="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 source "${path_script}/_init"
 
 # include the flow library
-library_include flow
+library_load flow
 
 #################################################
 # Determine what workflow is supposed to be run #

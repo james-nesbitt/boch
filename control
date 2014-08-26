@@ -102,7 +102,7 @@ fi
 if [ "$help" != "no" ]; then
 
   # run the help handler for commands
-  debug --level 5 --topic "COMMAND" "Running flow:help hooks => help_execute \"command:${COMMAND}\" $@"
+  debug --level 5 --topic "COMMAND" "Running help hooks => help_execute \"command:${COMMAND}\" $@"
   help_execute "command:${COMMAND}" $@
 
   if [ -n "${helptopic}" ]; then

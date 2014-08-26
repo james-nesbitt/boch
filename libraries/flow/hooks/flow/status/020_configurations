@@ -43,7 +43,7 @@ Project Configurations
   -->path_data-------------: ${path_data}
   -->path_source-----------: ${path_source}
   >LIBRARIES
-  -->libraries loaded------: `libraries_getlibraries`
+  -->libraries loaded------: `libraries_list`
   >HOOKS
   -->path_hooks------------: `hooks_getpath`
   >PROJECT CONFIGURATION

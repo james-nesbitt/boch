@@ -27,12 +27,11 @@ hook_command_pre_020_execute()
   # Command is the first argument
   COMMAND=$1
 
-
   debug --level 4 --topic "HOOK->COMMAND->PRE->020" "Loading command [command:${COMMAND}]"
 
   # We have a command file, so we hand the execution off to
   # that script to run inline (not as a function)
-  command_include ${COMMAND}
+  command_load ${COMMAND}
   local success=$?
 
   if [ $success -gt 0 ]; then

@@ -19,7 +19,14 @@
 
 hooks_getpath()
 {
-  echo "`libraries_list_subpath \"hooks\"`"
+  local library=""
+  local path=""
+  for library in `libraries_list`; do
+    path="`library_path \"${library}\"`/hooks"
+    if path_is --dir "${path}"; then
+      echo "${path}"
+    fi
+  done
 }
 
 ###
@@ -144,8 +151,8 @@ hook_include()
 
   if [ -f "${hook}" ]; then
 
-    debug --level 9 --topic "HOOK->INCLUDE" "Including hook.  Handing off to _include_source [hook:${hook}] ==> _include_source \"${hook}\" $@ "
-    _include_source "${hook}" $@
+    debug --level 9 --topic "HOOK->INCLUDE" "Including hook.  Handing off to path_include [hook:${hook}] ==> path_include \"${hook}\" $@ "
+    path_include "${hook}" $@
     local success=$?
     if [ $success -eq 0 ]; then
       debug --level 8 --topic "HOOK->INCLUDE" "hook included \"${hook}\""

@@ -54,7 +54,7 @@ hook_library_settings_library_060_execute()
 
       if [ -f ${path} ] && [ -x ${path} ]; then
         debug --level 6 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "New library has a settings file.  Adding it. [library:${library}][path:${path}]"
-        _include_source "${path}"
+        path_include "${path}"
       fi
     ;;
   esac

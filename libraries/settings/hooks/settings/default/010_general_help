@@ -84,7 +84,7 @@ hook_settings_default_010_execute()
 #   it's own libraries.  The best place to put new libraries
 #   is in the libraries sub-folder of your project.
 #
-#library_include \"library_name\"
+#library_load \"library_name\"
 
 "
 }

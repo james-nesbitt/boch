@@ -6,20 +6,18 @@
 # list all the paths that contain builds in the system
 builds_getpath()
 {
-  echo "`libraries_list_subpath \"builds\"`"
+  local library=""
+  for library in `libraries_list`; do
+    local path="`library_path \"${library}\"`/builds"
+    if path_is --dir "${path}"; then
+      echo "${path}"
+    fi
+  done
 }
 # List all the builds in the system
 builds_list()
 {
-  local builds_path
-  local build_path
-  for builds_path in `builds_getpath`; do
-    for build_path in ${builds_path}/*; do
-      if [ -d ${build_path} ]; then
-        echo ${build_path}
-      fi
-    done
-  done
+  libraries_contents --dir --subpath "builds"
 }
 # find the path to a particular build
 build_find()
@@ -66,6 +64,8 @@ can easily be built by passing the individual folder names to this command.
   image version/tag.
 "
   echo "Paths in the system that container builds:"
+
+  libraries_contents --subpath "hooks"
   for build in `builds_getpath`; do
     echo " --> ${build}"
   done

@@ -40,13 +40,10 @@ hook_settings_post_010_execute()
   do
     if [ "$path" != "" ]; then
 
-      ensure_folder $path
-      success=$?
-
-      if [ $success -gt 0 ]; then
-	debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required folder: $path"
+      if path_ensure --dir $path; then
+        debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required folder: $path"
       else
-	debug --level 8 --topic "HOOK->SETTINGS->POST->010" "Required folder exists: $path"
+        debug --level 8 --topic "HOOK->SETTINGS->POST->010" "Required folder exists: $path"
       fi
 
     fi
@@ -60,13 +57,11 @@ hook_settings_post_010_execute()
   do
     if [ "$file" != "" ]; then
 
-     ensure_file $file;
-     success=$?
-     if [ $success -gt 0 ]; then
-	debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required file: $file"
-     else
-	debug --level 7 --topic "HOOK->SETTINGS->POST->010" "Required file exists: $file"
-     fi
+    if path_ensure --file $file; then
+        debug --level 3 --topic "HOOK->SETTINGS->POST->010" "Failed to create required file: $file"
+    else
+        debug --level 7 --topic "HOOK->SETTINGS->POST->010" "Required file exists: $file"
+    fi
 
     fi
   done

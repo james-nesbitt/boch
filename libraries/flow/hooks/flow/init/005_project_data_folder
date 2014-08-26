@@ -30,12 +30,33 @@ The folder will always be /folder
 # execute method
 hook_init_005_execute()
 {
-
   # what is the root path to the project folder
   path_data="${path_data:-${path_project}/project}"
+  path_data_executable="${path_data}/${path_data##*/}"
 
-  debug --level 5 --topic "HOOK->COMMAND->INIT->005" "Making sure that we have a project folder "
-  # make sure that we have a custom path
-  ensure_folder "${path_data}"
+  if ! path_is --dir "${path_data}"; then
+    debug --level 5 --topic "HOOK->COMMAND->INIT->005" "Making sure that we have a project folder [path:${path_data}]"
+    # make sure that we have a custom library in the data path
+    path_ensure --dir "${path_data}"
+  fi
+  if ! path_is --exec "${path_data_executable}"; then
+    debug --level 5 --topic "HOOK->COMMAND->INIT->005" "Making sure that we have a project library executable [path:${path_data}]"
+    path_ensure --exec "${path_data_executable}"
 
+    echo "#!/bin/sh
+#
+# Project library handler
+#
+
+###
+# What to put here
+#
+# - custom functions for your project
+# - a help / helplist handler
+#
+
+
+" > "${path_data_executable}"
+
+  fi
 }

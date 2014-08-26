@@ -37,7 +37,7 @@ in the project.
 hook_settings_040_execute()
 {
 
-  library_load --library "project" --path "${path_data}" --core "settings"
+  library_load --path "${path_data}" "project"
 
   if [ $? -gt 0 ]; then
     debug --level 3 --topic "HOOK->SETTINGS->040" "No custom data/project folder exists"
