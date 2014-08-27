@@ -3,6 +3,12 @@
 # COMMAND: Output container process logs
 #
 
+# command description function
+output_description()
+{
+  echo "Output a container's tty output to screen"
+}
+
 # command help function
 output_help()
 {
@@ -37,6 +43,9 @@ output_execute()
   done
 
   if docker_container_running ${container}; then
+    message "Output logs for container : ${container}"
+    message --separator
+
     # Run the logs function
     debug --level 5 --topic "COMMAND->OUTPUT" "[ handing off to docker abstraction ] ==> docker_logs --container ${container}"
     docker_logs --container "${container}"

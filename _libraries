@@ -309,6 +309,11 @@ _library_load()
 
     debug --level 7 --topic "LIBRARY->_LOAD" "Including library root.  Handing off to path_include ==> path_include \"${path_include}\" $@ "
     if path_include "${path_include}" $@; then
+
+      if _library_execute --action "init" "${library}" --path "${path}"; then
+        debug --level 7 --topic "LIBRARY->LOAD" "Library init function run"
+      fi
+
       # run post hooks
       _libraries_hooks_execute "library/load" --state "post" --library "${library}" --path "${path}" $@
 
@@ -373,6 +378,7 @@ library_include()
   path_include "${path}"
   return $?
 }
+
 # Execute a library handler function
 # @NOTE this function tries to make sure that hte library is loaded
 #       and it is component aware.
@@ -454,11 +460,9 @@ _library_execute()
 
   # include the library
   if [ -z "${component}" ]; then
-    success=$?
-    library_function="${library}_${action}"
+    local library_function="${library}_${action}"
   else
-    success=$?
-    library_function="${component}_${action}"
+    local library_function="${component}_${action}"
     debug --level 8 --topic "LIBRARY->_EXECUTE" "library execute is for a component [library:${library}][action:${action}][function:${library_function}]"
   fi
 

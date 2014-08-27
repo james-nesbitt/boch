@@ -18,9 +18,12 @@ flow_exists()
 {
   local flow="$1"
 
-  local flow_paths="`libraries_contents --subpath \"hooks/flow/${flow}\"`"
-  for flow_path in ${flow_paths}; do
-    return 0
+  local flow_path=""
+  local state=""
+  for state in help pre execute post; do
+    for flow_path in `hooks_list --state "${state}" "flow/${flow}"`; do
+      return 0
+    done
   done
 
   return 1

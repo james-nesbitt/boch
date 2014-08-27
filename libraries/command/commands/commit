@@ -3,6 +3,12 @@
 # COMMAND: commit a container to an image
 #
 
+# command description function
+commit_description()
+{
+  echo "Commit container changes to an image"
+}
+
 # Command help function
 commit_help()
 {

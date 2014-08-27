@@ -3,6 +3,12 @@
 # COMMAND: Attach to a running container
 #
 
+# command description function
+attach_description()
+{
+  echo "Attach to a running container"
+}
+
 # command help function
 attach_help()
 {
@@ -51,6 +57,8 @@ attach_execute()
   done
 
   if docker_container_running "${container}"; then
+    message "Now attaching to container : ${container}"
+    message --separator
 
     # Run the stop function
     debug --level 5 --topic "COMMAND->ATTACH" "[ handing off to docker abstraction ] ==> docker_attach ${container}"

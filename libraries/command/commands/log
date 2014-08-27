@@ -3,6 +3,12 @@
 # COMMAND: Output control logs
 #
 
+# command description function
+log_description()
+{
+  echo "Output the script execution logs to screen"
+}
+
 # command help function
 log_help()
 {
@@ -46,6 +52,9 @@ log_execute()
     esac
     shift
   done
+
+  message "Outputting script log file:"
+  message --separator
 
   # Run the logs function
   debug --level 5 --topic "COMMAND" "log [ executing log output command ][command:${command}][flags:${flags}] ==> ${com} ${flags} \"${path}\""

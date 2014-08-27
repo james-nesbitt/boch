@@ -11,8 +11,6 @@
 
 == LIBRARIES ==
 
-1. autorun a library_init method after loading the library?
-
 The following are ideas for libraries that should be started
 
 1. boot2docker : to implement hooks that integrate better with boot2ocker
@@ -21,7 +19,7 @@ The following are ideas for libraries that should be started
 
 == UTILITIES ==
 
-1. a "debug_reset" function would be nice, to set the debug level back to an unset value after running debug_set_level
+
 
 == SETTINGS ==
 
@@ -49,8 +47,6 @@ overusage of hooks and abstraction (which was kind of the goal) which make
 it confusing to trace errors.
 
 There are a lot of commands/hooks that don't do safety checks on params
-
-1. settings are loaded twice - once when the library is loaded, but again on a settings hook (040)
 
 == SECURITY ==
 

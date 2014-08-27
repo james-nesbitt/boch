@@ -3,6 +3,12 @@
 # COMMAND: Get access to a shell running on a certain image
 #
 
+# command description function
+shell_description()
+{
+  echo "Get access to a shell in a new container"
+}
+
 # Command help function
 shell_help()
 {
@@ -57,6 +63,9 @@ shell_execute()
 
   # add default flags to the end of the flag list
   flags="${flags} ${machine_shellrunargs} `settings_mount_getmounts`"
+
+  message "Giving shell access to a new container :"
+  message --separator
 
   # Run the shell function
   debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"

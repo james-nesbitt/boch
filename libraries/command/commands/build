@@ -3,6 +3,12 @@
 # COMMAND: Build a new image[:version] for a project
 #
 
+# command description function
+build_description()
+{
+  echo "Build a docker image from a Dockerfile build"
+}
+
 # list all the paths that contain builds in the system
 builds_getpath()
 {
@@ -117,6 +123,9 @@ build_execute()
   fi
 
   local path="`build_find $build`"
+
+  message "Building new system image from Dockerfile path: ${path}"
+  message --separator
 
   build_build ${flags} --path "${path}"
   return $?

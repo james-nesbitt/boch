@@ -27,7 +27,7 @@ This hook does two things:
   has added conents.  If you remove those messages, then the hook will think that
   they were never added, and remove them.
 "
-  hook_settings_default_010_help_hooklist "default" "`hooks_list \"settings\" --state \"default\"`"
+  hook_settings_default_010_help_hooklist "default" "`hooks_list --state \"default\" \"settings\"`"
 }
 
 # execute method
@@ -68,7 +68,7 @@ hook_init_010_execute()
   fi
 
   local hook=""
-  for hook in `hooks_list "settings" --state "default" --file ${path}`; do
+  for hook in `hooks_list --state "default" "settings" --file ${path}`; do
 
     hook_version=""
     hook_root=""

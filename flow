@@ -104,6 +104,11 @@ fi
 # Process workflow : pass the rest of the arguments to the flow #
 ####################################################################
 
+if ! flow_exists "${WORKFLOW}"; then
+  debug --level 5 --topic "WORKFLOW" "Unknown flow given, switching to help mode [flow:${WORKFLOW}]"
+  help="yes"
+fi
+
 if [ "$help" == "yes" ]; then
 
   debug --level 5 --topic "WORKFLOW" "Running flow:help hooks => help_execute \"flow:${WORKFLOW}\" $@"

@@ -3,6 +3,12 @@
 # COMMAND: Stop any running containers
 #
 
+# command description function
+shell_description()
+{
+  echo "Stop a running container"
+}
+
 # Command help function
 stop_help()
 {
@@ -45,6 +51,8 @@ stop_execute()
   if docker_container_running "${container}"; then
     flags="${flags} --time ${seconds}"
 
+    message "Now stopping running container (${container})"
+
     # Run the stop function
     debug --level 5 --topic "COMMAND->STOP" "handing off to docker abstraction [container:${container}] ==> docker_stop --container \"${container}\" ${flags}"
     local container=$(docker_stop --container "${container}" ${flags})
@@ -53,8 +61,10 @@ stop_execute()
   else
 
     if docker_container_exists "${container}"; then
+      message "Could not stop container (${container}) as it was not running"
       debug --level 5 --topic "COMMAND->STOP" "docker stop not executed.  The container exists but is not running [container:${container}]"
     else
+      message "Could not stop container (${container}) as it does not exist."
       debug --level 5 --topic "COMMAND->STOP" "docker stop not executed.  The container does not exist [container:${container}]"
     fi
     return 1

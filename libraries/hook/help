@@ -57,7 +57,7 @@ hook_helplist()
   local state=""
   for state in ${states}; do
 
-    hooks="`hooks_list \"${scope}\" --state \"${state}\"`"
+    hooks="`hooks_list --state \"${state}\" \"${scope}\"`"
 
     if [ -n "${hooks}" ]; then
       if [ "${state}" == "execute" ]; then

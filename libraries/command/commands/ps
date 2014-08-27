@@ -3,6 +3,12 @@
 # COMMAND: List containers
 #
 
+# command description function
+ps_description()
+{
+  echo "List processes running in a container"
+}
+
 # Help function
 ps_help()
 {
@@ -37,6 +43,8 @@ ps_execute()
   done
 
   if docker_container_running "${container}"; then
+    message "Process running in container : ${container}"
+    message --separator
 
     # Run the ps function
     debug --level 5 --topic "COMMAND->PS" "handing off to docker abstraction ==> docker_top --container ${container}"
@@ -48,8 +56,10 @@ ps_execute()
     if docker_container_exists "${container}"; then
       # Run the run function
       debug --level 5 --topic "COMMAND->PS" "container is not running ${container}"
+      message "Could not list processes running, as the container (${container}) is not running"
     else
       debug --level 5 --topic "COMMAND->PS" "container does not exist ${container}"
+      message "Could not list processes running, as the container (${container}) does not exist"
     fi
 
   fi

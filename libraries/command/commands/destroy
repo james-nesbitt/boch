@@ -8,6 +8,12 @@
 # load the build command
 command_load "build"
 
+# command description function
+destroy_description()
+{
+  echo "Destroy an existing docker image"
+}
+
 # command help function
 destroy_help()
 {
@@ -69,6 +75,9 @@ destroy_execute()
   if [ -n "${version}" ]; then
     flags="${flags} --version ${version}"
   fi
+
+  message "Destroying system image: ${image}:${version}"
+  message --separator
 
   destroy_destroy ${flags}
   return $?

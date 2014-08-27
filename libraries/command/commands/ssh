@@ -8,6 +8,12 @@
 # @NOTE By default, the root user is used
 #
 
+# command description function
+ssh_description()
+{
+  echo "SSH into a shell in a running container"
+}
+
 ssh_help()
 {
   echo "
@@ -53,5 +59,9 @@ ssh_execute()
   done
 
   local ip="$(docker_inspect_getIP ${container})"
+
+  message "Now executing ssh for container [${container}] : ssh ${flags} ${user}@${ip} $@"
+  message --separator
+
   ssh ${flags} ${user}@${ip} $@
 }
