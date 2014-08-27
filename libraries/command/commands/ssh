@@ -58,10 +58,26 @@ ssh_execute()
     shift
   done
 
-  local ip="$(docker_inspect_getIP ${container})"
 
-  message "Now executing ssh for container [${container}] : ssh ${flags} ${user}@${ip} $@"
-  message --separator
+  if docker_container_running "${container}"; then
 
-  ssh ${flags} ${user}@${ip} $@
+    local ip="$(docker_inspect_getIP ${container})"
+
+    message "Now executing ssh for container [${container}] : ssh ${flags} ${user}@${ip} $@"
+    message --separator
+
+    ssh ${flags} "${user}@${ip}" $@
+
+  else
+
+    if docker_container_exists "${container}"; then
+      message "Could not ssh into container (${container}) as it was not running"
+      debug --level 5 --topic "COMMAND->SSH" "ssh not executed.  The container exists but is not running [container:${container}]"
+    else
+      message "Could not ssh into container (${container}) as it does not exist."
+      debug --level 5 --topic "COMMAND->SSH" "ssh not executed.  The container does not exist [container:${container}]"
+    fi
+    return 1
+  fi
+
 }
