@@ -3,6 +3,12 @@
 # COMMAND: List containers
 #
 
+# command description function
+ps_description()
+{
+  echo "List processes running in a container"
+}
+
 # Help function
 ps_help()
 {

@@ -3,6 +3,12 @@
 # COMMAND: Output control logs
 #
 
+# command description function
+log_description()
+{
+  echo "Output the script execution logs to screen"
+}
+
 # command help function
 log_help()
 {

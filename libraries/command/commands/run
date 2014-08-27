@@ -3,6 +3,12 @@
 # COMMAND: Run a command in a temporary container
 #
 
+# command description function
+run_description()
+{
+  echo "Run a single command in a new container"
+}
+
 # Command help function
 run_help()
 {

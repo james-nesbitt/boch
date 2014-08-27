@@ -102,6 +102,7 @@ debug_reset_level()
 {
   if [ -n ${original_debug} ]; then
     debug=${original_debug}
+    debug --level 3 --topic "UTILITY->DEBUG" "Debug mode reset (level:${debug}) $@"
   fi
 }
 # set the debug logging value

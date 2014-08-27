@@ -6,7 +6,6 @@
 # description method
 command_help()
 {
-echo "HELP : $@"
   # Command is the first argument
   command=$1
   shift
@@ -100,7 +99,7 @@ Known commands
   local command=""
   for path in `commands_list | sort`; do
     command="${path%:*}"
-    echo "--> ${command} (command:${command})"
+    echo "--> ${command} : `library_execute --action \"description\" --component \"${command}\" \"command\"` (command:${command})"
   done
 }
 # output help for a specific command

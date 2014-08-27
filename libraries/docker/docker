@@ -6,13 +6,12 @@
 docker_init()
 {
   local path=""
-
   # default flags
   local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
-       --source-include-path)
+       --path)
         path="${2}"
         shift
         ;;
@@ -22,13 +21,5 @@ docker_init()
     shift
   done
 
-  path_include "${path}api" $@
-
-  _lib_docker_init=$?
+  path_include "${path}/api" $@
 }
-
-# this should be moved into the library routines and run automatically on ever lib
-_lib_docker_init=${_lib_docker_init:--1}
-if [ $_lib_docker_init -eq -1 ]; then
-  docker_init $@
-fi

@@ -3,6 +3,12 @@
 # COMMAND: Stop any running containers
 #
 
+# command description function
+shell_description()
+{
+  echo "Stop a running container"
+}
+
 # Command help function
 stop_help()
 {

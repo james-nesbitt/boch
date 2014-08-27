@@ -8,6 +8,12 @@
 # load the build command
 command_load "build"
 
+# command description function
+destroy_description()
+{
+  echo "Destroy an existing docker image"
+}
+
 # command help function
 destroy_help()
 {

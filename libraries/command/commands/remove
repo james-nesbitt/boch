@@ -3,6 +3,12 @@
 # COMMAND: Remove a container
 #
 
+# command description function
+remove_description()
+{
+  echo "Delete a container"
+}
+
 # Command help function
 remove_help()
 {

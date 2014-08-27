@@ -3,6 +3,12 @@
 # COMMAND: Attach to a running container
 #
 
+# command description function
+attach_description()
+{
+  echo "Attach to a running container"
+}
+
 # command help function
 attach_help()
 {

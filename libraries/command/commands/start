@@ -3,6 +3,12 @@
 # COMMAND: start a new container or restart a stopped container
 #
 
+# command description function
+start_description()
+{
+  echo "Start a container, new or stopped"
+}
+
 # Command help function
 start_help()
 {

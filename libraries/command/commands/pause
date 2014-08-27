@@ -3,6 +3,12 @@
 # COMMAND: pause and un-pause a running container
 #
 
+# command description function
+pause_description()
+{
+  echo "Pause/Unpause a running container"
+}
+
 # Command help function
 pause_help()
 {

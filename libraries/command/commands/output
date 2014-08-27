@@ -3,6 +3,12 @@
 # COMMAND: Output container process logs
 #
 
+# command description function
+output_description()
+{
+  echo "Output a container's tty output to screen"
+}
+
 # command help function
 output_help()
 {

@@ -8,6 +8,12 @@
 # @NOTE By default, the root user is used
 #
 
+# command description function
+ssh_description()
+{
+  echo "SSH into a shell in a running container"
+}
+
 ssh_help()
 {
   echo "

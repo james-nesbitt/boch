@@ -3,6 +3,12 @@
 # COMMAND: Get access to a shell running on a certain image
 #
 
+# command description function
+shell_description()
+{
+  echo "Get access to a shell in a new container"
+}
+
 # Command help function
 shell_help()
 {
