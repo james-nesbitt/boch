@@ -74,9 +74,9 @@ hooks_execute()
   done
 
   if [ -n "${state}" ]; then
-    local hooks_paths="`hooks_list ${hook} --state ${state}`"
+    local hooks_paths="`hooks_list  --state \"${state}\" \"${hook}\"`"
   else
-    local hooks_paths="`hooks_list ${hook}`"
+    local hooks_paths="`hooks_list \"${hook}\"`"
   fi
   debug --level 8 --topic "HOOKS->EXECUTE" "hooks retrieved [hook:${hook}][state:${state}][hooks:${hooks_paths}]";
   local hook_path=""
@@ -100,19 +100,15 @@ hooks_execute()
 # List all hooks, in the sorted order
 hooks_list()
 {
-  # require the first argument to be the command
-  local hook=$1
-  shift
-
-  # base hooks path
-  local paths=""
+  local hook=""
+  local suffix=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -s|--state)
         if [ "$2" != "execute" ]; then
-          hook="${hook}/${2}"
+          suffix="${suffix}/${2}"
         fi
         shift
         ;;
@@ -122,13 +118,17 @@ hooks_list()
     shift
   done
 
+  # first argument is the hook
+  local hook="$1${suffix}"
+  shift
+
   # print all of the functions that match our hook, in any of the avaiable hook paths, but sorted based on integer prefix
   local hooks_paths="`hooks_getpath`"
   local hook_token=""
   for hook_token in `for path in ${hooks_paths}; do
     path="${path}/${hook}"
     debug --level 9 --topic "HOOK->INCLUDE" "Checking hook path [path:${path}]"
-    if [ -d ${path} ]; then
+    if path_is --dir "${path}"; then
       for path_hook in ${path}/*; do
         if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
           # add a sorting prefix that will sort based on file prefix (the integer numbers) instead of the path
@@ -277,18 +277,14 @@ hook_help()
 #   this function does something similar and outputs hooks lists
 hooks_list_debug()
 {
-  # require the first argument to be the command
-  local hook=$1
-  shift
-
-  # base hooks path
-  local paths=""
+  local hook=""
+  local suffix=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -s|--state)
-        hook="${hook}/${2}"
+        suffix="${suffix}/${2}"
         shift
         ;;
       *)
@@ -296,6 +292,10 @@ hooks_list_debug()
     esac
     shift
   done
+
+  # require the first argument to be the command
+  local hook="$1${suffix}"
+  shift
 
   # print all of the functions that match our hook, in any of the avaiable hook paths, but sorted based on integer prefix
   local hooks_paths="`hooks_getpath`"
