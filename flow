@@ -137,7 +137,7 @@ else
     hooks_execute "flow/${WORKFLOW}" --state "post" $@
   else
     # execute any existing fail hooks
-    debug --level 7 --topic "WORKFLOW" "Running flow:fail hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"faile\" $@"
+    debug --level 7 --topic "WORKFLOW" "Running flow:fail hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"fail\" $@"
     hooks_execute "flow/${WORKFLOW}" --state "fail" $@
   fi
   exit $success
