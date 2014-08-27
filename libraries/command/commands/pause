@@ -57,12 +57,16 @@ pause_execute()
 
     # un-pause a paused container
     if [ "${action}" == "unpause" ]; then
+      message "Unpausing paused container (${container})"
+
       # Run the pause function
       debug --level 5 --topic "COMMAND->PAUSE" "[ handing off to docker pause abstraction ] ==> docker_pause --container ${container}"
       docker_unpause --container ${container}
       return $?
     # pause the container
     else
+      message "Pausing running container (${container})"
+
       # Run the pause function
       debug --level 5 --topic "COMMAND->PAUSE" "[ handing off to docker unpause abstraction ] ==> docker_unpause --container ${container}"
       docker_pause --container ${container}
@@ -72,8 +76,10 @@ pause_execute()
   else
 
     if docker_container_exists "${container}"; then
+      message "Could not pause|unpause container (${container}) as it is not running"
       debug --level 5 --topic "COMMAND->PAUSE" "Could not pause|unpause as the container is not running ${container}"
     else
+      message "Could not pause|unpause container (${container}) as it is does not exist"
       debug --level 5 --topic "COMMAND->PAUSE" "Could not pause|unpause as the container does not exist ${container}"
     fi
     return 1

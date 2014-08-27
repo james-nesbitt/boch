@@ -124,6 +124,9 @@ build_execute()
 
   local path="`build_find $build`"
 
+  message "Building new system image from Dockerfile path: ${path}"
+  message --separator
+
   build_build ${flags} --path "${path}"
   return $?
 }

@@ -86,17 +86,21 @@ start_execute()
   if docker_container_exists ${container}; then
 
     if docker_container_running ${container}; then
+      message "No need to start the container (${container}) as it is already running."
+
       debug --level 5 --topic "COMMAND" "didn't start container as it was already running [container:${container}]"
       return 0
     else
       # Run the start function
       debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
-      docker_start --container ${container}
+      message "Starting stopped container (${container}): `docker_start --container ${container}`"
       return $?
     fi
 
   # start a new container based on the image
   else
+    message "Starting new container (${container}):"
+
     # Run the run function
     debug --level 5 --topic "COMMAND" "start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${container}\" --hostname \"${hostname}\" ${flags} $@"
     docker_run --image "${image}" --version "${version}" --container "${container}" --hostname "${hostname}" ${flags} $@

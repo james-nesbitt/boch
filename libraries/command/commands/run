@@ -71,6 +71,9 @@ run_execute()
   # add default flags to the end of the flag list
   flags="${flags} ${Machine_shellrunargs} `settings_mount_getmounts`"
 
+  message "Running function in new container (${name}) :"
+  message --separator
+
   # Run the run function
   debug --level 5 --topic "COMMAND" "run [ handing off to docker abstraction ] ==> docker_run ${temp} --image /"${image}/" --version /"${version}/" --hostname /"${hostname}/" --name /"${name}/" --command /"${command}/" ${flags} $@/"
   docker_run ${temp} --image "${image}" --version "${version}" --hostname "${hostname}" --name "${name}" --command "${command}" ${flags} $@

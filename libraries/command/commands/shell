@@ -64,6 +64,9 @@ shell_execute()
   # add default flags to the end of the flag list
   flags="${flags} ${machine_shellrunargs} `settings_mount_getmounts`"
 
+  message "Giving shell access to a new container :"
+  message --separator
+
   # Run the shell function
   debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"
   docker_run ${temp} --shell "${command}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@

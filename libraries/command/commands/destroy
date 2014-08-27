@@ -76,6 +76,9 @@ destroy_execute()
     flags="${flags} --version ${version}"
   fi
 
+  message "Destroying system image: ${image}:${version}"
+  message --separator
+
   destroy_destroy ${flags}
   return $?
 }

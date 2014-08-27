@@ -57,6 +57,8 @@ attach_execute()
   done
 
   if docker_container_running "${container}"; then
+    message "Now attaching to container : ${container}"
+    message --separator
 
     # Run the stop function
     debug --level 5 --topic "COMMAND->ATTACH" "[ handing off to docker abstraction ] ==> docker_attach ${container}"

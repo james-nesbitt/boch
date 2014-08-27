@@ -119,6 +119,25 @@ debug_disable_critical()
   debug --level 3 --topic "UTILITY->DEBUG" "Forced mode enabled $@"
 }
 
+# handle user interface messages
+message()
+{
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -s|--separator)
+        echo "==============================================================================================="
+        exit 0
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+
+  echo $@
+}
 # Create a debug entry/message
 debug()
 {

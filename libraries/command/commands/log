@@ -53,6 +53,9 @@ log_execute()
     shift
   done
 
+  message "Outputting script log file:"
+  message --separator
+
   # Run the logs function
   debug --level 5 --topic "COMMAND" "log [ executing log output command ][command:${command}][flags:${flags}] ==> ${com} ${flags} \"${path}\""
   eval "${com} ${flags} ${path}"
