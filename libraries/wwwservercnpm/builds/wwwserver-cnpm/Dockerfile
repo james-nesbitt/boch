@@ -5,20 +5,20 @@
 FROM            centos:centos7
 MAINTAINER      james.nesbitt@wunderkraut.com
 
+
 # Update core
-RUN /usr/bin/yum update -y && yum clean -y all
+RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all
+
+## EPEL Dependency on CentOS 6 and Red Hat (RHEL) 6 ##
+RUN curl -O -J -L http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm && \
+    rpm -ivh epel-release-7-0.2.noarch.rpm && rm epel-release-7-0.2.noarch.rpm && \
+    /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum makecache
 
 # Install some tools used here.
 RUN /usr/bin/yum install -y wget curl git tar unzip
 
-## EPEL Dependency on CentOS 6 and Red Hat (RHEL) 6 ##
-RUN wget http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm && \
-    rpm -ivh epel-release-7-0.2.noarch.rpm && rm epel-release-7-0.2.noarch.rpm && \
-    yum update -y && yum clean -y all
-
 # Install supervisord
 RUN /usr/bin/yum install -y supervisor
-#ADD etc_supervisord.conf /etc/supervisord.conf
 ADD etc_supervisord.d /etc/supervisord.d
 EXPOSE 9001
 
@@ -33,7 +33,9 @@ RUN /usr/bin/yum install -y mariadb-server mariadb
 ADD etc_my.cnf.d_server.cnf /etc/my.cnf.d/server.cnf
 ADD etc_my.cnf /etc/my.cnf
 RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mysql --log-error=/var/log/mariadb/error.log --pid-file=/var/run/mariadb/mariadb.pid --socket=/var/run/mariadb/mariadb.sock --bind=0.0.0.0 --port=3306
-RUN     (/usr/bin/mysqld_safe &) && sleep 5 && mysql -uroot -e "GRANT ALL ON *.* to project@172.17.42.1 identified by 'project';"
+# Rassafrakkin' php-mysql doesn't want to look anywhere else, php-mysqlnd doesn't play well with drupal
+RUN ln -s /var/run/mariadb/mariadb.sock /var/lib/mysql/mysql.sock
+RUN (/usr/bin/mysqld_safe &) && sleep 5 && mysql -uroot -e "GRANT ALL ON *.* to project@172.17.42.1 identified by 'project';"
 EXPOSE 3306
 
 # Install nginx (make it run as the nginx user)
