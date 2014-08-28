@@ -421,7 +421,7 @@ library_execute()
     library_load --component "${component}" "${library}" $@
     success=$?
     if [ $success -eq 0 ]; then
-      _library_execute --component "${component}" --action "${action}" "${library}"
+      _library_execute --component "${component}" --action "${action}" "${library}" $@
     fi
   fi
 

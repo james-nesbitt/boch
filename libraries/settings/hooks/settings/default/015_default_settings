@@ -1,16 +1,18 @@
 #!/bin/sh
 #
-#
+# Add some default core settings
 #
 
 hook_version=2
 hook_root="hook_settings_default_015"
 
+# Hook description method
 hook_settings_default_015_description()
 {
   echo "Add default core settings"
 }
 
+# Hook help method
 hook_settings_default_015_help()
 {
   echo "
@@ -19,7 +21,7 @@ HOOK->SETTINGS->DEFAULT->015 Add some default core configuration
 "
 }
 
-
+# Hook execute method
 hook_settings_default_015_execute()
 {
   echo "
@@ -57,11 +59,16 @@ project_name=\"${project_name:-project}\"
 # Project build and image
 #
 # which build (folder) should be used for project images (if it isn't built)
+# Set this if you put a folder with a Dockerfile in ./builds
 project_build=\"${project_build:-${project_name}}\"
 # which image should we use for creating containers (and build if it is missing)
 project_image=\"${project_image:-${project_name}}\"
-# which image version/tag should we use for containers
+# which image version/tag should we build/use for containers
 project_imageversion=\"${project_imageversion:-"latest"}\"
+
+# @NOTE you can change the image/version values on the fly to branch your work
+#       and start working on a different image set,  Alternatively, you can used
+#       a different container by passing a container name into many of the commands
 
 ###
 # Docker Container configurations
@@ -82,9 +89,10 @@ machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 #
 # Running as a shell is a temporary approach to getting shell access to a machine
 # but should be considered secondary to other methods of running commands on the
-# container.  It is a good plan for now but will be dropped in the future.
+# container.  It is a good tool for now but may be dropped in the future.
 #
 # @NOTE Running a shell creates a new container, but does not give access to an existing container
+#       It is not a replacement for ssh, but rather gives access to a sandbox.
 #machine_shell=\"/bin/bash\"
 # arguments for docker run that should always be included when starting a shell: docker help run
 # @NOTE you should probably take a look at docker run to learn more

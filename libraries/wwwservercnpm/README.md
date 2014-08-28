@@ -1,21 +1,34 @@
-= The images =
+= WWWSERVERCNPM Library =
 
-The build system is not aware of dependencies, but the ${required_builds} variable can be used to indicate what builds need to be build before building the custom image for the project.
+This library adds support for a set of centos-nginx-phpfpm-mariadb images that have been built to offer a web-server build to the system.  The concept is to have the local system use a small build that uses one of the cnpm images as a parent, making the local build smaller, and inheriting all of the upstream functionality.
 
-The default approach is to have a parent project image shared across projects/containers.  You should build any dependencies first; if you include the build configurations then the build command will help you doing that, but you will have to know dependencies youself.
-The images used in the wwwserver-cnpm boxes are aware of their dependencies, but those dependnecies have been moved to be hosted on docker.io, so there is no need for related effort from you.
+The upstream build is hosted on DOCKER.IO, but the actual builds are also locally included so that you can investigate what was done, and copy anything that you find usefull.
 
-== the parent image: wwwserver-cnpm-dev ==
+This library doesn't do much during execution, other than to add one of it's builds as a default template build.  This really only needs to be available during flow init.
 
-The parent image is used as a base for all projects using this framework.  It has the basic docker functionality, with www server applications installed, and configured to run as a development environment.
+== How To Use it ==
 
-The parent is CentOS 6.5 based, using nginx, php-fpm, mariaDB, running alsoo sshd, managed by supervisor
+To use this library, and the related images, just add "library_load wwwservercnpm" to your settings file.  Alternatively, the init flow is ready to add a bunch of stuff to your system, if you include "--wwwserver" to your init run:
 
-The Dev part adds a "developer" user, some additional tools like xdebug, and more loose php settings.
+$/> ./flow init --wwwserver
 
-You can pull the image from dockerio like this if you want to check it:
-$/> docker pull jamesnesbitt/wwwserver-cpnm-dev
+This will add the library_load to your settings file, and it will also overload a number of settings variables with settings that match what the images require.  You should probably check the variables to see if they work for you.  This will also make the library template build the default template source for a project build.
 
-== The real parents ==
+== The Builds ==
 
-You can find the source builds used to build the wwwserver-cnpm-dev image in the builds folder of this library, althought you don't need to use them.
+The following dockere builds are provided by the library.
+
+=== wwwserver-cnpm ===
+
+A centos7 image with the latest nginx, mariadb and php-fpm installed, all set up to run together in an environment that should work out of the box, if you add some project related elements such as an nginx configuration for a host.
+
+BUG: the php-mysql library doesn't like to listen to the unix socket definition. The php lib wants the socket at /var/lib
+
+=== wwwserver-cnpm-dev ===
+
+This image extenss the wwwserver-cnpm image by adding some developer oriented configurations, including things like xdebug, and adding a developer user.
+
+=== template ====
+
+This is a template build, that will extend the wwwserver-cnpm-dev (as hosted on docker.io) with some configuration for a specific project.  It does somethings like adds a DB for the project, adds an nginx host definition to point to /app/source/www.
+

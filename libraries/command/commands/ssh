@@ -58,7 +58,6 @@ ssh_execute()
     shift
   done
 
-
   if docker_container_running "${container}"; then
 
     local ip="$(docker_inspect_getIP ${container})"
