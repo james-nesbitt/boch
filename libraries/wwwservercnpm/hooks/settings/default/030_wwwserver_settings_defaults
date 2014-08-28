@@ -109,7 +109,9 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} 
 settings_mount_addmount \"\${path_project}/source:/app/source\"
 
 # SSH
-# @NOTE this lets your container user do ssh like the host user (selinux may block this on the host)
+# This lets your container user do ssh like the host user (selinux may block this on the host)
 settings_mount_addmount \"\${path_userhome}/.ssh:/home/\${machine_username}/.ssh-host\"
+# This may let you ssh into the container without a password, if you have an rsa key
+#settings_mount_addmount \"\${path_userhome}/.ssh/id_rsa.pub:/home/\${machine_username}/.ssh/authorized_keys\"
 "
 }

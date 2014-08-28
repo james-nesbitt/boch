@@ -185,11 +185,11 @@ build_build()
   done
 
   local tag="${image}"
-  if [ -z "$version" ]; then
+  if [ -n "${version}" ]; then
     tag="${tag}:${version}"
   fi
 
-  if docker_image_exists "${tag}" ; then
+  if docker_image_exists "${tag}"; then
     if [ $force -eq 0 ]; then
       debug --level 4 --topic "COMMAND->BUILD" "build_build() :: error building custom image, image already exists: ${tag}"
       return 1
