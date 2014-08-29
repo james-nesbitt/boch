@@ -4,20 +4,20 @@
 #
 
 hook_version=2
-hook_root="hook_command_init_030"
+hook_root="hook_command_init_300"
 
 
 # description method
-hook_command_init_030_description()
+hook_command_init_300_description()
 {
   echo "Create default project image build"
 }
 
 # help method
-hook_command_init_030_help()
+hook_command_init_300_help()
 {
   echo "
-HOOK->FLOW->INIT->030: Build the default project image
+HOOK->FLOW->INIT->300: Build the default project image
 
 This hook will run a docker build, createing a new system
 image for you to use for your project.
@@ -31,11 +31,11 @@ image for you to use for your project.
 }
 
 # execute method
-hook_command_init_030_execute()
+hook_command_init_300_execute()
 {
 
   if [ -z "${project_buildtemplate}" ]; then
-    debug --level 5 --topic "HOOK->COMMAND->INIT->030" "Not creating a custom build for the project, as no template was specified."
+    debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Not creating a custom build for the project, as no template was specified."
   else
 
     local path_build="${path_data}/builds/${project_image}"
@@ -47,14 +47,14 @@ hook_command_init_030_execute()
       if path_is --dir "${path_template}"; then
         path_ensure --dir "${path_build%/*}"
         cp -R "${path_template}" "${path_build}"
-        debug --level 5 --topic "HOOK->COMMAND->INIT->030" "Created custom build [`path_shorten \"${path_template}\"` => `path_shorten \"${path_build}\"`]"
+        debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Created custom build [`path_shorten \"${path_template}\"` => `path_shorten \"${path_build}\"`]"
       else
-        debug --level 6 --topic "HOOK->COMMAND->INIT->030" "no matching custom build found [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
+        debug --level 6 --topic "HOOK->COMMAND->INIT->300" "no matching custom build found [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
       fi
 
     else
 
-      debug --level 6 --topic "HOOK->COMMAND->INIT->030" "Custom build found in project folder [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
+      debug --level 6 --topic "HOOK->COMMAND->INIT->300" "Custom build found in project folder [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
       return 0
 
     fi

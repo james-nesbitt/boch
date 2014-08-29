@@ -4,25 +4,25 @@
 #
 
 hook_version=2
-hook_root="hook_settings_post_090"
+hook_root="hook_settings_post_900"
 
 # description method
-hook_settings_post_090_description()
+hook_settings_post_900_description()
 {
-  echo "hook->settings (post) 090: include some safe values for important variables"
+  echo "hook->settings (post) 900: include some safe values for important variables"
 }
 
 # help method
-hook_settings_post_090_help()
+hook_settings_post_900_help()
 {
   echo "
-hook->settings (post) 090: include some safe values for important variables
+hook->settings (post) 900: include some safe values for important variables
 
 "
 }
 
 # execute method
-hook_settings_post_090_execute()
+hook_settings_post_900_execute()
 {
   ###################################################
   # Overridable settings for docker and the machine #

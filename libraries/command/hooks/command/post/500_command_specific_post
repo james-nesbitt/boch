@@ -4,16 +4,16 @@
 #
 
 hook_version=2
-hook_root="hook_command_post_specific_050"
+hook_root="hook_command_post_specific_500"
 
 # description method
-hook_command_post_specific_050_description()
+hook_command_post_specific_500_description()
 {
   echo "HOOK->Command:post:specific: Run any command specific POST hooks"
 }
 
 # help method
-hook_command_post_specific_050_help()
+hook_command_post_specific_500_help()
 {
   echo "
 HOOK->Command:post:specific: Run any command specific POST hooks
@@ -21,7 +21,7 @@ HOOK->Command:post:specific: Run any command specific POST hooks
 }
 
 # execute method
-hook_command_post_specific_050_execute()
+hook_command_post_specific_500_execute()
 {
 
   local command=$1
@@ -37,9 +37,9 @@ hook_command_post_specific_050_execute()
   local success=$?
 
   if [ $success -eq 0 ]; then
-    debug --level 8 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks run successfully [command:${command}]"
+    debug --level 8 --topic "HOOK->COMMAND->POST->500" "Command specific POST hooks run successfully [command:${command}]"
   else
-    debug --level 6 --topic "HOOK->COMMAND->POST->050" "Command specific POST hooks failed to run [command:${command}]"
+    debug --level 6 --topic "HOOK->COMMAND->POST->500" "Command specific POST hooks failed to run [command:${command}]"
   fi
   return $success
 }

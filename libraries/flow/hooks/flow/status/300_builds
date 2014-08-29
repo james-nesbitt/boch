@@ -1,26 +1,26 @@
 #!/bin/sh
 #
-# HOOK->FLOW->STATUS->030 Project builds
+# HOOK->FLOW->STATUS->300 Project builds
 #
 
 hook_version=2
-hook_root="hook_flow_status_030"
+hook_root="hook_flow_status_300"
 
 # description method
-hook_flow_status_030_description()
+hook_flow_status_300_description()
 {
   echo "Analyze builds used in the project"
 }
 
 # help method
-hook_flow_status_030_help()
+hook_flow_status_300_help()
 {
- echo "HOOK->FLOW->STATUS->030 Project builds
+ echo "HOOK->FLOW->STATUS->300 Project builds
 "
 }
 
 # execute method
-hook_flow_status_030_execute()
+hook_flow_status_300_execute()
 {
 
   local build="${project_build}"

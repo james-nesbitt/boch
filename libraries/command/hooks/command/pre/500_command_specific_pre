@@ -4,16 +4,16 @@
 #
 
 hook_version=2
-hook_root="hook_command_pre_specific_060"
+hook_root="hook_command_pre_specific_500"
 
 # description method
-hook_command_pre_specific_060_description()
+hook_command_pre_specific_500_description()
 {
   echo "HOOK->Command:pre:specific: Run any command specific PRE hooks"
 }
 
 # help method
-hook_command_pre_specific_060_help()
+hook_command_pre_specific_500_help()
 {
   echo "
 HOOK->Command:pre:specific: Run any command specific PRE hooks
@@ -22,7 +22,7 @@ HOOK->Command:pre:specific: Run any command specific PRE hooks
 }
 
 # execute method
-hook_command_pre_specific_060_execute()
+hook_command_pre_specific_500_execute()
 {
 
   local command=$1

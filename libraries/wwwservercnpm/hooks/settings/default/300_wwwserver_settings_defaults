@@ -4,19 +4,19 @@
 #
 
 hook_version=2
-hook_root="wwwserver_settings_defaults_030"
+hook_root="wwwserver_settings_defaults_300"
 
 # description method
-wwwserver_settings_defaults_030_description()
+wwwserver_settings_defaults_300_description()
 {
   echo "Default settings for the wwwserver-cnpm library and builds"
 }
 
 # help method
-wwwserver_settings_defaults_030_help()
+wwwserver_settings_defaults_300_help()
 {
   echo "
-LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from the wwwservercnpm library
+LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->300 Add default settings from the wwwservercnpm library
 
 - explain the library
 
@@ -31,7 +31,7 @@ LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->030 Add default settings from 
 }
 
 # execute method
-wwwserver_settings_defaults_030_execute()
+wwwserver_settings_defaults_300_execute()
 {
 
   project_buildtemplate="${project_buildtemplate:-template}"

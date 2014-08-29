@@ -235,10 +235,10 @@ docker_run()
   else
     # run the docker command and capture the container ID
     debug --level 5 --topic "DOCKER->START" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
-    local container=`docker run ${daemon} ${flags} ${image}:${version} ${command}`
+    local container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
     local success=$?
 
-    if [ $success -eq 0 ]; then
+    if [ $success -eq 0 ] && [ -n "${container}" ]; then
       debug --level 5 --topic "DOCKER->START" "RESULTS of docker run => container started [ID:$container]"
 
       local ip="`docker_inspect_getIP --container ${container}`"
@@ -251,6 +251,7 @@ docker_run()
       debug --level 2 --topic "DOCKER->START" "Docker run failed."
       hooks_execute "docker/run" --state "fail" --image "${image}" --version "${version}" --id "${container}" ${hook_flags} --ip "${ip}" --startargs $@
     fi
+echo "RETURNING SUCCESS [success:${success}]"
     return $success
   fi
 }

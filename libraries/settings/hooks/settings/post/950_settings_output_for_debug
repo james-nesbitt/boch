@@ -4,25 +4,25 @@
 #
 
 hook_version=2
-hook_root="hook_settings_post_095"
+hook_root="hook_settings_post_950"
 
 # description method
-hook_settings_post_095_description()
+hook_settings_post_950_description()
 {
-  echo "hook->settings (post) 095 : output some debug values of important variables"
+  echo "hook->settings (post) 950 : output some debug values of important variables"
 }
 
 # help method
-hook_settings_post_095_help()
+hook_settings_post_950_help()
 {
   echo "
-hook->settings (post) 095 : output some debug values of important variables
+hook->settings (post) 950 : output some debug values of important variables
 
 "
 }
 
 # execute method
-hook_settings_post_095_execute()
+hook_settings_post_950_execute()
 {
 
   if [ $debug -gt 3 ]; then
@@ -50,7 +50,7 @@ hook_settings_post_095_execute()
     -->Machine_shell---------: ${machine_shell}
     -->Machine_shellrunargs--: ${machine_shellrunargs}
     -->Machine_runargs-------: ${machine_runargs}
-  ] (hooks/settings/post/095)"
+  ] (hooks/settings/post/950)"
   fi
 
 }

@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# INIT:HOOK: Create the custom project container registration folder,
+#
+
+hook_version=2
+hook_root="hook_docker_flow_init_600"
+
+# descriptoin method
+hook_docker_flow_init_600_description()
+{
+  echo "Create the custom project container registration folder, if missing."
+}
+
+# help method
+hook_docker_flow_init_600_help()
+{
+  echo "
+hook->init->005 : Create the custom project container registration folder,
+
+This hook creates a folder, in which the docker library tries to keeps files
+with informaton about each started container.
+
+Currently the container registration files are not used for anything, but
+they might be usefull in the future.
+"
+
+}
+
+# execute method
+hook_docker_flow_init_600_execute()
+{
+  # what is the root path to the project folder
+  local path="${docker_container_registerpath}"
+
+  if ! path_is --dir "${path}"; then
+    if ! path_ensure --dir "${path}"; then
+      debug --level 5 --topic "DOCKER" "Could not create the docker container registration path"
+    fi
+  fi
+}

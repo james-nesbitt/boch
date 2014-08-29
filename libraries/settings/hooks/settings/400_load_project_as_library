@@ -4,19 +4,19 @@
 #
 
 hook_version=2
-hook_root="hook_settings_040"
+hook_root="hook_settings_400"
 
 # description method
-hook_settings_040_description()
+hook_settings_400_description()
 {
   echo "Load the custom project/data folder as a library"
 }
 
 # help method
-hook_settings_040_help()
+hook_settings_400_help()
 {
   echo "
-hook->settings->040 : include a project as a library
+hook->settings->400 : include a project as a library
 
 This hooks attempts to load the custom data/project folder as a library,
 to include any settings from the folder.
@@ -33,7 +33,7 @@ in the project.
 
 
 # execute method
-hook_settings_040_execute()
+hook_settings_400_execute()
 {
 
   if path_is --library "${path_data}"; then
@@ -41,13 +41,13 @@ hook_settings_040_execute()
     library_load --path "${path_data}" "project"
 
     if [ $? -gt 0 ]; then
-      debug --level 3 --topic "HOOK->SETTINGS->040" "Custom project library load produced an error [path:${path_data}]"
+      debug --level 3 --topic "HOOK->SETTINGS->400" "Custom project library load produced an error [path:${path_data}]"
     else
-      debug --level 8 --topic "HOOK->SETTINGS->040" "Loaded Data/Project folder as a library [path:${path_data}]"
+      debug --level 8 --topic "HOOK->SETTINGS->400" "Loaded Data/Project folder as a library [path:${path_data}]"
     fi
 
   else
-    debug --level 6 --topic "HOOK->SETTINGS->040" "No custom data/project folder exists"
+    debug --level 6 --topic "HOOK->SETTINGS->400" "No custom data/project folder exists"
   fi
 
   # don't fail, even if we had problems.  This shouldn't break anything

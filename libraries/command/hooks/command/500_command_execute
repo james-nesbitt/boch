@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# HOOK: command : 500 Command execute
+#
+
+hook_version="2"
+hook_root="hook_command_500"
+
+# description method
+hook_command_500_description()
+{
+  echo "hook->command 500 : execute the command hook_execute method"
+}
+
+# Help function
+hook_command_500_help()
+{
+echo "
+hook->command 500 : execute the command hook_execute method
+
+Run the command include hook_execute method, which is the target function
+that impements the functionality.  If the function fails, then run the fail hooks.
+"
+}
+
+# execute function
+#
+# @NOTE that if a command fails, then the library handler will call the fail hook
+#
+hook_command_500_execute()
+{
+  # Command is the first argument
+  COMMAND=$1
+  shift
+
+
+  debug --level 8 --topic "HOOK->COMMAND->500" "Command execute [command:${COMMAND}]"
+  command_execute $COMMAND $@
+
+  if [ $? -eq 0 ]; then
+    debug --level 5 --topic "HOOK->COMMAND->500" "Command succeeded [command:${COMMAND}]"
+    return 0
+  else
+    debug --level 4 --topic "HOOK->COMMAND->500" "Command execution failed [command:${COMMAND}]"
+    return 1
+  fi
+}

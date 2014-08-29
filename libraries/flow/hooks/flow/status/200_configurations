@@ -1,21 +1,21 @@
 #!/bin/sh
 #
-# HOOK->FLOW->STATUS->020 General Project Configurations output
+# HOOK->FLOW->STATUS->200 General Project Configurations output
 #
 
 hook_version=2
-hook_root="hook_flow_status_020"
+hook_root="hook_flow_status_200"
 
 # description method
-hook_flow_status_020_description()
+hook_flow_status_200_description()
 {
   echo "Simple project settings output"
 }
 
 # help method
-hook_flow_status_020_help()
+hook_flow_status_200_help()
 {
- echo "HOOK->FLOW->STATUS->020 Output some common project configurations
+ echo "HOOK->FLOW->STATUS->200 Output some common project configurations
 
 Prints to the console, a number of the currently used configurations
 if you include the \"--config\" argument.
@@ -23,7 +23,7 @@ if you include the \"--config\" argument.
 }
 
 # execute method
-hook_flow_status_020_execute()
+hook_flow_status_200_execute()
 {
 
   local flags=""
@@ -58,7 +58,7 @@ Project Configurations
   -->Machine_shell---------: ${machine_shell}
   -->Machine_shellrunargs--: ${machine_shellrunargs}
   -->Machine_runargs-------: ${machine_runargs}
-] (hooks/flow/status/020)
+] (hooks/flow/status/200)
 "
     esac
     shift
