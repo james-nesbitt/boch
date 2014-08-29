@@ -5,3 +5,6 @@
 
 # A path in which to put a registration file for each started container
 docker_container_registerpath="${path_data}/containers"
+
+
+echo "DOCKER CONTAINER REGISTRATION PATH : ${docker_container_registerpath}"

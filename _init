@@ -49,6 +49,10 @@ debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES"
 
 # include utility functions for running hooks
 library_load "hook"
+
+# include the settings library
+library_load "settings"
+
 # include help related functions (not debug, which is in utilities to get it loaded early.)
 library_load "help"
 # include docker functions - bash abstractions for docker operations
@@ -56,7 +60,5 @@ library_load "docker"
 # include command related functions
 library_load "command"
 
-# include the settings library
-library_load "settings"
 
 debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES COMPLETE"

@@ -34,8 +34,10 @@ hook_docker_flow_init_600_execute()
   local path="${docker_container_registerpath}"
 
   if ! path_is --dir "${path}"; then
-    if ! path_ensure --dir "${path}"; then
-      debug --level 5 --topic "DOCKER" "Could not create the docker container registration path"
+    if path_ensure --dir "${path}"; then
+      debug --level 5 --topic "DOCKER" "Created the docker container registration path [path:${path}]"
+    else
+      debug --level 5 --topic "DOCKER" "Could not create the docker container registration path [path:${path}]"
     fi
   fi
 }
