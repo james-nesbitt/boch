@@ -5,21 +5,18 @@
 * this toolset suffers from a lack of documentation, buth as lots of --help features;
 * documentation can now go into the various folders, as all scripts are now looking for executable files only.
 
-1. document the help system;
-2. document the flow system;
-3. explain the hooks system.
-
 == LIBRARIES ==
 
 The following are ideas for libraries that should be started
 
-1. boot2docker : to implement hooks that integrate better with boot2ocker
+1. boot2docker (STARTED) : to implement hooks that integrate better with boot2ocker
 2. drush : drush integration (requires some way to connect into the containers,
      or you have to be able to
 
 == UTILITIES ==
 
-
+1. The lists concept has stub function to remove an item from a list, and to update an existing item,
+2. The lists concept should check for existing items
 
 == SETTINGS ==
 
@@ -38,7 +35,7 @@ The following are ideas for libraries that should be started
 == FLOW ==
 
 1. make some interesting flows, that might make this system worth using  :P
-    I actually started the feature flow, so it could be usefull soon
+    I actually started the feature flow, so it could be useful soon
 
 = BUG LIST =
 

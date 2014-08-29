@@ -39,24 +39,11 @@ hook_settings_default_010_execute()
 #  - \${path_project} : root folder for your project (actually just one up from your manage path)
 #        (this is often not used for anything other than the root of other default variables)
 #  - \${path_userhome} : user home
-#        (also not really used for anything yet)
+#  - \${path_data} : custom project folder, used to keep settings used for this particulare project
+#        This is actually treated as a library, so it can container hooks, other libraries, commands
+#        and it's own settings file
 #
 # @NOTE you could try changing the above paths in your settings file, but the results are not predictable
-
-# =path to custom settings and data=
-# various settings about custom configurations
-#
-# @NOTE changing this isn't recommended, as it is aready in use.
-#   Hopefully we can all agree on a good
-#   place for it, and move it in the core.
-#
-# - settings.sh : this file
-# - log : log file
-# - ? hooks
-# - ? libraries
-# - ? commands
-#
-#path_data="${path_data}"
 
 ####
 # Log file

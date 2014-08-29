@@ -17,6 +17,13 @@ hook_settings_library_pre_600_help()
 {
   echo "
 Add any settings file that a library may have in it's folder
+
+This hooks runs on any libraries that are loaded after the settings
+system is run.  Libraries that are already loaded before the settings
+hooks are registered are included using a different hook, in the
+standard hook-set.  This hook takes over after standard settings
+have been loaded.
+
 "
 }
 

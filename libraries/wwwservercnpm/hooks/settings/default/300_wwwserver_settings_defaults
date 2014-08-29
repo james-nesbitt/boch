@@ -15,18 +15,18 @@ wwwserver_settings_defaults_300_description()
 # help method
 wwwserver_settings_defaults_300_help()
 {
-  echo "
-LIBRARY->WWWSERVERCNPM->HOOKS->SETTINGS->DEFAULT->300 Add default settings from the wwwservercnpm library
+  echo "Add default settings from the wwwservercnpm library
 
-- explain the library
-
-- explain the library_load call
+This hook adds default settings that integration with the wwwserver library.
+The purpose here is to give access to the library builds, and related settings
 
 - explain settings for wwwserver-cnpm builds
-  - explain when you need to use the required_builds (or why you might want to)
-  - explain the developer user
-  - explain ssh settings
-  - explain the mount
+  - The library includes a template build called \"template\"
+  - these builds use a user called \"developer\"
+  - included are some ssh specific settings
+  - included are the following mounts:
+      -  mount the project source folder to /app/source
+      -  mount the host user .ssh folder to /home/developer/.ssh-host
 "
 }
 
