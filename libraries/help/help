@@ -38,15 +38,77 @@ help_execute()
 # this is not likely to ever happen, unless it was called incorrectly
 help_notopic_help()
 {
-  echo "
-GENERIC HELP MESSAGE FOR NO TOPIC
+  echo "The help library
 
-- explain how the help system works
-- explain that a help topic has not been passed
+This library is used to provide methods for other libraries, and hooks
+to encapsulate their own help information, so that a user can pull that
+information using the general commands.
+You are receiving general help information about this library, as no
+known topic was requested.
 
-- give some examples of a proper help request   --> ./help , ./flow --help , ./command --help {command}
+LIBRARY HELP
 
-@NOTE this is likely being shown because of a developer error
+Any library can include a help file, which should have at least a
+{library}_help method.  That method is responsible for outputting help
+information about any passed in topics, and general help for the library
+if not topic is passed.  Note that topics aren't checked before being
+passed in, so the help method should check for valid topics.
+
+TOPICS
+
+When reveiving help, you will often see at the bottom of the help, a list
+of topics for further help.  Each topic will include a small description
+followed by a topic label, in (brackets).  That topic can be passed
+back into the system to get more help.
+
+SCOPES
+
+A library can also include a {library}_helplist method, which can list
+topics in a certain scope.  Libraries in use in the system, can add scopes
+to the help system, so that it can list all topics in scope.
+
+Often, a library will implement something like this:
+    # add some scopes to the list
+    help_scope_add "{library}"
+    help_scope_add "{library}:{scope1}"
+    help_scope_add "{library}:{scope2}"
+
+    # get an output list of all topics in scopes that have been added
+    help_scope_list
+
+EXAMPLES
+
+While most of the scripts in this system can offer help, by adding a
+--help [{topic}] argument to the call, the help script exists soley to
+provide help information.
+
+# Getting help on the build command
+$/> ./control --help build
+OR
+$/> ./help command:build
+
+Getting general help on the flow system
+$/> ./flow --help
+OR
+$/> ./help flow:general
+
+# getting help on a topic from a topic list
+
+If you get help for the init flow
+$/> ./flow --help init
+OR
+$/> ./help flow:init
+
+You may see a list like this:
+--> hook_flow_init_400 Some kind of help topic (flow:~flow/hooks/flow/init/400_something)
+
+You can add the contents of the round bracket to the help call, and get
+more information about the topic:
+
+$/> flow --help flow:flow~hooks/flow/init/400_something init
+OR
+$/> help flow:flow~hooks/flow/init/400_something
+
 "
 }
 

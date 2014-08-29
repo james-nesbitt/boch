@@ -38,19 +38,19 @@ path_project="$(dirname ${path_manage})"
 # path to user home folder (in case)
 path_userhome="${HOME}"
 # path to a folder where the system can keep some data
-path_data="${path_project}/project"
+path_data="${path_data:-${path_project}/project}"
 
-# Include utility functions
+# Include utility functions (including the debug function)
 source ${path_manage}/_utilities
-# Include library handling functions
+# Include library handling functions (including the library_load function)
 source ${path_manage}/_libraries
 
 debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES"
 
-# include utility functions for running hooks
+# include utility functions for running hooks (which every other library relies on)
 library_load "hook"
 
-# include the settings library
+# include the settings library (with a tool to load settings from libraries that are not yet loaded)
 library_load "settings"
 
 # include help related functions (not debug, which is in utilities to get it loaded early.)
@@ -59,6 +59,5 @@ library_load "help"
 library_load "docker"
 # include command related functions
 library_load "command"
-
 
 debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES COMPLETE"

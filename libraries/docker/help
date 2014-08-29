@@ -13,14 +13,13 @@ docker_help()
         echo "
 HELP FOR docker_build
 
-@TODO Make docs for docker functions
+@TODO Make docs for docker build function
 "
       ;;
       *)
-        echo "
-UNKNOWN scope for docker HELP MESSAGE GOES HERE [scope:$1]
+        echo "Unknown docker help topic : $1
 
-- explain that this scope is not known
+You asked for help on an unknow docker topic
 
 "
       ;;
@@ -28,13 +27,17 @@ UNKNOWN scope for docker HELP MESSAGE GOES HERE [scope:$1]
 
   else
 
-    echo "
-GENERIC DOCKER HELP MESSAGE GOES HERE
+    echo "Help for the Docker library
 
-- explain the help system
-- explain the docker library
-- explain how to include the library and use it's functions
+The Docker library is a toolset/API library that provides low-level functions
+that do the lifting for docker integration.  These functions are callable to
+do all of the docker tasks, test values, and retrieve information from containers
+and images.
 
+@Note that the docker functions are not aware of the project settings, and so
+  passing of arguments into the functions is essential.
+
+@TODO this topic list is quite incomplete and needs more work
 "
 
     help_scope_add "docker"
@@ -53,7 +56,8 @@ docker_helplist()
 --> docker_build : Build a new docker image from a local build (docker:docker_buid)"
         ;;
       "docker")
-        echo "LIST OF HELP TOPICS FOR DOCKER SCOPE - this will be a list of all of the docker functions"
+        echo "LIST OF HELP TOPICS FOR DOCKER SCOPE - @TODO this will be a list of all of the docker functions
+--> docker_build : Build a new docker image from a local build (docker:docker_buid)"
         ;;
       *)
         echo "UNKNOWN DOCKER HELP LIST SCOPE ${1}"

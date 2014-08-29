@@ -108,6 +108,7 @@ to the --help command like this:
 
 $/> ./control --help \"hook:command~command/post/050_command_specific_post\" command
 
+For more information, checkout the general help system (help:general)
 "
 }
 # Output help for a hook
@@ -116,16 +117,14 @@ hook_help_hook()
   local hook="$1"
   shift
 
-  echo "
-HELP FOR HOOK: ${hook}
+  echo "Help for hook: ${hook}
 "
   hook_execute "${hook}" --action "help" $@
 }
 # output message if help is requested for an unknow command
 hook_help_unknownhook()
 {
-  echo "
-HELP REQUEST FOR UNKNOWN HOOK $1
+  echo "Unknow hook: $1
 
 you asked for help information about a hook in the system that cannot be found.
 
@@ -133,5 +132,3 @@ Perhaps the hook is not in scope for this help process, or you mistyped it
 Try to copy the hook name from the hook list in the generic help.
 "
 }
-
-

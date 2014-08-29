@@ -59,15 +59,20 @@ flow_helplist()
 # @TODO put some usefull material here
 flow_help_generalhelp()
 {
-  echo "
-GENERIC FLOW HELP MESSAGE GOES HERE
+  echo "The Flow library help
 
-- explain the help system
-- explain the hook system
-  - explain that a flow is actually a set of hooks
+Flows are a more advanced addition to the system tools.  They
+are meant to be abstract workflows, that are more advanced than
+single operations.
+Where the control script is meant to hand off to single docker
+commands, flows are meant to give higher level workflow possibilities
+that mix many docker commands, and other commands together.
 
-- give examples for showing help for a flow      -> ./flow --help {flow}
-- give examples for showing help for a flow hook -> ./flow --help \"hook:{hook}\" {flow}
+In implementation, a flow is conceptually 100% hook/event driven,
+unlike something like a command.
+
+To get more help on individual flows, see the list below:
+
 "
 
   flow_help_flowlist
@@ -76,10 +81,9 @@ GENERIC FLOW HELP MESSAGE GOES HERE
 # output message if help is requested for an unknow command
 flow_help_unknownflow()
 {
-  echo "
-UNKNOWN flow HELP MESSAGE GOES HERE [flow:$1]
+  echo "Unknow flow : $1
 
-- explain that his flow is not known
+The flow that you asked for help with, cannot be found in the system.
 
 "
   # Include general help

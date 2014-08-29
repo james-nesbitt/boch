@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Help hander
+# Help hander for the settings lbirary
 #
 
 
@@ -10,15 +10,26 @@ settings_help()
   settings_help_generalhelp
 }
 
-
 # generic help message for the command help system
 # @TODO put some usefull material here
 settings_help_generalhelp()
 {
-  echo "
-GENERIC SETTINGS HELP MESSAGE GOES HERE
+  echo "The settings library
 
-- explain what the purpose of this library is
-- explain what the default state hooks are used for
+The settings library is a smaller abstraction, that serves only the
+purpose of allowing configurations into the system.
+
+The primary method for bringing values into the system is through the
+addition of \"settings\" files, into the root folder of a library
+(the project folder is considered a library.)
+This allows any project library to include values.
+
+There are two primary actions that the settings library makes:
+
+1. Include settings during operation: include all of the settings files
+   when a script is run.
+2. Provide \"default\" settings from libraries, which can be used to
+   generate a default settings file for a project,  during the init flow.
+
 "
 }
