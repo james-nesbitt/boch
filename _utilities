@@ -416,7 +416,7 @@ path_contents()
     shift
   done
 
-  local path="`path_expand \"$1\"`"
+  local path="`path_expand \"${1}\"`"
   shift
   local path_item=""
   for path_item in ${path}/*; do
@@ -453,7 +453,7 @@ path_ensure()
     shift
   done
 
-  local path="${1}"
+  local path="`path_expand \"${1}\"`"
   shift
 
   case "${type}" in

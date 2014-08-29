@@ -4,19 +4,19 @@
 #
 
 hook_version=2
-hook_root="hook_flow_init_009"
+hook_root="hook_flow_init_090"
 
 # descriptoin method
-hook_flow_init_009_description()
+hook_flow_init_090_description()
 {
   echo "Include the wwwserver library if told to do so"
 }
 
 # help method
-hook_flow_init_009_help()
+hook_flow_init_090_help()
 {
   echo "
-hook->init->009 : Include the wwwserver library if told to do so
+hook->init->090 : Include the wwwserver library if told to do so
 
 This hooks wil include the wwwserver library during init, where it can
 then make the default library a dependency for the project
@@ -28,7 +28,7 @@ then make the default library a dependency for the project
 }
 
 # execute method
-hook_flow_init_009_execute()
+hook_flow_init_090_execute()
 {
   # used only for the init flow, to tell hooks that it is ok to build things
   build_execute_now=-1
@@ -39,7 +39,7 @@ hook_flow_init_009_execute()
     case "$1" in
       -s|--wwwserver)
         if ! library_loaded "wwwservercnpm"; then
-          debug --level 5 --topic "HOOK->FLOW->INIT->009 Loading the wwwserver library as directed by command line arguments."
+          debug --level 5 --topic "HOOK->FLOW->INIT->090 Loading the wwwserver library as directed by command line arguments."
           library_load "wwwservercnpm"
         fi
         ;;

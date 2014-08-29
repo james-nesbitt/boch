@@ -1,22 +1,22 @@
 #!/bin/sh
 #
-# 050 Show help for failed command
+# 500 Show help for failed command
 #
 
 hook_version=2
-hook_root="hook_command_fail_050"
+hook_root="hook_command_fail_500"
 
 # description method
-hook_command_fail_050_description()
+hook_command_fail_500_description()
 {
   echo "Show help for a command, if it fails to execute"
 }
 
 # help method
-hook_command_fail_050_help()
+hook_command_fail_500_help()
 {
   echo "
-HOOK->COMMAND->FAIL->050 Show help for a command if it failes to execute
+HOOK->COMMAND->FAIL->500 Show help for a command if it failes to execute
 
 Run the help process for a command, if it fails to execute.
 
@@ -25,7 +25,7 @@ Run the help process for a command, if it fails to execute.
 }
 
 # execute method
-hook_command_fail_050_execute()
+hook_command_fail_500_execute()
 {
   echo "
 

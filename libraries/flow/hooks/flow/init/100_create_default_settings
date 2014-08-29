@@ -4,19 +4,19 @@
 #
 
 hook_version=2
-hook_root="hook_init_010"
+hook_root="hook_init_100"
 
 # descriptoin method
-hook_init_010_description()
+hook_init_100_description()
 {
   echo "Populate the default customs settings file, Create it if missing"
 }
 
 # help method
-hook_init_010_help()
+hook_init_100_help()
 {
   echo "
-hook->init 010 : Populate the default customs settings.sh, Create it if missing
+hook->init 100 : Populate the default customs settings.sh, Create it if missing
 
 This hook does two things:
 1. Makes sure that a custom settings file exists
@@ -27,17 +27,17 @@ This hook does two things:
   has added conents.  If you remove those messages, then the hook will think that
   they were never added, and remove them.
 "
-  hook_settings_default_010_help_hooklist "default" "`hooks_list --state \"default\" \"settings\"`"
+  hook_settings_default_100_help_hooklist "default" "`hooks_list --state \"default\" \"settings\"`"
 }
 
 # execute method
-hook_init_010_execute()
+hook_init_100_execute()
 {
 
   # path to this management system
   local path="${path_customsettings:-"${path_data}/settings"}"
 
-  debug --level 5 --topic "HOOK->COMMAND->INIT->010" "Populating default settings file [${path}]"
+  debug --level 5 --topic "HOOK->COMMAND->INIT->100" "Populating default settings file [${path}]"
 
 
   if [ ! -f "${path}" ]; then
@@ -46,7 +46,7 @@ hook_init_010_execute()
     # a space delimited list.  we will assume that the first item in the
     # list is our special item that we can create during init.
 
-    debug --level 6 --topic "HOOK->COMMAND->INIT->010" "Creating missing default custom settings file [${path}]"
+    debug --level 6 --topic "HOOK->COMMAND->INIT->100" "Creating missing default custom settings file [${path}]"
     echo "#!/bin/sh
 #
 # Overrideable configuration variables
@@ -64,7 +64,7 @@ hook_init_010_execute()
     chmod ug+rwx ${path}
 
   else
-    debug --level 6 --topic "HOOK->COMMAND->INIT->010" "Default custom settings file already exists [${path}]"
+    debug --level 6 --topic "HOOK->COMMAND->INIT->100" "Default custom settings file already exists [${path}]"
   fi
 
   local hook=""
@@ -83,9 +83,9 @@ hook_init_010_execute()
       #echo "`hook_execute ${hook}`" >> ${path}
       echo "`"${hook_root}_execute"`" >> ${path}
 
-      debug --level 6 --topic "HOOK->COMMAND->INIT->010" "A hook provided default settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+      debug --level 6 --topic "HOOK->COMMAND->INIT->100" "A hook provided default settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
     else
-      debug --level 6 --topic "HOOK->COMMAND->INIT->010" "A hook provided default settings, but it is already included in the settings file [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+      debug --level 6 --topic "HOOK->COMMAND->INIT->100" "A hook provided default settings, but it is already included in the settings file [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
     fi
 
   done
@@ -93,9 +93,9 @@ hook_init_010_execute()
 }
 
 # output a list (of hooks) for a state
-hook_settings_default_010_help_hooklist()
+hook_settings_default_100_help_hooklist()
 {
-  debug --level 7 --topic "HOOK->COMMAND->INIT->010" "Listing active default settings hooks"
+  debug --level 7 --topic "HOOK->COMMAND->INIT->100" "Listing active default settings hooks"
 
   local state="$1"
   local hooks="$2"

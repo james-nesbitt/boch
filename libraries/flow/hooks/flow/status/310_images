@@ -1,26 +1,26 @@
 #!/bin/sh
 #
-# HOOK->FLOW->STATUS->031 Project images
+# HOOK->FLOW->STATUS->310 Project images
 #
 
 hook_version=2
-hook_root="hook_flow_status_031"
+hook_root="hook_flow_status_310"
 
 # description method
-hook_flow_status_031_description()
+hook_flow_status_310_description()
 {
   echo "Analyze images used in the project"
 }
 
 # help method
-hook_flow_status_031_help()
+hook_flow_status_310_help()
 {
- echo "HOOK->FLOW->STATUS->031 Project images
+ echo "HOOK->FLOW->STATUS->310 Project images
 "
 }
 
 # execute method
-hook_flow_status_031_execute()
+hook_flow_status_310_execute()
 {
 
   local image="${project_image}"

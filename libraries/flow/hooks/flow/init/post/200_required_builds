@@ -4,19 +4,19 @@
 #
 
 hook_version=2
-hook_root="hook_init_post_020"
+hook_root="hook_init_post_200"
 
 # description method
-hook_init_post_020_description()
+hook_init_post_200_description()
 {
   echo "build required project images"
 }
 
 # help method
-hook_init_post_020_help()
+hook_init_post_200_help()
 {
   echo "
-HOOK->FLOW->INIT->POST->020: Build the required project images
+HOOK->FLOW->INIT->POST->200: Build the required project images
 
 [-w|--buildnow] : allow builds to occur, otherwise this hook is skipped
 [-b|--builds {builds}] : specify an alternate list of builds that should be built
@@ -25,7 +25,7 @@ HOOK->FLOW->INIT->POST->020: Build the required project images
 }
 
 # execute method
-hook_init_post_020_execute()
+hook_init_post_200_execute()
 {
 
   local flags=""
@@ -41,18 +41,18 @@ hook_init_post_020_execute()
 
   if [ ${build_execute_now} -eq 0 ]; then
 
-    debug --level 6 --topic "HOOK->COMMAND->INIT->POST->020" "Required build [builds:${required_build}]"
+    debug --level 6 --topic "HOOK->COMMAND->INIT->POST->200" "Required build [builds:${required_build}]"
     local build=""
     for build in ${required_builds}; do
       if [ `docker_image_exists "${build}"` -eq 0 ]; then
-        debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Required build exists, skipping build [build:${build}]"
+        debug --level 5 --topic "HOOK->COMMAND->INIT->POST->200" "Required build exists, skipping build [build:${build}]"
       else
-        debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Building required build [build:${build}]"
+        debug --level 5 --topic "HOOK->COMMAND->INIT->POST->200" "Building required build [build:${build}]"
         command_execute "build" --build "${build}" --image "${build}" --version "${image_version}"
       fi
     done
 
   else
-    debug --level 5 --topic "HOOK->COMMAND->INIT->POST->020" "Not building any required builds, as we were not instructed to perform any builds [builds:${required_build}]"
+    debug --level 5 --topic "HOOK->COMMAND->INIT->POST->200" "Not building any required builds, as we were not instructed to perform any builds [builds:${required_build}]"
   fi
 }

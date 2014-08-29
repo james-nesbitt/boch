@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# Load all of the settings from already loaded libraries
+#
+
+hook_version=2
+hook_root="hook_settings_300"
+
+# description method
+hook_settings_300_description()
+{
+  echo "Load settings files for any libraries that are already loaded"
+}
+
+# help method
+hook_settings_300_help()
+{
+  echo "
+hook->settings->300 : include settings files from loaded libraries
+
+This hooks attempts to load the settings files for any library that
+was already loaded in the system.
+There is also a hook for loading
+settings from libraries that are loaded after this point, but this
+hook handles the cases of libraries that were already loaded.
+
+"
+  help_topic_add "hook:library/load"
+  help_topic_list
+}
+
+
+# execute method
+hook_settings_300_execute()
+{
+  local library=""
+  for library in `libraries_list`; do
+    path="`library_path \"${library}\"`/settings"
+    library="${library%:*}"
+
+    case "${library}" in
+      "settings")
+        debug --level 8 --topic "HOOKS->SETTINGS->300" "Skipping libraries that are hardcoded to not use settings (the settings library) [library:${library}][path:${path}]"
+      ;;
+      *)
+        if [ -f ${path} ] && [ -x ${path} ]; then
+          debug --level 7 --topic "HOOKS->SETTINGS->300" "Loaded library has a settings file.  Adding it. [library:${library}][path:${path}]"
+          path_include "${path}"
+        fi
+      ;;
+    esac
+  done
+
+  # don't fail, even if we had problems.  This hook shouldn't break anything
+  return 0
+}

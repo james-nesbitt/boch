@@ -4,16 +4,16 @@
 #
 
 hook_version=2
-hook_root="hook_flow_init_090"
+hook_root="hook_flow_init_900"
 
 # description method
-hook_flow_init_090_description()
+hook_flow_init_900_description()
 {
   echo "Load the custom project/data folder as a library"
 }
 
 # help method
-hook_flow_init_090_help()
+hook_flow_init_900_help()
 {
   echo "
 hook->settings->040 : include a project as a library
@@ -32,17 +32,17 @@ now created the project folder.
 }
 
 # execute method
-hook_flow_init_090_execute()
+hook_flow_init_900_execute()
 {
   if ! library_loaded "project"; then
     # library_load checks to see if a library is already loaded, so no worries about
     # reloading an existing project folder.
     library_load --path "${path_data}" "project"
     if [ $? -gt 0 ]; then
-      debug --level 3 --topic "HOOK->FLOW->INIT->090" "No custom data/project folder exists"
+      debug --level 3 --topic "HOOK->FLOW->INIT->900" "No custom data/project folder exists"
       return 1
     else
-      debug --level 5 --topic "HOOK->FLOW->INIT->090" "Loaded Data/Project folder as a library [path:${path_data}]"
+      debug --level 5 --topic "HOOK->FLOW->INIT->900" "Loaded Data/Project folder as a library [path:${path_data}]"
     fi
   fi
 

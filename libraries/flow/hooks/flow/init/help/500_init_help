@@ -1,22 +1,22 @@
 #!/bin/sh
 #
-# HOOK->FLOW->INIT->HELP->050 General help for the "init" flow
+# HOOK->FLOW->INIT->HELP->500 General help for the "init" flow
 #
 
 hook_version=2
-hook_root="hook_flow_init_help_050"
+hook_root="hook_flow_init_help_500"
 
 # description method
-hook_flow_init_help_050_description()
+hook_flow_init_help_500_description()
 {
   echo "General help text for the init flow"
 }
 
 # help method
-hook_flow_init_help_050_help()
+hook_flow_init_help_500_help()
 {
   echo "
-HOOK->FLOW->INIT->HELP->050 General help for the "init" flow
+HOOK->FLOW->INIT->HELP->500 General help for the "init" flow
 
 This hook gives general help text for the init flow
 
@@ -24,7 +24,7 @@ This hook gives general help text for the init flow
 }
 
 # execute method
-hook_flow_init_help_050_execute()
+hook_flow_init_help_500_execute()
 {
   echo "FLOW: INIT
 

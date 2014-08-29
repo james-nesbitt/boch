@@ -114,8 +114,7 @@ library_loaded()
 # this is necessary for the case of loading the hooks library, and any libraries before that.
 _libraries_hooks_execute()
 {
-  function_exists "hooks_execute"
-  if [ $? -eq 0 ]; then
+  if function_exists "hooks_execute"; then
     hooks_execute $@
   fi
 }

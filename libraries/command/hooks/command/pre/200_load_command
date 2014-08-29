@@ -1,33 +1,33 @@
 #!/bin/sh
 #
-# HOOK : command:pre : 020 load command
+# HOOK : command:pre : 200 load command
 #
 
 hook_version="2"
-hook_root="hook_command_pre_020"
+hook_root="hook_command_pre_200"
 
 # description method
-hook_command_pre_020_description()
+hook_command_pre_200_description()
 {
-  echo "hook->command:pre 020 : Load the command script file"
+  echo "hook->command:pre 200 : Load the command script file"
 }
 
 # help function
-hook_command_pre_020_help()
+hook_command_pre_200_help()
 {
   echo "
-hook->command:pre 020 : Load the command script file
+hook->command:pre 200 : Load the command script file
 
 "
 }
 
 # execute function
-hook_command_pre_020_execute()
+hook_command_pre_200_execute()
 {
   # Command is the first argument
   COMMAND=$1
 
-  debug --level 4 --topic "HOOK->COMMAND->PRE->020" "Loading command [command:${COMMAND}]"
+  debug --level 4 --topic "HOOK->COMMAND->PRE->200" "Loading command [command:${COMMAND}]"
 
   # We have a command file, so we hand the execution off to
   # that script to run inline (not as a function)
@@ -35,7 +35,7 @@ hook_command_pre_020_execute()
   local success=$?
 
   if [ $success -gt 0 ]; then
-    debug --level 4 --topic "HOOK->COMMAND->PRE->020" "Command load failed [command:${COMMAND}]"
+    debug --level 4 --topic "HOOK->COMMAND->PRE->200" "Command load failed [command:${COMMAND}]"
 
     # execute any existing post hooks
     debug --level 7 --topic "HOOK->COMMAND->050" "Running global:fail hooks => hooks_execute command --state \"fail\" \"${COMMAND}\" $@"

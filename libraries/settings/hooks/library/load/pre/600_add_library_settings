@@ -1,19 +1,19 @@
 #!/bin/sh
 #
-# 060 Add any library hooks folder to the hooks path list
+# 600 Add any library hooks folder to the hooks path list
 #
 
 hook_version=2
-hook_root="hook_settings_library_pre_060"
+hook_root="hook_settings_library_pre_600"
 
 # description method
-hook_settings_library_pre_060_description()
+hook_settings_library_pre_600_description()
 {
   echo "If a library has a settings file, include it"
 }
 
 # help method
-hook_settings_library_pre_060_help()
+hook_settings_library_pre_600_help()
 {
   echo "
 Add any settings file that a library may have in it's folder
@@ -21,7 +21,7 @@ Add any settings file that a library may have in it's folder
 }
 
 # execute method
-hook_settings_library_pre_060_execute()
+hook_settings_library_pre_600_execute()
 {
   local library=""
   local path=""
@@ -45,13 +45,13 @@ hook_settings_library_pre_060_execute()
 
   case "${library}" in
     "settings")
-      debug --level 8 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "Skipping libraries that are hardcoded to not use settings (the project library, and the settings library) [library:${library}][path:${path}]"
+      debug --level 8 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->600" "Skipping libraries that are hardcoded to not use settings (the project library, and the settings library) [library:${library}][path:${path}]"
     ;;
     *)
       path="${path}/settings"
 
       if [ -f ${path} ] && [ -x ${path} ]; then
-        debug --level 7 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->060" "New library has a settings file.  Adding it. [library:${library}][path:${path}]"
+        debug --level 7 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->600" "New library has a settings file.  Adding it. [library:${library}][path:${path}]"
         path_include "${path}"
       fi
     ;;
