@@ -39,17 +39,16 @@ hook_init_100_execute()
 
   debug --level 5 --topic "HOOK->COMMAND->INIT->100" "Populating default settings file [${path}]"
 
-
-  if [ ! -f "${path}" ]; then
-
-    # @NOTE This loop is here, because path_customsettings is technically
-    # a space delimited list.  we will assume that the first item in the
-    # list is our special item that we can create during init.
+  if ! path_is --file "${path}"; then
 
     debug --level 6 --topic "HOOK->COMMAND->INIT->100" "Creating missing default custom settings file [${path}]"
+
+    path_ensure --exec "${path}"
+
+
     echo "#!/bin/sh
 #
-# Overrideable configuration variables
+# Overrideable configuration variables for your project
 #
 
 #
@@ -68,7 +67,7 @@ hook_init_100_execute()
   fi
 
   local hook=""
-  for hook in `hooks_list --state "default" "settings" --file ${path}`; do
+  for hook in `hooks_list --state "default" "settings" --file "${path}"`; do
 
     hook_version=""
     hook_root=""
