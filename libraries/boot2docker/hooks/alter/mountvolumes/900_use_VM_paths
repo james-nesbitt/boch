@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# Alter mount volumes to point to corresponding paths inside the VM
+#
+
+hook_version=2
+hook_root="hook_alter_mountvolumes_900"
+
+# Description method
+hook_alter_mountvolumes_900_description()
+{
+  echo "Alter Mountvolumes for boot2docker VM"
+}
+
+# Help method
+hook_alter_mountvolumes_900_help()
+{
+ echo "HOOKS->ALTER->MOUNTVOLUMES->900 Alter Mountvolumes for boot2docker VM
+
+This hook alters the mount volumes before any containers are mounted, to transform
+local paths in to remote paths on the VM.
+
+"
+}
+
+# Execute method
+hook_alter_mountvolumes_900_execute()
+{
+  local mount_local=""
+  for mount_local in $@; do
+    local b2d_mount=""
+    local found=1
+    for b2d_mount in `boot2docker_mounts_get`; do
+      local subject="`path_expand \"${mount_local%:*}\"`"
+      local replace="${subject/${b2d_mount%:*}/${b2d_mount#*:}}"
+      if [ "${replace}" != "${subject}" ]; then
+        echo "/media/${replace}:${mount_local#*:}"
+        found=0
+        break
+      fi
+    done
+
+    if [ ${found} -gt 0 ]; then
+      echo "${mount_local}"
+    fi
+  done
+}

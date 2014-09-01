@@ -229,7 +229,6 @@ library_load()
       fi
     else
       # if no subpath was passed in, the fake a plural of the library name
-
       if [ -z "${subpath}" ]; then
         subpath="${library}s"
       fi

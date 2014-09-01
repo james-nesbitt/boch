@@ -62,7 +62,7 @@ shell_execute()
   command=${@:-${machine_shell}}
 
   # add default flags to the end of the flag list
-  flags="${flags} ${machine_shellrunargs} `settings_mount_getmounts`"
+  flags="${flags} ${machine_shellrunargs} `settings_mount_getmounts --mounts`"
 
   message "Giving shell access to a new container :"
   message --separator

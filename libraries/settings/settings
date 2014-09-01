@@ -13,17 +13,54 @@ settings_mount_addmount()
 {
   list_add "machine_mountvolumes" $1
 }
+
 # get a list of added mounts
 settings_mount_getmounts()
 {
+  local format="list"
+  local mounts="`list_get "machine_mountvolumes"`"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -f|--format)
+        format="$2"
+        shift
+        ;;
+      -l|--list)
+        format="list"
+        ;;
+      -m|--mount|--mounts)
+        format="mount"
+        ;;
+      -s|--short)
+        format="short"
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
   # $1 would allow for different formats
-  case $1 in
-    *)
-      local mounts=""
+  case "${format}" in
+    "mount")
+      # allow hooks to alter the value
+      mounts="`hooks_altervalue "mountvolumes" ${mounts}`"
+
       local mount=""
-      for mount in `list_get "machine_mountvolumes"`; do
-        mounts="$mounts --volume=${mount}"
+      for mount in ${mounts}; do
+        echo " --volume=${mount}"
       done
+      ;;
+    "short")
+      local mount=""
+      for mount in ${mounts}; do
+        echo "`path_shorten \"${mount%:*}\"`:${mount#*:}"
+      done
+      ;;
+    *)
       echo "${mounts}"
       ;;
   esac

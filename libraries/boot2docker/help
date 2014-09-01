@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# Boot2Docker library help handler
+#
+
+boot2docker_help()
+{
+  local topic="$1"
+
+  if [ -z "${topic}" ]; then
+    boot2docker_help_general
+  else
+    case "${topic}" in
+      "mount_vboxsf")
+        boot2docker_help_topic_vboxsf
+        ;;
+      *)
+        boot2docker_help_topicnotfound
+        boot2docker_help_general
+    esac
+  fi
+}
+
+boot2docker_helplist()
+{
+  echo "boot2docker:mount_vboxsf"
+}
+
+boot2docker_help_general()
+{
+  echo "General help for the Boot2Docker library
+
+This library provides addtional plugins and functions in order
+to allow the local docker implementation to run over boot2docker,
+and still have access to the local file system of the project.
+
+Implementations required:
+- Share the project file system with the remove VM
+- Share the user \${HOME} folder with the VM
+
+- Alter machine mounts so that they point to the VM path,
+  instead of the host path.
+
+"
+}
+
+boot2docker_help_topicnotfound()
+{
+  echo "Topic not found for Boot2Docker help
+
+We could not find any help for the topic :${1}.  Please refer to the general boot2docker help (boot2docker:general) for a list of topics."
+}
+
+boot2docker_help_topic_vboxsf()
+{
+  echo "boot2docker_mount_vboxsf()
+
+
+"
+}

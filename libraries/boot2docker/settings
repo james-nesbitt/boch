@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Settings for boot2docker
+#
+
+# the name of the virtualbox virtual-machine that boot2docker is using
+boot2docker_vm_name="${boot2docker_vm_name:-boot2docker-vm}"
+
+# path to settings used for boot2docker
+boot2docker_settings_path="${boot2docker_settings_path:-${path_data}/boot2docker}"
+
+boot2docker_mount_method="${boot2docker_vm_mountmethod:-vboxsf}"
+boot2docker_mount_defaultflags="--transient"
