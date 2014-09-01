@@ -12,4 +12,4 @@ $/> ssh-keygen
 -Passwordless logins into container
 host/> cat ~/.ssh/id_rsa.pub > dev_dotssh/authorized_keys
 
-
+* Another options is to add a mount, that mounts your user pub key, into the authorized keys path

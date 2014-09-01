@@ -23,10 +23,17 @@ The following are ideas for libraries that should be started
 
 == HELP ==
 
+* It would be nice to have a function to pull help information from comments in a file
+
+== HOOKS ==
+
+1. the hooks_execute takes parameters like this: hooke_execute "{hook} --action "{action}" --state "{state}"
+   probably it would be better like this : hooke_execute --action "{action}" --state "{state}" "{hook}"
 
 == DOCKER ==
 
 1. The docker API has no natural way to output help information (It would be necessary to repeat all comments from the api file)
+   (It would be cool to pull it from the comments in the API file)
 
 == COMMANDS ==
 

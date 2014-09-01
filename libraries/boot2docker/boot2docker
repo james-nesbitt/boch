@@ -1,0 +1,114 @@
+#!/bin/sh
+#
+# LIBRARY: Boot 2 Docker interface
+#
+
+boot2docker_enable_status=1
+#
+boot2docker_enable()
+{
+  value=0
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -d|--disable)
+        value=1
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  boot2docker_enable_status=${value}
+}
+#
+boot2docker_enabled()
+{
+  return ${boot2docker_enable_status}
+}
+
+###
+# Manage boot2docker boot2docker mounts abstraction
+#
+boot2docker_mounts_add()
+{
+  local path="`path_expand \"${1%:*}\"`"
+  local name="${1#*:}"
+  list_add "boot2docker_mounts" "${path}:${name}"
+}
+
+boot2docker_mounts_get()
+{
+  list_get "boot2docker_mounts"
+}
+
+
+
+###
+# boot2docker mount
+#
+# -a|--automount : make this path automaticall mounted inside the VM
+# -n|--name {name} : Override default name for mount (defaults to a RANDOM number)
+# -v|--vm {vm} : Override which virtual-machine to add mount to
+#
+boot2docker_mount()
+{
+  case "${boot2docker_mount_method}" in
+    "vboxsf")
+      boot2docker_mount_vboxsf ${boot2docker_mount_defaultflags} $@
+      return $?
+  esac
+}
+
+# Mount using vboxsf
+boot2docker_mount_vboxsf()
+{
+  local vm="${boot2docker_vm_name}"
+  local name="${RANDOM}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -n|--name)
+        name="${2}"
+        shift
+        ;;
+      -t|--transient)
+        flags="${flags} --transient"
+        ;;
+      -v|--vm)
+        vm="${2}"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # path for the mount
+  local path="`path_expand \"${1}\"`"
+
+  debug --level 5 --topic "BOOT2DOCKER->MOUNT" "Mounting folder.  Ignore errors saying \"mount already exists\" as VBoxManage gives no means to check if the mounts are already there [name:${name}][vm:${vm}][path:${path}]"
+
+  # if it were possible to determine if the mount existed, then we would do that here
+#    VBoxManage sharedfolder remove "${vm}" --name "${name}" ${flags}
+    VBoxManage sharedfolder add "${vm}" --name "${name}" --hostpath "${path}" --automount ${flags} 2>&1
+  return $?
+}
+
+###
+# INIT the boot2docker library
+boot2docker_init()
+{
+
+  # mount method
+  boot2docker_mounts_add "${path_userhome}:user"
+  boot2docker_mounts_add "${path_project}:${project_name}"
+
+}

@@ -30,6 +30,49 @@ hooks_getpath()
 }
 
 ###
+# Run hooks that can alter certain values
+#
+#
+hooks_altervalue()
+{
+  local action="execute"
+
+  # require the first argument to be the operation/name
+  local name="${1}"
+  shift
+  local value="${1}"
+  local temp=""
+
+  if [ -n "${name}" ]; then
+    local hooks_paths="`hooks_list \"alter/${name}\"`"
+
+    debug --level 8 --topic "HOOKS->ALTERVALUE" "hooks retrieved [name:${name}][hooks:${hooks_paths}]";
+    local hook_path=""
+    for hook_path in ${hooks_paths}; do
+
+      debug --level 8 --topic "HOOKS->ALTERVALUE" "hook execution [action:${action}][hook_path:${hook_path}]";
+      temp="`hook_execute \"$hook_path\" --action \"${action}\" $@`"
+
+      if [ $? -gt 0 ]; then
+        debug --level 7 --topic "HOOKS->ALTERVALUE" "Hook return an error during execution [name:${name}][path:${hook_path}][newvalue:${temp}]"
+        return 1
+      else
+        debug --level 8 --topic "HOOKS->ALTERVALUE" "executed hook [name:${name}]: ${path_hook##*/}"
+      fi
+
+      if [ -n "${temp}" ]; then
+        value="${temp}"
+      fi
+    done
+
+    debug --level 8 --topic "HOOKS->ALTERVALUE" "Hooks execution finished [hook:${hook}]"
+  fi
+
+  echo "${value}"
+  return 0
+}
+
+###
 # Run hooks for an operation
 #
 # Conceptually, the function arguments determine
@@ -43,7 +86,7 @@ hooks_getpath()
 hooks_execute()
 {
   # require the first argument to be the operation
-  local hook=$1
+  local hook="$1"
   shift
 
   # are we targeting a particular state

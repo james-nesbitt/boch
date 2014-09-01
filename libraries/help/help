@@ -242,7 +242,7 @@ help_helplist()
 
 help_help_general()
 {
- echo "HOOK->HELP->HELP->050 This is the generic help handler for the toolset
+ echo "This is the generic help handler for the toolset
 
 - give a description on how the system works
 - explain that there are two primary scripts (control and flow)
@@ -269,7 +269,7 @@ help_help_unknowntopic()
 {
   topic="$1"
 
- echo "HOOK->HELP->HELP->050 UNKNOWN TOPIC MESSAGE
+ echo "UNKNOWN TOPIC MESSAGE
 
 Could not find any help for your topic: ${topic}
 
@@ -278,7 +278,7 @@ Could not find any help for your topic: ${topic}
 
 help_help_topic_init()
 {
- echo "HOOK->HELP->HELP->050 Help topic handler for system initialization
+ echo "Help topic handler for system initialization
 
 - explain how init works
 - explain what the _init script is
@@ -287,7 +287,7 @@ help_help_topic_init()
 
 help_help_topic_libraries()
 {
- echo "HOOK->HELP->HELP->050 Help topic handler for libraries
+ echo "Help topic handler for libraries
 
 - explain what libraries are
 - discuss what libraries can container
@@ -299,7 +299,7 @@ help_help_topic_libraries()
 
 help_help_topic_hooks()
 {
- echo "HOOK->HELP->HELP->050 Help topic handler for hooks
+ echo "Help topic handler for hooks
 
 - shortly explain hooks
 - suggest looking for help on topic hook:
@@ -308,7 +308,7 @@ help_help_topic_hooks()
 
 help_help_topic_project()
 {
- echo "HOOK->HELP->HELP->050 Help topic handler for the project folder
+ echo "Help topic handler for the project folder
 
 - explain that the project folder is for your project
 - explain that the project folder is a library
