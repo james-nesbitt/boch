@@ -20,9 +20,13 @@ hook_help()
     hook_help_generalhelp $@
 
   else
+    # if a help request was passed for a hook from an unloaded library, then load that library
+    if [ "${hook}" != "${hook%~*}" ]; then
+      library_load "${hook%~*}"
+    fi
 
     debug --level 6 --topic "HOOK->HOOK->HELP-050" "Running help for hook [hook:`hook_label \"${hook}\"`][path:${hook}][fullpath:`path_expand \"${hook}\"`]"
-    if [ -f "`path_expand \"${hook}\"`" ]; then
+    if path_is --file "${hook}"; then
       hook_help_hook "${hook}"
     else
       hook_help_unknownhook "${hook}"

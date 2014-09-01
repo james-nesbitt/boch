@@ -5,4 +5,4 @@
 
 # This library has a default template that can be used in the system for new project builds
 # @NOTE this settings is only really used for the init flow
-project_buildtemplate="${project_buildtemplate:-template}"
+project_buildtemplate="${project_buildtemplate:-www-cnpm-jn-template}"

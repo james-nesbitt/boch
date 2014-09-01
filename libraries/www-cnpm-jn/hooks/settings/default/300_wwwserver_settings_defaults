@@ -34,16 +34,17 @@ The purpose here is to give access to the library builds, and related settings
 wwwcnpmjn_settings_defaults_300_execute()
 {
 
-  project_buildtemplate="${project_buildtemplate:-template}"
+  project_buildtemplate="${project_buildtemplate:-www-cnpm-jn-template}"
 
   echo "#
 # Use the distributed www-cnpm-jn builds and functionality
 #
 # Using this library assumes that you are using one of the www
 # server builds as a parent, and so these settings are added
-# to take advantage of that.
+# to take advantage of the provided functionality.
 #
-# most likely your project was initialized with the --www-cnpm-jn flag
+# most likely your project was initialized with the --www-cnpm-jn
+# flag or the --libraries \"www-cnpm-jn\" flag
 #
 
 ##
@@ -62,9 +63,10 @@ library_load \"www-cnpm-jn\"
 
 # Project build images
 #
-# Uncomment this line if you need the www-cnpm-jn images built
+# Uncomment this line if you need the www-cnpm-jn images built locally
 # before any custom project images are built.  A common alternative
-# is to use the docker hosted equivalent as image parents
+# is to use the docker hosted equivalent as image parents, so docker
+# only needs to pull that image, instead of building it.
 #
 #required_builds=\"${required_builds:-"www-cnpm-jn www-cnpm-jn-dev"}\"
 
