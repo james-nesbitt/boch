@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# INIT:HOOK: POssible include additional libraries during init
+#
+
+hook_version=2
+hook_root="hook_flow_init_pre_900"
+
+# descriptoin method
+hook_flow_init_pre_900_description()
+{
+  echo "Include the additional libraries during init, if told to do so"
+}
+
+# help method
+hook_flow_init_pre_900_help()
+{
+  echo "hook->init->pre->090 : Include additional libraries, if told to do so
+
+This hook will include additional libraries during init, where they can
+then implement hooks, add settings, enable specific builds, and
+add other features.
+
+  [-l|--libraries {additional libraries} : list which additional libraries
+      should be loaded during init.
+
+  [--www-cnpm-jn] : include the www-cnpm-jn as a dependency; This library
+      will add settings and builds to use it's CENTOS7 www server.
+
+@NOTE that this option does not make these libraries loaded during
+  subsequent calls to the system.  If a library wants to self-load,
+  it should add a library_load call to a settings/default hook, to
+  have it added to the default settings file. The www-cnpm-jn is a
+  good example to follow.
+"
+}
+
+# execute method
+hook_flow_init_pre_900_execute()
+{
+  additional_libraries=""
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--libraries)
+        additional_libraries="${additional_libraries} ${2}"
+        shift
+        ;;
+
+      --www-cnpm-jn)
+        additional_libraries="${additional_libraries} www-cnpm-jn"
+        ;;
+    esac
+    shift
+  done
+
+  local library=""
+  for library in ${additional_libraries}; do
+    if ! library_loaded "${library}"; then
+      debug --level 5 --topic "HOOK->FLOW->INIT->PRE->900 Loading the ${library} library as directed by command line arguments."
+      library_load "${library}"
+    fi
+  done
+}

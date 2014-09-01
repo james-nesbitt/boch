@@ -5,22 +5,18 @@
 FROM            centos:centos7
 MAINTAINER      james.nesbitt@wunderkraut.com
 
-
-# Update core
-RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all
-
 ## EPEL Dependency on CentOS 6 and Red Hat (RHEL) 6 ##
-RUN curl -O -J -L http://dl.fedoraproject.org/pub/epel/beta/7/x86_64/epel-release-7-0.2.noarch.rpm && \
-    rpm -ivh epel-release-7-0.2.noarch.rpm && rm epel-release-7-0.2.noarch.rpm && \
-    /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum makecache
+RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
+    rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 && \
+    rpm --import https://repo.webtatic.com/yum/RPM-GPG-KEY-webtatic-el7 && \
+    rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-1.noarch.rpm && \
+    rpm -Uvh http://repo.webtatic.com/yum/el7/webtatic-release.rpm
+
+# Update and clean
+RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum -y makecache
 
 # Install some tools used here.
-RUN /usr/bin/yum install -y wget curl git tar unzip
-
-# Install supervisord
-RUN /usr/bin/yum install -y supervisor
-ADD etc_supervisord.d /etc/supervisord.d
-EXPOSE 9001
+RUN /usr/bin/yum install -y wget curl git tar unzip nettools
 
 # Install the mimimum services required to get a base platform (ssh service generates keys)
 RUN /usr/bin/yum install -y openssh-server && \
@@ -28,7 +24,7 @@ RUN /usr/bin/yum install -y openssh-server && \
     /usr/bin/ssh-keygen -A
 EXPOSE 22
 
-# Install MariaDB
+# Install MariaDB : this is the standard Maria 5.x, as the 10.x doesn't have a centos7 install yet
 RUN /usr/bin/yum install -y mariadb-server mariadb
 ADD etc_my.cnf.d_server.cnf /etc/my.cnf.d/server.cnf
 ADD etc_my.cnf /etc/my.cnf
@@ -60,6 +56,11 @@ RUN chown -R nginx:nginx /var/log/php-fpm && \
 
 # Install Drush
 RUN /usr/bin/yum install -y php-drush-drush
+
+# Install supervisord
+RUN /usr/bin/yum install -y supervisor
+ADD etc_supervisord.d /etc/supervisord.d
+EXPOSE 9001
 
 # Create a place for the web project
 ADD app /app

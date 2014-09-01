@@ -15,8 +15,7 @@ hook_flow_init_030_description()
 # help method
 hook_flow_init_030_help()
 {
-  echo "
-hook->init->030 : Create the custom folder for the project
+  echo "hook->init->030 : Create the custom folder for the project
 
 This hook will attempt to interpret the flow arguments into
 global variables, which will reduce the dependence on args
@@ -30,8 +29,14 @@ much, and can depend on global settings.
      for the project and need to be built during initialization
      (notice that without --buildnow this does nothing)
 
+  [-l|--libraries] {additional libraries} : load additional libraries during init to
+     allow them to add settings and implement hooks.  This is used in particular by
+     the following libraries, which have their own shortcuts
+        --www-cnpm-jn : includes settings and builds for centos7 based www server
+
   [-n|--name {name}] : specify a project name.  This name is used for default values
-     for other things, such as default image name, default hostname etc.
+     for other things, such as default image name, default hostname etc.  At this point
+     it is a shortcut for settings multiples settings that are commonly the same.
 
   [-b|--build {build}] : specify a name that should be used as the new custom build
   [-t|--template {template}] : specify an specific build that should be used as the new custom build
@@ -41,7 +46,7 @@ much, and can depend on global settings.
   [-h|--hostname {hostname}] : specify default machine hostnames for containers in this project
 
 "
-
+  help_scope_add "hook:flow/init"
 }
 
 # execute method
@@ -51,6 +56,8 @@ hook_flow_init_030_execute()
   build_execute_now=-1
 
   project_buildtemplate="${project_buildtemplate:-}"
+
+  additional_libraries=""
 
   local flags=""
   while [ $# -gt 0 ]
@@ -66,6 +73,10 @@ hook_flow_init_030_execute()
         ;;
       -i|--image)
         project_image="${2}"
+        shift
+        ;;
+      -l|--libraries)
+        additional_libraries="${additional_libraries} ${2}"
         shift
         ;;
       -n|--name)

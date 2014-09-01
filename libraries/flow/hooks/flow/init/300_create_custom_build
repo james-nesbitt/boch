@@ -16,8 +16,7 @@ hook_command_init_300_description()
 # help method
 hook_command_init_300_help()
 {
-  echo "
-HOOK->FLOW->INIT->300: Build the default project image
+  echo "HOOK->FLOW->INIT->300: Build the default project image
 
 This hook will run a docker build, createing a new system
 image for you to use for your project.

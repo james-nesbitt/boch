@@ -4,23 +4,23 @@
 #
 
 hook_version=2
-hook_root="wwwserver_settings_defaults_300"
+hook_root="wwwcnpmjn_settings_defaults_300"
 
 # description method
-wwwserver_settings_defaults_300_description()
+wwwcnpmjn_settings_defaults_300_description()
 {
-  echo "Default settings for the wwwserver-cnpm library and builds"
+  echo "Default settings for the www-cnpm-jn library and builds"
 }
 
 # help method
-wwwserver_settings_defaults_300_help()
+wwwcnpmjn_settings_defaults_300_help()
 {
-  echo "Add default settings from the wwwservercnpm library
+  echo "Add default settings from the www-cnpm-jn library
 
-This hook adds default settings that integration with the wwwserver library.
+This hook adds default settings that integration with the www server library.
 The purpose here is to give access to the library builds, and related settings
 
-- explain settings for wwwserver-cnpm builds
+- explain settings for www-cnpm-jn builds
   - The library includes a template build called \"template\"
   - these builds use a user called \"developer\"
   - included are some ssh specific settings
@@ -31,42 +31,42 @@ The purpose here is to give access to the library builds, and related settings
 }
 
 # execute method
-wwwserver_settings_defaults_300_execute()
+wwwcnpmjn_settings_defaults_300_execute()
 {
 
   project_buildtemplate="${project_buildtemplate:-template}"
 
   echo "#
-# Use the distributed wwwservercnpm builds and functionality
+# Use the distributed www-cnpm-jn builds and functionality
 #
 # Using this library assumes that you are using one of the www
 # server builds as a parent, and so these settings are added
 # to take advantage of that.
 #
-# most likely your project was initialized with the --wwwserver flag
+# most likely your project was initialized with the --www-cnpm-jn flag
 #
 
 ##
-# Load the wwwserver library
+# Load the www-cnpm-jn WWW Server library
 #
-library_load \"wwwservercnpm\"
+library_load \"www-cnpm-jn\"
 
 ###
 # Docker image configurations
 #
 # @NOTE many of these settings overload above settings with new
-#   values that work when using builds from the wwwserver library
+#   values that work when using builds from the www server library
 #   You should choose values that work for you, either keeping
 #   these new values or removing them and using the classic values
 #
 
 # Project build images
 #
-# Uncomment this line if you need the wwwserver-cnpm images built
-# before any custom project images are built.  Another option would
-# be to use the docker hosted equivalent as image parents
+# Uncomment this line if you need the www-cnpm-jn images built
+# before any custom project images are built.  A common alternative
+# is to use the docker hosted equivalent as image parents
 #
-#required_builds=\"${required_builds:-"wwwserver-cnpm wwwserver-cnpm-dev"}\"
+#required_builds=\"${required_builds:-"www-cnpm-jn www-cnpm-jn-dev"}\"
 
 # Base template from which to make new project builds
 # @NOTE this is not often used, mainly it is only used during the init flow
@@ -105,7 +105,7 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} 
 # directly changing the container FS.
 #
 
-# Source mount : wwwserver builds use /app/source for the project source (and likely expect /app/source/www for webroot
+# Source mount : www server builds use /app/source for the project source (and likely expect /app/source/www for webroot
 settings_mount_addmount \"\${path_project}/source:/app/source\"
 
 # SSH

@@ -5,23 +5,23 @@
 
 
 # help method
-wwwservercnpm_help()
+wwwcnpmjn_help()
 {
-  wwwservercnpm_help_generalhelp
+  wwwcnpmjn_help_generalhelp
 }
 
 # method to list all flow topics in scope
 # @NOTE there are no help topics for this library
-wwwservercnpm_helplist()
+wwwcnpmjn_helplist()
 {
   echo ""
 }
 
 # generic help message for the command help system
 # @TODO put some usefull material here
-wwwservercnpm_help_generalhelp()
+wwwcnpmjn_help_generalhelp()
 {
-  echo "Help for the WWWSERVER Library
+  echo "Help for the WWW-CNPM(JN) WWW SERVER Library
 
 This library adds a number of preconfigured builds to the system, to
 provide it with a decent CENTOS 7 based web server.
@@ -39,10 +39,10 @@ opposed to being included at every execution (this way you can override
 whatever you need.)
 
 You can include the library simply by adding the following to your project
-script or settings file: library_load \"wwwservercnpm\"
+script or settings file: library_load \"wwwcnpmjn\"
 
 Better is to include the --wwwserver flag when using the init flow:
-$/> ./flow init --wwwserver
+$/> ./flow init --www-cnpm-jn
 
 "
 }

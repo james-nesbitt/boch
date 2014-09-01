@@ -3,7 +3,7 @@
 # Site/Project specific image for the project
 # Built on top of the wwwserver-cnpm build
 #
-FROM jamesnesbitt/wwwserver-cnpm-dev
+FROM jamesnesbitt/www-cnpm-jn-dev
 MAINTAINER James Nesbitt <james.nesbitt@wunderkraut.com>
 
 # run as root user - as we will use supervisor to manage the container

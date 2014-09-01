@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Default settings for the wwwserver library
+# Default settings for the www-cnpm-jn library
 #
 
 # This library has a default template that can be used in the system for new project builds

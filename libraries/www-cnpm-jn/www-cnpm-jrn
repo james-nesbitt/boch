@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# library: wwwserver-cnpm
+# library: www-cnpm-jn
 #
-# A library which includes some useful wwwserver builds, and
+# A library which includes some useful www server builds, and
 # some related settings
 #
 
