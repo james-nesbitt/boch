@@ -456,11 +456,11 @@ _library_execute()
   local library=$1
   shift
 
-  # include the library
+  # generate a safe function name for the library/component method
   if [ -z "${component}" ]; then
-    local library_function="${library}_${action}"
+    local library_function="${library//-/_}_${action}"
   else
-    local library_function="${component}_${action}"
+    local library_function="${component//-/_}_${action}"
     debug --level 8 --topic "LIBRARY->_EXECUTE" "library execute is for a component [library:${library}][action:${action}][function:${library_function}]"
   fi
 

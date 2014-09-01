@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# For some reason, centos containers don't have a hostname binary
+# This creates some problems with scripts used by drush, so we create
+# a read only equivalent, which spits out the hostname file
+#
+# @NOTE there are many ways this can fail, but it shouldn't cause any
+#       major problems.
+#
+cat /etc/hostname

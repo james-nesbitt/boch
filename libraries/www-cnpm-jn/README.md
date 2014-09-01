@@ -18,17 +18,16 @@ This will add the library_load to your settings file, and it will also overload 
 
 The following dockere builds are provided by the library.
 
-=== wwwserver-cnpm ===
+=== www-cnpm-jn ===
 
 A centos7 image with the latest nginx, mariadb and php-fpm installed, all set up to run together in an environment that should work out of the box, if you add some project related elements such as an nginx configuration for a host.
 
 BUG: the php-mysql library doesn't like to listen to the unix socket definition. The php lib wants the socket at /var/lib
 
-=== wwwserver-cnpm-dev ===
+=== www-cnpm-jn-dev ===
 
-This image extenss the wwwserver-cnpm image by adding some developer oriented configurations, including things like xdebug, and adding a developer user.
+This image extends the www-cnpm-jn image by adding some developer oriented configurations, including things like xdebug, and adding a developer user.
 
 === template ====
 
-This is a template build, that will extend the wwwserver-cnpm-dev (as hosted on docker.io) with some configuration for a specific project.  It does somethings like adds a DB for the project, adds an nginx host definition to point to /app/source/www.
-
+This is a template build, that will extend the www-cnpm-jn-dev (as hosted on docker.io) with some configuration for a specific project.  It does somethings like adds a DB for the project, adds an nginx host definition to point to /app/source/www.

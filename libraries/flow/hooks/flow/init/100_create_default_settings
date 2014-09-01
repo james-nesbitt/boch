@@ -15,8 +15,7 @@ hook_init_100_description()
 # help method
 hook_init_100_help()
 {
-  echo "
-hook->init 100 : Populate the default customs settings.sh, Create it if missing
+  echo "hook->init 100 Populate the default customs settings.sh, Create it if missing
 
 This hook does two things:
 1. Makes sure that a custom settings file exists
