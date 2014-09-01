@@ -59,8 +59,15 @@ hook_flow_init_pre_900_execute()
   local library=""
   for library in ${additional_libraries}; do
     if ! library_loaded "${library}"; then
-      debug --level 5 --topic "HOOK->FLOW->INIT->PRE->900 Loading the ${library} library as directed by command line arguments."
+      debug --level 5 --topic "HOOK->FLOW->INIT->PRE->900 Loading the ${library} library as directed"
       library_load "${library}"
+
+      if [ $? -gt 0 ]; then
+        debug --level 5 --topic "HOOK->FLOW->INIT->PRE->900 Error occured loading the ${library} library as directed"
+        return 1
+      fi
     fi
   done
+
+  return 0
 }

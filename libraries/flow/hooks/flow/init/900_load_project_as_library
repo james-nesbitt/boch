@@ -39,7 +39,6 @@ hook_flow_init_900_execute()
     library_load --path "${path_data}" "project"
     if [ $? -gt 0 ]; then
       debug --level 3 --topic "HOOK->FLOW->INIT->900" "No custom data/project folder exists"
-      return 1
     else
       debug --level 5 --topic "HOOK->FLOW->INIT->900" "Loaded Data/Project folder as a library [path:${path_data}]"
     fi
