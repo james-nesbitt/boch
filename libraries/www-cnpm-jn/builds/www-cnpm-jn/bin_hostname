@@ -1,0 +1,5 @@
+#!/bin/hostname
+#
+# The default CentOS container has no hostname binary
+#
+cat /etc/hostname

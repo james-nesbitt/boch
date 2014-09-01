@@ -2,7 +2,7 @@
 # Multiline runs are used to minimize RUN transactions to keep the cache
 # shorter for this basebox.  There is no need to overdo the caching here.
 #
-FROM            jamesnesbitt/www-cnpm-jrn
+FROM            www-cnpm-jn
 MAINTAINER      james.nesbitt@wunderkraut.com
 
 #

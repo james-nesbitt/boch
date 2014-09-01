@@ -17,6 +17,7 @@ RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum -y makec
 
 # Install some tools used here.
 RUN /usr/bin/yum install -y wget curl git tar unzip nettools
+ADD bin_hostname /usr/bin/hostname
 
 # Install the mimimum services required to get a base platform (ssh service generates keys)
 RUN /usr/bin/yum install -y openssh-server && \
