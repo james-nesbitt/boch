@@ -59,7 +59,8 @@ project_name=\"${project_name:-project}\"
 # Project build and image
 #
 # which build (folder) should be used for project images (if it isn't built)
-# Set this if you put a folder with a Dockerfile in ./builds
+# Set this if you put a folder with a Dockerfile in one of the build folders
+# @NOTE to list the builds and build paths try $/> ./control --help build
 project_build=\"${project_build:-${project_name}}\"
 # which image should we use for creating containers (and build if it is missing)
 project_image=\"${project_image:-${project_name}}\"

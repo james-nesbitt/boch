@@ -104,12 +104,6 @@ start_execute()
     # Run the run function
     debug --level 5 --topic "COMMAND" "start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${container}\" --hostname \"${hostname}\" ${flags} $@"
     docker_run --image "${image}" --version "${version}" --container "${container}" --hostname "${hostname}" ${flags} $@
-    local success=$?
-
-    if $success; then
-      echo "SUCCESS [$success]"
-    else
-      echo "SUCCESS [$success]"
-    fi
+    return $?
   fi
 }

@@ -61,15 +61,37 @@ command_helplist()
 # @TODO put some usefull material here
 command_help_generalhelp()
 {
-  echo "
-GENERIC HELP MESSAGE FOR COMMANDS GOES HERE
+  echo "Help for the Command Library
 
-- explain the help system
-- explain the hook system
-  - explain that a command is actually run via a hook
+This library provides high level docker interaction tools as library
+components.  Each component is meant to provide a single docker task,
+often something that is handed off to the docker API.  These components
+have their own help methods, and are aware of the project settings, so
+they have good concepts of default settings.
 
-- give examples for showing help for a command      -> ./command --help {command}
-- give examples for showing help for a command hook -> ./command --help \"hook:{hook}\" {command}
+@NOTE that while command components are self-encapsulated, the commands
+are run through a set of hooks, so any pre/post hooks can be added to
+other libraries to interact with the call.
+
+You can get more help for a command by adding --help to the control call
+or by using the help script directly:
+
+$/> ./control --help build
+OR
+$/> ./help command:build
+
+Commands often relate to other libraries, so the help information for
+a command, may include a list of help topics.  It will often be displayed
+in a list/table, and look like this:
+
+--> {topic description} ({topic})
+
+If command help information provides a list of topics, you can get for
+that topic by passing it into the help call like this:
+
+$/> ./control --help \"{topic}\" {command}
+OR
+$/> ./help \"{topic}\"
 "
 
   command_help_commandlist
@@ -78,12 +100,9 @@ GENERIC HELP MESSAGE FOR COMMANDS GOES HERE
 # output message if help is requested for an unknow command
 command_help_unknowncommandhelp()
 {
-  echo "
-UNKNOWN command [command:$1]
+  echo "Unknow command $1
 
 You have tried to get help for a command that we could not find in the system.
-
-The command \"${1}\" was not found in the system.
 
 "
   # Include general help

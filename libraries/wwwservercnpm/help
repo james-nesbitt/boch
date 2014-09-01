@@ -11,6 +11,7 @@ wwwservercnpm_help()
 }
 
 # method to list all flow topics in scope
+# @NOTE there are no help topics for this library
 wwwservercnpm_helplist()
 {
   echo ""
@@ -20,11 +21,28 @@ wwwservercnpm_helplist()
 # @TODO put some usefull material here
 wwwservercnpm_help_generalhelp()
 {
-  echo "
-GENERIC WWWSERVER HELP MESSAGE GOES HERE
+  echo "Help for the WWWSERVER Library
 
-- explain what the purpose of this library is
-- explain when to include this library
-- demonstrate how to include this library during ./flow init --wwwserver
+This library adds a number of preconfigured builds to the system, to
+provide it with a decent CENTOS 7 based web server.
+Included are some builds, a template build, and some related settings
+
+The library includes some CENTOS builds, but does not required that you
+build them, it rather includes a template build, that is based on a
+docker.io version of the builds.  The other builds are included for you
+to re-use and modify as needed.
+
+You should include this library if you are using these builds, as the
+library will include settings that work well for the builds.
+Most of the settings are included as \"default settings\" provided, as
+opposed to being included at every execution (this way you can override
+whatever you need.)
+
+You can include the library simply by adding the following to your project
+script or settings file: library_load \"wwwservercnpm\"
+
+Better is to include the --wwwserver flag when using the init flow:
+$/> ./flow init --wwwserver
+
 "
 }

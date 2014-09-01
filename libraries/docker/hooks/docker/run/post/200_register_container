@@ -72,7 +72,7 @@ hook_docker_run_post_200_execute()
     shift
   done
 
-  if !path_enssure --dir "${docker_container_registerpath}"; then
+  if ! path_ensure --dir "${docker_container_registerpath}"; then
     debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as the path cannot be used : ${docker_container_registerpath}"
     return 1
   fi
