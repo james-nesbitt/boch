@@ -41,6 +41,10 @@ Implementations required:
 - Alter machine mounts so that they point to the VM path,
   instead of the host path.
 
+@NOTE VBoxManage is used for mounts.  It gives us the ability to add and remove mounts, BUT IT DOES NOT GIVE US A WAY TO LIST MOUNTS TO KNOW WHAT WE HAVE ALREADY MOUNTED.
+For now we just remount everything and accept VBoxManage errors, but we will likely have to add some kind of static list of paths mounted.
+
+@TODO this library is really in an infant state.  It can do the mapping but it will cause plenty of errors all over the place.
 "
 }
 
