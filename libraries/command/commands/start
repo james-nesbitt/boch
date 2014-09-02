@@ -80,7 +80,7 @@ start_execute()
   hostname="${hostname:-"${container}"}"
 
   # Add the default flags to the end of the flaglist
-  flags="${flags} ${machine_runargs} `settings_mount_getmounts`"
+  flags="${flags} ${machine_runargs} `settings_mount_getmounts --mount`"
 
   # Check for an existing container
   if docker_container_exists ${container}; then

@@ -54,7 +54,7 @@ Project Configurations
   -->project_imageversion--: ${project_imageversion}
   >PROJECT MACHINE CONFIGURATIONS
   -->Machine_hostname------: ${machine_hostname}
-  -->Machine_mountvolumes--: `settings_mount_getmounts --mount`
+  -->Machine_mountvolumes--: `settings_mount_getmounts --short`
   -->Machine_shell---------: ${machine_shell}
   -->Machine_shellrunargs--: ${machine_shellrunargs}
   -->Machine_runargs-------: ${machine_runargs}
