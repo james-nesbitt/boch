@@ -69,7 +69,7 @@ run_execute()
   command=${@:-${Machine_shell}}
 
   # add default flags to the end of the flag list
-  flags="${flags} ${Machine_shellrunargs} `settings_mount_getmounts`"
+  flags="${flags} ${Machine_shellrunargs} `settings_mount_getmounts --mount`"
 
   message "Running function in a new container (${name}) :"
   message --separator
