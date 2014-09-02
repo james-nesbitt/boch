@@ -8,6 +8,9 @@ www_builds_help()
 {
   if [ -z "${1}" ]; then
     www_builds_help_generalhelp
+
+    help_scope_add "www-builds:general"
+    help_scope_list
   else
     local buildlib=""
     for buildlib in `www_builds_list_get`; do
@@ -23,8 +26,9 @@ www_builds_helplist()
 {
   if [ -z "${1}" ]; then
     local buildlib=""
+    echo "The following libraries are www-build libraries (they have their own help):"
     for buildlib in `www_builds_list_get`; do
-      echo "${buildlib%:*} (www-builds:${buildlib%:*}) ${buildlib}"
+      echo "--> ${buildlib%:*} (www-builds:${buildlib%:*}) `library_path "${buildlib}"`"
     done
   else
     echo ""
@@ -40,12 +44,10 @@ This library is a collection of other libraries that are meant to give
 access to www server builds.  The www libs are various docker builds
 that have been collected as a part of the project.
 "
-  help_scope_add "www-builds:general"
-  echo "The following libraries are www-build libraries (they have their own help):"
-  help_scope_list
 }
 
 # Topic help
+# @NOTE we hand of any topic/library help to the handler for that library
 www_builds_help_topichelp()
 {
   local library="${1}"

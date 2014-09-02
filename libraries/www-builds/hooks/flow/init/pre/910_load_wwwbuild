@@ -21,6 +21,10 @@ This hook will include one of the www-build libraries,
 
   [--www-build {build} : which build library to include
 
+  There are currently 2 shortcut arguments to the existing builds:
+  --www-cnpm-jn
+  --www-deblamp-mz
+
 @NOTE that this option does not make these libraries loaded during
   subsequent calls to the system.  If a library wants to self-load,
   it should add a library_load call to a settings/default hook, to

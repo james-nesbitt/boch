@@ -13,38 +13,13 @@
 # builds.
 #
 
-# Add a library build to the list
-www_builds_list_add()
-{
-  list_add "wwwbuilds_buildlist" "${1}"
-}
 # get the library build list
 www_builds_list_get()
 {
-  list_get "wwwbuilds_buildlist"
-}
-
-# initialize the docker library
-www_builds_path=""
-www_builds_init()
-{
-  # default flags
-  local flags=""
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-       --path)
-        www_builds_path="${2}"
-        shift
-        ;;
-      *)
-        break;; # terminate while loop
-    esac
-    shift
-  done
-
-  local path=""
-  for path in `path_contents --library "${www_builds_path}/libraries"`; do
-    www_builds_list_add "${path##*/}:`path_shorten "${path}"`"
+  local lib="`libraries_list_get "www-builds"`"
+  local builds_path="`library_path "${lib}"`/libraries"
+  for path in `path_contents --library "${builds_path}"`; do
+    echo "${path##*/}:`path_shorten "${path}"`"
   done
 }
+
