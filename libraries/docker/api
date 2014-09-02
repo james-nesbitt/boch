@@ -251,7 +251,7 @@ docker_run()
       debug --level 2 --topic "DOCKER->START" "Docker run failed."
       hooks_execute "docker/run" --state "fail" --image "${image}" --version "${version}" --id "${container}" ${hook_flags} --ip "${ip}" --startargs $@
     fi
-echo "RETURNING SUCCESS [success:${success}]"
+
     return $success
   fi
 }
