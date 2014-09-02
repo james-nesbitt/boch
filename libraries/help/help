@@ -208,12 +208,18 @@ help_help()
     *)
       if [ -n "${topic}" ]; then
         help_help_unknowntopic "${topic}" $@
+
+        help_scope_add "help"
+        help_scope_list
       fi
 
       help_help_general
     ;;
   esac
 
+  # always display system help topics here
+  help_scope_add "help"
+  help_scope_list
 }
 
 # list help topics method
@@ -257,11 +263,15 @@ help_help_general()
   - explain that a list of libraries follows
   - warn that this list of libraries depends on what libraries are
     currently loaded.
+
+If you see a help topic in round bracket in any help page, you can
+get more help from the system using the help command:
+
+TOPICS: --> a help topic here (library:help-topic)
+
+Then use this : $/> ./help library:help-topic
+to get more help
 "
-
-  help_scope_add "help"
-
-  help_scope_list
 }
 
 # Unknow topic message
