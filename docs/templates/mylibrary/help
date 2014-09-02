@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# Help handler for example library
+#
+
+# help topic handler
+function mylibrary_help()
+{
+  if [ -n "${1}" ]; then
+    echo "MyLibrary Help for topic ${1}"
+  else
+    echo "MyLibrary Help for general help"
+  fi
+}
+
+# help topic list
+function mylibrary_helplist()
+{
+  local scope="${1}"
+  shift
+
+  if [ -n "${scope}" ]; then
+    # this will tell something to ask for help with a topic  mylibrary:${scope}
+    echo "Scope help for myLibrary (mylibrary:${scope})"
+  else
+    # this will tell people to ask for help with mylibrary:general,  the general is
+    # removed before it is handed to the my_library_help function
+    echo "General help for myLibrary (mylibrary:general)"
+  fi
+}

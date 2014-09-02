@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# Library core handler
+#
+# @NOTE this file can container functions that are used in your library.
+# @NOTE this file doesn't need to contain anything, but it does need to be
+#       executable, or your library will be ignored.
+#
+
+# Optional Init handler
+mylibrary_init()
+{
+
+  # default flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+       --path)
+        # Path to this library
+        local path="${2}"
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  echo "INIT:${mylibrary_string}"
+
+}
+
+#  custom function in your library
+mylirary_dosomething()
+{
+  echo "${mylibrary_string}"
+}

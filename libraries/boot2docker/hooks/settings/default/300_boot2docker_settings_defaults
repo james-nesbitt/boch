@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Apply some default settings, if you are using the boot2docker library
+#
+
+hook_version=2
+hook_root="boot2docker_settings_defaults_300"
+
+# description method
+boot2docker_settings_defaults_300_description()
+{
+  echo "Default settings for the boot2docker library"
+}
+
+# help method
+boot2docker_settings_defaults_300_help()
+{
+  echo "Add default settings from the boot2docker library
+
+This hook adds default settings for the boot2docker library.  This
+will incorporate settings into a project settings file during when
+the init flow is executed.
+
+The following settings are added:
+  - load the boot2docker library on every execution
+  - set the VM machine name
+  - set the path to boot2docker settings
+  - set the mount method, and some related settings
+"
+}
+
+# execute method
+boot2docker_settings_defaults_300_execute()
+{
+  echo "#
+# Settings for boot2docker
+#
+
+# the name of the virtualbox virtual-machine that boot2docker is using
+boot2docker_vm_name=\"${boot2docker_vm_name:-boot2docker-vm}\"
+
+# path to settings used for boot2docker
+boot2docker_settings_path=\"\${path_data}/boot2docker\"
+
+# Mount methods for the boot2docker VM
+# @NOTE currently only vboxsf is written
+# @TODO write NFS and RYNC methods ?
+boot2docker_mount_method=\"${boot2docker_vm_mountmethod:-vboxsf}\"
+boot2docker_mount_defaultflags=\"--transient\"
+
+# Load the boot2docker library (after we have these settings in place)
+load_library \"boot2docker\"
+"
+}

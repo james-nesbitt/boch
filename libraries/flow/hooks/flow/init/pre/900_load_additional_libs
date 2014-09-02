@@ -24,6 +24,8 @@ add other features.
   [-l|--libraries {additional libraries} : list which additional libraries
       should be loaded during init.
 
+  [--boot2docker] : include the boot2docker as a dependency; This library
+      will add settings and handlers for running docker through boot2docker.
   [--www-cnpm-jn] : include the www-cnpm-jn as a dependency; This library
       will add settings and builds to use it's CENTOS7 www server.
 
@@ -45,10 +47,13 @@ hook_flow_init_pre_900_execute()
   do
     case "$1" in
       -l|--libraries)
-        additional_libraries="${additional_libraries} ${2}"
+        additional_libraries="${additional_libraries} ${2/,/ }"
         shift
         ;;
 
+      --boot2docker)
+        additional_libraries="${additional_libraries} boot2docker"
+        ;;
       --www-cnpm-jn)
         additional_libraries="${additional_libraries} www-cnpm-jn"
         ;;
@@ -68,6 +73,5 @@ hook_flow_init_pre_900_execute()
       fi
     fi
   done
-
   return 0
 }

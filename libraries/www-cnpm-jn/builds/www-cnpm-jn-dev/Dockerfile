@@ -2,7 +2,7 @@
 # Multiline runs are used to minimize RUN transactions to keep the cache
 # shorter for this basebox.  There is no need to overdo the caching here.
 #
-FROM            www-cnpm-jn
+FROM            jamesnesbitt/www-cnpm-jn
 MAINTAINER      james.nesbitt@wunderkraut.com
 
 #
@@ -13,7 +13,12 @@ MAINTAINER      james.nesbitt@wunderkraut.com
 #
 
 # Add more developer PHP tools
-RUN yum install -y  php-pecl-xdebug
+RUN /usr/bin/yum install -y  php-pecl-xdebug
+
+# Add sass stuff, but base it on ruby 2.1
+#RUN curl -sSL https://get.rvm.io | bash -s stable --ruby=2.1 && \
+#    source /usr/local/rvm/scripts/rvm && source /usr/local/rvm/bin/rvm --default use 2.1
+RUN /usr/bin/yum install -y ruby rubygems rubygem-bundler
 
 # Overload the php conf for dev settings
 ADD etc_php-fpm.d_www.conf /etc/php-fpm.d/www.conf
@@ -22,7 +27,7 @@ ADD etc_php.ini /etc/php.ini
 # Create a developer user
 # Put whatever you want into this folder, maybe .ssh credentials, drush, etc
 ADD home_developer /home/developer
-RUN yum install -y wget git zsh sudo vim && \
+RUN /usr/bin/yum install -y zsh sudo vim && \
     adduser -d /home/developer -M -u 1000 -G wheel -s /bin/zsh -p "developer" -c "development login" developer && \
     chown -R developer:developer /home/developer && \
     echo "developer        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/developer && \
