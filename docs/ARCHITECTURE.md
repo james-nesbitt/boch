@@ -17,28 +17,28 @@ There are two executable scripts in the toolset
 control : a straight forward implement command script
 flow : a more abstracted execution, heavily hook dependent (so easily expanded)
 
-libraries/  <-- the core libraries
-  command/  <-- command handler libraries with commands/{command} components
+libraries/     <-- the core libraries
+  command/     <-- command handler libraries with commands/{command} components
                 * commands are library components, so you can add a /commands
                   folder to any library, including your project
-  docker/   <-- docker implementations, low level docker function handlers
-  flow/     <-- flow handlers, really just lots of hooks
-  hooks/    <-- the hooks library with functions for running hooks
-  help/     <-- a library with functions for getting help
-  settings/ <-- a library for configuring the toolset, and for making a default config
+  docker/      <-- docker implementations, low level docker function handlers
+  flow/        <-- flow handlers, really just lots of hooks
+  hooks/       <-- the hooks library with functions for running hooks
+  help/        <-- a library with functions for getting help
+  settings/    <-- a library for configuring the toolset, and for making a default config
 
-  wwwserver/ <-- a custom library that is includes settings related to our custom docker builds
+  www-cnpm-jn/ <-- a custom library that is includes settings related to our custom docker builds
 
 
 === Project folder architecture ==
 
-Your project folder is a place to put custom settings for your project, 
+Your project folder is a place to put custom settings for your project,
 and where you can add custom hooks, libraries and commands.
 It is also where certain libraries like to keep information on containers
 created etc.
 
 * You don't need to create this folder, you can have it created for you:
-  $/> manage/flow init --name {some_name} --wwwserver
+  $/> manage/flow init --name {some_name} --libraries www-cnpm-jn
 
 Layout:
 
@@ -47,15 +47,15 @@ Layout:
   builds/      <-- a folder that should container various custom docker builds
                    for your project
 
-  [hooks/]     <-- an optional folder hooks implementations
+  [hooks/]     <-- an optional folder hooks implementations, look at the libraries for examples
   [commands/]  <-- an optional folder for custom commands for you project
   [libraries/] <-- an optional folder for project libraries/plugins
 
 == The tool core scripts ==
 
-There are two primary executable scripts in the toolset. 
+There are two primary executable scripts in the toolset.
 
-- control : a straightforward implementation that tries to implement 
+- control : a straightforward implementation that tries to implement
     a single command;
 - flow : a more abstract workflow script, designed around hook implementations
     to perform more abstract operations.

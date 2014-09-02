@@ -91,26 +91,26 @@ Container can be:
 
 ### the project layout
 
-@TODO
+There is a separate document called ARCHITECTURE, which describes this further.
 
-### "control" : the management script
+### "control" "flow" "help" : the management scripts ###
 
-All of the management tools are worked into a single script manage/control.  The control script switches based on a command argument, and uses functions from the _docker.sh script to run docker commands.  Control has some base default configuration in it's header, and inludes overridable configurations from _settings.sh.   The control script is smart enough that it doesn't need to executed from any particular folder.
-
-The general control syntax is:
+The general script syntax is:
 
 ./manage/control {global args} {command} {command args}
+./manage/flow {global args} {flow/path} {flow args}
+./manage/help {global args} {help scope}:{help topic} {help args}
 
 global args:
  -v|--verbose [{0-9}] : enable debugging on all operations, pick a verbosity (1-9, 5 is default, 9 is most verbose)
  -l|--log [{0-9}] : enable debug logging on all operations, pick a verbosity (default is 9), log file path is in /manage/data/log
  -f|--force : don't stop when an error occurs
 
-The Commands are abstracted files in the manage/commands folder, with a {command}_execute method.  These files are 'source'd into scope
+For more information for each script try asking for help:
 
-For a list of commands try this:
-$/> manage/control help
-$/> manage/control help {command}
+- command help : $/> ./manage/control --help    OR   $/> ./manage/help command:general
+- flow help    : $/> ./manage/flow --help       OR   $/> ./manage/help flow:general
+- general help : $/> ./manage/help
 
 ### them images
 
@@ -118,7 +118,7 @@ The build system is not aware of dependencies.
 
 The default approach is to have a parent image shared across projects/containers.  You should build any dependencies first; if you include the build configurations then the build command will help you doing that, but you will have to know the order of dependencies, and run the command once per dependency.
 
-#### the parent image: wwwerver-cnpm-dev
+#### the parent image: www-cnpm-jn-dev
 
 The parent image is used as a base for all projects using this framework.  It has the basic docker functionality, with www server applications installed, and configured to run.
 
@@ -126,73 +126,6 @@ The parent is CentOS 6.5 based, using nginx, php-fpm, mariaDB, running alsoo ssh
 
 The base Docker container is included as a Dockerfile in the manage/build/parent folder.  This only needs to be built once per host machine, and can be built using the build command.
 
-@BUGS:
-- Supervisor sometimes uses 100% CPU, I think that is not playing well with nginx.  I am considering switching to using simplevisor, which has less features but is more efficient.  Using simplevisor would mean losing the tcp client.
-
 #### the project image
 
 The build system builds a custom image for your project, using the parent as a shared base.  Then you project iself can be versioned (multiple versions) and used for multiple containers.
-
-## A quick start
-
-1. STEP ZERO : You probably already did this
-
-  - Fork (git branch) or export this repo;
-
-2. STEP ONE : BUILD YOUR PROJECT CONTAINER
-
-  Q: Do you have the parent box?
-    If you don't then the build will pull it.  If you want you can build it first with $/> manage/control build --build {parent}
-
-  - Play with the contents of manage/_settings.sh if you want
-  - Play with the container build configuration (manage/build/container)
-  - Add your project source, probably to /source (unless you want to really play with the container configuration)
-  - RUN $/> manage/control [-v] build
-
-3. STEP TWO : Run the container
-
-  - RUN $/> manage/control [-v] start
-    (the first time this is run, it will create a container, other times it should resume it)
-
-4. OPTIONAL STEPS
-
-  - To get help RUN $/> manage/control help {command}
-    (there are lots of options, which should be investigated, especially for commit)
-  - To stop a container RUN $/> manage/control [-v] stop
-  - To see the output of a running container RUN $/> manage/control [-v] attach
-  - To save a changed container back to the image RUN $/> manage/control [-v] commit
-  - To get a temporary shell in a new container (for debugging) $/> manage/control [-v] shell
-
-# QUICK FAQ
-
-Why can't I start my container:
-
-  - did you build first
-  - did you run any funky customizations that failed the build?
-       - check that the image was created
-       - check the build output for an error
-
-Why does my container use 100%
-
-  - we have a problem with supervisord taking 100% CPU, I haven't
-    figured out why yet.
-
-I started my container but I don't see it?
-
-  - are you expecting a prompt or output, because the default conf
-    doesn't provide any
-
-I used the shell command, but my changes disappear
-
-  - shell is meant to provide a temporary container based on the image
-       - you can try --persistant to have the container stay
-  - shell gives you a new container, not the same container
-    as you have in start.
-  - shell is meant as a tools to debug the
-    container, or to make changes that are then commited to the
-    image.
-
-I don't like the file layout, how do I change it?
-
-  - The top of the control script has a number of bash variables pointing to the various elements.  You could change those
-  - if you don't like the source/www system, then feel free to remove it, but make sure to adjust the volume mounts, and nginx configuration as well.

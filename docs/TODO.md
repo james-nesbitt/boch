@@ -4,13 +4,8 @@ Goals and bonus things in the project
 
 == DOCUMENTATION ==
 
-* this toolset suffers from a lack of documentation, buth as lots of --help features;
+* this toolset suffers from a lack of documentation, both as lots of --help features;
 * documentation can now go into the various folders, as all scripts are now looking for executable files only.
-
-1. rewrite the help system (it is hard to get access to hook documentation);
-2. rewrite the command documentation;
-3. document the flow system;
-4. explain the hooks system;
 
 == HELP ==
 
@@ -30,15 +25,10 @@ The following are ideas for libraries that should be started
 
 == COMMANDS ==
 
-1. Command output for success and fail should be written.  Right now it can
-   be completely silent.  This has happenned because it wasn't certain if
-   commands were going to become complete abstractions, which would not
-   want output.
-
 The following commands would be a good idea:
 
-2. export/import : docker has this functionality, why don't we?
-3. source copy : branching source will be usefull for some future flow
+1. export/import : docker has this functionality, why don't we?
+2. source copy : branching source will be usefull for some future flow
       concepts, so that different containers are using different source
       folders, and won't conflict
 
