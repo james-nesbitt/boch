@@ -16,9 +16,12 @@
 
 The following are ideas for libraries that should be started
 
-1. boot2docker (STARTED) : to implement hooks that integrate better with boot2ocker
+1. boot2docker (STARTED) : to implement hooks that integrate better with boot2docker
+   Currently we have a library that will allow you to alter the system mounts to be
+   used with boot2docker mounting.  It should work but it has a lot of problems, and
+   is not tested yet
 2. drush : drush integration (requires some way to connect into the containers,
-     or you have to be able to
+     or you have to be able to run commands inside the container)
 
 == UTILITIES ==
 
@@ -35,13 +38,13 @@ The following are ideas for libraries that should be started
 
 == HOOKS ==
 
-1. the hooks_execute takes parameters like this: hooke_execute "{hook} --action "{action}" --state "{state}"
-   probably it would be better like this : hooke_execute --action "{action}" --state "{state}" "{hook}"
+1. the hooks_execute currently takes parameters like this: hooke_execute "{hook} --action "{action}" --state "{state}"
+   probably it would be better like this : hook_execute --action "{action}" --state "{state}" "{hook}"
 
 == DOCKER ==
 
 1. The docker API has no natural way to output help information (It would be necessary to repeat all comments from the api file)
-   (It would be cool to pull it from the comments in the API file)
+   (It would be cool to pull it from the comments in the API file - see the @TODO in HELP)
 
 == COMMANDS ==
 
@@ -55,7 +58,7 @@ The following commands would be a good idea:
 == FLOW ==
 
 1. make some interesting flows, that might make this system worth using  :P
-    I actually started the feature flow, so it could be useful soon
+    I actually started the feature flow, so it could be useful soon ... soon
 
 = BUG LIST =
 
@@ -67,7 +70,9 @@ There are a lot of commands/hooks that don't do safety checks on params
 
 == SECURITY ==
 
-There is no security review:
+There is no security review.  As this is a CLI app, it doesn't likely suffer from any priveleg escalation issues
+
+The following could be security weaknesses:
 
 - the list management tools (_utilities) execute some var code that could be unsafe
 - the hook manager executes various functions using eval()
