@@ -90,7 +90,7 @@ log=${log:-0}
 # Set the debugging level
 debug_set_level()
 {
-  if [ -z ${original_debug} ]; then
+  if [ -z "${original_debug}" ]; then
     original_debug=${debug}
   fi
   debug=${1}
@@ -100,7 +100,7 @@ debug_set_level()
 # reset debug level to
 debug_reset_level()
 {
-  if [ -n ${original_debug} ]; then
+  if [ -n "${original_debug}" ]; then
     debug=${original_debug}
     debug --level 3 --topic "UTILITY->DEBUG" "Debug mode reset (level:${debug}) $@"
   fi
