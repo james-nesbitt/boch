@@ -1,0 +1,84 @@
+#!/bin/sh
+#
+# Apply some default settings, if you are using the wwwserver library
+#
+
+hook_version=2
+hook_root="wwwcnpmjn_settings_defaults_300"
+
+# description method
+wwwcnpmjn_settings_defaults_300_description()
+{
+  echo "Default settings for the www-deblamp-mz library and builds"
+}
+
+# help method
+wwwcnpmjn_settings_defaults_300_help()
+{
+  echo "Add default settings from the www-deblamp-mz library
+
+This hook adds default settings that integration with the www server library.
+The purpose here is to give access to the library builds, and related settings
+
+- explain settings for www-deblamp-mz builds
+"
+}
+
+# execute method
+wwwcnpmjn_settings_defaults_300_execute()
+{
+
+  project_buildtemplate="${project_buildtemplate:-www-deblamp-mz}"
+
+  echo "#
+# Use the distributed www-deblamp-mz builds and functionality
+#
+# Using this library assumes that you are using one of the www
+# server builds as a parent, and so these settings are added
+# to take advantage of the provided functionality.
+#
+# most likely your project was initialized with the --www-deblamp-mz
+# flag or the --libraries \"www-deblamp-mz\" flag
+#
+
+##
+# Load the www-deblamp-mz WWW Server library
+#
+library_load \"www-deblamp-mz\"
+
+###
+# Docker image configurations
+#
+# @NOTE many of these settings overload above settings with new
+#   values that work when using builds from the www server library
+#   You should choose values that work for you, either keeping
+#   these new values or removing them and using the classic values
+#
+
+# Base template from which to make new project builds
+# @NOTE this is not often used, mainly it is only used during the init flow
+project_buildtemplate=\"${project_buildtemplate}\"
+
+###
+# Docker Container configurations
+#
+
+# OS hostname used inside the container (which would impact things like avahi)
+machine_hostname=\"\${project_name}\"
+
+# Machine arguments for regular container runs.  These arguments are added to all runs (except shell runs)
+# @NOTE these are arguments for \"docker run\". Check the docker command to learn more
+machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
+
+###
+# Mount list:
+#
+# These are run time mounts, where the host FS can be changed
+# directly changing the container FS.
+#
+
+# Source mount : www server builds use /app/source for the project source (and likely expect /app/source/www for webroot
+settings_mount_addmount \"\${path_project}/source:/app/source\"
+
+"
+}

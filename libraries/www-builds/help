@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Help handler for the www-builds library
+#
+
+# help topic handler
+www_builds_help()
+{
+  if [ -z "${1}" ]; then
+    www_builds_help_generalhelp
+  else
+    local buildlib=""
+    for buildlib in `www_builds_list_get`; do
+      if [ "${1}" == "${buildlib%:*}" ]; then
+        www_builds_help_topichelp "${buildlib}"
+      fi
+    done
+  fi
+
+}
+# help topic provider
+www_builds_helplist()
+{
+  if [ -z "${1}" ]; then
+    local buildlib=""
+    for buildlib in `www_builds_list_get`; do
+      echo "${buildlib%:*} (www-builds:${buildlib%:*}) ${buildlib}"
+    done
+  else
+    echo ""
+  fi
+}
+
+# General help text
+www_builds_help_generalhelp()
+{
+  echo "General help for the www-builds library
+
+This library is a collection of other libraries that are meant to give
+access to www server builds.  The www libs are various docker builds
+that have been collected as a part of the project.
+"
+  help_scope_add "www-builds:general"
+  echo "The following libraries are www-build libraries (they have their own help):"
+  help_scope_list
+}
+
+# Topic help
+www_builds_help_topichelp()
+{
+  local library="${1}"
+  library_load "${library%:*}"
+  help_execute "${library%:*}"
+}

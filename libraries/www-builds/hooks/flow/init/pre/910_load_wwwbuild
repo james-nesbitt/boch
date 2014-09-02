@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# INIT:HOOK: POssible include www-build libraries during init
+#
+
+hook_version=2
+hook_root="hook_flow_init_pre_910"
+
+# descriptoin method
+hook_flow_init_pre_910_description()
+{
+  echo "Include the www-build libraries during init, if told to do so"
+}
+
+# help method
+hook_flow_init_pre_910_help()
+{
+  echo "hook->init->pre->910 : Include www-build libraries, if told to do so
+
+This hook will include one of the www-build libraries,
+
+  [--www-build {build} : which build library to include
+
+@NOTE that this option does not make these libraries loaded during
+  subsequent calls to the system.  If a library wants to self-load,
+  it should add a library_load call to a settings/default hook, to
+  have it added to the default settings file. The www-cnpm-jn is a
+  good example to follow.
+"
+}
+
+# execute method
+hook_flow_init_pre_910_execute()
+{
+  additional_libraries=""
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      --www-build)
+        additional_libraries="${additional_libraries} ${2}"
+        shift
+        ;;
+
+      --www-cnpm-jn)
+        additional_libraries="${additional_libraries} www-cnpm-jn"
+        ;;
+      --www-deblamp-mz)
+        additional_libraries="${additional_libraries} www-deblamp-mz"
+        ;;
+    esac
+    shift
+  done
+
+  local library=""
+
+  for library in ${additional_libraries}; do
+    if ! library_loaded "${library}"; then
+      debug --level 5 --topic "HOOK->FLOW->INIT->PRE->910 Loading the ${library} library as directed"
+      library_load "${library}"
+
+      if [ $? -gt 0 ]; then
+        debug --level 5 --topic "HOOK->FLOW->INIT->PRE->910 Error occured loading the ${library} library as directed"
+        return 1
+      fi
+    fi
+  done
+  return 0
+}

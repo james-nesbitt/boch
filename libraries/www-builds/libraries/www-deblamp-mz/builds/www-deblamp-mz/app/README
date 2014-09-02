@@ -1,0 +1,9 @@
+/app Readme
+
+Any files or folders are copied into the machine at the /app 
+destination.  The nginx server is likely configured to look
+at /app/source/www for a service (unless it's later changed)
+
+Other project related mounts can go in here as well.
+
+

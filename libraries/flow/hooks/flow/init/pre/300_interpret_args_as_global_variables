@@ -29,10 +29,13 @@ much, and can depend on global settings.
      for the project and need to be built during initialization
      (notice that without --buildnow this does nothing)
 
-  [-l|--libraries] {additional libraries} : load additional libraries during init to
+  [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to
      allow them to add settings and implement hooks.  This is used in particular by
      the following libraries, which have their own shortcuts
-        --www-cnpm-jn : includes settings and builds for centos7 based www server
+       --boot2docker : include the boot2docker library
+
+       * the www-build library has it's own handler for shortcuts to this process.
+         check for help on it directly (www-builds:general)
 
   [-n|--name {name}] : specify a project name.  This name is used for default values
      for other things, such as default image name, default hostname etc.  At this point

@@ -1,0 +1,32 @@
+#!/bin/sh
+#
+# Help hander
+#
+
+
+# help method
+www_deblamp_mz_help()
+{
+  www_deblamp_mz_help_generalhelp
+}
+
+# method to list all flow topics in scope
+# @NOTE there are no help topics for this library
+www_deblamp_mz_helplist()
+{
+  echo ""
+}
+
+# generic help message for the command help system
+# @TODO put some usefull material here
+www_deblamp_mz_help_generalhelp()
+{
+  echo "Help for the WWW-DEBLAMP(MZ) WWW SERVER Library
+
+You should include this library if you are using these builds, as the
+library will include settings that work well for the builds.
+Most of the settings are included as \"default settings\" provided, as
+opposed to being included at every execution (this way you can override
+whatever you need.)
+"
+}

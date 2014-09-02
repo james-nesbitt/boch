@@ -16,7 +16,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
 RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum -y makecache
 
 # Install some tools used here.
-RUN /usr/bin/yum install -y wget curl git tar unzip nettools
+RUN /usr/bin/yum install -y wget curl git tar unzip
 ADD bin_hostname /usr/bin/hostname
 
 # Install the mimimum services required to get a base platform (ssh service generates keys)

@@ -5,21 +5,21 @@
 
 
 # help method
-wwwcnpmjn_help()
+www_cnpm_jn_help()
 {
-  wwwcnpmjn_help_generalhelp
+  www_cnpm_jn_help_generalhelp
 }
 
 # method to list all flow topics in scope
 # @NOTE there are no help topics for this library
-wwwcnpmjn_helplist()
+www_cnpm_jn_helplist()
 {
   echo ""
 }
 
 # generic help message for the command help system
 # @TODO put some usefull material here
-wwwcnpmjn_help_generalhelp()
+www_cnpm_jn_help_generalhelp()
 {
   echo "Help for the WWW-CNPM(JN) WWW SERVER Library
 
@@ -37,12 +37,6 @@ library will include settings that work well for the builds.
 Most of the settings are included as \"default settings\" provided, as
 opposed to being included at every execution (this way you can override
 whatever you need.)
-
-You can include the library simply by adding the following to your project
-script or settings file: library_load \"wwwcnpmjn\"
-
-Better is to include the --wwwserver flag when using the init flow:
-$/> ./flow init --www-cnpm-jn
 
 "
 }

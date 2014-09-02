@@ -26,13 +26,11 @@ add other features.
 
   [--boot2docker] : include the boot2docker as a dependency; This library
       will add settings and handlers for running docker through boot2docker.
-  [--www-cnpm-jn] : include the www-cnpm-jn as a dependency; This library
-      will add settings and builds to use it's CENTOS7 www server.
 
 @NOTE that this option does not make these libraries loaded during
   subsequent calls to the system.  If a library wants to self-load,
   it should add a library_load call to a settings/default hook, to
-  have it added to the default settings file. The www-cnpm-jn is a
+  have it added to the default settings file. The boot2docker is a
   good example to follow.
 "
 }
@@ -53,9 +51,6 @@ hook_flow_init_pre_900_execute()
 
       --boot2docker)
         additional_libraries="${additional_libraries} boot2docker"
-        ;;
-      --www-cnpm-jn)
-        additional_libraries="${additional_libraries} www-cnpm-jn"
         ;;
     esac
     shift

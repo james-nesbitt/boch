@@ -401,7 +401,7 @@ path_contents()
         type="file"
         ;;
       -l|--library)
-        type="file"
+        type="library"
         ;;
       -x|--executable)
         type="exec"
