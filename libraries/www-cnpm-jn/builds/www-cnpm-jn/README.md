@@ -28,4 +28,6 @@ Elements of the build:
 - Install drush (no aliases yet)
 - Create a root /app folder for the web application(s) give nginx/php-fpm access to it
 
-Note the various configuration files available, which are inserted into the build.
+Note the various configuration files available, which are inserted into the build. You should add the following mounts, either as ADD directives, live mounts, or shared container mounts:
+- app/source/www : webroot for the project
+- app/backup? : (not actually necessary) backups folder
