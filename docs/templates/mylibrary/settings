@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Settings loaded for you library
+#
+# This file is loaded before your library core file is loaded.
+# Try to use if for encapsulation of settings.
+#
+# @NOTE Try to assume that any variable you touch may already have a value
+#
+
+mylibrary_active=0
+
+# Output string for do something action
+mylibrary_string="${mylibrary_string:-Do Something}"

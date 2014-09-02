@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# FLOW->STATUS : Tell status that this library is enabled
+#
+
+hook_version=2
+hook_root="mylibrary_flow_status_500"
+
+# Descriptionn method
+#
+# This description is used in help lists, when lists of hooks
+# that affect a scope are shown.
+500_hook_example_description()
+{
+  echo "Output during status flow that this library is enabled"
+}
+
+# help method
+#
+# Proovide full help text for the hook, including which arguments
+# it may depend on
+500_hook_example_help()
+{
+  echo "hook->flow->status->500 : Tell status that this lbirary is enabled
+
+  This hook outputs that this library is active, during execution of the
+  status flow.
+"
+  help_scope_add "flow:status"
+}
+
+# execute method
+500_hook_example_execute()
+{
+  echo "Example is Enabled!!!"
+}
