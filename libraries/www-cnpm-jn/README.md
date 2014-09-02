@@ -6,6 +6,8 @@ The upstream build is hosted on DOCKER.IO, but the actual builds are also locall
 
 This library doesn't do much during execution, other than to add one of it's builds as a default template build.  This really only needs to be available during flow init.
 
+We should consider this library, and these images as a temporary resource, while better images are yet to come.  Remember that I am not a sys-admin.
+
 == How To Use it ==
 
 To use this library, and the related images, just add "library_load wwwservercnpm" to your settings file.  Alternatively, the init flow is ready to add a bunch of stuff to your system, if you include "--wwwserver" to your init run:
