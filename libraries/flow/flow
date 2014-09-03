@@ -28,3 +28,36 @@ flow_exists()
 
   return 1
 }
+
+
+# Execute a flow
+flow_execute()
+{
+  local flow="${1}"
+  shift
+
+  if ! flow_exists "${flow}"; then
+    debug --level 5 --topic "WORKFLOW" "Unknown flow given, switching to help mode [flow:${flow}]"
+    local success=1
+  else
+    # execute any existing pre hooks
+    debug --level 7 --topic "WORKFLOW" "Running flow:pre hooks => hooks_execute \"flow/${flow}\" --state \"pre\" $@"
+    hooks_execute "flow/${flow}" --state "pre" $@
+
+    # execute any existing pre hooks
+    debug --level 7 --topic "WORKFLOW" "Running flow:pre hooks => hooks_execute \"flow/${flow}\" --state \"pre\" $@"
+    hooks_execute "flow/${flow}" $@
+    local success=$?
+
+    if [ $success -eq 0 ]; then
+      # execute any existing post hooks
+      debug --level 7 --topic "WORKFLOW" "Running flow:post hooks => hooks_execute \"flow/${flow}\" --state \"post\" $@"
+      hooks_execute "flow/${flow}" --state "post" $@
+    else
+      # execute any existing fail hooks
+      debug --level 7 --topic "WORKFLOW" "Running flow:fail hooks => hooks_execute \"flow/${flow}\" --state \"fail\" $@"
+      hooks_execute "flow/${flow}" --state "fail" $@
+    fi
+  fi
+  return $success
+}

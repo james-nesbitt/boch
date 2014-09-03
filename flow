@@ -123,23 +123,7 @@ if [ "$help" == "yes" ]; then
 else
 
   # execute any existing pre hooks
-  debug --level 7 --topic "WORKFLOW" "Running flow:pre hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"pre\" $@"
-  hooks_execute "flow/${WORKFLOW}" --state "pre" $@
-
-  # execute any existing pre hooks
-  debug --level 7 --topic "WORKFLOW" "Running flow:pre hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"pre\" $@"
-  hooks_execute "flow/${WORKFLOW}" $@
-  success=$?
-
-  if [ $success -eq 0 ]; then
-    # execute any existing post hooks
-    debug --level 7 --topic "WORKFLOW" "Running flow:post hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"post\" $@"
-    hooks_execute "flow/${WORKFLOW}" --state "post" $@
-  else
-    # execute any existing fail hooks
-    debug --level 7 --topic "WORKFLOW" "Running flow:fail hooks => hooks_execute \"flow/${WORKFLOW}\" --state \"fail\" $@"
-    hooks_execute "flow/${WORKFLOW}" --state "fail" $@
-  fi
-  exit $success
+  library_execute "flow" "${WORKFLOW}" $@
+  exit $?
 
 fi
