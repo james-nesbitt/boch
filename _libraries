@@ -414,6 +414,9 @@ library_execute()
     success=$?
     if [ $success -eq 0 ]; then
       _library_execute --action "${action}" "${library}" $@
+    else
+      debug --level 4 --topic "LIBRARY->EXECUTE" "library execute was not given a valid library name [library:${library}][action:${action}][function:${library_function}]"
+      return 1
     fi
   else
     library_load --component "${component}" "${library}" $@
@@ -455,6 +458,11 @@ _library_execute()
   # library is the first thing loaded
   local library=$1
   shift
+
+  if [ -z "${library}" ]; then
+    debug --level 2 --topic "LIBRARY->_EXECUTE" "library execute was not given any library name [library:${library}][action:${action}][function:${library_function}]"
+    return 1
+  fi
 
   # generate a safe function name for the library/component method
   if [ -z "${component}" ]; then
