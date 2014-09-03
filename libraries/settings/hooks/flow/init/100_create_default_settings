@@ -34,7 +34,7 @@ hook_init_100_execute()
 {
 
   # path to this management system
-  local path="${path_customsettings:-"${path_data}/settings"}"
+  local path="${path_customsettings:-"${path_projectconf}/settings"}"
 
   debug --level 5 --topic "HOOK->COMMAND->INIT->100" "Populating default settings file [${path}]"
 

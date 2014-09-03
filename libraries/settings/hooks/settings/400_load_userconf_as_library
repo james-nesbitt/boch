@@ -9,16 +9,16 @@ hook_root="hook_settings_400"
 # description method
 hook_settings_400_description()
 {
-  echo "Load the custom project/data folder as a library"
+  echo "Load the custom user boch folder as a library"
 }
 
 # help method
 hook_settings_400_help()
 {
   echo "
-hook->settings->400 : include a project as a library
+hook->settings->400 : include a user boch folder as a library
 
-This hooks attempts to load the custom data/project folder as a library,
+This hooks attempts to load a users .boch folder as a library,
 to include any settings from the folder.
 As a corrolary, any library load action is taken.
 
@@ -35,21 +35,21 @@ in the project.
 # execute method
 hook_settings_400_execute()
 {
+debug_set_level 8 "CHECK USERCONF"
+  if path_is --library "${path_userconf}"; then
 
-  if path_is --library "${path_data}"; then
-
-    library_load --path "${path_data}" "project"
+    library_load --path "${path_userconf}" "userconf"
 
     if [ $? -gt 0 ]; then
-      debug --level 3 --topic "HOOK->SETTINGS->400" "Custom project library load produced an error [path:${path_data}]"
+      debug --level 3 --topic "HOOK->SETTINGS->400" "Custom user boch library load produced an error [path:${path_userconf}]"
     else
-      debug --level 8 --topic "HOOK->SETTINGS->400" "Loaded Data/Project folder as a library [path:${path_data}]"
+      debug --level 8 --topic "HOOK->SETTINGS->400" "Loaded user boch folder as a library [path:${path_userconf}]"
     fi
 
   else
-    debug --level 6 --topic "HOOK->SETTINGS->400" "No custom data/project folder exists"
+    debug --level 6 --topic "HOOK->SETTINGS->400" "No custom user boch folder exists [path:${path_userconf}'"
   fi
-
+debug_reset_level
   # don't fail, even if we had problems.  This shouldn't break anything
   return 0
 }

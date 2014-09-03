@@ -31,18 +31,20 @@ log=${log:-0}
 
 # Subpath of a root project folder, that contains project configuration
 path_projectconf_subpath="${path_projectconf_subpath:-boch}"
+path_userconf_subpath="${path_userconf_subpath:-.boch}"
 
 # path executed from
-path_execution="`pwd`"
+path_execution="${path_execution:-`pwd`}"
 # path to user home folder (in case)
-path_userhome="${HOME}"
+path_userhome="${path_userhome:-${HOME}}"
+path_userconf="${path_userconf:-${path_userhome}/${path_userconf_subpath}}"
 
 # Determine project root, and data paths
 path_project="${path_execution}"
 while [ -n "${path_project}" ] && [ "${path_project}" != "/" ]; do
   if [ -d "${path_project}/${path_projectconf_subpath}" ]; then
-    path_data="${path_project}/${path_projectconf_subpath}"
-    #echo "DISCOVERED PATHS [project:${path_project}][data:${path_data}]"
+    path_projectconf="${path_project}/${path_projectconf_subpath}"
+    #echo "DISCOVERED PATHS [project:${path_project}][data:${path_projectconf}]"
     break 2
   fi
   path_project="$(dirname "${path_project}")"
@@ -51,8 +53,8 @@ done
 if [ -z "${path_project}" ] || [ "${path_project}" == "/" ]; then
   path_project="${path_execution}"
   # this data path will likely be empty, but this might be desirable for cases like flow init
-  path_data="${path_project}/${path_projectconf_subpath}"
-#   echo "DEFAULT PATHS [project:${path_project}][data:${path_data}]"
+  path_projectconf="${path_project}/${path_projectconf_subpath}"
+#   echo "DEFAULT PATHS [project:${path_project}][data:${path_projectconf}]"
 fi
 
 # path to this library
@@ -98,7 +100,9 @@ CONFIG: control settings after system initialization (can be modified after this
   -->path_project----------: ${path_project}
   -->path_execution--------: ${path_execution}
   -->path_library----------: ${path_library}
-  -->path_data-------------: ${path_data}
+  >CONFS
+  -->path_userconf---------: ${path_userconf}
+  -->path_projectconf------: ${path_projectconf}
   >ALIASES
   -->active_aliases--------: `aliases_get`
   >LIBRARIES

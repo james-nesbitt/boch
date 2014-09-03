@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# Configurable settings for the project
+#
+
+hook_version=2
+hook_root="hook_settings_410"
+
+# description method
+hook_settings_410_description()
+{
+  echo "Load the custom project/data folder as a library"
+}
+
+# help method
+hook_settings_410_help()
+{
+  echo "
+hook->settings->410 : include a project as a library
+
+This hooks attempts to load the custom data/project folder as a library,
+to include any settings from the folder.
+As a corrolary, any library load action is taken.
+
+Currently there are library load hooks in the hooks library, the settings
+library and the commands library, which will check for relevant folders
+in the project.
+
+"
+  help_topic_add "hook:library/load"
+  help_topic_list
+}
+
+
+# execute method
+hook_settings_410_execute()
+{
+  if path_is --library "${path_projectconf}"; then
+
+    library_load --path "${path_projectconf}" "projectconf"
+
+    if [ $? -gt 0 ]; then
+      debug --level 3 --topic "HOOK->SETTINGS->410" "Custom project library load produced an error [path:${path_projectconf}]"
+    else
+      debug --level 8 --topic "HOOK->SETTINGS->410" "Loaded Data/Project folder as a library [path:${path_projectconf}]"
+    fi
+
+  else
+    debug --level 6 --topic "HOOK->SETTINGS->410" "No custom data/project folder exists [path:${path_projectconf}]"
+  fi
+
+  # don't fail, even if we had problems.  This shouldn't break anything
+  return 0
+}

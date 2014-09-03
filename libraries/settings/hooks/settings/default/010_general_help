@@ -39,7 +39,7 @@ hook_settings_default_010_execute()
 #  - \${path_project} : root folder for your project (actually just one up from your manage path)
 #        (this is often not used for anything other than the root of other default variables)
 #  - \${path_userhome} : user home
-#  - \${path_data} : custom project folder, used to keep settings used for this particulare project
+#  - \${path_projectconf} : custom project folder, used to keep settings used for this particulare project
 #        This is actually treated as a library, so it can container hooks, other libraries, commands
 #        and it's own settings file
 #

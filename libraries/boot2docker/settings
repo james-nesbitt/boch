@@ -7,7 +7,7 @@
 boot2docker_vm_name="${boot2docker_vm_name:-boot2docker-vm}"
 
 # path to settings used for boot2docker
-# boot2docker_settings_path="${boot2docker_settings_path:-${path_data}/boot2docker}"
+# boot2docker_settings_path="${boot2docker_settings_path:-${path_projectconf}/boot2docker}"
 
 boot2docker_mount_method="${boot2docker_vm_mountmethod:-vboxsf}"
 boot2docker_mount_defaultflags="--transient"

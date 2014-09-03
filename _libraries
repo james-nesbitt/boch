@@ -292,7 +292,9 @@ _library_load()
 
     if path_is --dir "${path}"; then
       debug --level 8 --topic "LIBRARY->_LOAD" "library is a directory based lib [library:${library}][path:${path}]"
-      path_include="${path}/${path##*/}"
+      local libraryfile="${path##*/}"
+      libraryfile="${libraryfile/./}"
+      path_include="${path}/${libraryfile}"
     else
       debug --level 8 --topic "LIBRARY->_LOAD" "library is a simple library (this library can't have components or includes.) [path:${path}]"
     fi

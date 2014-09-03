@@ -78,7 +78,7 @@ list_get()
 #
 
 # path to the log file
-path_log="${path_log:-"${path_data}/log"}"
+path_log="${path_log:-"${path_projectconf}/log"}"
 
 #set an execution threshold.  Anything -le will stop execution flow.
 debug_critical_level=${_debug_critical_level:-1}
@@ -228,10 +228,6 @@ path_shorten()
   done
 
   case "${path}" in
-    *"${path_data}"*)
-      echo "project~${path#${path_data}/}"
-      return 0
-      ;;
     *"${path_library}"*)
       echo "library~${path#${path_library}/}"
       return 0
@@ -259,13 +255,10 @@ path_expand()
 
     case "${path}" in
       *"root~"*)
-        echo "${path_project}/${path#project~}"
-        ;;
-      *"data~"*)
-        echo "${path_data}/${path#data~}"
+        echo "${path_project}/${path#root~}"
         ;;
       *"library~"*)
-        echo "${path_library}/${path#manage~}"
+        echo "${path_library}/${path#library~}"
         ;;
       *"user~"*)
         echo "${path_userhome}/${path#user~}"
@@ -355,7 +348,9 @@ path_is()
         return 0
       fi
       if [ -d "${path}" ]; then
-        path="${path}/${path##*/}"
+        local libraryhandler="${path##*/}"
+        libraryhandler="${libraryhandler/./}"
+        path="${path}/${libraryhandler}"
         if [ -f "${path}" ] && [ -x "${path}" ]; then
           return 0
         fi

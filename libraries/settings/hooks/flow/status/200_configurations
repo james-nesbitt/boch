@@ -40,8 +40,10 @@ Project Configurations
   -->path_project----------: ${path_project}
   -->path_execution--------: ${path_execution}
   -->path_library----------: ${path_library}
-  -->path_data-------------: ${path_data}
   -->path_source-----------: ${path_source}
+  >CONFS
+  -->path_userconf---------: ${path_userconf}
+  -->path_projectconf------: ${path_projectconf}
   >LIBRARIES
   -->libraries loaded------: `libraries_list`
   >HOOKS
