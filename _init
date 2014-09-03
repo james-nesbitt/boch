@@ -29,23 +29,47 @@ log=${log:-0}
 # de based on them
 #
 
+# Subpath of a root project folder, that container project configuration
+subpath_project="project"
+
 # path executed from
 path_execution="`pwd`"
-# path to this management system
-path_manage="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
-# path to the root of this project, which we assume is one directory up
-path_project="$(dirname ${path_manage})"
 # path to user home folder (in case)
 path_userhome="${HOME}"
-# path to a folder where the system can keep some data
-path_data="${path_data:-${path_project}/project}"
+
+# Determine project root, and data paths
+path_project="${path_execution}"
+while [ -n "${path_project}" ] && [ "${path_project}" != "/" ]; do
+  if [ -d "${path_project}/${subpath_project}" ]; then
+    path_data="${path_project}/${subpath_project}"
+    #echo "DISCOVERED PATHS [project:${path_project}][data:${path_data}]"
+    break 2
+  fi
+  path_project="$(dirname "${path_project}")"
+done
+# If we didn't find a project path, then take the EXEC path as the project path
+if [ -z "${path_project}" ] || [ "${path_project}" == "/" ]; then
+  path_project="${path_execution}"
+  # this data path will likely be empty, but this might be desirable for cases like flow init
+  path_data="${path_project}/${subpath_project}"
+#   echo "DEFAULT PATHS [project:${path_project}][data:${path_data}]"
+fi
+
+# path to this library
+if [ -z "${path_manage}" ]; then
+  if [ -d "${path_project}/manage" ]; then
+    path_manage="${path_project}/manage"
+  else
+    path_manage="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+  fi
+fi
 
 # Include utility functions (including the debug function)
-source ${path_manage}/_utilities
+source "${path_manage}/_utilities"
 # Include library handling functions (including the library_load function)
-source ${path_manage}/_libraries
+source "${path_manage}/_libraries"
 
-debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES"
+debug --level 7 --topic "INIT" "INCLUDING LIBRARIES"
 
 # include utility functions for running hooks (which every other library relies on)
 library_load "hook"
@@ -93,4 +117,4 @@ CONFIG: control settings after system initialization (can be modified after this
 ] (hooks/settings/post/950)"
 fi
 
-debug --level 7 --topic "CONFIG" "INCLUDING LIBRARIES COMPLETE"
+debug --level 7 --topic "INIT" "INCLUDING LIBRARIES COMPLETE"
