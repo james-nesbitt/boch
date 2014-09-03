@@ -17,6 +17,8 @@
 library=""
 # Specific action target
 target=""
+# Collect aliases, before the alias library is available
+alias_aliases=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -51,6 +53,9 @@ while [ $# -gt 0 ]; do
     -f|--force)
       # lower the critical error level so that errors don't halt
       _debug_critical_level=0
+      ;;
+    @*)
+      alias_aliases="${alias_aliases} ${1}"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [operation ...].  Try \"$0 help\" for more instructions."

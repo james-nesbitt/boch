@@ -15,8 +15,11 @@
 
 help="no"
 helptopic=""
+# Collect aliases, before the alias library is available
+alias_aliases=""
 
-while [ $# -gt 0 ]; do
+while [ $# -gt 0 ];
+do
   case "$1" in
     -h|--help)
       # if an string with a colon (topic separator) was passed, take it as the help topic
@@ -49,6 +52,9 @@ while [ $# -gt 0 ]; do
     -f|--force)
       # lower the critical error level so that errors don't halt
       _debug_critical_level=0
+      ;;
+    @*)
+      alias_aliases="${alias_aliases} ${1}"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [command ...].  Try \"help\" for more instructions."
