@@ -3,6 +3,18 @@
 # Settings library
 #
 
+
+# Alias list add method
+alias_add()
+{
+  list_add "alias_aliases" "${1}"
+}
+# Alias list retrieve method
+aliases_get()
+{
+  list_get "alias_aliases"
+}
+
 ###
 # Mount related functions
 #
@@ -80,6 +92,21 @@ settings_mount_getmounts()
 #
 settings_init()
 {
+  # First preprocess aliases
+  if [ -n "${alias_aliases}" ]; then
+    local alias=""
+    local previous_aliases="${alias_aliases}"
+    alias_aliases=""
+    for alias in ${previous_aliases}; do
+      if [ "${alias:0:1}" == "@" ]; then
+        alias_add "${alias:1}"
+      else
+        alias_add "${alias}"
+      fi
+    done
+  fi
+
+  # Run settings initialization
   debug --level 7 --topic "SETTINGS" "Running settings hooks"
 
   # execute any existing settings hooks

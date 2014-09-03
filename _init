@@ -75,7 +75,7 @@ debug --level 7 --topic "INIT" "INCLUDING LIBRARIES"
 # include utility functions for running hooks (which every other library relies on)
 library_load "hook"
 
-# include the settings library (with a tool to load settings from libraries that are not yet loaded)
+# include the settings library (with a tool to load settings from other libraries)
 library_load "settings"
 # include help related functions (not debug, which is in utilities to get it loaded early.)
 library_load "help"
@@ -97,7 +97,8 @@ CONFIG: control settings after system initialization (can be modified after this
   -->path_execution--------: ${path_execution}
   -->path_manage-----------: ${path_manage}
   -->path_data-------------: ${path_data}
-  -->path_source-----------: ${path_source}
+  >ALIASES
+  -->active_aliases--------: `aliases_get`
   >LIBRARIES
   -->libraries loaded------: `libraries_list`
   >HOOKS
