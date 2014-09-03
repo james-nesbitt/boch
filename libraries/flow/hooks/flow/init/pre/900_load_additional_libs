@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# INIT:HOOK: POssible include additional libraries during init
+# INIT:HOOK: Possible include additional libraries during init
 #
 
 hook_version=2

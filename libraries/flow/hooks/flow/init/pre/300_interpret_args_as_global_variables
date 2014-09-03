@@ -15,19 +15,13 @@ hook_flow_init_030_description()
 # help method
 hook_flow_init_030_help()
 {
-  echo "hook->init->030 : Create the custom folder for the project
+  echo "hook->init->030 : Interpret arguments as global variables
 
 This hook will attempt to interpret the flow arguments into
 global variables, which will reduce the dependence on args
 for following hooks.
 Following hooks won't need to interpret flow arguments as
 much, and can depend on global settings.
-
-  [-w|--buildnow] : instruct the init system to run docker build during init
-     as it is needed.
-  [-r|--required \"{builds}\"] : specify specific local builds that are dependencies
-     for the project and need to be built during initialization
-     (notice that without --buildnow this does nothing)
 
   [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to
      allow them to add settings and implement hooks.  This is used in particular by
@@ -57,10 +51,6 @@ hook_flow_init_030_execute()
 {
   # used only for the init flow, to tell hooks that it is ok to build things
   build_execute_now=-1
-
-  project_buildtemplate="${project_buildtemplate:-}"
-
-  additional_libraries=""
 
   local flags=""
   while [ $# -gt 0 ]

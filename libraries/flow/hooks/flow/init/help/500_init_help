@@ -28,7 +28,7 @@ hook_flow_init_help_500_execute()
 {
   echo "FLOW: INIT
 
-The init flow is flow designed to initialize a project root
+The init flow is designed to initialize a project root
 to prepare it for use with the command tools, and further flows
 
 The hooks for init should be safe to repeat the action.  The changes
@@ -41,23 +41,29 @@ Usage:
 Options: (in general these are converted to global vars in the first hook)
 
   [-w|--buildnow] : instruct the init system to run docker build during init
-    as it is needed.
+     as it is needed.
   [-r|--required \"{builds}\"] : specify specific local builds that are dependencies
-    for the project and need to be built during initialization
-    (notice that without --buildnow this does nothing)
+     for the project and need to be built during initialization
+     (notice that without --buildnow this does nothing)
+
+  [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to
+     allow them to add settings and implement hooks.  This is used in particular by
+     the following libraries, which have their own shortcuts
+       --boot2docker : include the boot2docker library
+
+       * the www-build library has it's own handler for shortcuts to this process.
+         check for help on it directly (www-builds:general)
 
   [-n|--name {name}] : specify a project name.  This name is used for default values
-    for other things, such as default image name, default hostname etc.
+     for other things, such as default image name, default hostname etc.  At this point
+     it is a shortcut for settings multiples settings that are commonly the same.
 
+  [-b|--build {build}] : specify a name that should be used as the new custom build
   [-t|--template {template}] : specify an specific build that should be used as the new custom build
-  [-b|--build {build}] : specify an specific build that should be used as the new custom build
   [-i|--image {image}] : specify an image name for a new custom build
   [-v|--version {version}] : specify an specific version/tag for the a custom build
 
   [-h|--hostname {hostname}] : specify default machine hostnames for containers in this project
-
-  [-s|--wwwserver] : include the wwwserver as a dependency; this will allow
-    that library to affect the project through default dependencies.
 
 The flow is of course entirely hook based, but some standard
 parts of the flow are about making sure that there is a custom
