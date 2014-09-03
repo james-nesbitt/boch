@@ -115,26 +115,35 @@ $/> help flow:flow~hooks/flow/init/400_something
 # A callable help handler for a help topic
 help_topic_help()
 {
-  debug --level 9 --topic "HELP->TOPIC" "Executing help : $@"
-  local scope="${1}"
+  local handler="${1}"
   shift
 
-  handler="${scope%:*}"
-  topic="${scope##*:}"
+  if [ "${handler}" == "${handler%:*}" ]; then
+    topic="${1}"
+    shift
+  else
+    # split the primary scope handler from the topic
+    topic="${handler##*:}"
+    handler="${handler%:*}"
+  fi
 
-  # split the primary scope handler from the topic
-  if [ "${handler}" == "${scope}" ]; then
-    scope=""
+  debug --level 5 --topic "HELP->TOPIC" "Executing help [handler:${handler}][tpoic:${topic}]: $@"
+
+  # Use the "general" topic for any missing topics
+  if [ "${handler}" == "${topic}" ]; then
+    topic=""
   fi
   if [ "${topic}" == "general" ]; then
     topic=""
   fi
 
+  # include any library help include
   if [ "${handler}" != "help" ]; then
     debug --level 6 --topic "HELP->TOPIC" "Including help handler [handler:${handler}]"
     library_include "${handler}" "help"
   fi
 
+  # Run the help action, followed by any help hooks
   debug --level 7 --topic "HELP->TOPIC" "Executing help handler [topic:${topic}][handler:${handler}]"
   library_execute --action "help" "${handler}" $topic $@
   debug --level 7 --topic "HELP->TOPIC" "Executing help hooks [topic:${topic}][handler:${handler}]"
