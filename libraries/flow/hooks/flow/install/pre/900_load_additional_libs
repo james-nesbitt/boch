@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# INIT:HOOK: Possible include additional libraries during install
+#
+
+hook_version=2
+hook_root="hook_flow_init_pre_900"
+
+# descriptoin method
+hook_flow_init_pre_900_description()
+{
+  echo "Include the additional libraries during install, if told to do so"
+}
+
+# help method
+hook_flow_init_pre_900_help()
+{
+  echo "hook->install->pre->090 : Include additional libraries, if told to do so
+
+This hook will include additional libraries during install, where they can
+then implement hooks, add settings, enable specific builds, and
+add other features.
+
+  [-l|--libraries {additional libraries} : list which additional libraries
+      should be loaded during init.
+
+  [--boot2docker] : include the boot2docker as a dependency; This library
+      will add settings and handlers for running docker through boot2docker.
+"
+}
+
+# execute method
+hook_flow_init_pre_900_execute()
+{
+  additional_libraries=""
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--libraries)
+        additional_libraries="${additional_libraries} ${2/,/ }"
+        shift
+        ;;
+
+      --boot2docker)
+        additional_libraries="${additional_libraries} boot2docker"
+        ;;
+    esac
+    shift
+  done
+
+  local library=""
+  for library in ${additional_libraries}; do
+    if ! library_loaded "${library}"; then
+      debug --level 5 --topic "HOOK->FLOW->INSTALL->PRE->900 Loading the ${library} library as directed"
+      library_load "${library}"
+
+      if [ $? -gt 0 ]; then
+        debug --level 5 --topic "HOOK->FLOW->INSTALL->PRE->900 Error occured loading the ${library} library as directed"
+        return 1
+      fi
+    fi
+  done
+  return 0
+}

@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# INIT:HOOK: Convert flow arguments into global variables
+#
+
+hook_version=2
+hook_root="hook_flow_init_030"
+
+# descriptoin method
+hook_flow_init_030_description()
+{
+  echo "Interpret the passed arguments as global variables"
+}
+
+# help method
+hook_flow_init_030_help()
+{
+  echo "hook->init->030 : Create the custom folder for the project
+
+This hook will attempt to interpret the flow arguments into
+global variables, which will reduce the dependence on args
+for following hooks.
+Following hooks won't need to interpret flow arguments as
+much, and can depend on global settings.
+
+  [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to
+     allow them to add settings and implement hooks.
+
+  [-b|--bin-location {bin/path}] : select an alternative location to use for the \"bin\" link
+      which is installed to make the toolset globally available.  The default is ~/bin
+"
+  help_scope_add "hook:flow/init"
+}
+
+# execute method
+hook_flow_init_030_execute()
+{
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--build)
+        project_build="${2}"
+        shift
+        ;;
+      -h|--hostname)
+        machine_hostname="${2}"
+        shift
+        ;;
+      -i|--image)
+        project_image="${2}"
+        shift
+        ;;
+      -l|--libraries)
+        additional_libraries="${additional_libraries} ${2}"
+        shift
+        ;;
+      -n|--name)
+        project_name="${2}"
+        project_build="${2}"
+        project_image="${2}"
+        shift
+        ;;
+      -r|--required)
+        required_builds="${2}"
+        shift
+        ;;
+      -t|--template)
+        project_buildtemplate="${2}"
+        shift
+        ;;
+      -v|--version)
+        project_version="${2}"
+        shift
+        ;;
+      -w|--buildnow)
+        #used in some of the hooks
+        build_execute_now=0
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+}

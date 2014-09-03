@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# HOOK->FLOW->INSTALL->HELP->500 General help for the install flow
+#
+
+hook_version=2
+hook_root="hook_flow_install_help_500"
+
+# description method
+hook_flow_install_help_500_description()
+{
+  echo "General help text for the install flow"
+}
+
+# help method
+hook_flow_install_help_500_help()
+{
+  echo "
+HOOK->FLOW->INSTALL->HELP->500 General help for the install flow
+
+This hook gives general help text for the init flow
+
+"
+}
+
+# execute method
+hook_flow_install_help_500_execute()
+{
+  echo "FLOW: INSTALL
+
+The install flow designed to initialize a project root
+to prepare it for use with the command tools, and further flows
+
+The hooks for init should be safe to repeat the action.  The changes
+made in each hook should be non-destructive where possible.
+
+Usage:
+
+  $/> ./flow install <options>
+
+Options: (in general these are converted to global vars in the first hook)
+
+  [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to
+     allow them to add settings and implement hooks.
+
+       * the www-build library has it's own handler for shortcuts to this process.
+         check for help on it directly (www-builds:general)
+
+  [-b|--bin-location {bin/path}] : select an alternative location to use for the \"bin\" link
+      which is installed to make the toolset globally available.  The default is ~/bin
+
+The flow is of course entirely hook based, but some standard
+parts of the flow are about making sure that there is a custom
+folder for the project, some custom settings, and other project
+resources.
+
+Typical workflow for using this flow, is to run it once just once per
+environment, after you have downloaded the library/toolset to the desired
+location.  Typically, the library is downloaded to a user folder like
+\"~/tools/docker/boch\" and then this flow is executed.
+
+@NOTE I suggest that you run the command like this:
+  1. Checkout the tools set to a prefered folder
+       $/> mkdir -p ~/tools/docker
+       $/> git clone {git repo link} boch
+  3. Then then run the flow again like this:
+       $/> ./flow install --bin-location ~/bin
+"
+}
