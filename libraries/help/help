@@ -140,7 +140,12 @@ help_topic_help()
   # include any library help include
   if [ "${handler}" != "help" ]; then
     debug --level 6 --topic "HELP->TOPIC" "Including help handler [handler:${handler}]"
+
     library_include "${handler}" "help"
+    if [ $? -gt 0 ]; then
+      debug --level 5 --topic "HELP->TOPIC" "Help handler not found [topic:${topic}][handler:${handler}]"
+      return 1
+    fi
   fi
 
   # Run the help action, followed by any help hooks
