@@ -75,6 +75,13 @@ source "${path_script}/_init"
 ##################################################
 # the first non-hyphenated argument is the handler library
 if [ -z "${library}" ]; then
+
+  # First we assume that a library was passed as the first
+  # parameter, and try to load it
+  # $/> boch flow status
+  # $/> boch command ps
+  # $/> boch help hook:general
+
   library_load "${1}"
   if [ $? -eq 0 ]; then
     library="${1}"
@@ -82,14 +89,34 @@ if [ -z "${library}" ]; then
     shift 2
     debug --level 5 --topic "HANDLER" "Discovered handler [handler:${library}][target:${target}] : $@"
   else
-    library="command"
-    target="${1}"
-    shift
-    debug --level 5 --topic "HANDLER" "Assumed command handler [handler:${library}][target:${target}] : $@"
+
+    # If that didn't work, then we check for other options
+
+    # First we try to load it as a command
+    if [ -z "${library}" ]; then
+      command_load "${1}" "command"
+      if [ $? -eq 0 ]; then
+        library="command"
+        target="${1}"
+        shift
+        debug --level 5 --topic "HANDLER" "Assumed command handler [handler:${library}][target:${target}] : $@"
+      fi
+    fi
+
+    # Then we check for a matching flow
+    if [ -z "${library}" ]; then
+      library_load "flow"
+      flow_exists "${1}"
+      if [ $? -eq 0 ]; then
+        library="flow"
+        target="${1}"
+        shift
+        debug --level 5 --topic "HANDLER" "Assumed flow handler [handler:${library}][target:${target}] : $@"
+      fi
+    fi
   fi
 else
   debug --level 5 --topic "HANDLER" "Explicit handler CHECK [library:${library}][target:${target}] : $@"
-  library_load "${library}"
   if [ -z "${target}" ]; then
     target="${1}"
     shift
@@ -99,9 +126,8 @@ else
   fi
 fi
 
-#################################################################################
-# Process operation : pass the rest of the arguments to the respective handler  #
-#################################################################################
-
+################################################################################
+# Process operation : pass the rest of the arguments to the respective handler #
+################################################################################
 debug --level 5 --topic "HANDLER" "Executing library handler [library:${library}][target:${target}]"
 library_execute --action "execute" "${library}" "${target}" $@
