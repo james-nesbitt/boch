@@ -18,7 +18,7 @@ hook_flow_install_help_500_help()
   echo "
 HOOK->FLOW->INSTALL->HELP->500 General help for the install flow
 
-This hook gives general help text for the init flow
+This hook gives general help text for the install flow
 
 "
 }
@@ -38,7 +38,7 @@ Usage:
 
   $/> ./flow install <options>
 
-Options: (in general these are converted to global vars in the first hook)
+Options:
 
   [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to
      allow them to add settings and implement hooks.

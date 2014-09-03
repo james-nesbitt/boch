@@ -22,7 +22,6 @@ This hook will create a new root level folder for your project
 in which all of your settings, and custom project code can go.
 
 The folder will always be /boch
-
 "
 
 }
@@ -32,7 +31,12 @@ hook_init_050_execute()
 {
   # what is the root path to the project folder
   path_projectconf="${path_projectconf:-${path_project}/boch}"
-  path_projectconf_executable="${path_projectconf}/${path_projectconf##*/}"
+
+  local projectconfhandler="${path_projectconf##*/}"
+  projectconfhandler="${projectconfhandler/./}"
+
+  # path to the executable library handler, in the library folder
+  path_projectconf_executable="${path_projectconf_executable}/${projectconfhandler}"
 
   if ! path_is --dir "${path_projectconf}"; then
     debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project conf library folder [path:${path_projectconf}]"
@@ -54,6 +58,10 @@ hook_init_050_execute()
 # - nothing if you don't want anything in here
 # - custom functions for your project
 # - an execute handler for $/> boch project
+#
+# * The core expects library methods to be prefixed
+#   with project_
+#    e.g.  project_help, project_execute
 #
 # What to not put here
 #

@@ -39,7 +39,7 @@ library_path()
 {
   local library="${1}"
 
-  if [ "${library}" == "${library%:*}" ]; then
+  if [ "${library}" == "${library%/*}" ]; then
     library="`libraries_list_get \"${library}\"`"
     if [ $? -gt 0 ]; then
       return 1
@@ -47,6 +47,23 @@ library_path()
   fi
 
   echo "${library##*:}"
+}
+# library handler retrieval
+# @NOTE you can pass in the name of the library, or the library list record
+library_handler()
+{
+  local library="${1}"
+
+  if [ "${library}" == "${library%/*}" ]; then
+    library="`libraries_list_get \"${library}\"`"
+    if [ $? -gt 0 ]; then
+      return 1
+    fi
+  fi
+
+  local handler="${library##*/}"
+  handler="${handler/./}"
+  echo "${library##*:}/${handler}"
 }
 
 # list all contents of a subpath in any library
@@ -292,9 +309,7 @@ _library_load()
 
     if path_is --dir "${path}"; then
       debug --level 8 --topic "LIBRARY->_LOAD" "library is a directory based lib [library:${library}][path:${path}]"
-      local libraryfile="${path##*/}"
-      libraryfile="${libraryfile/./}"
-      path_include="${path}/${libraryfile}"
+      path_include="`library_handler "${library}:${path}"`"
     else
       debug --level 8 --topic "LIBRARY->_LOAD" "library is a simple library (this library can't have components or includes.) [path:${path}]"
     fi

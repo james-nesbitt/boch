@@ -35,10 +35,9 @@ in the project.
 # execute method
 hook_settings_400_execute()
 {
-debug_set_level 8 "CHECK USERCONF"
   if path_is --library "${path_userconf}"; then
 
-    library_load --path "${path_userconf}" "userconf"
+    library_load --path "${path_userconf}" "user"
 
     if [ $? -gt 0 ]; then
       debug --level 3 --topic "HOOK->SETTINGS->400" "Custom user boch library load produced an error [path:${path_userconf}]"
@@ -49,7 +48,7 @@ debug_set_level 8 "CHECK USERCONF"
   else
     debug --level 6 --topic "HOOK->SETTINGS->400" "No custom user boch folder exists [path:${path_userconf}'"
   fi
-debug_reset_level
+
   # don't fail, even if we had problems.  This shouldn't break anything
   return 0
 }

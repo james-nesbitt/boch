@@ -37,7 +37,7 @@ hook_settings_410_execute()
 {
   if path_is --library "${path_projectconf}"; then
 
-    library_load --path "${path_projectconf}" "projectconf"
+    library_load --path "${path_projectconf}" "project"
 
     if [ $? -gt 0 ]; then
       debug --level 3 --topic "HOOK->SETTINGS->410" "Custom project library load produced an error [path:${path_projectconf}]"

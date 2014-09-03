@@ -348,9 +348,7 @@ path_is()
         return 0
       fi
       if [ -d "${path}" ]; then
-        local libraryhandler="${path##*/}"
-        libraryhandler="${libraryhandler/./}"
-        path="${path}/${libraryhandler}"
+        path="`library_handler "library:${path}"`"
         if [ -f "${path}" ] && [ -x "${path}" ]; then
           return 0
         fi
