@@ -69,6 +69,7 @@ source "${path_manage}/_utilities"
 # Include library handling functions (including the library_load function)
 source "${path_manage}/_libraries"
 
+# Include all of our source libraries
 debug --level 7 --topic "INIT" "INCLUDING LIBRARIES"
 
 # include utility functions for running hooks (which every other library relies on)
@@ -76,7 +77,6 @@ library_load "hook"
 
 # include the settings library (with a tool to load settings from libraries that are not yet loaded)
 library_load "settings"
-
 # include help related functions (not debug, which is in utilities to get it loaded early.)
 library_load "help"
 # include docker functions - bash abstractions for docker operations

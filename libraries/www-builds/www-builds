@@ -22,4 +22,3 @@ www_builds_list_get()
     echo "${path##*/}:`path_shorten "${path}"`"
   done
 }
-

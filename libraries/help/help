@@ -127,7 +127,7 @@ help_topic_help()
     handler="${handler%:*}"
   fi
 
-  debug --level 5 --topic "HELP->TOPIC" "Executing help [handler:${handler}][tpoic:${topic}]: $@"
+  debug --level 5 --topic "HELP->TOPIC" "Executing help [handler:${handler}][topic:${topic}]: $@"
 
   # Use the "general" topic for any missing topics
   if [ "${handler}" == "${topic}" ]; then
