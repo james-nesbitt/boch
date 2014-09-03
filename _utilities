@@ -232,8 +232,8 @@ path_shorten()
       echo "project~${path#${path_data}/}"
       return 0
       ;;
-    *"${path_manage}"*)
-      echo "manage~${path#${path_manage}/}"
+    *"${path_library}"*)
+      echo "library~${path#${path_library}/}"
       return 0
       ;;
     *"${path_project}"*)
@@ -264,8 +264,8 @@ path_expand()
       *"data~"*)
         echo "${path_data}/${path#data~}"
         ;;
-      *"manage~"*)
-        echo "${path_manage}/${path#manage~}"
+      *"library~"*)
+        echo "${path_library}/${path#manage~}"
         ;;
       *"user~"*)
         echo "${path_userhome}/${path#user~}"

@@ -11,7 +11,7 @@ _libraries_addlibrary()
 }
 # add the core manage folder as a library, even though it isn't really a library
 # this just makes some things easier
-_libraries_addlibrary "core:${path_manage}"
+_libraries_addlibrary "core:${path_library}"
 
 # retrieve the list of loaded libraries
 libraries_list()
@@ -178,10 +178,10 @@ library_load()
 
     else
 
-      local path_library=""
-      for path_library in `libraries_list`
+      local library_each=""
+      for library_each in `libraries_list`
       do
-        path="`library_path "${path_library}"`/libraries/${library}"
+        path="`library_path "${library_each}"`/libraries/${library}"
 
         if path_is --library "${path}"; then
           debug --level 9 --topic "LIBRARY->LOAD" "library exists [library:${library}][path:${path}][success:${success}]"

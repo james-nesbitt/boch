@@ -29,8 +29,8 @@ log=${log:-0}
 # de based on them
 #
 
-# Subpath of a root project folder, that container project configuration
-subpath_project="project"
+# Subpath of a root project folder, that contains project configuration
+path_projectconf_subpath="${path_projectconf_subpath:-boch}"
 
 # path executed from
 path_execution="`pwd`"
@@ -40,8 +40,8 @@ path_userhome="${HOME}"
 # Determine project root, and data paths
 path_project="${path_execution}"
 while [ -n "${path_project}" ] && [ "${path_project}" != "/" ]; do
-  if [ -d "${path_project}/${subpath_project}" ]; then
-    path_data="${path_project}/${subpath_project}"
+  if [ -d "${path_project}/${path_projectconf_subpath}" ]; then
+    path_data="${path_project}/${path_projectconf_subpath}"
     #echo "DISCOVERED PATHS [project:${path_project}][data:${path_data}]"
     break 2
   fi
@@ -51,23 +51,25 @@ done
 if [ -z "${path_project}" ] || [ "${path_project}" == "/" ]; then
   path_project="${path_execution}"
   # this data path will likely be empty, but this might be desirable for cases like flow init
-  path_data="${path_project}/${subpath_project}"
+  path_data="${path_project}/${path_projectconf_subpath}"
 #   echo "DEFAULT PATHS [project:${path_project}][data:${path_data}]"
 fi
 
 # path to this library
-if [ -z "${path_manage}" ]; then
+if [ -z "${path_library}" ]; then
   if [ -d "${path_project}/manage" ]; then
-    path_manage="${path_project}/manage"
+    path_library="${path_project}/manage"
   else
-    path_manage="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+    # This should be improved to automatically look at the executed
+    # script.  It is currently not able to handle symlinks well.
+    path_library="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
   fi
 fi
 
 # Include utility functions (including the debug function)
-source "${path_manage}/_utilities"
+source "${path_library}/_utilities"
 # Include library handling functions (including the library_load function)
-source "${path_manage}/_libraries"
+source "${path_library}/_libraries"
 
 # Include all of our source libraries
 debug --level 7 --topic "INIT" "INCLUDING LIBRARIES"
@@ -95,7 +97,7 @@ CONFIG: control settings after system initialization (can be modified after this
   >SINGLE PATHS USED
   -->path_project----------: ${path_project}
   -->path_execution--------: ${path_execution}
-  -->path_manage-----------: ${path_manage}
+  -->path_library----------: ${path_library}
   -->path_data-------------: ${path_data}
   >ALIASES
   -->active_aliases--------: `aliases_get`

@@ -6,10 +6,10 @@
 #
 # To use, copy this into any bin folder:
 # ~/bin /usr/local/bin, /usr/bin
-# And cuztomize the path_manage variable to point to
+# And cuztomize the path_library variable to point to
 # your global copy of the toolset.
 #
 # Path to the boch toolset folder
-path_manage="/path/to/the/boch/toolset
+path_library="/path/to/the/boch/toolset
 # Hand off to the toolset
-source "${path_manage}/boch" $@
+source "${path_library}/boch" $@

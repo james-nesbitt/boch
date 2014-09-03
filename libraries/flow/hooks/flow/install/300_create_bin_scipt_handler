@@ -49,8 +49,8 @@ hook_command_init_300_execute()
   if path_is "${path_link}"; then
     debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Not creating a bin link to the boch script, as one already exists [path:${path_link}]"
   else
-    debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Creating a bin link to the boch script [link:${path_link}][source:${path_manage}/boch]"
-    ln -s "${path_manage}/boch" "${path_link}"
+    debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Creating a bin link to the boch script [link:${path_link}][source:${path_library}/boch]"
+    ln -s "${path_library}/boch" "${path_link}"
     return $?
   fi
 }

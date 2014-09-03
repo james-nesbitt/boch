@@ -16,12 +16,12 @@ hook_init_050_description()
 hook_init_050_help()
 {
   echo "
-hook->init->050 : Create the custom folder for the project
+hook->init->050 : Create the custom conf folder for the project
 
 This hook will create a new root level folder for your project
 in which all of your settings, and custom project code can go.
 
-The folder will always be /folder
+The folder will always be /boch
 
 "
 
@@ -31,16 +31,16 @@ The folder will always be /folder
 hook_init_050_execute()
 {
   # what is the root path to the project folder
-  path_data="${path_data:-${path_project}/project}"
+  path_data="${path_data:-${path_project}/boch}"
   path_data_executable="${path_data}/${path_data##*/}"
 
   if ! path_is --dir "${path_data}"; then
-    debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project folder [path:${path_data}]"
+    debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project conf library folder [path:${path_data}]"
     # make sure that we have a custom library in the data path
     path_ensure --dir "${path_data}"
   fi
   if ! path_is --exec "${path_data_executable}"; then
-    debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project library executable [path:${path_data}]"
+    debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project conf library executable [path:${path_data}]"
     path_ensure --exec "${path_data_executable}"
 
     echo "#!/bin/sh
@@ -51,10 +51,23 @@ hook_init_050_execute()
 ###
 # What to put here
 #
+# - nothing if you don't want anything in here
 # - custom functions for your project
-# - a help / helplist handler
+# - an execute handler for $/> boch project
 #
-
+# What to not put here
+#
+# - variable settings; put those in ./settings
+# - help handler : put those in ./help
+#
+# Do not delete this!
+#
+# Technically, your project folder is a library
+# and without this file, it will not be a valid
+# library, and so it won't be loaded.
+# If this library isn't loaded then none of the
+# other files will have any impact.
+#
 
 " > "${path_data_executable}"
 

@@ -35,7 +35,7 @@ hook_settings_default_010_execute()
 # Important paths for the source code
 #
 # @NOTE you have access to the following system paths:
-#  - \${path_manage} : path to the folder that contains the all of these tools for managing docker
+#  - \${path_library} : path to the folder that contains the all of these tools for managing docker
 #  - \${path_project} : root folder for your project (actually just one up from your manage path)
 #        (this is often not used for anything other than the root of other default variables)
 #  - \${path_userhome} : user home
