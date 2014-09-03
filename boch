@@ -1,0 +1,107 @@
+#!/bin/sh
+#
+# Command based docker container management
+#
+
+############################
+# Process config Arguments #
+############################
+# -h|--help : get help instead of running the command
+# -v|--verbose {level} : output debugging info
+# -l|--log {level} : enable debug logging
+# -f|--force : ignore critical errors (don't halt)
+#
+# @TODO find a way past the described silliness
+
+# library handler
+library=""
+# Specific action target
+target=""
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      library="help"
+      # if an string with a colon (topic separator) was passed, take it as the help topic
+      if [ -n "$2" ] && [ "$2" != "${2##*:}" ]; then
+        target=${2}
+        shift
+      fi
+      ;;
+
+    -v|--verbose)
+      vflag=on
+      # if an integer level was passed, take it, otherwise default to 5
+      if [ -n "$2" ] && [ -z "${2##[0-9]}" ]; then
+        debug=${2}
+        shift
+      else
+        debug=5
+      fi
+      ;;
+    -l|--log)
+      # if an integer level was passed, take it, otherwise default to 8
+      if [ -n "$2" ] && [ -z "${2##[0-9]}" ]; then
+        log=${2}
+        shift
+      else
+        log=8
+      fi
+      ;;
+    -f|--force)
+      # lower the critical error level so that errors don't halt
+      _debug_critical_level=0
+      ;;
+    -*)
+        echo >&2 "usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [operation ...].  Try \"$0 help\" for more instructions."
+        exit 1;;
+    *)
+        break;; # terminate while loop
+  esac
+  shift
+done
+
+#####################################################
+# Find out where we are, and connect to the _config #
+#####################################################
+
+# path to the root of this project
+path_script="${path_script:-$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)}"
+# include _config, which will do the rest of the work.
+source "${path_script}/_init"
+
+##################################################
+# Determine what operation is supposed to be run #
+##################################################
+# the first non-hyphenated argument is the handler library
+if [ -z "${library}" ]; then
+  library_load "${1}"
+  if [ $? -eq 0 ]; then
+    library="${1}"
+    target="${2}"
+    shift 2
+    debug --level 5 --topic "HANDLER" "Discovered handler [handler:${library}][target:${target}] : $@"
+  else
+    library="command"
+    target="${1}"
+    shift
+    debug --level 5 --topic "HANDLER" "Assumed command handler [handler:${library}][target:${target}] : $@"
+  fi
+else
+  debug --level 5 --topic "HANDLER" "Explicit handler CHECK [library:${library}][target:${target}] : $@"
+  library_load "${library}"
+  if [ -z "${target}" ]; then
+    target="${1}"
+    shift
+    debug --level 5 --topic "HANDLER" "Explicit handler , discovered target [library:${library}][target:${target}] : $@"
+  else
+    debug --level 5 --topic "HANDLER" "Explicit handler and target [library:${library}][target:${target}] : $@"
+  fi
+fi
+
+#################################################################################
+# Process operation : pass the rest of the arguments to the respective handler  #
+#################################################################################
+
+debug --level 5 --topic "HANDLER" "Executing library handler [library:${library}][target:${target}]"
+library_execute --action "execute" "${library}" "${target}" $@
