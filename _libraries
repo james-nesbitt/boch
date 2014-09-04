@@ -395,7 +395,7 @@ library_include()
 }
 
 # Execute a library handler function
-# @NOTE this function tries to make sure that hte library is loaded
+# @NOTE this function tries to make sure that the library is loaded
 #       and it is component aware.
 library_execute()
 {

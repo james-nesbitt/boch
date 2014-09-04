@@ -39,7 +39,7 @@ function _alias_load()
   local flags=""
 
   if [ "${alias}" != "${alias%:*}" ]; then
-    flags="${flags} --target \"${alias#*:}\""
+    flags="${flags} --target ${alias#*:}"
     alias="${alias%:*}"
   fi
 
