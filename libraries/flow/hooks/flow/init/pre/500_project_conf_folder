@@ -32,11 +32,8 @@ hook_init_050_execute()
   # what is the root path to the project folder
   path_projectconf="${path_projectconf:-${path_project}/boch}"
 
-  local projectconfhandler="${path_projectconf##*/}"
-  projectconfhandler="${projectconfhandler/./}"
-
   # path to the executable library handler, in the library folder
-  path_projectconf_executable="${path_projectconf_executable}/${projectconfhandler}"
+  path_projectconf_executable="`library_handler "project:${path_projectconf}"`"
 
   if ! path_is --dir "${path_projectconf}"; then
     debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project conf library folder [path:${path_projectconf}]"

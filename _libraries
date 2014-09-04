@@ -316,14 +316,14 @@ _library_load()
 
     debug --level 8 --topic "LIBRARY->_LOAD" "Now loading library [library:${library}][path:${path}]"
 
-    # register the library as a path
-    list_add "libraries_loaded" "${library}:${path}"
-
-    # run pre hooks
-    _libraries_hooks_execute "library/load" --state "pre" --library "${library}" --path "${path}" $@
 
     debug --level 7 --topic "LIBRARY->_LOAD" "Including library root.  Handing off to path_include ==> path_include \"${path_include}\" $@ "
     if path_include "${path_include}" $@; then
+      # register the library as a path
+      list_add "libraries_loaded" "${library}:${path}"
+
+      # run pre hooks
+      _libraries_hooks_execute "library/load" --state "pre" --library "${library}" --path "${path}" $@
 
       if _library_execute --action "init" "${library}" --path "${path}"; then
         debug --level 7 --topic "LIBRARY->LOAD" "Library init function run"

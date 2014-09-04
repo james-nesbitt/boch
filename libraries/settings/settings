@@ -108,11 +108,7 @@ settings_init()
     local previous_aliases="${alias_aliases}"
     alias_aliases=""
     for alias in ${previous_aliases}; do
-      if [ "${alias:0:1}" == "@" ]; then
-        alias_add "${alias:1}"
-      else
-        alias_add "${alias}"
-      fi
+      alias_add "${alias}"
     done
   fi
 

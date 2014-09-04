@@ -64,10 +64,6 @@ wwwcnpmjn_settings_defaults_300_execute()
 #
 #required_builds=\"${required_builds:-"www-cnpm-jn www-cnpm-jn-dev"}\"
 
-# Base template from which to make new project builds
-# @NOTE this is not often used, mainly it is only used during the init flow
-project_buildtemplate=\"${project_buildtemplate}\"
-
 ###
 # Docker Container configurations
 #

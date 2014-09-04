@@ -54,7 +54,7 @@ do
       _debug_critical_level=0
       ;;
     @*)
-      alias_aliases="${alias_aliases} ${1}"
+      alias_aliases="${alias_aliases} ${1:1}"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [command ...].  Try \"help\" for more instructions."

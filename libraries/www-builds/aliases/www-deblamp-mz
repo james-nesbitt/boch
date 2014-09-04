@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# ALIAS: www-deblamp-mz : LOAD the www-deblamp-mz library
+#
+
+library_load "www-deblamp-mz"

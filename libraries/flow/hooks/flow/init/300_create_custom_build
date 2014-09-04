@@ -40,6 +40,7 @@ hook_command_init_300_execute()
     local path_build="${path_projectconf}/builds/${project_image}"
     if [ -d "${path_projectconf}" ] && [ ! -d "${path_build}" ]; then
 
+      library_load "command"
       command_load "build"
 
       local path_template="`build_find \"${project_buildtemplate}\"`"

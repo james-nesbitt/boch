@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# ALIAS: www-cnpm-jn : LOAD the www-cnpm-jn library
+#
+
+library_load "www-cnpm-jn"

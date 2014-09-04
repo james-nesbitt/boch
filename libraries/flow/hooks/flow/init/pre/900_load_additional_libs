@@ -27,6 +27,9 @@ add other features.
   [--boot2docker] : include the boot2docker as a dependency; This library
       will add settings and handlers for running docker through boot2docker.
 
+  [--www-builds] {www-build-library} : include the www-builds library, and
+    indicate that one of the builds will be needed.
+
 @NOTE that this option does not make these libraries loaded during
   subsequent calls to the system.  If a library wants to self-load,
   it should add a library_load call to a settings/default hook, to
@@ -51,6 +54,11 @@ hook_flow_init_pre_900_execute()
 
       --boot2docker)
         additional_libraries="${additional_libraries} boot2docker"
+        ;;
+      --www-build|--www-builds)
+        additional_libraries="${additional_libraries} www-builds"
+        alias_add "${2}"
+        shift
         ;;
     esac
     shift
