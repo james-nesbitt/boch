@@ -58,7 +58,7 @@ while [ $# -gt 0 ]; do
       alias_aliases="${alias_aliases} ${1}"
       ;;
     -*)
-        echo >&2 "usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [operation ...].  Try \"$0 help\" for more instructions."
+        echo >&2 "Unknown argument \"${1}\"; usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [operation ...].  Try \"$0 help\" for more instructions."
         exit 1;;
     *)
         break;; # terminate while loop

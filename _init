@@ -54,7 +54,12 @@ if [ -z "${path_project}" ] || [ "${path_project}" == "/" ]; then
   path_project="${path_execution}"
   # this data path will likely be empty, but this might be desirable for cases like flow init
   path_projectconf="${path_project}/${path_projectconf_subpath}"
-#   echo "DEFAULT PATHS [project:${path_project}][data:${path_projectconf}]"
+  #echo "DEFAULT TO CURRENT PATHS [project:${path_project}][data:${path_projectconf}]"
+fi
+
+# this fixes a problem that occurs if you run boch inside the boch library folder
+if [ "$path_projectconf" == "${path_library}" ]; then
+  path_projectconf="not found"
 fi
 
 # path to this library
