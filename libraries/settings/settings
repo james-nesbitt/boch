@@ -9,20 +9,47 @@ alias_add()
   local alias="${1}"
 
   list_add "alias_aliases" "${alias}"
-  local library=""
-  local alias_path=""
-  for library in `libraries_list`; do
-    alias_path="`library_path "${library}"`/aliases/${alias}"
-    if path_is --exec "${alias_path}"; then
-      debug --level 6 --topic "HOOK->SETTINGS->ALIAS->ADD" "Loading new alias from existing library [library:${library}][alias:${alias}][path:${alias_path}]"
-      path_include "${alias_path}"
-    fi
-  done
+  alias_load "${alias}"
 }
 # Alias list retrieve method
 aliases_get()
 {
   list_get "alias_aliases"
+}
+
+# Load an alias
+alias_load()
+{
+  local alias="${1}"
+  shift
+
+  local library=""
+  local alias_path=""
+  for library in `libraries_list`; do
+    debug --level 8 --topic "HOOK->SETTINGS->ALIAS->LOAD" "Checking library for aliases [library:${library}][alias:${alias}]"
+    _alias_load "${library}" "${alias}" $@
+  done
+}
+function _alias_load()
+{
+  local library="${1}"
+  local alias="${2}"
+  shift 2
+
+  local flags=""
+
+  if [ "${alias}" != "${alias%:*}" ]; then
+    flags="${flags} --target \"${alias#*:}\""
+    alias="${alias%:*}"
+  fi
+
+  alias_path="`library_path "${library}"`/aliases/${alias}"
+  if path_is --exec "${alias_path}"; then
+    debug --level 6 --topic "HOOK->SETTINGS->ALIAS->_LOAD" "Loading alias library [library:${library}][alias:${alias}][path:${alias_path}][flags:${flags}]"
+    path_include "${alias_path}" ${flags} $@
+  else
+    debug --level 8 --topic "HOOK->SETTINGS->ALIAS->_LOAD" "Library does not implement aliad [library:${library}][alias:${alias}][path:${alias_path}][flags:${flags}]"
+  fi
 }
 
 ###

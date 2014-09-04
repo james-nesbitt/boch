@@ -37,15 +37,15 @@ hook_settings_library_pre_600_execute()
   do
     case "$1" in
       -l|--library)
-    library=$2
-    shift
-    ;;
+        library=$2
+        shift
+      ;;
       -p|--path)
-    path=$2
-    shift
-    ;;
+        path=$2
+        shift
+        ;;
       *)
-      break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done

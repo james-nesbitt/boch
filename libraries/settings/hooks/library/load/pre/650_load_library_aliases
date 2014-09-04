@@ -34,15 +34,15 @@ hook_settings_library_pre_650_execute()
   do
     case "$1" in
       -l|--library)
-    library=$2
-    shift
-    ;;
+        library=$2
+        shift
+        ;;
       -p|--path)
-    path=$2
-    shift
-    ;;
+        path=$2
+        shift
+        ;;
       *)
-      break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -51,11 +51,7 @@ hook_settings_library_pre_650_execute()
   local alias_path=""
   if function_exists "aliases_get"; then
     for alias in `aliases_get`; do
-      alias_path="${path}/aliases/${alias}"
-      if path_is --exec "${alias_path}"; then
-        debug --level 6 --topic "HOOK->SETTINGS->LIBRARY->LOAD->PRE->650" "Loading alias from new library [library:${library}][alias:${alias}][path:${alias_path}]"
-        path_include "${alias_path}"
-      fi
+      _alias_load "${library}:${path}" "${alias}"
     done
   fi
 }
