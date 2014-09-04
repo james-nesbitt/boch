@@ -505,3 +505,90 @@ _library_execute()
     return 1
   fi
 }
+
+# create a new library
+#
+# Not exactly used often, but it is used in at least 2 scenarios
+# so I put it into it's own function
+library_create()
+{
+  # default to a comple type lib
+  local type="complex"
+  # by default, create new libraries in the project libraries folder
+  local path="project~/libraries"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -p|--path)
+        path="$2"
+        shift
+        ;;
+      -t|--type)
+        type="$2"
+        shift
+        ;;
+      -s|--simple)
+        type="simple"
+        ;;
+      -c|--complex)
+        type="complex"
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  local name="${1}"
+  shift
+
+  debug --level 4 --topic "LIBRARY->CREATE" "Creating new library [type:${type}][name:${name}][path:${path}]"
+
+  # exand the path now to save cycles
+  path="`path_expand "${path}"`"
+
+  # make sure that the parent folder exists
+  path_ensure --dir "${path}"
+  local path="${path}/${name}"
+
+  if [ "${type}" == "complex" ]; then
+    debug --level 4 --topic "LIBRARY->CREATE" "Creating new library containing folder [path:${path}]"
+    path_ensure --dir "${path}"
+    path="`library_handler "${name}:${path}"`"
+  fi
+
+  debug --level 4 --topic "LIBRARY->CREATE" "Creating new library handler [path:${path}]"
+  path_ensure --exec "${path}"
+  echo "#!/bin/sh
+#
+# ${name} library handler
+#
+
+###
+# What to put here
+#
+# - nothing if you don't want anything in here
+# - custom functions for your library
+# - an execute handler for $/> boch ${name}
+#
+# * The core expects library methods to be prefixed
+#   with ${name}_
+#    e.g.  ${name}_help, ${name}_execute
+#
+# What to not put here
+#
+# - variable settings; put those in ./settings
+# - help handler : put those in ./help
+# * unless this is a simple, single file library
+#
+# Do not delete this!
+#
+# Technically, your library will not be a valid
+# library without this file, and so it won't be
+# loaded.
+#
+" > ${path}
+
+  return $?
+}

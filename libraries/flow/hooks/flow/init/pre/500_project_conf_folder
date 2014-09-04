@@ -30,51 +30,14 @@ The folder will always be /boch
 hook_init_050_execute()
 {
   # what is the root path to the project folder
-  path_projectconf="${path_projectconf:-${path_project}/boch}"
-
-  # path to the executable library handler, in the library folder
-  path_projectconf_executable="`library_handler "project:${path_projectconf}"`"
+  local path="${path_projectconf:-${path_project}/boch}"
 
   if ! path_is --dir "${path_projectconf}"; then
-    debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project conf library folder [path:${path_projectconf}]"
+    # path to the executable library handler, in the library folder
+    local path_projectconf_executable="`library_handler "project:${path}"`"
+
+    debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project conf library folder and handler [path:${path_projectconf%/*}][name:${path_projectconf##*/}][handler:${path_projectconf_executable}]"
     # make sure that we have a custom library in the data path
-    path_ensure --dir "${path_projectconf}"
-  fi
-  if ! path_is --exec "${path_projectconf_executable}"; then
-    debug --level 5 --topic "HOOK->COMMAND->INIT->050" "Making sure that we have a project conf library executable [path:${path_projectconf}]"
-    path_ensure --exec "${path_projectconf_executable}"
-
-    echo "#!/bin/sh
-#
-# Project library handler
-#
-
-###
-# What to put here
-#
-# - nothing if you don't want anything in here
-# - custom functions for your project
-# - an execute handler for $/> boch project
-#
-# * The core expects library methods to be prefixed
-#   with project_
-#    e.g.  project_help, project_execute
-#
-# What to not put here
-#
-# - variable settings; put those in ./settings
-# - help handler : put those in ./help
-#
-# Do not delete this!
-#
-# Technically, your project folder is a library
-# and without this file, it will not be a valid
-# library, and so it won't be loaded.
-# If this library isn't loaded then none of the
-# other files will have any impact.
-#
-
-" > "${path_projectconf_executable}"
-
+    library_create --complex --path "${path_projectconf%/*}" "${path_projectconf##*/}"
   fi
 }
