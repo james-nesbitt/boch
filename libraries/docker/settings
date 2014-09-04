@@ -4,4 +4,4 @@
 #
 
 # A path in which to put a registration file for each started container
-docker_container_registerpath="${path_projectconf}/containers"
+docker_container_registerpath="${docker_container_registerpath:-${path_projectconf}/containers}"

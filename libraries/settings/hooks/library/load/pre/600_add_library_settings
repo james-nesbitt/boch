@@ -57,9 +57,14 @@ hook_settings_library_pre_600_execute()
     *)
       path="${path}/settings"
 
-      if [ -f ${path} ] && [ -x ${path} ]; then
-        debug --level 7 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->600" "New library has a settings file.  Adding it. [library:${library}][path:${path}]"
+      if path_is --exec "${path}"; then
         path_include "${path}"
+        local success=$?
+        if [ $success -eq 0 ]; then
+          debug --level 6 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->600" "Library settings file included. [library:${library}][path:${path}]"
+        else
+          debug --level 4 --topic "HOOKS->SETTINGS->LIBRARY->ADD->PRE->600" "Library settings file include produced an error [library:${library}][path:${path}][success:${success}]"
+        fi
       fi
     ;;
   esac

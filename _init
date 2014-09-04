@@ -61,6 +61,9 @@ fi
 if [ "$path_projectconf" == "${path_library}" ]; then
   path_projectconf="not found"
 fi
+if [ ! -d "$path_userconf" ]; then
+  path_projectconf="not found"
+fi
 
 # path to this library
 if [ -z "${path_library}" ]; then

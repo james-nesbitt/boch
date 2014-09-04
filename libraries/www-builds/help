@@ -43,6 +43,11 @@ www_builds_help_generalhelp()
 This library is a collection of other libraries that are meant to give
 access to www server builds.  The www libs are various docker builds
 that have been collected as a part of the project.
+
+Note that this library, and the related build libraries are not really
+needed after a project has been initialized.  Each build library should
+give a project enough settings and pieces to run without the library
+after the init flow has been executed.
 "
 }
 

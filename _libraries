@@ -201,7 +201,7 @@ library_load()
         path="`library_path "${library_each}"`/libraries/${library}"
 
         if path_is --library "${path}"; then
-          debug --level 9 --topic "LIBRARY->LOAD" "library exists [library:${library}][path:${path}][success:${success}]"
+          debug --level 8 --topic "LIBRARY->LOAD" "library exists [library:${library}][path:${path}][success:${success}]"
           _library_load --library "${library}" --path "${path}" $@
           success=$?
           if [ $success -eq 0 ]; then
@@ -213,7 +213,7 @@ library_load()
           break
         else
           success=1
-          debug --level 9 --topic "LIBRARY->LOAD" "library path does not exist [library:${library}][path:${path}][success:${success}]"
+          debug --level 8 --topic "LIBRARY->LOAD" "library path does not exist [library:${library}][path:${path}][success:${success}]"
         fi
       done
 

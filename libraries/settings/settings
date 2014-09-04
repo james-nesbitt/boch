@@ -9,7 +9,6 @@ alias_add()
   local alias="${1}"
 
   list_add "alias_aliases" "${alias}"
-
   local library=""
   local alias_path=""
   for library in `libraries_list`; do

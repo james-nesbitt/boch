@@ -43,7 +43,7 @@ start_execute()
   local image="${project_image}"
   local version="${project_imageversion}"
 
-  local container=""
+  local container="${project_container}"
   local hostname=""
 
   local flags=""
@@ -75,8 +75,7 @@ start_execute()
     shift
   done
 
-  # use some safe values
-  container="${container:-"${image}_${version}"}"
+  # use some safe values (do this now to respond to changes in container via arguments)
   hostname="${hostname:-"${container}"}"
 
   # Add the default flags to the end of the flaglist

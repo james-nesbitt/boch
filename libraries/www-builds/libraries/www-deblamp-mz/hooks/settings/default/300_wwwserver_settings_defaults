@@ -41,11 +41,6 @@ wwwcnpmjn_settings_defaults_300_execute()
 # flag or the --libraries \"www-deblamp-mz\" flag
 #
 
-##
-# Load the www-deblamp-mz WWW Server library
-#
-library_load \"www-deblamp-mz\"
-
 ###
 # Docker image configurations
 #

@@ -17,8 +17,6 @@
 library=""
 # Specific action target
 target=""
-# Collect aliases, before the alias library is available
-alias_aliases=""
 
 while [ $# -gt 0 ]; do
   case "$1" in

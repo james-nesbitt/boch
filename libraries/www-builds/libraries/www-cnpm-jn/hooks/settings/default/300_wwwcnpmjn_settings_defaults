@@ -33,7 +33,6 @@ The purpose here is to give access to the library builds, and related settings
 # execute method
 wwwcnpmjn_settings_defaults_300_execute()
 {
-
   project_buildtemplate="${project_buildtemplate:-www-cnpm-jn-template}"
 
   echo "#
@@ -46,11 +45,6 @@ wwwcnpmjn_settings_defaults_300_execute()
 # most likely your project was initialized with the --www-cnpm-jn
 # flag or the --libraries \"www-cnpm-jn\" flag
 #
-
-##
-# Load the www-cnpm-jn WWW Server library
-#
-library_load \"www-cnpm-jn\"
 
 ###
 # Docker image configurations

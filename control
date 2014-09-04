@@ -15,8 +15,6 @@
 
 help="no"
 helptopic=""
-# Collect aliases, before the alias library is available
-alias_aliases=""
 
 while [ $# -gt 0 ];
 do

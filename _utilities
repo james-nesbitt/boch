@@ -371,9 +371,10 @@ path_include()
   shift
 
   if path_is --exec "${path}"; then
-    debug --level 8 --topic "UTILITY->PATH->INCLUDE" "Including source item [path:${path}]"
-    source ${path} --source-include-path "${path%/*}/" $@
-    return $?
+    source "${path}" --source-include-path "${path%/*}/" $@
+    local success=$?
+    debug --level 8 --topic "UTILITY->PATH->INCLUDE" "Including source item [path:${path}][success:${success}]"
+    return $success
   else
     debug --level 6 --topic "UTILITY->PATH->INCLUDE" "Could not include source item.  Item was not found, or is not a file [path:${path}]"
     return 1

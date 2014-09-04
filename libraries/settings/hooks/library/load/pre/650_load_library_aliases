@@ -49,7 +49,6 @@ hook_settings_library_pre_650_execute()
 
   local alias=""
   local alias_path=""
-
   if function_exists "aliases_get"; then
     for alias in `aliases_get`; do
       alias_path="${path}/aliases/${alias}"
