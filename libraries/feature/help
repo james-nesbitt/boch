@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# help handler for the feature library
+#
+
+# help
+feature_help()
+{
+  feature_help_generalhelp
+}
+
+# helplist
+feature_helplist()
+{
+  echo ""
+}
+
+# general help message
+feature_help_generalhelp()
+{
+  echo "FEATURE General help
+
+The feature library is just magnificent
+"
+}
