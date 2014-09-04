@@ -37,6 +37,7 @@ hook_flow_status_300_execute()
     shift
   done
 
+  library_load "command"
   command_load "build"
 
   echo "
