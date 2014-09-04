@@ -20,8 +20,6 @@ hook->init->050 : Create the custom conf folder for the project
 
 This hook will create a new root level folder for your project
 in which all of your settings, and custom project code can go.
-
-The folder will always be /boch
 "
 
 }

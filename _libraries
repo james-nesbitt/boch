@@ -543,7 +543,7 @@ library_create()
   local name="${1}"
   shift
 
-  debug --level 4 --topic "LIBRARY->CREATE" "Creating new library [type:${type}][name:${name}][path:${path}]"
+  debug --level 8 --topic "LIBRARY->CREATE" "Creating new library [type:${type}][name:${name}][path:${path}]"
 
   # exand the path now to save cycles
   path="`path_expand "${path}"`"
@@ -553,13 +553,24 @@ library_create()
   local path="${path}/${name}"
 
   if [ "${type}" == "complex" ]; then
-    debug --level 4 --topic "LIBRARY->CREATE" "Creating new library containing folder [path:${path}]"
     path_ensure --dir "${path}"
+    if [ $? -gt 0 ]; then
+      debug --level 4 --topic "LIBRARY->CREATE" "Could not create Library path [path:${path}]"
+      return 1
+    else
+      debug --level 7 --topic "LIBRARY->CREATE" "Create new library folder [path:${path}]"
+    fi
     path="`library_handler "${name}:${path}"`"
   fi
 
-  debug --level 4 --topic "LIBRARY->CREATE" "Creating new library handler [path:${path}]"
   path_ensure --exec "${path}"
+  if [ $? -gt 0 ]; then
+    debug --level 4 --topic "LIBRARY->CREATE" "Could not create Library handler [path:${path}]"
+    return 1
+  else
+    debug --level 7 --topic "LIBRARY->CREATE" "Created new library handler [path:${path}]"
+  fi
+
   echo "#!/bin/sh
 #
 # ${name} library handler
