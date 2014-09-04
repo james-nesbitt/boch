@@ -40,7 +40,7 @@ hooks_altervalue()
   # require the first argument to be the operation/name
   local name="${1}"
   shift
-  local value="${1}"
+  local value="$@"
   local temp=""
 
   if [ -n "${name}" ]; then
@@ -51,7 +51,7 @@ hooks_altervalue()
     for hook_path in ${hooks_paths}; do
 
       debug --level 8 --topic "HOOKS->ALTERVALUE" "hook execution [action:${action}][hook_path:${hook_path}]";
-      temp="`hook_execute \"$hook_path\" --action \"${action}\" $@`"
+      temp="`hook_execute \"$hook_path\" --action \"${action}\" ${value}`"
 
       if [ $? -gt 0 ]; then
         debug --level 7 --topic "HOOKS->ALTERVALUE" "Hook return an error during execution [name:${name}][path:${hook_path}][newvalue:${temp}]"

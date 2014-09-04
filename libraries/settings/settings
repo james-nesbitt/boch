@@ -72,9 +72,11 @@ settings_mount_getmounts()
       mounts="`hooks_altervalue "mountvolumes" ${mounts}`"
 
       local mount=""
+      local collect=""
       for mount in ${mounts}; do
-        echo " --volume=${mount}"
+        collect="${collect} --volume=${mount}"
       done
+      echo "${collect}"
       ;;
     "short")
       local mount=""
