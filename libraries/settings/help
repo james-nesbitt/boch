@@ -7,7 +7,25 @@
 # help method
 settings_help()
 {
-  settings_help_generalhelp
+  case "${1}" in
+    "aliases")
+      settings_help_aliaseshelp
+      ;;
+    *)
+      settings_help_generalhelp
+
+      help_scope_add "settings:general"
+      help_scope_list
+      ;;
+   esac
+}
+
+settings_helplist()
+{
+  if [ -z "${1}" ]; then
+    echo "Settings library topics"
+    echo "-->settings:aliases"
+  fi
 }
 
 # generic help message for the command help system
@@ -30,6 +48,30 @@ There are two primary actions that the settings library makes:
    when a script is run.
 2. Provide \"default\" settings from libraries, which can be used to
    generate a default settings file for a project,  during the init flow.
+"
+}
+
+# Help message about aliases
+settings_help_aliaseshelp()
+{
+  echo "Settings Aliases
+
+Aliases are compact single file scripts, that can be lazy loaded at
+will, and contain functions, expressions and settings to be used when
+the alias is activated.
+
+An alias has a name, and when activated, every matching names alias
+file in any loaded library is included.  Additionally, whenever a library
+is loaded, it is checked for matching aliases.
+
+The easiest way to activate a library is to include it in the global
+arguments with an @ like this:
+
+$/> boch @local status
+
+This would load the \"local\" alias.
+
+Alias files are kept in any library, in a ./aliases/ folder.
 
 "
 }
