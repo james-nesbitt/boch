@@ -3,11 +3,22 @@
 # Settings library
 #
 
-
 # Alias list add method
 alias_add()
 {
-  list_add "alias_aliases" "${1}"
+  local alias="${1}"
+
+  list_add "alias_aliases" "${alias}"
+
+  local library=""
+  local alias_path=""
+  for library in `libraries_list`; do
+    alias_path="`library_path "${library}"`/aliases/${alias}"
+    if path_is --exec "${alias_path}"; then
+      debug --level 6 --topic "HOOK->SETTINGS->ALIAS->ADD" "Loading new alias from existing library [library:${library}][alias:${alias}][path:${alias_path}]"
+      path_include "${alias_path}"
+    fi
+  done
 }
 # Alias list retrieve method
 aliases_get()

@@ -99,6 +99,7 @@ if [ -z "${library}" ]; then
 
     # First we try to load it as a command
     if [ -z "${library}" ]; then
+      library_load "command"
       command_load "${1}" "command"
       if [ $? -eq 0 ]; then
         library="command"
