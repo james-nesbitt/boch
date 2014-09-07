@@ -23,6 +23,8 @@ hook_feature_create_pre_300_help()
 # execute method
 hook_feature_create_pre_300_execute()
 {
+  # define a var for the path for this particular feature
+  feature_path="${path_features}"
 
   local flags=""
   while [ $# -gt 0 ]
@@ -42,4 +44,6 @@ hook_feature_create_pre_300_execute()
     shift
   done
 
+  # set up the feature name
+  feature_name="${feature_name:-${1}}"
 }

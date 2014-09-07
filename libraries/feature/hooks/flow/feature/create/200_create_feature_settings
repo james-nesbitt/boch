@@ -38,12 +38,15 @@ hook_feature_create_200_execute()
 # ${feature_name} Feature settings
 #
 
+# Just in case this is side-loaded
+library_load \"feature\"
+
 # Name of this feature
 feature_name=\"${feature_name}\"
 # Path to this feature
 feature_path=\"${feature_path}\"
 
-  " > "${feature_path_settings}"
+" > "${feature_path_settings}"
 
   local hook=""
   for hook in `hooks_list --state "settings" "feature/create"`; do

@@ -16,23 +16,26 @@ feature_execute()
 
   if [ -n "${action}" ]; then
     local flow="feature/${action}"
+
+    # make sure that we have loaded the flow library
+    library_load "flow"
+
     if flow_exists "${flow}"; then
+
       library_execute "flow" "${flow}" $@
       return $?
-    fi
-  fi
 
-  case "${action}" in
-    "create")
-      feature_create $@
-      ;;
-    "")
-      library_execute "help" "feature:general" $@
-      ;;
-    *)
+    else
+
       library_execute "help" "feature:${action}" $@
-      ;;
-  esac
+
+    fi
+
+  else
+
+    library_execute "help" "feature:general" $@
+
+  fi
 
 }
 
@@ -64,49 +67,40 @@ feature_load()
   fi
 }
 
-# create a new feature
+# create a feature library
 feature_create()
 {
-  local feature="${1}"
-  local path="`feature_path "${feature}"`"
-  shift
+  local path="${path_features}"
 
-  if [ -z "${feature}" ]; then
-    debug --level 4 --topic "FEATURE->CREATE" "Could not create feature becaues no name was passed [feature:${feature}]"
-    message "Could not create a new feature because you did now specify a name"
-    return 1
-  fi
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -p|--path)
+        path="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
 
-  debug --level 8 --topic "FEATURE->CREATE" "Creating feature [feature:${feature}][path:${path}]"
-
-  # execute any feature load pre hooks
-  hooks_execute "feature/create" --state "pre" --feature "${feature}" --path "${path}" $@
-
-  # execute any feature create hooks
-  hooks_execute "feature/create" --feature "${feature}" --path "${path}" $@
-
-  local success=$?
-  if [ $success -eq 0 ]; then
-    # execute any feature create post hooks
-    hooks_execute "feature/create" --state "post" --feature "${feature}" --path "${path}" $@
-
-    debug --level 5 --topic "FEATURE->CREATE" "Feature created [feature:${feature}]"
-    message "Created new feature library: ${feature} in ${path}"
-  else
-    # execute any feature create post hooks
-    hooks_execute "feature/create" --state "fail" --feature "${feature}" --path "${path}" $@
-
-    debug --level 5 --topic "FEATURE->CREATE" "Create feature failed [feature:${feature}]"
-    message "Failed to find feature ${feature}, using defaults instead"
-  fi
-
-}
-# actually create a feature library
-_feature_create()
-{
   local name="${1}"
   shift
 
-  library_create --complex --path "${path_features}" "${name}" $@
-  return $?
+  if [ -n "${name}" ]; then
+    if path_ensure --dir "${path}"; then
+      library_create --complex --path "${path}" "${name}" $@
+      if [ $? -eq 0 ]; then
+        debug --level 7 --topic "HOOK->FEATURE->CREATE->PRE->400" "Created feature library [name:${name}][path:${path}]"
+      else
+        debug --level 7 --topic "HOOK->FEATURE->CREATE->PRE->400" "Failed to create feature library [name:${name}][path:${path}]"
+        return 1
+      fi
+    else
+      debug --level 7 --topic "HOOK->FEATURE->CREATE->PRE->400" "Failed to create feature library because the path does not exist [name:${name}][path:${path}]"
+      return 1
+    fi
+  fi
 }

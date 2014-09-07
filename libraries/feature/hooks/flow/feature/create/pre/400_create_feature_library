@@ -24,7 +24,18 @@ Create the library component that will be the feature library.
 # execute method
 hook_feature_create_pre_400_execute()
 {
-  debug --level 5 --topic "HOOK->FEATURE->CREATE->PRE->400" "Creating feature library [name:${feature_name}][path:${feature_path}]"
+  debug --level 8 --topic "HOOK->FEATURE->CREATE->PRE->400" "Creating feature library [name:${feature_name}][path:${feature_path}]"
   message "Creating ${feature_name} feature library"
-  _feature_create "${feature_name}"
+
+  feature_create --path "${feature_path}" "${feature_name}"
+
+  if [ $? -eq 0 ]; then
+    debug --level 5 --topic "HOOK->FEATURE->CREATE->PRE->400" "Created feature library [name:${feature_name}][path:${feature_path}]"
+  else
+    debug --level 4 --topic "HOOK->FEATURE->CREATE->PRE->400" "Failed to feature library [name:${feature_name}][path:${feature_path}]"
+    return 1
+  fi
+
+  # update the feature path to point to the actual feature folder
+  feature_path="${feature_path}/${feature_name}"
 }
