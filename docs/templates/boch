@@ -10,6 +10,6 @@
 # your global copy of the toolset.
 #
 # Path to the boch toolset folder
-path_library="/path/to/the/boch/toolset
+path_library="/path/to/the/boch/toolset"
 # Hand off to the toolset
 source "${path_library}/boch" $@

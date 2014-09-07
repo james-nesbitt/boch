@@ -10,7 +10,8 @@
 2. I started my container but I don't see it?
 
   - are you expecting a prompt or output, because the default conf
-    doesn't provide any
+    doesn't provide any.  It is expected that a started container
+    will silently sit in the background doing it's job.
 
 3. I used the shell command, but my changes disappear
 
@@ -24,5 +25,12 @@
 
 4. I don't like the file layout, how do I change it?
 
-  - The top of the control script has a number of bash variables pointing to the various elements.  You could change those
-  - if you don't like the source/www system, then feel free to remove it, but make sure to adjust the volume mounts, and nginx configuration as well.
+  - The top of the control script has a number of bash variables
+    pointing to the various elements.  You could change those.
+  - Feel free to re-arrange the architecture as desired.  It should be
+    enough to drop large elements, althought some libraries may have
+    features that break with extreme changes.
+
+5. How do I start using the toolset
+
+   Check out the QUICKSTART doc.
