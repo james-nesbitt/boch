@@ -10,15 +10,11 @@ The following components are used:
 - latest epel php libraries
 - latest centos7 mariadb (5.0 branch)
 
-The docker run binary is supervisord as provided by the EPEL
-library.
+The docker run binary is supervisord as provided by the EPEL library.
 
-You can install the image locally by running the build.sh
-script (the test.sh will give you a temporary shell inside
-the image,) but it will likely be build by the control
-script automatically.
+You can install the image locally by running the build.sh script (the test.sh will give you a temporary shell inside the image,) but it will likely be build by the control script automatically.
 
-Elements of the build:
+== Elements of the build ==
 
 - Include the EPEL repository
 - Install supervisord and add the individual program ini files
