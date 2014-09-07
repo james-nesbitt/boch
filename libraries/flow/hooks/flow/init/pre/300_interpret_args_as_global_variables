@@ -4,18 +4,18 @@
 #
 
 hook_version=2
-hook_root="hook_flow_init_030"
+hook_root="hook_flow_init_300"
 
 # descriptoin method
-hook_flow_init_030_description()
+hook_flow_init_300_description()
 {
   echo "Interpret the passed arguments as global variables"
 }
 
 # help method
-hook_flow_init_030_help()
+hook_flow_init_300_help()
 {
-  echo "hook->init->030 : Interpret arguments as global variables
+  echo "hook->init->300 : Interpret arguments as global variables
 
 This hook will attempt to interpret the flow arguments into
 global variables, which will reduce the dependence on args
@@ -47,7 +47,7 @@ much, and can depend on global settings.
 }
 
 # execute method
-hook_flow_init_030_execute()
+hook_flow_init_300_execute()
 {
   # used only for the init flow, to tell hooks that it is ok to build things
   build_execute_now=-1

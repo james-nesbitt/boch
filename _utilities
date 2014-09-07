@@ -254,32 +254,43 @@ path_expand()
   if [ "${path}" != "${path#*~}" ]; then
 
     case "${path}" in
-      *"root~"*)
+      "root~"*)
         echo "${path_project}/${path#root~}"
+        return 0
         ;;
-      *"library~"*)
+      "library~"*)
         echo "${path_library}/${path#library~}"
+        return 0
         ;;
-      *"user~"*)
+      "user~"*)
         echo "${path_userhome}/${path#user~}"
+        return 0
         ;;
       *)
-        local library=""
-        for library in `libraries_list`; do
-          case "${path}" in
-            *"${library%:*}~"*)
-              #This can cause problems if debugging is enabled: library_include "${library%:*}"
-              echo "${library##*:}/${path#${library%:*}~}"
-              return 0
-              ;;
-          esac
-        done
+        if function_exists "libraries_list"; then
+          local library=""
+          for library in `libraries_list`; do
+            case "${path}" in
+              *"${library%:*}~"*)
+                #This can cause problems if debugging is enabled: library_include "${library%:*}"
+                echo "${library##*:}/${path#${library%:*}~}"
+                return 0
+                ;;
+            esac
+          done
+        fi
         ;;
     esac
 
-  fi
+    echo "${path}"
+    return 1
 
-  echo "${path}"
+  else
+
+    echo "${path}"
+    return 0
+
+  fi
 }
 # return boolean on if a path exists
 path_is()
@@ -450,10 +461,15 @@ path_ensure()
   local path="`path_expand \"${1}\"`"
   shift
 
+  # Some sanity checks
+  if [ -z "$path" ] || [ "${path}" == "not found" ]; then
+    return 1
+  fi
+
   case "${type}" in
     "file"|"exec")
-      if [ -e $path ]; then
-        if [ -d $path ]; then
+      if [ -e "$path" ]; then
+        if [ -d "$path" ]; then
           debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file.  Already exists but as a directory [type:${type}][path:$path]"
           return 1
         else

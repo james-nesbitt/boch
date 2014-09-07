@@ -29,8 +29,11 @@ log=${log:-0}
 # de based on them
 #
 
+# empty path text
+empty_path="not found"
+
 # Subpath of a root project folder, that contains project configuration
-path_projectconf_subpath="${path_projectconf_subpath:-boch}"
+path_projectconf_subpath="${path_projectconf_subpath:-.boch}"
 path_userconf_subpath="${path_userconf_subpath:-.boch}"
 
 # path executed from
@@ -42,27 +45,40 @@ path_userconf="${path_userconf:-${path_userhome}/${path_userconf_subpath}}"
 # Determine project root, and data paths
 path_project="${path_execution}"
 while [ -n "${path_project}" ] && [ "${path_project}" != "/" ]; do
+  if [ "${path_project}" == "${path_userhome}" ]; then
+    path_project="${empty_path}"
+    path_projectconf="${empty_path}"
+    # echo "INTERUPTING PATH DISCOVERY AT ROOT"
+    break;
+  fi
+  if [ "${path_project}" == "${empty_path}" ]; then
+    path_project="${empty_path}"
+    path_projectconf="${empty_path}"
+    # echo "INTERUPTING PATH DISCOVERY AT USER HOME"
+    break;
+  fi
   if [ -d "${path_project}/${path_projectconf_subpath}" ]; then
     path_projectconf="${path_project}/${path_projectconf_subpath}"
-    #echo "DISCOVERED PATHS [project:${path_project}][data:${path_projectconf}]"
+    # echo "DISCOVERED PATHS [project:${path_project}][data:${path_projectconf}]"
     break 2
   fi
   path_project="$(dirname "${path_project}")"
 done
 # If we didn't find a project path, then take the EXEC path as the project path
-if [ -z "${path_project}" ] || [ "${path_project}" == "/" ]; then
+if [ -z "${path_project}" ] || [ "${path_project}" == "${empty_path}" ]; then
   path_project="${path_execution}"
   # this data path will likely be empty, but this might be desirable for cases like flow init
-  path_projectconf="${path_project}/${path_projectconf_subpath}"
-  #echo "DEFAULT TO CURRENT PATHS [project:${path_project}][data:${path_projectconf}]"
+  path_projectconf="not found"
+  # echo "DEFAULT TO CURRENT PATHS [project:${path_project}][data:${path_projectconf}]"
 fi
 
 # this fixes a problem that occurs if you run boch inside the boch library folder
 if [ "$path_projectconf" == "${path_library}" ]; then
-  path_projectconf="not found"
+  path_projectconf="${empty_path}"
 fi
+# don't deal with the user conf folder if it does not exist
 if [ ! -d "$path_userconf" ]; then
-  path_projectconf="not found"
+  path_projectconf="${empty_path}"
 fi
 
 # path to this library

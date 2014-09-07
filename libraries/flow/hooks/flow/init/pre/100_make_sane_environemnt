@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# INIT:HOOK: Make a sane variable environemnt for the init flow
+#
+
+hook_version=2
+hook_root="hook_flow_init_100"
+
+# descriptoin method
+hook_flow_init_100_description()
+{
+  echo "Make a sane variable environemnt for the init flow"
+}
+
+# help method
+hook_flow_init_100_help()
+{
+  echo "hook->init->100 : Make a sane environemnt for the init flow
+
+This script tries to make the current environment variables safe for
+an install.
+The following items are checked:
+
+1. is the projectconf folder variable empty, if so point it to a subfolder
+   of the execution path.  This is of course a normal occurence for init
+   tasks, as the project elements are often not set up first, and the
+   standard settings approach is to mark the projectconf \"not found\"
+
+
+"
+  help_scope_add "hook:flow/init"
+}
+
+# execute method
+hook_flow_init_100_execute()
+{
+
+  # 1. check projectconf, point to execution path if it makes sense
+  if [ -z "${path_projectconf}" ] || [ "${path_projectconf}" == "${empty_path}" ]; then
+    path_projectconf="${path_project}/${path_projectconf_subpath}"
+    debug --level 5 --topic "HOOK->FLOW->INIT->100" "The current environment has no project-conf folder found; marking the project-conf with a new path to be created [path:${path_projectconf}]"
+  fi
+
+}

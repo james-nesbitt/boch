@@ -8,8 +8,29 @@ alias_add()
 {
   local alias="${1}"
 
-  list_add "alias_aliases" "${alias}"
-  alias_load "${alias}"
+  case "${alias}" in
+    @*) # just an marker for aliases from the command line
+      alias="${alias:1}"
+      ;;
+    %*) # load the first part as a lib, then use it as an alias
+      alias="${alias:1}"
+      library_load "${alias%:*}"
+      ;;
+    ^*) # laod the first part as a lib, and use the second part as an alias
+      alias="${alias:1}"
+      library_load "${alias%:*}"
+      if [ "${alias}" == "${alias#:*}" ]; then
+        alias=""
+      else
+        alias="${alias#*:}"
+      fi
+      ;;
+  esac
+
+  if [ -n "${alias}" ]; then
+    list_add "alias_aliases" "${alias}"
+    alias_load "${alias}"
+  fi
 }
 # Alias list retrieve method
 aliases_get()
