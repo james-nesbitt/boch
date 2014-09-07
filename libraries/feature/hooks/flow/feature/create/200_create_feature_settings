@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# HOOK->FEATURE->CREATE->200 Add feature specific settings to the feature
+#
+
+hook_version=2
+hook_root="hook_feature_create_200"
+
+# description method
+hook_feature_create_200_desription()
+{
+  echo "Add feature specific settings to the feature"
+}
+
+# help method
+hook_feature_create_200_help()
+{
+  echo "HOOK->FEATURE->CREATE->200 Add feature specific settings to the feature
+
+Put settings for the feature into the settings file
+
+"
+}
+
+# Execute method
+hook_feature_create_200_execute()
+{
+
+  local path="`path_expand "${feature_path}"`"
+  feature_path_settings="${path}/settings"
+
+  debug --level 5 --topic "HOOK->FEATURE->CREATE->200" "Creating feature library settings file [name:${name}][path:${feature_path_settings}]"
+
+  path_ensure --dir "${path}"
+
+  echo "#!/bin/sh
+#
+# ${feature_name} Feature settings
+#
+
+# Name of this feature
+feature_name=\"${feature_name}\"
+# Path to this feature
+feature_path=\"${feature_path}\"
+
+  " > "${feature_path_settings}"
+
+  local hook=""
+  for hook in `hooks_list --state "settings" "feature/create"`; do
+
+    hook_version=""
+    hook_root=""
+
+    hook_include ${hook} $@
+
+    if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
+
+      echo "
+## SETTINGS FROM HOOK : ${hook_root} [leave this line to prevent this hook from adding these settings again]
+" >> ${path_settings}
+      #echo "`hook_execute ${hook}`" >> ${path}
+      echo "`"${hook_root}_execute" --feature "${feature_name}" --file "${feature_path}"`" >> ${path_settings}
+
+      debug --level 6 --topic "HOOK->FEATURE_CREATE->200" "A hook provided default feature settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+    else
+      debug --level 6 --topic "HOOK->FEATURE->CREATE->200" "A hook provided default feature settings, but it is already included in the settings file [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+    fi
+
+  done
+}

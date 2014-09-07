@@ -3,30 +3,110 @@
 # Feature Library hander
 #
 
+feature_path()
+{
+  echo "${path_features}/${1}"
+}
+
+# Boch handler
+feature_execute()
+{
+  local action="${1}"
+  shift
+
+  if [ -n "${action}" ]; then
+    local flow="feature/${action}"
+    if flow_exists "${flow}"; then
+      library_execute "flow" "${flow}" $@
+      return $?
+    fi
+  fi
+
+  case "${action}" in
+    "create")
+      feature_create $@
+      ;;
+    "")
+      library_execute "help" "feature:general" $@
+      ;;
+    *)
+      library_execute "help" "feature:${action}" $@
+      ;;
+  esac
+
+}
 
 # feature load
 feature_load()
 {
   local feature="${1}"
+  shift
 
   debug --level 8 --topic "FEATURE->LOAD" "Loading feature [feature:${feature}]"
 
   # execute any feature load pre hooks
-  hooks_execute --state "pre" "feature/load"
+  hooks_execute "feature/load" --state "pre" --feature "${feature}" $@
 
   library_load --component "${feature}" "feature"
   local success=$?
   if [ $success -eq 0 ]; then
     # execute any feature load pre hooks
-    hooks_execute --state "post" "feature/load"
+    hooks_execute "feature/load"--state "post" --feature "${feature}" $@
 
     debug --level 5 --topic "FEATURE->LOAD" "Loading feature succeed [feature:${feature}]"
-    message "Using feature: ${feature}"
+    message "Using feature library: ${feature}"
   else
-    # execute any feature load pre hooks
-    hooks_execute --state "fail" "feature/load"
+    # execute any feature load fail hooks
+    hooks_execute "feature/load" --state "fail" --feature "${feature}" $@
 
     debug --level 5 --topic "FEATURE->LOAD" "Loading feature failed [feature:${feature}]"
     message "Failed to find feature ${feature}, using defaults instead"
   fi
+}
+
+# create a new feature
+feature_create()
+{
+  local feature="${1}"
+  local path="`feature_path "${feature}"`"
+  shift
+
+  if [ -z "${feature}" ]; then
+    debug --level 4 --topic "FEATURE->CREATE" "Could not create feature becaues no name was passed [feature:${feature}]"
+    message "Could not create a new feature because you did now specify a name"
+    return 1
+  fi
+
+  debug --level 8 --topic "FEATURE->CREATE" "Creating feature [feature:${feature}][path:${path}]"
+
+  # execute any feature load pre hooks
+  hooks_execute "feature/create" --state "pre" --feature "${feature}" --path "${path}" $@
+
+  # execute any feature create hooks
+  hooks_execute "feature/create" --feature "${feature}" --path "${path}" $@
+
+  local success=$?
+  if [ $success -eq 0 ]; then
+    # execute any feature create post hooks
+    hooks_execute "feature/create" --state "post" --feature "${feature}" --path "${path}" $@
+
+    debug --level 5 --topic "FEATURE->CREATE" "Feature created [feature:${feature}]"
+    message "Created new feature library: ${feature} in ${path}"
+  else
+    # execute any feature create post hooks
+    hooks_execute "feature/create" --state "fail" --feature "${feature}" --path "${path}" $@
+
+    debug --level 5 --topic "FEATURE->CREATE" "Create feature failed [feature:${feature}]"
+    message "Failed to find feature ${feature}, using defaults instead"
+  fi
+
+}
+# actually create a feature library
+_feature_create()
+{
+  local name="${1}"
+  shift
+
+  library_create --complex --path "${path_features}" "${name}" $@
+  return $?
 }

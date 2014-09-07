@@ -25,6 +25,10 @@ do
 done
 
 if [ -n "${feature_alias_target}" ]; then
-  debug --level 5 --topic "FEATURE->ALIAS" "Feature has been instructed to load a feature [feature:${feature_alias_target}]"
   feature_load "${feature_alias_target}"
+  if [ $? -eq 0 ]; then
+    debug --level 5 --topic "FEATURE->ALIAS" "Feature loaded via alias [feature:${feature_alias_target}]"
+  else
+    debug --level 4 --topic "FEATURE->ALIAS" "Unable to load a feature via alias [feature:${feature_alias_target}]"
+  fi
 fi

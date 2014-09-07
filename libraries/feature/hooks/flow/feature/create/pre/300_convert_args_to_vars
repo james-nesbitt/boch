@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# HOOK->FEATURE->CREATE->PRE->300 Convert arguments to variables
+#
+
+hook_version=2
+hook_root="hook_feature_create_pre_300"
+
+# description method
+hook_feature_create_pre_300_description()
+{
+  echo "Convert arguments to variables"
+}
+
+# Help method
+hook_feature_create_pre_300_help()
+{
+  echo "HOOK->FEATURE->CREATE->PRE->300 Convert arguments to variables
+
+"
+}
+
+# execute method
+hook_feature_create_pre_300_execute()
+{
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -f|--feature)
+        feature_name="${2}"
+        shift
+        ;;
+      -p|--path)
+        feature_path="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+}

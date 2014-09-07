@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# HOOK->FEATURE->CREATE->PRE->400 Create feature library
+#
+
+hook_version=2
+hook_root="hook_feature_create_pre_400"
+
+# description method
+hook_feature_create_pre_400_description()
+{
+  echo "Create new feature library"
+}
+
+# Help method
+hook_feature_create_pre_400_help()
+{
+  echo "HOOK->FEATURE->CREATE->PRE->400 Create feature library
+
+Create the library component that will be the feature library.
+"
+}
+
+# execute method
+hook_feature_create_pre_400_execute()
+{
+  debug --level 5 --topic "HOOK->FEATURE->CREATE->PRE->400" "Creating feature library [name:${feature_name}][path:${feature_path}]"
+  message "Creating ${feature_name} feature library"
+  _feature_create "${feature_name}"
+}

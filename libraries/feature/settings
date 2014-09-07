@@ -1,0 +1,10 @@
+#!/bin/sh
+#
+# Settings for the feature library
+#
+
+# The path in which features will be created
+path_features="${path_features:-project~features}"
+
+# The source webroot, which will be copied to make a feature
+feature_path_source_www="${feature_path_source_www:-root~/source/www}"

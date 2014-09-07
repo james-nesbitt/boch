@@ -6,13 +6,34 @@
 # help
 feature_help()
 {
-  feature_help_generalhelp
+  if [ -z "${1}" ]; then
+    feature_help_generalhelp
+
+    help_scope_add "feature:general"
+    help_scope_list
+  else
+
+    case "${1}" in
+      "create")
+        feature_help_create
+        ;;
+      *)
+        feature_help_unknowntopic
+        ;;
+    esac
+  fi
 }
 
-# helplist
+# help-list
 feature_helplist()
 {
-  echo ""
+  if [ -z "${1}" ]; then
+    echo "Feature help topics
+--> create : Create a new feature (feature:create)
+"
+  else
+    echo "no help topics"
+  fi
 }
 
 # general help message
@@ -21,5 +42,23 @@ feature_help_generalhelp()
   echo "FEATURE General help
 
 The feature library is just magnificent
+"
+}
+
+feature_help_unknowntopic()
+{
+  echo "Unknown feature topic
+
+You tried to use an unknown feature topic or command
+
+"
+}
+
+feature_help_create()
+{
+  echo "Feature: Create help
+
+How to create a feature
+
 "
 }
