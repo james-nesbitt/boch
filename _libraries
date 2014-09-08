@@ -628,5 +628,7 @@ library_create()
 #
 " > ${path}
 
-  return $?
+    return $?
+
+  fi
 }
