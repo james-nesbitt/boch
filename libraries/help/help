@@ -27,89 +27,12 @@ help_execute()
 {
   # this function should respond to bad usage
   if [ -z "$1" ]; then
-    help_notopic_help
+    help_help_general
     return $?
   else
     help_topic_help $@
     return $?
   fi
-}
-
-# this is not likely to ever happen, unless it was called incorrectly
-help_notopic_help()
-{
-  echo "The help library
-
-This library is used to provide methods for other libraries, and hooks
-to encapsulate their own help information, so that a user can pull that
-information using the general commands.
-You are receiving general help information about this library, as no
-known topic was requested.
-
-LIBRARY HELP
-
-Any library can include a help file, which should have at least a
-{library}_help method.  That method is responsible for outputting help
-information about any passed in topics, and general help for the library
-if not topic is passed.  Note that topics aren't checked before being
-passed in, so the help method should check for valid topics.
-
-TOPICS
-
-When reveiving help, you will often see at the bottom of the help, a list
-of topics for further help.  Each topic will include a small description
-followed by a topic label, in (brackets).  That topic can be passed
-back into the system to get more help.
-
-SCOPES
-
-A library can also include a {library}_helplist method, which can list
-topics in a certain scope.  Libraries in use in the system, can add scopes
-to the help system, so that it can list all topics in scope.
-
-Often, a library will implement something like this:
-    # add some scopes to the list
-    help_scope_add "{library}"
-    help_scope_add "{library}:{scope1}"
-    help_scope_add "{library}:{scope2}"
-
-    # get an output list of all topics in scopes that have been added
-    help_scope_list
-
-EXAMPLES
-
-While most of the scripts in this system can offer help, by adding a
---help [{topic}] argument to the call, the help script exists soley to
-provide help information.
-
-# Getting help on the build command
-$/> ./control --help build
-OR
-$/> ./help command:build
-
-Getting general help on the flow system
-$/> ./flow --help
-OR
-$/> ./help flow:general
-
-# getting help on a topic from a topic list
-
-If you get help for the init flow
-$/> ./flow --help init
-OR
-$/> ./help flow:init
-
-You may see a list like this:
---> hook_flow_init_400 Some kind of help topic (flow:~flow/hooks/flow/init/400_something)
-
-You can add the contents of the round bracket to the help call, and get
-more information about the topic:
-
-$/> flow --help flow:flow~hooks/flow/init/400_something init
-OR
-$/> help flow:flow~hooks/flow/init/400_something
-
-"
 }
 
 # A callable help handler for a help topic
@@ -264,27 +187,76 @@ help_help_general()
 {
  echo "This is the generic help handler for the toolset
 
-- give a description on how the system works
-- explain that there are two primary scripts (control and flow)
+The help library
 
-- explain what help topic are
-  - explain that help topics have a semicolon separator
-  - give some examples of hooks
-  - explain that the {topic}:general topic has a specific purpose
-  - explain that a list of system help topics will be listed below
+This library is used to provide methods for other libraries, and hooks
+to encapsulate their own help information, so that a user can pull that
+information using the general commands.
+You are receiving general help information about this library, as no
+known topic was requested.
 
-- explain that help topics are library specific
-  - explain that a list of libraries follows
-  - warn that this list of libraries depends on what libraries are
-    currently loaded.
+LIBRARY HELP
 
-If you see a help topic in round bracket in any help page, you can
-get more help from the system using the help command:
+Any library can include a help file, which should have at least a
+{library}_help method.  That method is responsible for outputting help
+information about any passed in topics, and general help for the library
+if not topic is passed.  Note that topics aren't checked before being
+passed in, so the help method should check for valid topics.
 
-TOPICS: --> a help topic here (library:help-topic)
+TOPICS
 
-Then use this : $/> ./help library:help-topic
-to get more help
+When reveiving help, you will often see at the bottom of the help, a list
+of topics for further help.  Each topic will include a small description
+followed by a topic label, in (brackets).  That topic can be passed
+back into the system to get more help.
+
+SCOPES
+
+A library can also include a {library}_helplist method, which can list
+topics in a certain scope.  Libraries in use in the system, can add scopes
+to the help system, so that it can list all topics in scope.
+
+Often, a library will implement something like this:
+    # add some scopes to the list
+    help_scope_add "{library}"
+    help_scope_add "{library}:{scope1}"
+    help_scope_add "{library}:{scope2}"
+
+    # get an output list of all topics in scopes that have been added
+    help_scope_list
+
+EXAMPLES
+
+While most of the scripts in this system can offer help, by adding a
+--help [{topic}] argument to the call, the help script exists soley to
+provide help information.
+
+# Getting help on the build command
+$/> ./control --help build
+OR
+$/> ./help command:build
+
+Getting general help on the flow system
+$/> ./flow --help
+OR
+$/> ./help flow:general
+
+# getting help on a topic from a topic list
+
+If you get help for the init flow
+$/> ./flow --help init
+OR
+$/> ./help flow:init
+
+You may see a list like this:
+--> hook_flow_init_400 Some kind of help topic (flow:~flow/hooks/flow/init/400_something)
+
+You can add the contents of the round bracket to the help call, and get
+more information about the topic:
+
+$/> flow --help flow:flow~hooks/flow/init/400_something init
+OR
+$/> help flow:flow~hooks/flow/init/400_something
 "
 }
 
@@ -302,10 +274,44 @@ Could not find any help for your topic: ${topic}
 
 help_help_topic_init()
 {
- echo "Help topic handler for system initialization
+ echo "Help topic handler for system boostrap
 
-- explain how init works
-- explain what the _init script is
+The system bootstraps primarly using the _init executable script in the library root folder.
+
+The script only really performs 2 tasks:
+
+1. determine paths to toolset components
+2. source core includes;
+3. load the core libraries.
+
+Library Paths:
+
+The toolset uses some bash trickery to try to locate the following:
+
+1. The path to the root of the toolset, to be used for includes
+2. The path to the root of the project, found by looking for a .boch
+   folder in the parents of the current path.
+3. The path to the optional user library (usually ~/.boch)
+
+If the project root cannot be found, then a \"not found\" value is used,
+marking it as not-existing.
+
+Core Includes:
+
+The toolset uses only 2 non-library includes:
+
+1. _utilities : a set of script tools used to implement debug, path, and
+   list functionality (help:utilities)
+2. _libraries : a set of tools to load libraries, which implement all of
+   the real functionality (help:libraries)
+
+Core libraries:
+
+The following core libraries are loaded in this order:
+1. hooks : hook functionality (hook:general)
+2. settings : Settings loading and default values (settings:general)
+3. help : The help system providing this help (help:general)
+4. docker : docker API tools (docker:general)
 "
 }
 
@@ -313,11 +319,36 @@ help_help_topic_libraries()
 {
  echo "Help topic handler for libraries
 
-- explain what libraries are
-- discuss what libraries can container
-- explain how libraries are included
+The architecture of this toolset is very abstracted.  Most of the effort is handled in abstracted
+library tools, which can contain a variety of implemented functionaly through includes and sub-folders.
+The abstraction is handled in such a way, that usually any library can contain other functionality.  An
+example of the abstraction is that any library can container a libraries folder, which can make new
+libraries.
+At a bare minimum, a library is defined as either a single executable script (anywhere) or a folder
+which an executable script that matches the folder in name (without any "." characters.  A folder
+without the executable script, is treated as a non-existant library.
+Important core libraries are: docker, boot2docker, command, flow, settings and help; described later.
 
-- suggest including a library in your project folder
+The toolset root is itself treated as a library, so it's /libraries folder is used as a source of
+libraries, and treated like any other library (but used as the last place to look.)
+Each project (optionally) has a root boch/ project folder, that contains project specific functionality.
+This folder is treated as a library so it gains all of the advantages of a library.  If the toolset is
+installed globally, then this is how the toolset identifies a project root, by looking for the project
+folder (similar to how git looks for .git, and vagrant looks for Vagrantfile.)
+Additionally, every system user can have a ~/.boch/ folder, which is also treated as a library, that
+can provide user specific functionality across all projects.
+
+All of these libraries can contain /libraries/ and /hooks/ folders, as well as /settings and /help
+files to add functionality.  /Libraries/ can container additional libraries, and the others are
+managed by different libraries, such as hook (hook:general), settings (settings:general)
+and help (help:general).
+
+There are two way in which libraries are included into execution. The first, and most common is to
+use the library_load function; this function can be used in any library settings file, or library handler.
+The second is to add an alias that starts with % or ^.  The alias system recognizes that either symbol
+means that the matching library needs to be loaded (the prior keeps the alias)
+Some flows such as init and install, include a flag for including additional libraries during their
+flows.
 "
 }
 
@@ -325,18 +356,57 @@ help_help_topic_hooks()
 {
  echo "Help topic handler for hooks
 
-- shortly explain hooks
-- suggest looking for help on topic hook:
+The second key component in the toolset is the hook concept, which allows any library to include an
+ordered list of files that can be run on the triggering of certain events.  The files are sorted across
+all libraries, to create a single ordered list.  Again, these files must be executable, or they are
+ignored.  Hooks functionality is added with the core hooks library, but is used across the system,
+so the library is not optional.  Some core implementations would not work without hooks (such as
+commands and flows.)
+
+The architecture of a hook is to place an executable script, in a library's /hooks/{hook/name/path}
+folder.  Hooks are collected from every active library, sorted alphabetically across the libraries,
+and executed in order.  If any hook returns -gt 0 value, then the process is stopped.
+
+The anatomy of a hook depends on it's version.  Most hooks now are upgraded to version 2 format,
+but new hooks may start as version 3.
+
+Version 2
+
+A version 2 hook, has two variable assignments, and at least three functions
+
+Variables:
+hook_version=2
+hook_root=\"{a function prefix used for all functions in this hook}\"
+
+Functions:
+{hook_root}_description() : return a single line of text describing this hook
+{hook_root}_help() : give more complex help for this hook
+{hook_root}_execute() : execute the hook
+
+* a hook template is offered as the docs/templates/hook
 "
 }
 
+# help topic for the project library
 help_help_topic_project()
 {
- echo "Help topic handler for the project folder
+ echo "Help topic handler for the project library
 
 - explain that the project folder is for your project
 - explain that the project folder is a library
   - explain how to get help on libraries
+- explain that the project folder marks the root of a project
+"
+}
+# help topic for the user library
+help_help_topic_user()
+{
+ echo "Help topic handler for the user library
+
+- explain that the user library is for your user
+- explain that the user library is a library
+  - explain how to get help on libraries
+- explain the that user library is available for all project
 "
 }
 

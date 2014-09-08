@@ -13,7 +13,7 @@ hook_version=2
 # Hook root is the base of all function names in this hook
 hook_root="hook_example_500"
 
-# Descriptionn method
+# Description method
 #
 # This description is used in help lists, when lists of hooks
 # that affect a scope are shown.

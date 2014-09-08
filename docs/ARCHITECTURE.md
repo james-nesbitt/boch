@@ -1,4 +1,4 @@
-= The architecture =
+# The architecture #
 
 This toolset is an entirely POSIX compliant (I think) bash/shell toolset that should work without
 problems on most systems except maybe WINDOWS (hardcoded file paths use the wrong slash.)
@@ -8,7 +8,7 @@ files, to allow for documentation and other files to be mixed in.
 The toolset can be installed either directly into a single project folder, or installed globally on
 a system (recommended.)
 
-== libraries ==
+## libraries ##
 
 The architecture of this toolset is very abstracted.  Most of the effort is handled in abstracted
 library tools, which can contain a variety of implemented functionaly through includes and sub-folders.
@@ -32,7 +32,7 @@ can provide user specific functionality across all projects.
 All of these libraries can container /libraries and /hooks folders, as well as /settings and /help
 files to add functionality.
 
-== hooks ==
+## hooks ##
 
 The second key component in the toolset is the hook concept, which allows any library to include an
 ordered list of files that can be run on the triggering of certain events.  The files are sorted across
@@ -40,9 +40,9 @@ all libraries, to create a single ordered list.  Again, these files must be exec
 ignored.  Hooks functionality is added with the core hooks library, but is used across the system,
 so the library is not optional.
 
-== Layout ==
+## Layout ##
 
-=== The core library architecture  ===
+### The core library architecture  ###
 
 _init  : a core include to load libraries and stuff
 _utilities : a set of tool functions like debug/log and include_source
@@ -72,7 +72,7 @@ libraries/     <-- the core libraries
   boot2docker  <-- a library for integrating boot2docker implementations into the docker commands
   www-cnpm-jn/ <-- a custom library that is includes settings related to our custom docker builds
 
-=== Project folder architecture ==
+### Project folder architecture ##
 
 Your project folder is a place to put custom settings for your project,
 and where you can add custom hooks, libraries and commands.
@@ -96,7 +96,7 @@ Layout:
   [commands/]  <-- an optional folder for custom commands for you project
   [libraries/] <-- an optional folder for project libraries/plugins
 
-== The tool core scripts ==
+## The tool core scripts ##
 
 There is a new core script called "boch" which attempts to combine all of the
 legacy scripts together.  Chances are you only need to use this script.
@@ -114,7 +114,7 @@ If you use these legacy scripts then you will end up either calling the by
 directly using their path, or making the globally executable in your system
 by linking them to a ~/bin folder.
 
-=== the boch script =======================
+### the boch script ###
 
 The boch commands script is an attempt to combine all of the legacy scripts into a
 single script, that offers all of the previous functionality, with a more standardized
@@ -157,20 +157,20 @@ As with the control and flow scripts, help can be retrieved by adding a global a
 
 $/> boch -h status                     --> Get help for the status flow
 
-=== "control" : the management script =====
+### "control" : the management script #####
 
 All of the management commands are worked into a single script manage/control.  The control script switches based on a command argument, but in general it ends up using functions from the _docker.sh script to run docker commands.  Control has some base default configuration options, and inludes overridable configurations from the command line, and from your project settings.   The control script is smart enough that it doesn't need to executed from any particular folder.
 
-=== flow : the workflow management script ===
+### flow : the workflow management script ###
 
 The flow script differs greatly from the control script, both in intention and implementation.  Conceptually, flows are broader worklflow implementations as opposed to single operations, and have less direct connection to spcific commands, or docker operations.  A good example is the "init" flow, which will give you your custom project folder.
 Flows are entirely hook based, meaning that they exist as long as a single matching hook exists.
 
-=== the help script ===
+### the help script ###
 
 The help script is used to print help information on any passed topic.
 
-== Images and builds ==
+## Images and builds ##
 
 Any library can have a builds folder, in which are individual build folders for docker.
 Each build folder has to have a Dockerfile in it, but can also have any files that are
@@ -179,14 +179,14 @@ to be copied into the image during build.
 By default no images/builds are attached to a system, but the www-builds module contains
 a number of options for adding builds to a project as a template.
 
-=== www-cnpm-jn ===
+### www-cnpm-jn ###
 
 there is a single build in the system called template, which is based on our www-cpnm-jn-dev
 image, hosted on Dockerio.  If you want access to more of the related tools and settings,
 consider including the wwwserver library in you settings (or including the
 --www-builds www-cnpm-jn flag when running ./flow init)
 
-=== www-deblamp-mz ===
+### www-deblamp-mz ###
 
 A debian based build that provides a more streamlined, easier to customize build and
 template.
