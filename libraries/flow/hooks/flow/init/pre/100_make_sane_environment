@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# INIT:HOOK: Make a sane variable environemnt for the init flow
+# INIT:HOOK: Make a sane variable environment for the init flow
 #
 
 hook_version=2
@@ -9,13 +9,13 @@ hook_root="hook_flow_init_100"
 # descriptoin method
 hook_flow_init_100_description()
 {
-  echo "Make a sane variable environemnt for the init flow"
+  echo "Make a sane variable environment for the init flow"
 }
 
 # help method
 hook_flow_init_100_help()
 {
-  echo "hook->init->100 : Make a sane environemnt for the init flow
+  echo "hook->init->100 : Make a sane environment for the init flow
 
 This script tries to make the current environment variables safe for
 an install.

@@ -23,6 +23,9 @@ for following hooks.
 Following hooks won't need to interpret flow arguments as
 much, and can depend on global settings.
 
+
+  [-f|--finalize] : Finalize the init process, which will mean running docker builds
+
   [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to
      allow them to add settings and implement hooks.  This is used in particular by
      the following libraries, which have their own shortcuts
@@ -60,6 +63,10 @@ hook_flow_init_300_execute()
         project_build="${2}"
         shift
         ;;
+      -f|--finalize)
+        #used in some of the hooks
+        build_execute_now=0
+        ;;
       -h|--hostname)
         machine_hostname="${2}"
         shift
@@ -89,10 +96,6 @@ hook_flow_init_300_execute()
       -v|--version)
         project_version="${2}"
         shift
-        ;;
-      -w|--buildnow)
-        #used in some of the hooks
-        build_execute_now=0
         ;;
       *)
         break;

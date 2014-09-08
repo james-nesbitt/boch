@@ -48,16 +48,19 @@ hook_flow_init_pre_900_execute()
   do
     case "$1" in
       -l|--libraries)
+        # load any libraries, consider that the value may be comma delimited
         additional_libraries="${additional_libraries} ${2/,/ }"
         shift
         ;;
 
       --boot2docker)
+        # straight target for the boot2docker library
         additional_libraries="${additional_libraries} boot2docker"
         ;;
       --www-build|--www-builds)
         additional_libraries="${additional_libraries} www-builds"
-        alias_add "${2}"
+        # treat the argument as an alias target, that www-builds will handler
+        alias_add "www-builds:${2}"
         shift
         ;;
     esac

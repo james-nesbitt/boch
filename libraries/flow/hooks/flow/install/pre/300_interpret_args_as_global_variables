@@ -35,47 +35,21 @@ much, and can depend on global settings.
 # execute method
 hook_flow_init_030_execute()
 {
+
+  # bin path to install the symlink
+  path_bin="${path_bin:-${path_userhome}/bin}"
+
   local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -b|--build)
-        project_build="${2}"
-        shift
-        ;;
-      -h|--hostname)
-        machine_hostname="${2}"
-        shift
-        ;;
-      -i|--image)
-        project_image="${2}"
+      -b|--bin-location)
+        path_bin="${2}"
         shift
         ;;
       -l|--libraries)
         additional_libraries="${additional_libraries} ${2}"
         shift
-        ;;
-      -n|--name)
-        project_name="${2}"
-        project_build="${2}"
-        project_image="${2}"
-        shift
-        ;;
-      -r|--required)
-        required_builds="${2}"
-        shift
-        ;;
-      -t|--template)
-        project_buildtemplate="${2}"
-        shift
-        ;;
-      -v|--version)
-        project_version="${2}"
-        shift
-        ;;
-      -w|--buildnow)
-        #used in some of the hooks
-        build_execute_now=0
         ;;
       *)
         break;

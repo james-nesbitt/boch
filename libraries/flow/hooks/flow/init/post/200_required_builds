@@ -18,9 +18,9 @@ hook_init_post_200_help()
   echo "
 HOOK->FLOW->INIT->POST->200: Build the required project images
 
-[-w|--buildnow] : allow builds to occur, otherwise this hook is skipped
-[-b|--builds {builds}] : specify an alternate list of builds that should be built
+  [-f|--finalize] : Finalize the init process, so build required images
 
+  [-b|--builds {builds}] : specify an alternate list of builds that should be built
 "
 }
 
@@ -32,7 +32,7 @@ hook_init_post_200_execute()
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -w|--buildnow)
+      -f|--finalize)
         build_execute_now=0
         ;;
     esac

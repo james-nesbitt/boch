@@ -23,8 +23,7 @@ As this hook is sort of expensive, and is maybe not desired
 during some init implementations, it requires a flag to enable
 it.
 
-[-n|--buildnow] : build the image.
-
+  [-f|--finalize] : Finalize the init process, so build the image
 "
 }
 
@@ -39,7 +38,7 @@ hook_command_init_post_300_execute()
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -w|--buildnow)
+      -f|--finalize)
         build_execute_now=0
         ;;
     esac

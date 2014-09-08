@@ -516,10 +516,16 @@ library_create()
   local type="complex"
   # by default, create new libraries in the project libraries folder
   local path="project~/libraries"
+  # Include a settings file?
+  local include_settings=1
+  local path_settings="" # only used if we need settings
 
   while [ $# -gt 0 ]
   do
     case "$1" in
+      -i|--include-settings)
+        include_settings=0
+        ;;
       -p|--path)
         path="$2"
         shift
@@ -561,6 +567,7 @@ library_create()
       debug --level 7 --topic "LIBRARY->CREATE" "Create new library folder [path:${path}]"
     fi
     path="`library_handler "${name}:${path}"`"
+    path_settings="${path}/settings"
   fi
 
   path_ensure --exec "${path}"
@@ -596,8 +603,28 @@ library_create()
 # Do not delete this!
 #
 # Technically, your library will not be a valid
-# library without this file, and so it won't be
-# loaded.
+# library without this file.
+#
+" > ${path}
+
+  if [ $include_settings -eq 0 ] && [ -n "${path_settings}" ]; then
+
+    echo "#!/bin/sh
+#
+# ${name} library settings
+#
+
+###
+# What to put here
+#
+# - variable settings;
+# - add alias calls, or load libraries
+#
+# What to not put here
+#
+# - custom functions for your library
+#
+# * You can delete this file if you don't need it.
 #
 " > ${path}
 
