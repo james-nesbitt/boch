@@ -23,9 +23,11 @@ HOOK->B2D-?FLOW->INIT->POST->800 Enable boot2docker mounts in vm
 # execute method
 hook_boot2docker_flow_init_post_800_execute()
 {
-  local b2d_mount=""
-  for b2d_mount in `boot2docker_mounts_get`; do
-    debug --level 5 --topic "BOOT2DOCKER:HOOK->FLOW->INIT->POST->800" "Enabling mount to VM from host [hostpath:${b2d_mount%:*}][vmpath:${b2d_mount#*:}]"
-    boot2docker_mount --name "${b2d_mount#*:} "${b2d_mount%:*}""
-  done
+  if boot2docker_enabled; then
+    local b2d_mount=""
+    for b2d_mount in `boot2docker_mounts_get`; do
+      debug --level 5 --topic "BOOT2DOCKER:HOOK->FLOW->INIT->POST->800" "Enabling mount to VM from host [hostpath:${b2d_mount%:*}][vmpath:${b2d_mount#*:}]"
+      boot2docker_mount --name "${b2d_mount#*:} "${b2d_mount%:*}""
+    done
+  fi
 }

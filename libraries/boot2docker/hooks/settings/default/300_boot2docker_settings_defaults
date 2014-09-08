@@ -37,7 +37,8 @@ boot2docker_settings_defaults_300_execute()
 #
 
 # Activate boot2docker (this allows you to enable the library, without having it rewire your system)
-boot2docker_enable=0
+boot2docker_enable
+# USE THIS TO DISABLE: boot2docker_enable --disable
 
 # the name of the virtualbox virtual-machine that boot2docker is using
 boot2docker_vm_name=\"${boot2docker_vm_name}\"

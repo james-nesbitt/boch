@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# Feature alias, to load aliased feature components
+#"
+
+debug --level 8 --topic "BOOT2DOCKER->ALIAS" "Boot2Docker alias included : $@"
+
+# B2D alias action
+boot2docker_alias_action="activate"
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    --source-include-path)
+      shift
+      ;;
+    --target)
+      boot2docker_alias_action="${2}"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+case "${boot2docker_alias_action}" in
+  activate)
+    boot2docker_enable
+    debug --level 5 --topic "BOOT2DOCKER->ALIAS" "Boot2Docker enabled via alias [action:${boot2docker_alias_action}]"
+    ;;
+  deacticate)
+    boot2docker_enable --disable
+    debug --level 5 --topic "BOOT2DOCKER->ALIAS" "Boot2Docker disabled via alias [action:${boot2docker_alias_action}]"
+    ;;
+esac

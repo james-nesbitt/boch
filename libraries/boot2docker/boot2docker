@@ -4,7 +4,7 @@
 #
 
 boot2docker_enable_status=1
-#
+# Enable B2D
 boot2docker_enable()
 {
   value=0
@@ -57,11 +57,16 @@ boot2docker_mounts_get()
 #
 boot2docker_mount()
 {
-  case "${boot2docker_mount_method}" in
-    "vboxsf")
-      boot2docker_mount_vboxsf ${boot2docker_mount_defaultflags} $@
-      return $?
-  esac
+  # check for disabled
+  if boot2docker_enabled; then
+
+    case "${boot2docker_mount_method}" in
+      "vboxsf")
+        boot2docker_mount_vboxsf ${boot2docker_mount_defaultflags} $@
+        return $?
+    esac
+
+  fi
 }
 
 # Mount using vboxsf
@@ -86,7 +91,7 @@ boot2docker_mount_vboxsf()
         shift
         ;;
       *)
-          break;; # terminate while loop
+        break;; # terminate while loop
     esac
     shift
   done
@@ -100,15 +105,4 @@ boot2docker_mount_vboxsf()
 #    VBoxManage sharedfolder remove "${vm}" --name "${name}" ${flags}
     VBoxManage sharedfolder add "${vm}" --name "${name}" --hostpath "${path}" --automount ${flags} 2>&1
   return $?
-}
-
-###
-# INIT the boot2docker library
-boot2docker_init()
-{
-
-  # mount method
-  boot2docker_mounts_add "${path_userhome}:user"
-  boot2docker_mounts_add "${path_project}:${project_name}"
-
 }
