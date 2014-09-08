@@ -130,16 +130,19 @@ help_help()
 {
   local topic="$1"
   case "${topic}" in
-    init)
-      help_help_topic_init
+    bootstrap)
+      help_help_topic_bootstrap
       ;;
-    hooks)
+    hooks|hook)
       help_help_topic_hooks
       ;;
-    project)
-      help_help_topic_project
+    projectconf)
+      help_help_topic_projectconf
       ;;
-    libraries)
+    userconf)
+      help_help_topic_userconf
+      ;;
+    libraries|library)
       help_help_topic_libraries
       ;;
     *)
@@ -163,10 +166,11 @@ help_help()
 help_helplist()
 {
   echo "SYSTEM HELP TOPICS
---> System initialization (help:init)
+--> System bootstrap initialization (help:boostrap)
 --> Libraries (help:libraries)
 --> Hooks (help:hooks)
---> The project folder (help:project)
+--> The project folder/library (help:projectconf)
+--> The user folder/library (help:userconf)
 "
   echo "LIBRARIES THAT SHOULD HAVE HELP TOPICS:"
   local library=""
@@ -265,14 +269,14 @@ help_help_unknowntopic()
 {
   topic="$1"
 
- echo "UNKNOWN TOPIC MESSAGE
+ echo "Unkown help topic
 
-Could not find any help for your topic: ${topic}
+The help system does not recognize your topic \"${topic}\".  Instead, more general help information is being shown.
 
 "
 }
 
-help_help_topic_init()
+help_help_topic_bootstrap()
 {
  echo "Help topic handler for system boostrap
 
@@ -388,25 +392,56 @@ Functions:
 }
 
 # help topic for the project library
-help_help_topic_project()
+help_help_topic_projectconf()
 {
  echo "Help topic handler for the project library
 
-- explain that the project folder is for your project
-- explain that the project folder is a library
-  - explain how to get help on libraries
-- explain that the project folder marks the root of a project
+Every project should have a .boch folder, in the project root, to mark the project
+as a boch project.  The folder is actually optional, but boch will look up the path
+tree looking for a folder, so that it can work from anywhere, like git and vagrant do.
+
+The .boch folder in the root of a project, is called the projectconf folder.
+The projectconf folder is technically a library, that is meant to be used to offer
+settings overrides for you project.
+Because the projectconf is a library, it must have an execuable boch file in it, and
+it can contain any functionality as other libraries, including:
+  - /libraries/ folder to contain libraries available only to this project; (help:libraries)
+  - /hooks/ folder to contain hooks that will run only for this project; (hook:general)
+  - /builds/ folder to container any docker builds available for the project; (docker:build)
+  - /aliases/ folder to contain any project specific settings aliases (settings:aliases)
+
+  - /settings file containing variable overrides and some function calls for the project
+     (for example you may load a library in this file) (settings:general)
+  - /boch : an executable file that exists to make the folder a valid library, but
+     it can contain custom functions usefull for boch in your project
+
+This folder can be created manually, but you can also use the \"init\" flow to generate
+it automatically (flow:init)
+For more help on libraries try using this help topic (help:libraries)
 "
 }
 # help topic for the user library
-help_help_topic_user()
+help_help_topic_userconf()
 {
  echo "Help topic handler for the user library
 
-- explain that the user library is for your user
-- explain that the user library is a library
-  - explain how to get help on libraries
-- explain the that user library is available for all project
+Every user can have a .boch folder in their home directory, to make additional tools
+and functions available for their boch implementations, across all projects.
+
+This .boch folder is actually a library.  Because it is a library, it must have an
+executable script in the folder named boch, but it can also contain the same functionality
+as any other library:
+  - /libraries/ folder to contain libraries available only to this project; (help:libraries)
+  - /hooks/ folder to contain hooks that will run only for this project; (hook:general)
+  - /builds/ folder to container any docker builds available for the project; (docker:build)
+  - /aliases/ folder to contain any project specific settings aliases (settings:aliases)
+
+  - /settings file containing variable overrides and some function calls for the project
+     (for example you may load a library in this file) (settings:general)
+
+This folder can be created manually, but you can also use the \"install\" flow to generate
+it automatically (flow:install)
+For more help on libraries try using this help topic (help:libraries)
 "
 }
 

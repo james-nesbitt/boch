@@ -8,7 +8,7 @@
 settings_help()
 {
   case "${1}" in
-    "aliases")
+    aliases|alias)
       settings_help_aliaseshelp
       ;;
     *)
@@ -24,7 +24,7 @@ settings_helplist()
 {
   if [ -z "${1}" ]; then
     echo "Settings library topics"
-    echo "-->settings:aliases"
+    echo "--> Alias settings (settings:aliases)"
   fi
 }
 
@@ -64,14 +64,47 @@ An alias has a name, and when activated, every matching names alias
 file in any loaded library is included.  Additionally, whenever a library
 is loaded, it is checked for matching aliases.
 
-The easiest way to activate a library is to include it in the global
+The easiest way to activate an alias is to include it in the global
 arguments with an @ like this:
 
 $/> boch @local status
 
 This would load the \"local\" alias.
 
-Alias files are kept in any library, in a ./aliases/ folder.
+Targets:
 
+If an alias has a \":\" in it, then the alias is considered to be the
+string before the \":\", and the string after is considered the target.
+In this case the alias is executed, and passed the target string.
+This allows single alias files to handler multiple usecases.
+
+@, %, ^ : Loading libraries
+
+If an alias starts with @, % ot ,^, then the symbol is stripped before
+running.  The latter two symbols let you autoload a library before
+running the alias.
+The various symbols have different implications:
+@ : nothing special, just remove the symbol and run the alias
+    @test : run the test alias
+    @test:example : run the test alias, with a example as a target
+% : this is a library, so load the library of the same name before
+  running the alias.
+    %test:example : will load the test library, and then run the test alias
+        with example 
+^ : this is a library, so load the library of the same name and then
+  ignore the alias, and use the alias target as an alias
+    ^test:example : would load the test library, then run the example alias
+    ^test : would load the test library, and then run NO alias
+
+Handlers:
+
+Alias handlers are kept in any library, in a ./aliases/ folder.  If a
+library has an executable script of a name that matches the alias, then
+that script is executed to run the alias.
+The script is executed with:
+  --source-include-path : the path to the alias file
+  --target : any passed alias target for the alias
+
+All matching aliases in all libraries are executed.
 "
 }

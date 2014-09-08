@@ -26,7 +26,7 @@ www_builds_helplist()
 {
   if [ -z "${1}" ]; then
     local buildlib=""
-    echo "The following libraries are www-build libraries (they have their own help):"
+    echo "The following libraries are www-build libraries (they have their own help topics):"
     for buildlib in `www_builds_list_get`; do
       echo "--> ${buildlib%:*} (www-builds:${buildlib%:*}) `library_path "${buildlib}"`"
     done
