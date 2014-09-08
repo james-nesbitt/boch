@@ -3,6 +3,9 @@
 # Settings for boot2docker
 #
 
+# Activate boot2docker (this allows you to enable the library, without having it rewire your system)
+boot2docker_enable=0
+
 # the name of the virtualbox virtual-machine that boot2docker is using
 boot2docker_vm_name="${boot2docker_vm_name:-boot2docker-vm}"
 
