@@ -27,8 +27,8 @@ ADD etc_php.ini /etc/php.ini
 # Create a developer user
 # Put whatever you want into this folder, maybe .ssh credentials, drush, etc
 ADD home_developer /home/developer
-RUN /usr/bin/yum install -y zsh sudo vim && \
-    adduser -d /home/developer -M -u 1000 -G wheel -s /bin/zsh -p "developer" -c "development login" developer && \
+RUN /usr/bin/yum install -y openssl zsh sudo vim && \
+    adduser -d /home/developer -M -u 1000 -G wheel -s /bin/zsh -p "`echo "developer" | openssl passwd -1 -stdin`" -c "development login" developer && \
     chown -R developer:developer /home/developer && \
     echo "developer        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/developer && \
     gpasswd -a nginx developer && \
