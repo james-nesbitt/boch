@@ -28,7 +28,7 @@ in which all of your settings, and custom project code can go.
 hook_init_050_execute()
 {
   # what is the root path to the project folder
-  local path="${path_projectconf:-${path_project}/boch}"
+  local path="${path_projectconf:-${path_project}/${path_projectconf_subpath}}"
 
   if ! path_is --dir "${path_projectconf}"; then
     # path to the executable library handler, in the library folder
