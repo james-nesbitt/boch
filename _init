@@ -48,19 +48,19 @@ while [ -n "${path_project}" ] && [ "${path_project}" != "/" ]; do
   if [ "${path_project}" == "${path_userhome}" ]; then
     path_project="${empty_path}"
     path_projectconf="${empty_path}"
-    # echo "INTERUPTING PATH DISCOVERY AT ROOT"
+#     echo "INTERUPTING PATH DISCOVERY AT ROOT"
     break;
   fi
   if [ "${path_project}" == "${empty_path}" ]; then
     path_project="${empty_path}"
     path_projectconf="${empty_path}"
-    # echo "INTERUPTING PATH DISCOVERY AT USER HOME"
+#     echo "INTERUPTING PATH DISCOVERY AT USER HOME"
     break;
   fi
   if [ -d "${path_project}/${path_projectconf_subpath}" ]; then
     path_projectconf="${path_project}/${path_projectconf_subpath}"
-    # echo "DISCOVERED PATHS [project:${path_project}][data:${path_projectconf}]"
-    break 2
+#     echo "DISCOVERED PATHS [project:${path_project}][conf:${path_projectconf}]"
+    break
   fi
   path_project="$(dirname "${path_project}")"
 done
@@ -69,16 +69,18 @@ if [ -z "${path_project}" ] || [ "${path_project}" == "${empty_path}" ]; then
   path_project="${path_execution}"
   # this data path will likely be empty, but this might be desirable for cases like flow init
   path_projectconf="not found"
-  # echo "DEFAULT TO CURRENT PATHS [project:${path_project}][data:${path_projectconf}]"
+#   echo "DEFAULT TO CURRENT PATHS [project:${path_project}][data:${path_projectconf}]"
 fi
 
 # this fixes a problem that occurs if you run boch inside the boch library folder
 if [ "$path_projectconf" == "${path_library}" ]; then
+#   echo "PROJECT CONF PATH MATCHES LIBRARY [library:${path_library}][data:${path_projectconf}]"
   path_projectconf="${empty_path}"
 fi
 # don't deal with the user conf folder if it does not exist
 if [ ! -d "$path_userconf" ]; then
-  path_projectconf="${empty_path}"
+#   echo "USER CONF NOT FOUND, SO WE WILL NOT USE IT [user:${path_userconf}]"
+  path_userconf="${empty_path}"
 fi
 
 # path to this library

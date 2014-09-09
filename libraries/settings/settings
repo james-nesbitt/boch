@@ -122,7 +122,7 @@ settings_mount_getmounts()
       local mount=""
       local collect=""
       for mount in ${mounts}; do
-        collect="${collect} --volume=${mount}"
+        collect="${collect} --volume=`path_expand "${mount}"`"
       done
       echo "${collect}"
       ;;
