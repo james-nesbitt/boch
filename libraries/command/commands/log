@@ -56,8 +56,16 @@ log_execute()
   message "Outputting script log file:"
   message --separator
 
-  # Run the logs function
-  debug --level 5 --topic "COMMAND" "log [ executing log output command ][command:${command}][flags:${flags}] ==> ${com} ${flags} \"${path}\""
-  eval "${com} ${flags} ${path}"
-  return $?
+  if path_is --file "${path_log}"; then
+
+    # Run the logs function
+    debug --level 5 --topic "COMMAND" "log [ executing log output command ][command:${command}][flags:${flags}] ==> ${com} ${flags} \"${path}\""
+    eval "${com} ${flags} ${path}"
+    return $?
+
+  else
+
+    echo "(log file is empty)"
+
+  fi
 }
