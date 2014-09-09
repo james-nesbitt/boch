@@ -30,7 +30,7 @@ hook_init_050_execute()
   # what is the root path to the project folder
   local path="${path_projectconf:-${path_project}/boch}"
 
-  if ! path_is --dir "${path}"; then
+  if ! path_is --dir "${path_projectconf}"; then
     # path to the executable library handler, in the library folder
     local path_projectconf_executable="`library_handler "project:${path}"`"
 

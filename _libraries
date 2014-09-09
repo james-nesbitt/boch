@@ -516,6 +516,7 @@ library_create()
   local type="complex"
   # by default, create new libraries in the project libraries folder
   local path="project~/libraries"
+
   # Include a settings file?
   local include_settings=1
   local path_settings="" # only used if we need settings
@@ -628,7 +629,7 @@ library_create()
 #
 " > ${path}
 
-    return $?
-
   fi
+
+  return $?
 }
