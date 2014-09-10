@@ -44,7 +44,6 @@ feature_load()
 {
   local feature="${1}"
   shift
-
   debug --level 8 --topic "FEATURE->LOAD" "Loading feature [feature:${feature}]"
 
   # execute any feature load pre hooks
@@ -64,7 +63,9 @@ feature_load()
 
     debug --level 5 --topic "FEATURE->LOAD" "Loading feature failed [feature:${feature}]"
     message "Failed to find feature ${feature}, using defaults instead"
+    return 1
   fi
+  return 0
 }
 
 # create a feature library
@@ -103,4 +104,13 @@ feature_create()
       return 1
     fi
   fi
+}
+
+# List all of the features in the system
+features_list()
+{
+  local path=""
+  for path in `libraries_contents --library --subpath "features"`; do
+    echo "${path##*/}:${path}"
+  done
 }

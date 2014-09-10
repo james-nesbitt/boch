@@ -17,6 +17,18 @@ feature_help()
       "create")
         feature_help_create
         ;;
+      @*)
+        local feature="${1:1}"
+        library_load --component "${feature}" "feature"
+        if [ $? -eq 0 ]; then
+          library_execute --component "${feature}" --action "help" "feature"
+          if [ $? -gt 0 ]; then
+            feature_help_featurehasnohelp "${feature}"
+          fi
+        else
+          feature_help_unknownfeature "${feature}"
+        fi
+        ;;
       *)
         feature_help_unknowntopic
         ;;
@@ -30,7 +42,20 @@ feature_helplist()
   if [ -z "${1}" ]; then
     echo "Feature help topics
 --> create : Create a new feature (feature:create)
-"
+
+Features in the system
+----------------------
+The following is a list of features in this system.  Included is a possible
+help link, but there may be no custom help for the feature.  The feature
+name/ID can be used in any feature flows.
+Each line shows the following:
+   --> {name}  [{alias}] ({help topic})
+----------------------"
+    local feature=""
+    for feature in `features_list`; do
+      local feature_id="${feature%:*}"
+      echo "--> ${feature_id} [@feature:${feature_id}] (feature:@${feature_id})"
+    done
   else
     echo "no help topics"
   fi
@@ -51,6 +76,22 @@ feature_help_unknowntopic()
 
 You tried to use an unknown feature topic or command
 
+"
+}
+
+feature_help_unknownfeature()
+{
+  echo "Unknown feature
+
+You requested help for a particular feature \"${1}\", but that feature was not found in the system
+"
+}
+
+feature_help_featurehasnohelp()
+{
+  echo "${1} : Known feature has no help description
+
+You requested help for a particular feature \"${1}\", but that feature has no specific help description
 "
 }
 

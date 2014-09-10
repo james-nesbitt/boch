@@ -90,7 +90,7 @@ The various symbols have different implications:
 % : this is a library, so load the library of the same name before
   running the alias.
     %test:example : will load the test library, and then run the test alias
-        with example 
+        with example
 ^ : this is a library, so load the library of the same name and then
   ignore the alias, and use the alias target as an alias
     ^test:example : would load the test library, then run the example alias
