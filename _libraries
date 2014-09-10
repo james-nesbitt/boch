@@ -230,7 +230,6 @@ library_load()
   if [ $success -eq 0 ] && [ -n "${component}" ]; then
 
     if [ -n "${path}" ]; then
-
       if path_is --type "library" "${path}"; then
         _library_load --library "${component}" --path "${path}"
         local success=$?
@@ -262,6 +261,8 @@ library_load()
             debug --level 6 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loading failed [library:${library}][component:${component}][in library:${this_library}]"
           fi
           return $success
+        else
+          debug --level 9 --topic "LIBRARIES->COMPONENT->LOAD" "Library component could not be found in loaded library path [library:${this_library%:*}][component:${component}][checked path:${path}]"
         fi
       done
 
