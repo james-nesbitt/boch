@@ -28,9 +28,6 @@ Some flags that you might want to pass to this flow:
 # execute method
 hook_flow_status_010_execute()
 {
-  echo "
-Project status
-==============
-"
-  hook_flow_status_010_help
+  echo "Project status
+=============="
 }

@@ -52,18 +52,18 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
     docker_inspect_container_list --image "${image}"
 fi
 
-if [ "${container}" == "" ]; then
-  echo "there is no container specfied for this project"
-else
-  if docker_container_exists ${container}; then
-    echo "
-Containers defined in the project:
--->project_container: ${container}  IP:`docker_inspect_getIP --container \"${container}\"`
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
-    docker_inspect_container_list --name "${container}"
-  else
-    echo "No matching containers found [container:${container}]"
-  fi
-fi
+# if [ "${container}" == "" ]; then
+#   echo "there is no container specfied for this project"
+# else
+#   if docker_container_exists ${container}; then
+#     echo "
+# Primary project container:
+# -->project_container: ${container}  IP:`docker_inspect_getIP --container \"${container}\"`
+# CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
+#     docker_inspect_container_list --name "${container}"
+#   else
+#     echo "No matching containers found [container:${container}]"
+#   fi
+# fi
 
 }
