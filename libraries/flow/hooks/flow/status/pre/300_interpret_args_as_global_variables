@@ -69,7 +69,7 @@ hook_flow_status_300_execute()
 
   if [ -z "$@" ]; then
     # use only passed topics
-    flow_status_topics="${flow_status_topics:-settings cont.active}"
+    flow_status_topics="${flow_status_topics:-cont.active}"
   fi
 
   # the rest of the arguments are considered to be status topics
