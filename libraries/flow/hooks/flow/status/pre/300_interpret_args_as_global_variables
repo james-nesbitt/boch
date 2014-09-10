@@ -32,7 +32,6 @@ much, and can depend on global settings.
 # execute method
 hook_flow_status_300_execute()
 {
-
   local flags=""
   while [ $# -gt 0 ]
   do
@@ -68,12 +67,15 @@ hook_flow_status_300_execute()
   done
 
   if [ -z "$@" ]; then
-    # use only passed topics
-    flow_status_topics="${flow_status_topics:-cont.active}"
+    # Use pre-seeded topics, falling back to default topics
+    # @NOTE it looks like this is a double define, but one allows a default declaration, and
+    #     the other allows overload in execution
+    flow_status_topics="${flow_status_topics:-${flow_status_topics_default}}"
+  else
+    # the rest of the arguments are considered to be status topics, don't use default topics
+    flow_status_topics="${flow_status_topics} $@"
   fi
 
-  # the rest of the arguments are considered to be status topics
-  flow_status_topics="${flow_status_topics} $@"
   debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Topics to be used for status flow [topics:${flow_status_topics}]"
 
 }

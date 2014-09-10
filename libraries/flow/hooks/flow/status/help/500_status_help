@@ -30,7 +30,12 @@ hook_flow_status_help_500_execute()
 STATUS FLOW
 
 This flow gives general status for the current project. It checks
-for existing matching images, containers etc.
+various status topics, usually one per hook, as directed by the passed
+topic list, but falling back to a default topic list.
+The topic list can be manually added to the command line, but you
+can also define topic lists using aliases, to get presets that you
+like (settings:alias).  You can define those aliases per user, or
+per project, as makes sense.
 
 Usage:
 
@@ -55,10 +60,11 @@ Topics:
   cont.image : containers related to the active image
   cont.registered : All containers registered in the project
 
-@NOTE the active set is : \"${flow_status_topics}\"
+@NOTE the default set is : \"${status_flow_topics_default}\"
 @NOTE if you have a favorite list of items, you can set the
-   \"flow_status_topics\" variable either in your settings, or using
-   aliases.  This flow will check the variable for values, and add
-   passed topics to the list.
+   \"flow_status_topics\" variable either in project/user  settings,
+   or using aliases.
+   This flow will check the variable for values, and add passed
+   topics to the list.
 "
 }

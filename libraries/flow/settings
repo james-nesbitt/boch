@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# Settings for the flow library
+#
+
+###
+# Status flow
+#
+flow_status_topics_default="${flow_status_topics_default:-cont.active}"
