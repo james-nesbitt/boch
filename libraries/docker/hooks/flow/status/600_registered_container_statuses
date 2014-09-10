@@ -31,10 +31,11 @@ Status of containers registered by docker_start"
   for container_path in `path_contents --file "${docker_container_registerpath}"`; do
     local container="${container_path##*/}"
     echo "
-CONTAINER: ${container}  IP:`docker_inspect_getIP --container "${container}"`"
+CONTAINER: ${container}  IP:`docker_inspect_getIP --container "${container}"`
+------------------------------------------------"
     cat "${container_path}"
     if docker_container_exists ${container}; then
-      echo "-->container: ${container}
+      echo "
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
       docker_inspect_container_list --name "${container}"
     fi

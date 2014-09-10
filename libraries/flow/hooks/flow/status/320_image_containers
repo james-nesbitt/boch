@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->320 Project containers
+#
+
+hook_version=2
+hook_root="hook_flow_status_320"
+
+# description method
+hook_flow_status_320_description()
+{
+  echo "Analyze containers used in the project"
+}
+
+# help method
+hook_flow_status_320_help()
+{
+ echo "HOOK->FLOW->STATUS->320 Project image containers
+
+Attempt to list all of the containers related to a project image.
+"
+}
+
+# execute method
+hook_flow_status_320_execute()
+{
+  case " ${flow_status_topics} " in
+    *" all "*|*" cont.all "*|*" cont.image "*)
+
+      echo "
+IMAGE CONTAINERS
+================"
+
+      if [ "${image}" != "" ] && docker_image_exists "${image}"; then
+        echo "Containers related to the project image:
+-->project_image:${image}
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
+        docker_inspect_container_list --image "${image}"
+      fi
+
+      if [ "${project_container}" == "" ]; then
+        echo "there is no container specfied for this project"
+      else
+        if docker_container_exists ${project_container}; then
+          echo "
+Primary project container:
+-->project_container: ${project_container}  IP:`docker_inspect_getIP --container \"${project_container}\"`
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
+          docker_inspect_container_list --name "${project_container}"
+        else
+          echo "No matching containers found [container:${project_container}]"
+        fi
+      fi
+
+      ;;
+  esac
+}

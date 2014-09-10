@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->100 Status flow help
+#
+
+hook_version=2
+hook_root="hook_flow_status_100"
+
+# description method
+hook_flow_status_100_description()
+{
+  echo "Status flow help"
+}
+
+# help method
+hook_flow_status_100_help()
+{
+ echo "HOOK->FLOW->STATUS->100 Status flow help
+"
+}
+
+# execute method
+hook_flow_status_100_execute()
+{
+  case " ${flow_status_topics} " in
+    *" all "*|*" help "*)
+      echo "
+STATUS HELP
+==========="
+      help_execute "flow:status"
+      ;;
+  esac
+}

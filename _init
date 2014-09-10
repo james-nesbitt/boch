@@ -143,7 +143,7 @@ CONFIG: control settings after system initialization (can be modified after this
   -->Machine_shell---------: ${machine_shell}
   -->Machine_shellrunargs--: ${machine_shellrunargs}
   -->Machine_runargs-------: ${machine_runargs}
-] (hooks/settings/post/950)"
+]"
 fi
 
 debug --level 7 --topic "INIT" "INCLUDING LIBRARIES COMPLETE"

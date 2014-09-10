@@ -29,13 +29,36 @@ hook_flow_status_help_500_execute()
   echo "
 STATUS FLOW
 
-Usage:
-
-  $/> ./flow status <options>
-
-Options: (all used in hooks)
-
 This flow gives general status for the current project. It checks
 for existing matching images, containers etc.
+
+Usage:
+
+  $/> ./flow status <options> <topics>
+
+Options: (all used in hooks)
+  [-b|--build {build}] : Consider the passed build as active
+  [-c|--container {container}] : Consider the passed container as active
+  [-i|--image {image}] : Consider the passed image as active
+
+Topics:
+
+  all : All the things
+
+  help : some help information on the flow
+  settings : Output settings and variables
+  image : Output image information
+  build : Output build information
+
+  cont.all : all container output
+  cont.active : active container
+  cont.image : containers related to the active image
+  cont.registered : All containers registered in the project
+
+@NOTE the active set is : \"${flow_status_topics}\"
+@NOTE if you have a favorite list of items, you can set the
+   \"flow_status_topics\" variable either in your settings, or using
+   aliases.  This flow will check the variable for values, and add
+   passed topics to the list.
 "
 }

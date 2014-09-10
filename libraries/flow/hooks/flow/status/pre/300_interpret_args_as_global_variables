@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# INIT:HOOK: Convert flow arguments into global variables
+#
+
+hook_version=2
+hook_root="hook_flow_status_300"
+
+# descriptoin method
+hook_flow_status_300_description()
+{
+  echo "Interpret the passed arguments as global variables"
+}
+
+# help method
+hook_flow_status_300_help()
+{
+  echo "hook->init->300 : Interpret arguments as global variables
+
+This hook will attempt to interpret the flow arguments into
+global variables, which will reduce the dependence on args
+for following hooks.
+Following hooks won't need to interpret flow arguments as
+much, and can depend on global settings.
+
+
+
+"
+  help_scope_add "hook:flow/init"
+}
+
+# execute method
+hook_flow_status_300_execute()
+{
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--build)
+        project_build="${2}"
+        debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Using alternate build [build:${project_build}]"
+        shift
+        ;;
+      -c|--container)
+        project_container="${2}"
+        debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Using alternate container [container:${project_container}]"
+        shift
+        ;;
+      -i|--image)
+        project_image="${2}"
+        debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Using alternate image [image:${project_image}]"
+        shift
+        ;;
+      -l|--libraries)
+        additional_libraries="${additional_libraries} ${2}"
+        shift
+        ;;
+      -n|--name)
+        project_build="${2}"
+        project_image="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  if [ -z "$@" ]; then
+    # use only passed topics
+    flow_status_topics="${flow_status_topics:-settings cont.active}"
+  fi
+
+  # the rest of the arguments are considered to be status topics
+  flow_status_topics="${flow_status_topics} $@"
+  debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Topics to be used for status flow [topics:${flow_status_topics}]"
+
+}

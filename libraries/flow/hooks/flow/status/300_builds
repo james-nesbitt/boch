@@ -22,39 +22,28 @@ hook_flow_status_300_help()
 # execute method
 hook_flow_status_300_execute()
 {
+  case " ${flow_status_topics} " in
+    *" all "*|*" build "*)
 
-  local build="${project_build}"
+      library_load "command"
+      command_load "build"
 
-  local flags=""
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -i|--build)
-        build="$2"
-        shift
-        ;;
-    esac
-    shift
-  done
-
-  library_load "command"
-  command_load "build"
-
-  echo "
-Project builds
+      echo "
+PROJECT BUILDS
 =============="
 
-  if [ "${build}" == "" ]; then
-    echo "no project build specified, the project_build variable is empty"
-  else
-    echo "-->project_build:${project_build}"
-    local path="`build_find $build`"
-    if [ -d "${path}" ]; then
-      echo "-->build found in path: ${path}"
-    else
-      echo "
-Build not found in the system
-"
-    fi
-  fi
+      if [ "${project_build}" == "" ]; then
+        echo "no project build specified, the project_build variable is empty"
+      else
+        echo "-->project_build:${project_build}"
+        local path="`build_find "${project_build}"`"
+        if [ -d "${path}" ]; then
+          echo "-->build found in path: ${path}"
+        else
+          echo "Build not found in the system"
+        fi
+      fi
+
+      ;;
+  esac
 }

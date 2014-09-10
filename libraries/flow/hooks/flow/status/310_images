@@ -22,35 +22,26 @@ hook_flow_status_310_help()
 # execute method
 hook_flow_status_310_execute()
 {
+  case " ${flow_status_topics} " in
+    *" all "*|*" image "*)
 
-  local image="${project_image}"
-
-  local flags=""
-  while [ $# -gt 0 ]
-  do
-    case "$1" in
-      -i|--image)
-        image="$2"
-        shift
-        ;;
-    esac
-    shift
-  done
-
-  echo "
-Project images
+      echo "
+PROJECT IMAGES
 ==============
--->project_image: ${image}"
+-->project_image: ${project_image}"
 
-if [ "${image}" == "" ]; then
-  echo "there is no image specfied for this project"
-else
-  if docker_image_exists ${image}; then
-    echo "Occurences of related image in this system:
+      if [ "${project_image}" == "" ]; then
+        echo "there is no image specfied for this project"
+      else
+        if docker_image_exists ${project_image}; then
+          echo "Occurences of related image in this system:
 REPOSITORY                        TAG                 IMAGE ID            CREATED             VIRTUAL SIZE"
-    docker_inspect_image_list --image "${image}"
-  else
-    echo "No matching images found [image:${image}]"
-  fi
-fi
+          docker_inspect_image_list --image "${project_image}"
+        else
+          echo "No matching images found [image:${project_image}]"
+        fi
+      fi
+
+      ;;
+  esac
 }

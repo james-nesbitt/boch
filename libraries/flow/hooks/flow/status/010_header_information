@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->010 Status flow header
+#
+
+hook_version=2
+hook_root="hook_flow_status_010"
+
+# description method
+hook_flow_status_010_description()
+{
+  echo "Status flow header"
+}
+
+# help method
+hook_flow_status_010_help()
+{
+ echo "HOOK->FLOW->STATUS->010 Status flow header
+"
+}
+
+# execute method
+hook_flow_status_010_execute()
+{
+  echo "PROJECT STATUS
+==============
+( for more options see $/> boch flow status help )"
+}
