@@ -176,3 +176,22 @@ settings_init()
 
   debug --level 7 --topic "SETTINGS" "Running settings hooks complete"
 }
+
+# Execute handler
+settings_execute()
+{
+  if [ -z "${1}" ]; then
+    # @NOTE I can't decide what the default behaviour should be
+    # help_execute "settings:general"
+    help_execute "settings:settings"
+  else
+    case "${1}" in
+      settings|show|all)
+        shift
+        help_execute "settings:settings"
+        ;;
+      *)
+        help_execute "settings:${1}"
+    esac
+  fi
+}
