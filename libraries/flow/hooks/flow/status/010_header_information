@@ -16,6 +16,9 @@ hook_flow_status_010_description()
 hook_flow_status_010_help()
 {
  echo "HOOK->FLOW->STATUS->010 Status flow header
+
+This hooks just prints a short header above any status flow
+output, to give the flow a title.
 "
 }
 

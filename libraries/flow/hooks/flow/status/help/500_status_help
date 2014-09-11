@@ -19,7 +19,6 @@ hook_flow_status_help_500_help()
 HOOK->FLOW->STATUS->HELP->500 General help for the "status" flow
 
 This hook gives general help text for the status flow
-
 "
 }
 

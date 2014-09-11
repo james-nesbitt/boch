@@ -16,6 +16,10 @@ hook_flow_status_310_description()
 hook_flow_status_310_help()
 {
  echo "HOOK->FLOW->STATUS->310 Project images
+
+If directed to by the status flow topics, this hooks will output
+information about the active image in the system.  It will show
+the docker image information, if the image exists.
 "
 }
 

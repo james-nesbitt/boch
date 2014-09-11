@@ -18,6 +18,8 @@ hook_flow_status_320_help()
  echo "HOOK->FLOW->STATUS->320 Project image containers
 
 Attempt to list all of the containers related to a project image.
+The hook will, if directed by status topics, output a list of containers
+that use the image.
 "
 }
 
@@ -36,20 +38,6 @@ IMAGE CONTAINERS
 -->project_image:${image}
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
         docker_inspect_container_list --image "${image}"
-      fi
-
-      if [ "${project_container}" == "" ]; then
-        echo "there is no container specfied for this project"
-      else
-        if docker_container_exists ${project_container}; then
-          echo "
-Primary project container:
--->project_container: ${project_container}  IP:`docker_inspect_getIP --container \"${project_container}\"`
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
-          docker_inspect_container_list --name "${project_container}"
-        else
-          echo "No matching containers found [container:${project_container}]"
-        fi
       fi
 
       ;;

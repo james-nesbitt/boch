@@ -22,9 +22,6 @@ global variables, which will reduce the dependence on args
 for following hooks.
 Following hooks won't need to interpret flow arguments as
 much, and can depend on global settings.
-
-
-
 "
   help_scope_add "hook:flow/init"
 }
@@ -66,14 +63,15 @@ hook_flow_status_300_execute()
     shift
   done
 
-  if [ -z "$@" ]; then
+  local targets_local="$@"
+  if [ -z "${targets_local}" ]; then
     # Use pre-seeded topics, falling back to default topics
     # @NOTE it looks like this is a double define, but one allows a default declaration, and
     #     the other allows overload in execution
     flow_status_topics="${flow_status_topics:-${flow_status_topics_default}}"
   else
     # the rest of the arguments are considered to be status topics, don't use default topics
-    flow_status_topics="${flow_status_topics} $@"
+    flow_status_topics="${flow_status_topics} ${targets_local}"
   fi
 
   debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Topics to be used for status flow [topics:${flow_status_topics}]"

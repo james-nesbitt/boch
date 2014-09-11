@@ -17,7 +17,8 @@ hook_flow_status_320_help()
 {
  echo "HOOK->FLOW->STATUS->320 Project containers
 
-Attempt to output information about the active container in the project.
+This hook will, if directed by the status flow topics, attempt to
+output information about the active container in the project.
 "
 }
 

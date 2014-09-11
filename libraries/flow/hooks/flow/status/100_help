@@ -16,6 +16,14 @@ hook_flow_status_100_description()
 hook_flow_status_100_help()
 {
  echo "HOOK->FLOW->STATUS->100 Status flow help
+
+If directed by status flow topics, output help for the
+status flow.
+This is just a shortcut to get help in the use of the
+flow.
+
+@NOTE this topic is the only one that does not respond
+  to the \"all\" topic.
 "
 }
 
@@ -23,7 +31,9 @@ hook_flow_status_100_help()
 hook_flow_status_100_execute()
 {
   case " ${flow_status_topics} " in
-    *" all "*|*" help "*)
+    # Could not decide what behaviour to use
+    #*" all "*|*" help "*)
+    *" help "*)
       echo "
 STATUS HELP
 ==========="
