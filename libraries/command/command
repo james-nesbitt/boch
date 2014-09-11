@@ -49,7 +49,7 @@ command_execute()
   local command=$1
   shift
 
-  if [ $? -eq 0 ]; then
+  if [ -n "${command}" ]; then
 
     # default action
     local action="execute"
@@ -79,8 +79,7 @@ command_execute()
     return $success
 
   else
-    debug --level 6 --topic "COMMAND:EXECUTE" "Command execution failed.  Could not find command [command:${command}]"
-    return 1
+    help_execute "command:general"
   fi
 }
 
