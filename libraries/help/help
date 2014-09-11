@@ -55,15 +55,12 @@ help_topic_help()
     handler="${handler%:*}"
   fi
 
-  debug --level 5 --topic "HELP->TOPIC" "Executing help [handler:${handler}][topic:${topic}]: $@"
-
   # Use the "general" topic for any missing topics
-  if [ "${handler}" == "${topic}" ]; then
-    topic=""
-  fi
   if [ "${topic}" == "general" ]; then
     topic=""
   fi
+
+  debug --level 5 --topic "HELP->TOPIC" "Executing help [handler:${handler}][topic:${topic}]: $@"
 
   # load the library for the handler
   library_load "${handler}"
