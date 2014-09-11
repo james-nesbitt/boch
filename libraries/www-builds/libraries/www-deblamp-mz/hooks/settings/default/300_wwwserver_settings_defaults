@@ -42,6 +42,15 @@ wwwcnpmjn_settings_defaults_300_execute()
 #
 
 ###
+# Load the www-deblamp-mz library
+#
+# @NOTE that the library doesn't really do much after the init process
+#    so in general it isn't really necessary to load it during normal
+#    operations.  You might need access to the library; if so uncomment
+#    this line.
+#alias_add \"%www-builds:www-deblamp-mz\"
+
+###
 # Docker image configurations
 #
 # @NOTE many of these settings overload above settings with new

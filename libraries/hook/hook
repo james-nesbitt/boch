@@ -170,7 +170,7 @@ hooks_list()
   local hook_token=""
   for hook_token in `for path in ${hooks_paths}; do
     path="${path}/${hook}"
-    debug --level 9 --topic "HOOK->INCLUDE" "Checking hook path [path:${path}]"
+    debug --level 9 --topic "HOOK->LIST" "Checking hook path [path:${path}]"
     if path_is --dir "${path}"; then
       for path_hook in ${path}/*; do
         if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
@@ -188,11 +188,11 @@ hooks_list()
 # include the hook source file (from full path)
 hook_include()
 {
-  debug --level 9 --topic "HOOK->INCLUDE" "Hook include run : $@"
-  local hook="`path_expand \"${1}\"`"
+  local hook="`path_expand "${1}"`"
   shift
 
-  if [ -f "${hook}" ]; then
+  debug --level 9 --topic "HOOK->INCLUDE" "Hook include run : [hook:${hook}] : $@"
+  if path_is --exec "${hook}"; then
 
     debug --level 9 --topic "HOOK->INCLUDE" "Including hook.  Handing off to path_include [hook:${hook}] ==> path_include \"${hook}\" $@ "
     path_include "${hook}" $@
@@ -305,14 +305,6 @@ hook_description()
   shift
 
   hook_execute "${hook}" --action "description" $@
-}
-# show the help contents for a hook
-hook_help()
-{
-  local hook=$1
-  shift
-
-  hook_execute "${hook}" --action "help" $@
 }
 
 # List all hooks, not in the sorted order
