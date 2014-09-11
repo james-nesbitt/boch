@@ -105,6 +105,9 @@ debug --level 7 --topic "INIT" "INCLUDING CORE SYSTEM LIBRARIES"
 # include utility functions for running hooks (which every other library relies on)
 library_load "hook"
 
+# run init related hooks
+hooks_execute "init" --state "pre"
+
 # include the settings library (with a tool to load settings from other libraries)
 library_load "settings"
 # include help related functions (not debug, which is in utilities to get it loaded early.)
@@ -112,38 +115,7 @@ library_load "help"
 # include docker functions - bash abstractions for docker operations
 library_load "docker"
 
-
-# Maybe output some variabe settings
-# @NOTE we do it like this because the debug command won't keep newlines in output
-if [ $debug -gt 3 ]; then
-  echo "
-CONFIG: control settings after system initialization (can be modified after this point): [
-  >SINGLE PATHS USED
-  -->path_project----------: ${path_project}
-  -->path_execution--------: ${path_execution}
-  -->path_library----------: ${path_library}
-  >CONFS
-  -->path_userconf---------: ${path_userconf}
-  -->path_projectconf------: ${path_projectconf}
-  >ALIASES
-  -->active_aliases--------: `aliases_get`
-  >LIBRARIES
-  -->libraries loaded------: `libraries_list`
-  >HOOKS
-  -->path_hooks------------: `hooks_getpath`
-  >PROJECT CONFIGURATION
-  -->Project_name----------: ${project_name}
-  >PROJECT DOCKER CONFIGURATIONS
-  -->project_container-----: ${project_container}
-  -->project_image---------: ${project_image}
-  -->project_imageversion--: ${project_imageversion}
-  >PROJECT MACHINE CONFIGURATIONS
-  -->Machine_hostname------: ${machine_hostname}
-  -->Machine_mountvolumes--: `settings_mount_getmounts --short`
-  -->Machine_shell---------: ${machine_shell}
-  -->Machine_shellrunargs--: ${machine_shellrunargs}
-  -->Machine_runargs-------: ${machine_runargs}
-]"
-fi
+# run init related hooks
+hooks_execute "init" --state "post"
 
 debug --level 7 --topic "INIT" "INCLUDING LIBRARIES COMPLETE"

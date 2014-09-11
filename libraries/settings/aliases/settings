@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Settings library general alias
+#"
+
+debug --level 8 --topic "SETTINGS->ALIAS" "Settings alias called : $@"
+
+settings_alias_target="output"
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    --source-include-path)
+      shift
+      ;;
+    --target)
+      settings_alias_target="${2}"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+case "${settings_alias_target}" in
+  output)
+    debug --level 8 --topic "SETTINGS->ALIAS" "Settings alias is enabling settings output"
+    settings_debug_output=0
+    ;;
+esac

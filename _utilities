@@ -97,6 +97,11 @@ debug_set_level()
   shift
   debug --level 3 --topic "UTILITY->DEBUG" "Debug mode enabled/set (level:${debug}) $@"
 }
+# Get the debug level
+debug_get_level()
+{
+  echo ${debug}
+}
 # reset debug level to
 debug_reset_level()
 {

@@ -113,11 +113,10 @@ All matching aliases in all libraries are executed.
 "
 }
 
-# Output settings as a help message
+# Output a list of settings as a help message
 settings_help_outputsettings()
 {
-      echo "
-PROJECT SETTINGS
+      echo "PROJECT SETTINGS
 ================
 control settings used in this state: [
   >SINGLE PATHS USED
@@ -145,5 +144,6 @@ control settings used in this state: [
   -->Machine_shell---------: ${machine_shell}
   -->Machine_shellrunargs--: ${machine_shellrunargs}
   -->Machine_runargs-------: ${machine_runargs}
-]"
+]
+"
 }

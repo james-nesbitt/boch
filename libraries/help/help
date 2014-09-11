@@ -64,8 +64,8 @@ help_topic_help()
 
   # load the library for the handler
   library_load "${handler}"
-
   if [ $? -eq 0 ]; then
+
     # check to see if the help handler is just bundled into the library handler
     # which is common in the case of single file libraries
     if ! function_exists "${handler}_help"; then
@@ -81,12 +81,12 @@ help_topic_help()
     library_execute --action "help" "${handler}" $topic $@
     debug --level 7 --topic "HELP->TOPIC" "Executing help hooks [topic:${topic}][handler:${handler}]"
     hooks_execute "help/${handler}" ${topic} $@
-
-    return 0
+    local success=0
   else
     debug --level 5 --topic "HELP->TOPIC" "Help handler not found, no matching library could be found [topic:${topic}][handler:${handler}]"
-    return 1
+    local success=1
   fi
+  return $success
 }
 
 # provide the list help for all active help scopes
