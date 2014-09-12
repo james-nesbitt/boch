@@ -48,7 +48,7 @@ remove_execute()
     if  docker_container_running ${container}; then
       message "Could not remove container (${container}) from system.  The container exists, but is still running.  Stop it first."
 
-      debug --level 2 --topic "COMMAND->REMOVE" "docker remove not executed.  The container exists but is running.  Stop it first [container:${container}]"
+      debug --level 4 --topic "COMMAND->REMOVE" "docker remove not executed.  The container exists but is running.  Stop it first [container:${container}]"
       return 1
 
     else
@@ -64,7 +64,7 @@ remove_execute()
   else
     message "Could not remove container (${container}) from the system as it does not exist."
 
-    debug --level 2 --topic "COMMAND->REMOVE" "docker remove not executed.  The container does not exist [container:${container}]"
+    debug --level 4 --topic "COMMAND->REMOVE" "docker remove not executed.  The container does not exist [container:${container}]"
     return 1
   fi
 
