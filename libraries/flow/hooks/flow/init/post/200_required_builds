@@ -48,7 +48,7 @@ hook_init_post_200_execute()
         debug --level 5 --topic "HOOK->COMMAND->INIT->POST->200" "Required build exists, skipping build [build:${build}]"
       else
         debug --level 5 --topic "HOOK->COMMAND->INIT->POST->200" "Building required build [build:${build}]"
-        command_execute "build" --build "${build}" --image "${build}" --version "${image_version}"
+        library_execute "command" "build" --build "${build}" --image "${build}" --version "${image_version}"
       fi
     done
 

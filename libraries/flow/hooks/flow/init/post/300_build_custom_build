@@ -56,7 +56,7 @@ hook_command_init_post_300_execute()
     else
 
       debug --level 5 --topic "HOOK->COMMAND->INIT->POST->300" "Building custom project build [build:${project_build}]"
-      command_execute "build" --build "${project_build}" --image "${project_image}" --version "${project_imageversion}"
+      library_execute "command" "build" --build "${project_build}" --image "${project_image}" --version "${project_imageversion}"
 
       if [ $? -eq 0 ]; then
         debug --level 5 --topic "HOOK->COMMAND->INIT->POST->300" "Built custom project build [build:${project_build}]"
