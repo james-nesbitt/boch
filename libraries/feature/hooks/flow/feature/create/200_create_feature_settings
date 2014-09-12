@@ -25,15 +25,17 @@ Put settings for the feature into the settings file
 # Execute method
 hook_feature_create_200_execute()
 {
+ if [ -n "${feature_path}" ] && [ -n "${feature_name}" ]; then
 
-  local path="`path_expand "${feature_path}"`"
-  feature_path_settings="${path}/settings"
+    local path="`path_expand "${feature_path}"`"
+    feature_path_settings="${path}/settings"
 
-  debug --level 5 --topic "HOOK->FEATURE->CREATE->200" "Creating feature library settings file [name:${name}][path:${feature_path_settings}]"
+    debug --level 5 --topic "HOOK->FEATURE->CREATE->200" "Creating feature library settings file [name:${name}][path:${feature_path_settings}]"
 
-  path_ensure --dir "${path}"
+    path_ensure --dir "${path}"
+    path_ensure --exec "${feature_path_settings}"
 
-  echo "#!/bin/sh
+    echo "#!/bin/sh
 #
 # ${feature_name} Feature settings
 #
@@ -48,26 +50,28 @@ feature_path=\"${feature_path}\"
 
 " > "${feature_path_settings}"
 
-  local hook=""
-  for hook in `hooks_list --state "settings" "feature/create"`; do
+    local hook=""
+    for hook in `hooks_list --state "settings" "feature/create"`; do
 
-    hook_version=""
-    hook_root=""
+      hook_version=""
+      hook_root=""
 
-    hook_include ${hook} $@
+      hook_include ${hook} $@
 
-    if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
+      if [ "`egrep \"${hook_root}\" ${path}`" == "" ]; then
 
-      echo "
+        echo "
 ## SETTINGS FROM HOOK : ${hook_root} [leave this line to prevent this hook from adding these settings again]
 " >> ${path_settings}
-      #echo "`hook_execute ${hook}`" >> ${path}
-      echo "`"${hook_root}_execute" --feature "${feature_name}" --file "${feature_path}"`" >> ${path_settings}
+        #echo "`hook_execute ${hook}`" >> ${path}
+        echo "`"${hook_root}_execute" --feature "${feature_name}" --file "${feature_path}"`" >> ${path_settings}
 
-      debug --level 6 --topic "HOOK->FEATURE_CREATE->200" "A hook provided default feature settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
-    else
-      debug --level 6 --topic "HOOK->FEATURE->CREATE->200" "A hook provided default feature settings, but it is already included in the settings file [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
-    fi
+        debug --level 6 --topic "HOOK->FEATURE_CREATE->200" "A hook provided default feature settings [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+      else
+        debug --level 6 --topic "HOOK->FEATURE->CREATE->200" "A hook provided default feature settings, but it is already included in the settings file [hook_version:${hook_version}][hook_root:${hook_root}][hook:${hook}]"
+      fi
 
-  done
+    done
+
+  fi
 }

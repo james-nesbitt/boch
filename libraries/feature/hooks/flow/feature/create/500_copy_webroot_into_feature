@@ -25,19 +25,23 @@ Put a copy of the source into the webroot.
 # Execute method
 hook_feature_create_500_execute()
 {
-  local path_www_source="${feature_path_source_www:-root~source/www}"
-  local path_www_destination="${feature_path}/${feature_subpath_www:-www}"
+ if [ -n "${feature_path}" ] && [ -n "${feature_name}" ]; then
 
-  if path_is --dir "${path_www_destination}" ]; then
-    debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Feature already contains a webroot; not copying anything in [source:${path_www_source}][destination:${path_www_destination}]"
-    return 0
+    local path_www_source="${feature_path_source_www:-root~source/www}"
+    local path_www_destination="${feature_path}/${feature_subpath_www:-www}"
+
+    if path_is --dir "${path_www_destination}" ]; then
+      debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Feature already contains a webroot; not copying anything in [source:${path_www_source}][destination:${path_www_destination}]"
+      return 0
+    fi
+
+    if ! path_is --dir "${path_source}"; then
+      debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Source webroot not found; not copying anything into the feature [source:${path_www_source}][destination:${path_www_destination}]"
+      return 0
+    fi
+
+    debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Copy source webroot to feature [source:${path_www_source}][destination:${path_www_destination}]"
+    cp -R "`path_expand "${path_www_source}"`" "`path_expand "${path_www_destination}"`"
+
   fi
-
-  if ! path_is --dir "${path_source}"; then
-    debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Source webroot not found; not copying anything into the feature [source:${path_www_source}][destination:${path_www_destination}]"
-    return 0
-  fi
-
-  debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Copy source webroot to feature [source:${path_www_source}][destination:${path_www_destination}]"
-  cp -R "`path_expand "${path_www_source}"`" "`path_expand "${path_www_destination}"`"
 }

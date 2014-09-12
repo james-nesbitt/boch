@@ -30,10 +30,6 @@ hook_feature_create_pre_300_execute()
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -f|--feature)
-        feature_name="${2}"
-        shift
-        ;;
       -p|--path)
         feature_path="${2}"
         shift
@@ -46,4 +42,10 @@ hook_feature_create_pre_300_execute()
 
   # set up the feature name
   feature_name="${feature_name:-${1}}"
+
+  if [ -z "${feature_name}" ]; then
+    message "No feature name provided, cannot create the feature"
+    debug --level 5 --topic "FEATURE->CREATE" "No feature name provided, halting feature creation process"
+    return 1
+  fi
 }

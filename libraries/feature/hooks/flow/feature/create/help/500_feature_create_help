@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# HOOK->FEATURE->CREATE->HELP->500 General help for the feature:create
+#
+
+hook_version=2
+hook_root="hook_feature_create_help_500"
+
+# description method
+hook_feature_create_help_500_description()
+{
+  echo "General help text for the status flow"
+}
+
+# help method
+hook_feature_create_help_500_help()
+{
+  echo "
+HOOK->FEATURE->CREATE->HELP->500 General help for feature:create
+
+This hook give general help about the feature:create flow
+"
+}
+
+# execute method
+hook_feature_create_help_500_execute()
+{
+  echo "FEATURE CREATE
+
+Create a new feature library in the system.
+
+Usage:
+
+  $/> ./boch feature create <options> <feature_name}
+
+Options: (all used in hooks)
+  [-p|--path {path}]: specify what path to create the feature in
+
+@NOTE if no name is specified then a random value is used
+@NOTE if no path is specficied, then the feature is created in
+    the projectconf library.
+
+"
+  help_scope_add "feature:general"
+  help_scope_list
+}
