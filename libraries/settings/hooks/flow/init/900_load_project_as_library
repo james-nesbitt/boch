@@ -38,7 +38,7 @@ hook_flow_init_900_execute()
     # reloading an existing project folder.
     library_load --path "${path_projectconf}" "project"
     if [ $? -gt 0 ]; then
-      debug --level 3 --topic "HOOK->FLOW->INIT->900" "No custom data/project folder exists"
+      debug --level 3 --topic "HOOK->FLOW->INIT->900" "No custom data/project folder exists [path:${path_projectconf}]"
     else
       debug --level 5 --topic "HOOK->FLOW->INIT->900" "Loaded Data/Project folder as a library [path:${path_projectconf}]"
     fi
