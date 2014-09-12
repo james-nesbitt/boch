@@ -16,6 +16,14 @@ hook_flow_status_600_description()
 hook_flow_status_600_help()
 {
  echo "HOOK->FLOW->STATUS->600 Project containers
+
+Display the status information about containers that have been
+registered in the system.
+A container is registered automatically, whenever it is started
+using the docker_start function, by putting information about the
+container into a file into the projectconf~/containers folder.
+Registered container files are removed, when docker_remove is run
+on the container.
 "
 }
 
