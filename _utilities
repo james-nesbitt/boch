@@ -242,7 +242,7 @@ path_shorten()
       return 0
       ;;
     *"${path_userhome}"*)
-      echo "user~${path#${path_userhome}/}"
+      echo "home~${path#${path_userhome}/}"
       return 0
       ;;
   esac
@@ -267,8 +267,8 @@ path_expand()
         echo "${path_library}/${path#library~}"
         return 0
         ;;
-      "user~"*)
-        echo "${path_userhome}/${path#user~}"
+      "home~"*)
+        echo "${path_userhome}/${path#home~}"
         return 0
         ;;
       *)
