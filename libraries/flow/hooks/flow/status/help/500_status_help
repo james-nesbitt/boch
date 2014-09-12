@@ -38,7 +38,7 @@ per project, as makes sense.
 
 Usage:
 
-  $/> ./flow status <options> <topics>
+  $/> ./boch flow status <options> <topics>
 
 Options: (all used in hooks)
   [-b|--build {build}] : Consider the passed build as active

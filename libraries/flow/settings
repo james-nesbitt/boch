@@ -6,4 +6,5 @@
 ###
 # Status flow
 #
-flow_status_topics_default="${flow_status_topics_default:-cont.active}"
+flow_status_topics_default="${flow_status_topics_default:-cont.registered}"
+
