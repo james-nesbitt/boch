@@ -28,7 +28,6 @@ while [ $# -gt 0 ]; do
         shift
       fi
       ;;
-
     -v|--verbose)
       vflag=on
       # if an integer level was passed, take it, otherwise default to 5

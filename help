@@ -29,7 +29,6 @@ do
       fi
       help="yes"
       ;;
-
     -v|--verbose)
       vflag=on
       # if an integer level was passed, take it, otherwise default to 5
