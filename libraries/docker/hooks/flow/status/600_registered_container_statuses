@@ -31,7 +31,7 @@ on the container.
 hook_flow_status_600_execute()
 {
   case " ${flow_status_topics} " in
-    *" all "*|*" cont.all "*|*" cont.registered "*)
+    *" all "*|*" cont.all "*|*" cont.registered "*|*" container.all "*|*" container.registered "*)
       echo "
 REGISTERED CONTAINERS
 =====================

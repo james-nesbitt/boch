@@ -27,7 +27,7 @@ that use the image.
 hook_flow_status_320_execute()
 {
   case " ${flow_status_topics} " in
-    *" all "*|*" cont.all "*|*" cont.image "*)
+    *" all "*|*" cont.all "*|*" cont.image "*|*" container.all "*|*" container.image "*)
 
       echo "
 IMAGE CONTAINERS
