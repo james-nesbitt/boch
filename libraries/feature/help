@@ -14,10 +14,7 @@ feature_help()
   else
 
     case "${1}" in
-      "create")
-        feature_help_create
-        ;;
-      @*)
+      @*) # Get help from an actual feature
         local feature="${1:1}"
         library_load --component "${feature}" "feature"
         if [ $? -eq 0 ]; then
@@ -30,7 +27,7 @@ feature_help()
         fi
         ;;
       *)
-        feature_help_unknowntopic
+        hooks_execute "flow/feature/${1}" --state "help"
         ;;
     esac
   fi
@@ -40,10 +37,10 @@ feature_help()
 feature_helplist()
 {
   if [ -z "${1}" ]; then
-    echo "Feature help topics
+    echo "FEATURE HELP TOPICS
 --> create : Create a new feature (feature:create)
 
-Features in the system
+EXISTING FEATURES
 ----------------------
 The following is a list of features in this system.  Included is a possible
 help link, but there may be no custom help for the feature.  The feature
@@ -92,14 +89,5 @@ feature_help_featurehasnohelp()
   echo "${1} : Known feature has no help description
 
 You requested help for a particular feature \"${1}\", but that feature has no specific help description
-"
-}
-
-feature_help_create()
-{
-  echo "Feature: Create help
-
-How to create a feature
-
 "
 }
