@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# late load any pre-seeded aliases
+#
+
+hook_version=2
+hook_root="hook_settings_post_500"
+
+# description method
+hook_settings_post_500_description()
+{
+  echo "hook->settings (post) 500: late load any pre-seeded aliases"
+}
+
+# help method
+hook_settings_post_500_help()
+{
+  echo "
+hook->settings (post) 500: late load any pre-seeded aliases
+
+This hook will convert any \"unloaded\" aliases.  The aliases are loaded
+here to give the system the chance to load the other commonly used libraries,
+which makes their resources available, before the alaises are loaded.
+"
+}
+
+# execute method
+hook_settings_post_500_execute()
+{
+  # First preprocess aliases
+  if [ -n "${alias_unloaded_aliases}" ]; then
+    local alias=""
+    for alias in ${alias_unloaded_aliases}; do
+      alias_add "${alias}"
+    done
+  fi
+  alias_unloaded_aliases=""
+
+}

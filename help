@@ -53,8 +53,10 @@ do
       # lower the critical error level so that errors don't halt
       _debug_critical_level=0
       ;;
-    @*)
-      alias_aliases="${alias_aliases} ${1:1}"
+    @*|%*|^*)
+      # these are special connections into the settings library alias system.
+      # @SEE check the settings librar alias_add function for more info
+      alias_unloaded_aliases="${alias_unloaded_aliases} ${1}"
       ;;
     -*)
         echo >&2 "usage: $0 [-v|--verbose] [-l|--log [{log level}]]  [command ...].  Try \"help\" for more instructions."

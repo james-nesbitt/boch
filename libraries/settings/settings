@@ -152,19 +152,6 @@ settings_mount_getmounts()
 #
 settings_init()
 {
-  # By default don't show the settings debug output
-#   settings_debug_output=${settings_debug_output:-1}
-
-  # First preprocess aliases
-  if [ -n "${alias_aliases}" ]; then
-    local alias=""
-    local previous_aliases="${alias_aliases}"
-    alias_aliases=""
-    for alias in ${previous_aliases}; do
-      alias_add "${alias}"
-    done
-  fi
-
   # Run settings initialization
   debug --level 7 --topic "SETTINGS" "Running settings hooks"
 
