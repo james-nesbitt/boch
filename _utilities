@@ -30,7 +30,7 @@ list_add()
       return 0
   esac
 
-  value="${item} ${value}"
+  value="${value} ${item}"
   value=${value%% }
   value=${value## }
   eval "$var=\"${value}\""
@@ -46,13 +46,33 @@ echo "@TODO Replace old item with new item in list"
 }
 list_get()
 {
-  local name=$1
+  # Variable/List name
+  local name="$1"
+  shift
+
+  # reverse
+  local reverse=1
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -r|--reverse)
+        reverse=0
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
 
   local var="${_list_rootvar}${name}"
   local trimmed="${!var}"
   trimmed=${trimmed%% }
   trimmed=${trimmed## }
   local value=""
+  if [ $reverse -eq 0 ]; then
+    trimmed=`echo ${trimmed} | tac --separator " "`
+  fi
   for value in ${trimmed}; do
     echo "${value}"
   done
@@ -223,7 +243,7 @@ path_shorten()
   local path="${1}"
 
   local library=""
-  for library in `libraries_list`; do
+  for library in `libraries_list --reverse`; do
     case "${path}" in
       *"${library##*:}"*)
         echo "${library%:*}~${path#${library##*:}/}"
@@ -331,51 +351,58 @@ path_is()
     shift
   done
 
+  debug --level 9 --topic "UTILITIES->PATH->IS" "Path check [type:${type}][path:${1}]"
+
+  # take the first argument as a path, but expand it
   local path="`path_expand \"${1}\"`"
   shift
 
-  debug --level 9 --topic "UTILITIES->PATH->IS" "Path check [type:${type}][path:${path}]"
-  case "${type}" in
-    "build")
-      if [ -d "${path}" ] && [ -f "${path}/Dockerfile" ]; then
-        return 0
-      fi
-      ;;
-    "file")
-      if [ -f "${path}" ]; then
-        return 0
-      fi
-      ;;
-    "dir")
-      if [ -d "${path}" ]; then
-        return 0
-      else
-        return 1
-      fi
-      ;;
-    "exec")
-      if [ -f "${path}" ] && [ -x "${path}" ]; then
-        return 0
-      fi
-      ;;
-    "library")
-      #interesting case, either an exec file, or a folder with an exec files of the same name
-      if [ -f "${path}" ] && [ -x "${path}" ]; then
-        return 0
-      fi
-      if [ -d "${path}" ]; then
-        path="`library_handler "library:${path}"`"
+  # check for the empty_path contents
+  if [ "${path%*${empty_path}*}" == "${path}" ]; then
+
+    case "${type}" in
+      "build")
+        if [ -d "${path}" ] && [ -f "${path}/Dockerfile" ]; then
+          return 0
+        fi
+        ;;
+      "file")
+        if [ -f "${path}" ]; then
+          return 0
+        fi
+        ;;
+      "dir")
+        if [ -d "${path}" ]; then
+          return 0
+        else
+          return 1
+        fi
+        ;;
+      "exec")
         if [ -f "${path}" ] && [ -x "${path}" ]; then
           return 0
         fi
-      fi
-      ;;
-    *)
-      if [ -e "${path}" ]; then
-        return 0
-      fi
-      ;;
-  esac
+        ;;
+      "library")
+        #interesting case, either an exec file, or a folder with an exec files of the same name
+        if [ -f "${path}" ] && [ -x "${path}" ]; then
+          return 0
+        fi
+        if [ -d "${path}" ]; then
+          path="`library_handler "library:${path}"`"
+          if [ -f "${path}" ] && [ -x "${path}" ]; then
+            return 0
+          fi
+        fi
+        ;;
+      *)
+        if [ -e "${path}" ]; then
+          return 0
+        fi
+        ;;
+    esac
+
+  fi
 
   return 1
 }

@@ -82,7 +82,7 @@ machine_runargs=\"--tty\" # --tty is needed for supervisord to run.
 #
 
 # Source mount : www server builds use /app/source for the project source (and likely expect /app/source/www for webroot
-settings_mount_addmount \"\${path_project}/source:/app/source\"
+settings_mount_addmount \"root~source:/app/source\"
 
 "
 }

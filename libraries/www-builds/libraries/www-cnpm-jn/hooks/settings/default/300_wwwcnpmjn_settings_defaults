@@ -111,9 +111,9 @@ settings_mount_addmount \"\${path_project}/source:/app/source\"
 
 # SSH
 # This lets your container user do ssh like the host user (selinux may block this on the host)
-settings_mount_addmount \"\${path_userhome}/.ssh:/home/\${machine_username}/.ssh-host\"
+settings_mount_addmount \"home~.ssh:/home/\${machine_username}/.ssh-host\"
 # This may let you ssh into the container without a password, if you have an rsa key
 # @NOTE If you don't use this then you should make sure that you add your key to the template build dot_ssh folder
-#settings_mount_addmount \"\${path_userhome}/.ssh/id_rsa.pub:/home/\${machine_username}/.ssh/authorized_keys\"
+#settings_mount_addmount \"\home~/.ssh/id_rsa.pub:/home/\${machine_username}/.ssh/authorized_keys\"
 "
 }
