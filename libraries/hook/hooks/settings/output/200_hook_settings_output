@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# Output hook settings
+#
+
+hook_version=2
+hook_root="hook_hook_settings_output_200"
+
+# description method
+hook_hook_settings_output_200_description()
+{
+  echo "Output hook settings"
+}
+
+# help method
+hook_hook_settings_output_200_help()
+{
+  echo "
+hook->settings->output->100 : Output hook settings
+
+This hook will output settings related to hooks
+
+"
+  help_topic_add "settings:settings"
+  help_topic_list
+}
+
+# execute method
+hook_hook_settings_output_200_execute()
+{
+  echo "HOOKS SETTINGS OUTPUT
+--------------------: [
+>HOOKS
+-->path_hooks------------: `settings_output_list $(hooks_getpath)`
+]"
+}
+
+settings_output_list()
+{
+  echo ""
+  local value
+  for value in $@; do
+    echo "       ${value}"
+  done
+}
