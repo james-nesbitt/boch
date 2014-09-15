@@ -82,9 +82,9 @@ start_execute()
   flags="${flags} ${machine_runargs} `settings_mount_getmounts --mount`"
 
   # Check for an existing container
-  if docker_container_exists ${container}; then
+  if docker_container_exists "${container}"; then
 
-    if docker_container_running ${container}; then
+    if docker_container_running "${container}"; then
       message "No need to start the container (${container}) as it is already running."
 
       debug --level 5 --topic "COMMAND" "didn't start container as it was already running [container:${container}]"
