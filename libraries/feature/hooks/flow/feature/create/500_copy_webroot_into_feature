@@ -25,17 +25,17 @@ Put a copy of the source into the webroot.
 # Execute method
 hook_feature_create_500_execute()
 {
- if [ -n "${feature_path}" ] && [ -n "${feature_name}" ]; then
+ if [ -n "${feature_path}" ] && [ -n "${feature_name}" ] && [ ${feature_create_copysource} -eq 0 ]; then
 
-    local path_www_source="${feature_path_source_www:-root~source/www}"
-    local path_www_destination="${feature_path}/${feature_subpath_www:-www}"
+    local path_www_source="`path_expand "${feature_path_source_www:-root~source/www}"`"
+    local path_www_destination="`path_expand "${feature_path}/${feature_subpath_www:-www}"`"
 
     if path_is --dir "${path_www_destination}" ]; then
       debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Feature already contains a webroot; not copying anything in [source:${path_www_source}][destination:${path_www_destination}]"
       return 0
     fi
 
-    if ! path_is --dir "${path_source}"; then
+    if ! path_is --dir "${path_www_source}"; then
       debug --level 5 --topic "HOOK->FEATURE->CREATE->500" "Source webroot not found; not copying anything into the feature [source:${path_www_source}][destination:${path_www_destination}]"
       return 0
     fi

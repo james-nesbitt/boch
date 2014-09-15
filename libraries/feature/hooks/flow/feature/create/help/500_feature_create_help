@@ -35,6 +35,7 @@ Usage:
 
 Options: (all used in hooks)
   [-p|--path {path}]: specify what path to create the feature in
+  [-i|--ignore-source]: Don't copy the source into the feature
 
 @NOTE if no name is specified then a random value is used
 @NOTE if no path is specficied, then the feature is created in

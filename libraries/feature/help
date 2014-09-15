@@ -18,7 +18,7 @@ feature_help()
         local feature="${1:1}"
         library_load --component "${feature}" "feature"
         if [ $? -eq 0 ]; then
-          library_execute --component "${feature}" --action "help" "feature"
+          library_execute "help" "${feature}"
           if [ $? -gt 0 ]; then
             feature_help_featurehasnohelp "${feature}"
           fi
@@ -38,20 +38,17 @@ feature_helplist()
 {
   if [ -z "${1}" ]; then
     echo "FEATURE HELP TOPICS
---> create : Create a new feature (feature:create)
+-------------------
+- create : Create a new feature (feature:create)
 
 EXISTING FEATURES
-----------------------
-The following is a list of features in this system.  Included is a possible
-help link, but there may be no custom help for the feature.  The feature
-name/ID can be used in any feature flows.
-Each line shows the following:
-   --> {name}  [{alias}] ({help topic})
-----------------------"
+-----------------
+* To activate an alias on command line : $/> boch %feature:{name}
+* For more help try : $/> boch help feature:@{name}"
     local feature=""
     for feature in `features_list`; do
       local feature_id="${feature%:*}"
-      echo "--> ${feature_id} [@feature:${feature_id}] (feature:@${feature_id})"
+      echo "- ${feature_id} (feature:@${feature_id})"
     done
   else
     echo "no help topics"
@@ -61,9 +58,55 @@ Each line shows the following:
 # general help message
 feature_help_generalhelp()
 {
-  echo "FEATURE General help
+  echo "
+General help for features
+=========================
 
-The feature library is just magnificent
+The feature library is a functionality packaging system, that can be used to overlap
+implementation details on individual calls.
+The original concept was to create a system that mimiced the concept of a git-flow feature
+where a feature would be an isolated environment for delivering a single set of
+functionality, without impacting the core source.  The concept was immediately useful for
+more application.
+
+The implementation is that a feature is a \"library\" that can be created by the system
+itself, and can container it's own settings and controls.  The feature can be enabled
+through a single setting, or through a command line alias, so that it's settings override
+the core settings temporarily.
+Features are by default created/kept in the project conf folder, but can easily be put
+into the user conf folder, making them available for all projects for a user.
+
+Here are some example concepts:
+1. Create a functional branch, identifying a new container for use with a git branch.
+   Copy the source from the branch into the feature when creating it, and sync that source
+   back into the branch when closing it.  The container will contain it's own data, and
+   unique (non-versioned) files, so it can be deleted easily;
+2. Start a SOLR container from a contrib solr image, and link the project container(s) to
+   it using a specific URI (there are plenty of turnkey SOLR containers out there.)
+   Share the SOLR container across all project containers;
+3. Start a DB container, to run any particular DB, and provide access to project containers
+4. Alternate between different images using the same source, to test functinalities across
+   different environments;
+5. Centralize asset storage for various project containers into a single container, to
+   deduplicate container environment.
+
+Activating a feature is usually done on command line, using an alias
+$/> boch %feature:{feature name}
+But the it can be activated in a project settings file, to reduce command line typing if
+desired:
+alias_add %feature:{feature_name}
+
+* Note that the % symbol in the alias tells the alias system to load the feature library,
+and then the feature library alias, loads the particular feature.
+
+Besides activation, the following actions can be taken with features:
+
+1. Create: create a new feature library, either for the project, or for the user.
+  - This will create a new library
+  - This can copy source code into the feature
+
+@TODO write other feature actions: destroy, sync, reset,
+
 "
 }
 

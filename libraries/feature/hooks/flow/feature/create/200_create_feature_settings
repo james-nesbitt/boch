@@ -30,7 +30,7 @@ hook_feature_create_200_execute()
     local path="`path_expand "${feature_path}"`"
     feature_path_settings="${path}/settings"
 
-    debug --level 5 --topic "HOOK->FEATURE->CREATE->200" "Creating feature library settings file [name:${name}][path:${feature_path_settings}]"
+    debug --level 5 --topic "HOOK->FEATURE->CREATE->200" "Creating feature library settings file [name:${feature_name}][path:${feature_path_settings}]"
 
     path_ensure --dir "${path}"
     path_ensure --exec "${feature_path_settings}"
