@@ -72,29 +72,35 @@ hook_docker_run_post_200_execute()
     shift
   done
 
-  if ! path_ensure --dir "${docker_container_registerpath}"; then
-    debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as the path cannot be used : ${docker_container_registerpath}"
-    return 1
-  fi
+  if [ "${docker_container_registerpath}" != "${empty_path}" ]; then
 
-  if [ -n "${container}" ]; then
-
-    local path="${docker_container_registerpath}/$container"
-
-    if path_is "${path}"; then
-      debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Overwriting existing container registration file : ${path}"
-    else
-      debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Creating new container registration file : ${path}"
+    if ! path_ensure --dir "${docker_container_registerpath}"; then
+      debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as the path cannot be used : ${docker_container_registerpath}"
+      return 1
     fi
 
-    echo "id:${containerID}
+    if [ -n "${container}" ]; then
+
+      local path="${docker_container_registerpath}/$container"
+
+      if path_is "${path}"; then
+        debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Overwriting existing container registration file : ${path}"
+      else
+        debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Creating new container registration file : ${path}"
+      fi
+
+      echo "id:${containerID}
 container:${container}
 image:${image}
 version:${version}
 ip:${ip}
 args:$@"  > ${path}
 
+    else
+      debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as no container name was passed [container:${container}"
+    fi
+
   else
-    debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as no container name was passed [container:${container}"
+    debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as no container registration path was found [container:${container}"
   fi
 }

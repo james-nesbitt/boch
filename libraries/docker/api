@@ -815,7 +815,9 @@ docker_inspect_container_list()
     case "$1" in
       -n|--name)
         # this is a container name
-        filter="${filter} | grep -i \"\\s${2}\s*$\" "
+        # @BUG this doesn't work when containers are linked
+        #         filter="${filter} | grep -i \"\\s${2}\s*$\" "
+        filter="${filter} | grep -i \"\\${2}\" "
         shift
         ;;
       -d|--id)

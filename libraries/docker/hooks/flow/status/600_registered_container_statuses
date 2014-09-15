@@ -35,7 +35,7 @@ hook_flow_status_600_execute()
       echo "
 REGISTERED CONTAINERS
 =====================
-Status of containers registered by docker_start"
+Status of containers registered by docker_start (${docker_container_registerpath})"
       local container_path=""
       for container_path in `path_contents --file "${docker_container_registerpath}"`; do
         local container="${container_path##*/}"

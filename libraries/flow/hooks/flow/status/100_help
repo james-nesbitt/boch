@@ -34,9 +34,6 @@ hook_flow_status_100_execute()
     # Could not decide what behaviour to use
     #*" all "*|*" help "*)
     *" help "*)
-      echo "
-STATUS HELP
-==========="
       help_execute "flow:status"
       ;;
   esac
