@@ -116,34 +116,5 @@ All matching aliases in all libraries are executed.
 # Output a list of settings as a help message
 settings_help_outputsettings()
 {
-      echo "PROJECT SETTINGS
-================
-control settings used in this state: [
-  >SINGLE PATHS USED
-  -->path_project----------: ${path_project}
-  -->path_execution--------: ${path_execution}
-  -->path_library----------: ${path_library}
-  >CONFS
-  -->path_userconf---------: ${path_userconf}
-  -->path_projectconf------: ${path_projectconf}
-  >ALIASES
-  -->active_aliases--------: `aliases_get`
-  >LIBRARIES
-  -->libraries loaded------: `libraries_list`
-  >HOOKS
-  -->path_hooks------------: `hooks_getpath`
-  >PROJECT CONFIGURATION
-  -->Project_name----------: ${project_name}
-  >PROJECT DOCKER CONFIGURATIONS
-  -->project_container-----: ${project_container}
-  -->project_image---------: ${project_image}
-  -->project_imageversion--: ${project_imageversion}
-  >PROJECT MACHINE CONFIGURATIONS
-  -->Machine_hostname------: ${machine_hostname}
-  -->Machine_mountvolumes--: `settings_mount_getmounts --short`
-  -->Machine_shell---------: ${machine_shell}
-  -->Machine_shellrunargs--: ${machine_shellrunargs}
-  -->Machine_runargs-------: ${machine_runargs}
-]
-"
+  hooks_execute "settings" --state "output" $@
 }

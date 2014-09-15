@@ -83,7 +83,11 @@ settings_mount_addmount()
 {
   list_add "machine_mountvolumes" $1
 }
-
+# Clear out all mounts
+settings_mount_clearmounts()
+{
+  list_reset "machine_mountvolumes" $1
+}
 # get a list of added mounts
 settings_mount_getmounts()
 {

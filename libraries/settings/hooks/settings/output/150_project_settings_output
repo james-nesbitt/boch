@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# Output core project settings
+#
+
+hook_version=2
+hook_root="hook_settings_output_150"
+
+# description method
+hook_settings_output_150_description()
+{
+  echo "Output core project settings"
+}
+
+# help method
+hook_settings_output_150_help()
+{
+  echo "
+hook->settings->output->100 : Output core settings
+
+This is the project settings output hook, which will output settings used
+in the core library to control the project.
+
+"
+  help_topic_add "settings:settings"
+  help_topic_list
+}
+
+# execute method
+hook_settings_output_150_execute()
+{
+  echo "PROJECT SETTINGS OUTPUT
+--------------------: [
+>PROJECT DOCKER CONFIGURATIONS
+-->project_container-----: ${project_container}
+-->project_image---------: ${project_image}
+-->project_imageversion--: ${project_imageversion}
+>PROJECT MACHINE CONFIGURATIONS
+-->Machine_hostname------: ${machine_hostname}
+-->Machine_mountvolumes--: `settings_output_list $(settings_mount_getmounts --short)`
+-->Machine_runargs-------: ${machine_runargs}
+>PROJECT SHELL CONFIGURATIONS (setting overrides used for $/> boch command shell)
+-->Machine_username------: ${machine_username}
+-->Machine_shell---------: ${machine_shell}
+-->Machine_shellrunargs--: ${machine_shellrunargs}
+]"
+}
+
+settings_output_list()
+{
+  echo ""
+  local value
+  for value in $@; do
+    echo "      ${value}"
+  done
+}
