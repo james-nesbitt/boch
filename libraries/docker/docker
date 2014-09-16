@@ -45,7 +45,7 @@ docker_containerregisterpaths_get()
   for path in ${registerpaths}; do
     echo "${path}"
 
-    path=path-1
+    count=$(($count-1))
     if [ ${count} -eq 0 ]; then
       return 0
     fi
