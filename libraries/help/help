@@ -25,15 +25,17 @@ help_scope_get()
 #
 help_execute()
 {
+  local topic="${1}"
+  shift
+
   # this function should respond to bad usage
-  if [ -z "$1" ]; then
-    help_help_general
-    return $?
-  else
-    help_topic_help $@
-    if [ $? -gt 0 ]; then
-      message "No matching help handler could be found for ${1}"
-    fi
+  if [ -z "$topic" ]; then
+    topic="help"
+  fi
+
+  help_topic_help "${topic}" $@
+  if [ $? -gt 0 ]; then
+    message "No matching help handler could be found for ${1}"
   fi
 }
 
@@ -140,16 +142,25 @@ help_help()
 {
   local topic="$1"
   case "${topic}" in
+    general)
+      help_help_general
+      ;;
+    help|morehelp)
+      help_help_topic_help
+      ;;
     bootstrap)
       help_help_topic_bootstrap
       ;;
     hooks|hook)
       help_help_topic_hooks
       ;;
-    projectconf)
+    path|paths)
+      help_help_topic_paths
+      ;;
+    project)
       help_help_topic_projectconf
       ;;
-    userconf)
+    user)
       help_help_topic_userconf
       ;;
     libraries|library)
@@ -158,9 +169,6 @@ help_help()
     *)
       if [ -n "${topic}" ]; then
         help_help_unknowntopic "${topic}" $@
-
-        help_scope_add "help"
-        help_scope_list
       fi
 
       help_help_general
@@ -176,17 +184,20 @@ help_help()
 help_helplist()
 {
   echo "SYSTEM HELP TOPICS
+--> General information about the system (help:general)
+--> Information about the help system (help:help)
 --> System bootstrap initialization (help:boostrap)
 --> Libraries (help:libraries)
 --> Hooks (help:hooks)
---> The project folder/library (help:projectconf)
---> The user folder/library (help:userconf)
+--> Paths (help:paths)
+--> The project folder/library (help:project)
+--> The user folder/library (help:user)
 "
   echo "LIBRARIES THAT SHOULD HAVE HELP TOPICS:"
   local library=""
   for library in `libraries_list | sort`; do
     case "${library%:*}" in
-      "core"|"help")
+      "core"|"user"|"project")
         ;;
       *)
         if library_include "${library%:*}" "help"; then
@@ -196,12 +207,60 @@ help_helplist()
   done
 }
 
-
+# Help topic for when no topic is proiced
 help_help_general()
 {
- echo "This is the generic help handler for the toolset
+  echo "
+GENERAL HELP
+============
+
+This is the general help page for the boch system.
+
+The system is composed of libraries, any of which can be a
+handler for the command line app.  Those most common use cases
+are to run commands, or complex workflows.  The primary boch
+script can be used to handle all actions.
+
+Syntax:
+-------
+
+$/> boch command ps   <-- run a command
+$/> boch flow status  <-- run a workflow
+$/> boch help:help    <-- get help, about the help system
+
+* If you omit the command|flow|help, then the script will try
+to determine which makes sense *
+
+Help can also be retrieved on any command by adding a flad
+
+$/> boch -h command ps <-- get help about running the ps command
+
+Get more information
+--------------------
+
+There help system can it's own help page here:
+$/> boch help help
+
+Get help with commands and flows like this:
+$/> boch help flow
+$/> boch help command
+
+You can get more information about a library
+
+
+"
+
+}
+
+# Give help about the help system
+help_help_topic_help()
+{
+ echo "
+This is the generic help handler for the toolset
+================================================
 
 The help library
+----------------
 
 This library is used to provide methods for other libraries, and hooks
 to encapsulate their own help information, so that a user can pull that
@@ -210,6 +269,7 @@ You are receiving general help information about this library, as no
 known topic was requested.
 
 LIBRARY HELP
+------------
 
 Any library can include a help file, which should have at least a
 {library}_help method.  That method is responsible for outputting help
@@ -218,6 +278,7 @@ if not topic is passed.  Note that topics aren't checked before being
 passed in, so the help method should check for valid topics.
 
 TOPICS
+------
 
 When reveiving help, you will often see at the bottom of the help, a list
 of topics for further help.  Each topic will include a small description
@@ -225,6 +286,7 @@ followed by a topic label, in (brackets).  That topic can be passed
 back into the system to get more help.
 
 SCOPES
+------
 
 A library can also include a {library}_helplist method, which can list
 topics in a certain scope.  Libraries in use in the system, can add scopes
@@ -240,6 +302,7 @@ Often, a library will implement something like this:
     help_scope_list
 
 EXAMPLES
+--------
 
 While most of the scripts in this system can offer help, by adding a
 --help [{topic}] argument to the call, the help script exists soley to
@@ -288,7 +351,9 @@ The help system does not recognize your topic \"${topic}\".  Instead, more gener
 
 help_help_topic_bootstrap()
 {
- echo "Help topic handler for system boostrap
+ echo "
+Help topic handler for system boostrap
+======================================
 
 The system bootstraps primarly using the _init executable script in the library root folder.
 
@@ -299,7 +364,7 @@ The script only really performs 2 tasks:
 3. load the core libraries.
 
 Library Paths:
-
+--------------
 The toolset uses some bash trickery to try to locate the following:
 
 1. The path to the root of the toolset, to be used for includes
@@ -311,7 +376,7 @@ If the project root cannot be found, then a \"not found\" value is used,
 marking it as not-existing.
 
 Core Includes:
-
+--------------
 The toolset uses only 2 non-library includes:
 
 1. _utilities : a set of script tools used to implement debug, path, and
@@ -320,18 +385,33 @@ The toolset uses only 2 non-library includes:
    the real functionality (help:libraries)
 
 Core libraries:
-
+---------------
 The following core libraries are loaded in this order:
+
 1. hooks : hook functionality (hook:general)
 2. settings : Settings loading and default values (settings:general)
 3. help : The help system providing this help (help:general)
 4. docker : docker API tools (docker:general)
+
+Functional Libraries:
+--------------------
+
+1. command: implement single execition docker commands (command:general)
+2. flow: Implement workflow based commands (flow:general)
+
+Additional Libraries:
+---------------------
+
+1. Feature : a git-flow like system for dynamic creation of custom libraries
+   for projects
 "
 }
 
 help_help_topic_libraries()
 {
- echo "Help topic handler for libraries
+ echo "
+Help topic handler for libraries
+================================
 
 The architecture of this toolset is very abstracted.  Most of the effort is handled in abstracted
 library tools, which can contain a variety of implemented functionaly through includes and sub-folders.
@@ -368,7 +448,9 @@ flows.
 
 help_help_topic_hooks()
 {
- echo "Help topic handler for hooks
+ echo "
+Help topic handler for hooks
+============================
 
 The second key component in the toolset is the hook concept, which allows any library to include an
 ordered list of files that can be run on the triggering of certain events.  The files are sorted across
@@ -398,13 +480,52 @@ Functions:
 {hook_root}_execute() : execute the hook
 
 * a hook template is offered as the docs/templates/hook
+
+There is more help in the hook handling library:
+--> Hooks general help (hook:general)
+"
+
+}
+
+# help topic for paths and path aliases
+help_help_topic_paths()
+{
+  echo "
+Help topic for paths and path aliases
+=====================================
+
+You may notice in the status flow, or settings output, that sometimes
+paths are prefixed with a phrase and \"~\" symbol.  This prefix refers
+to a core path in the system.  A core path is either one of a core list
+or the name of a library.
+
+The Core Path Aliases
+---------------------
+
+- library~ : points to the root of the boch library, wherever it is being used
+- root~ : points to the top folder of a project, which contains the .boch library
+- home~ : points to a user's home folder
+
+Library path aliases
+--------------------
+
+The syntax for a library alias is the prefix the name of the library with the
+\"~\" symbol following.
+
+* Remember that the user and project .boch folders are considered to be
+libraries so they are a part of this list:
+- user : points to the user ~/.boch folder
+- project : points to the project /.boch folder
+
 "
 }
 
 # help topic for the project library
 help_help_topic_projectconf()
 {
- echo "Help topic handler for the project library
+ echo "
+Help topic handler for the project library
+==========================================
 
 Every project should have a .boch folder, in the project root, to mark the project
 as a boch project.  The folder is actually optional, but boch will look up the path
@@ -427,13 +548,18 @@ it can contain any functionality as other libraries, including:
 
 This folder can be created manually, but you can also use the \"init\" flow to generate
 it automatically (flow:init)
+
 For more help on libraries try using this help topic (help:libraries)
+
+* The project library can be aliased in path by prefixing with project~ (help:aliases) *
 "
 }
 # help topic for the user library
 help_help_topic_userconf()
 {
- echo "Help topic handler for the user library
+ echo "
+Help topic handler for the user library
+=======================================
 
 Every user can have a .boch folder in their home directory, to make additional tools
 and functions available for their boch implementations, across all projects.
@@ -452,6 +578,8 @@ as any other library:
 This folder can be created manually, but you can also use the \"install\" flow to generate
 it automatically (flow:install)
 For more help on libraries try using this help topic (help:libraries)
+
+* The user library can be aliased in path by prefixing with user~ (help:aliases) *
 "
 }
 
