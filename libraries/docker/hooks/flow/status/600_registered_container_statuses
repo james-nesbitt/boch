@@ -35,21 +35,24 @@ hook_flow_status_600_execute()
       echo "
 REGISTERED CONTAINERS
 =====================
-Status of containers registered by docker_start (${docker_container_registerpath})"
+Status of containers registered by docker_start"
       local container_path=""
-      for container_path in `path_contents --file "${docker_container_registerpath}"`; do
-        local container="${container_path##*/}"
-        echo "
-CONTAINER: ${container}  IP:`docker_inspect_getIP --container "${container}"`
-------------------------------------------------"
-        cat "${container_path}"
-        if docker_container_exists ${container}; then
+      local register=""
+      for register_path in `docker_containerregisterpaths_get`; do
+        for container_path in `path_contents --file "${register_path}"`; do
+          local container="${container_path##*/}"
           echo "
+CONTAINER: ${container}  IP:`docker_inspect_getIP --container "${container}"`
+(`path_shorten "${container_path}"`)
+------------------------------------------------"
+          cat "${container_path}"
+          if docker_container_exists ${container}; then
+            echo "
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES"
-          docker_inspect_container_list --name "${container}"
-        fi
+            docker_inspect_container_list --name "${container}"
+          fi
+        done
       done
-
       ;;
   esac
 }

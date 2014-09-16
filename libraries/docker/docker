@@ -2,6 +2,56 @@
 #
 # Docker Library
 
+# Get all the paths that have containers registered in them
+#
+# @NOTE pass --active to get only one path, which can be used for writing
+docker_containerregisterpaths_get()
+{
+  # how many to return (use 0 for all)
+  local count=0
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+       --count)
+        count=${2}
+        shift
+        ;;
+       --active)
+        count=1
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  local registerpaths=""
+  if [ -n "${docker_container_registrationpaths}" ]; then
+    registerpaths=${docker_container_registrationpaths}
+  else
+    # default to using projects container registration
+    for library in `libraries_list --reverse`; do
+      path="`library_path \"${library}\"`/containers"
+      if path_is --dir "${path}"; then
+        registerpaths="${registerpaths} ${path}"
+      fi
+    done
+  fi
+
+  local path=""
+  for path in ${registerpaths}; do
+    echo "${path}"
+
+    path=path-1
+    if [ ${count} -eq 0 ]; then
+      return 0
+    fi
+  done
+}
+
 # initialize the docker library
 docker_init()
 {

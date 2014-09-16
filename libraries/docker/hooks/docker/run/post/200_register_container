@@ -26,6 +26,7 @@ Any new container has a file created here: ${docker_container_registerpath}
 # execute method
 hook_docker_run_post_200_execute()
 {
+  local registerpath="`docker_containerregisterpaths_get --active`"
 
   local flags=""
   while [ $# -gt 0 ]
@@ -72,16 +73,18 @@ hook_docker_run_post_200_execute()
     shift
   done
 
-  if [ "${docker_container_registerpath}" != "${empty_path}" ]; then
+  if [ "${registerpath}" != "${empty_path}" ]; then
 
-    if ! path_ensure --dir "${docker_container_registerpath}"; then
-      debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as the path cannot be used : ${docker_container_registerpath}"
+    registerpath="`path_expand "${registerpath}"`"
+
+    if ! path_ensure --dir "${registerpath}"; then
+      debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Could not create container registration file, as the path cannot be used : ${registerpath}"
       return 1
     fi
 
     if [ -n "${container}" ]; then
 
-      local path="${docker_container_registerpath}/$container"
+      local path="${registerpath}/$container"
 
       if path_is "${path}"; then
         debug --level 5 --topic "HOOK->DOCKER->RUN->POST->200" "Overwriting existing container registration file : ${path}"

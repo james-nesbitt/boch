@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+#
+#
+
+hook_version=2
+hook_root="hook_docker_run_post_200"
+
+# description hook
+hook_docker_run_post_200_descrtiption()
+{
+  echo "register any new containers in the system"
+}
+
+# help method
+hook_docker_run_post_200_help()
+{
+  echo "
+HOOK->DOCKER->START->POST->200 Register any new containers in the system
+
+Any new container has a file created here: ${docker_container_registerpath}
+
+"
+}
+
+# execute method
+hook_docker_run_post_200_execute()
+{
+
+  local registerpath="`docker_containerregisterpaths_get`"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        local container=$2
+        shift
+        ;;
+      -i|--image)
+        local image="${2}"
+        shift
+        ;;
+      -n|--ip)
+        local ip="${2}"
+        shift
+        ;;
+      -v|--version)
+        local version="${2}"
+        shift
+        ;;
+      --startargs)
+        shift
+        break
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  registerpath="`path_expand "${registerpath}"`"
+
+echo "CONTAINER REGISTRATION UPDATE : ${registerpath} : [container:${container}][image:${image}][version:${version}][ip:${ip}]"
+  if [ "${registerpath}" != "${empty_path}" ]; then
+
+    if ! path_is --dir "${registerpath}"; then
+      debug --level 5 --topic "HOOK->DOCKER->START->POST->200" "Container registration path is invalid, so no registration will occur : ${registerpath}"
+      return 1
+    fi
+
+    if [ -n "${container}" ]; then
+
+      local path="${registerpath}/$container"
+      if path_is "${path}"; then
+        debug --level 5 --topic "HOOK->DOCKER->START->POST->200" "Container registration file being updated with new information : ${path}"
+        sed -i "s/^ip:.*/ip\:${ip}/" "${path}"
+      else
+        debug --level 5 --topic "HOOK->DOCKER->START->POST->200" "Container registration file is missing : ${path}"
+      fi
+
+    else
+      debug --level 5 --topic "HOOK->DOCKER->START->POST->200" "Could not update container registration file, as no container name was passed [container:${container}"
+    fi
+
+  else
+    debug --level 5 --topic "HOOK->DOCKER->START->POST->200" "Could not update container registration file, as no container registration path was found [container:${container}"
+  fi
+}

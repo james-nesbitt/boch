@@ -26,6 +26,7 @@ Remove container file created here: ${docker_container_registerpat}
 # execute method
 hook_docker_rm_post_200_execute()
 {
+  local registerpath="`docker_containerregisterpaths_get --active`"
 
   local flags=""
   while [ $# -gt 0 ]
@@ -41,7 +42,7 @@ hook_docker_rm_post_200_execute()
     shift
   done
 
-  local path="${docker_container_registerpath}/$container"
+  local path="`path_expand "${registerpath}"`/$container"
   if path_is --file "${path}"; then
     rm ${path}
     debug --level 5 --topic "HOOK->DOCKER->RM->POST->200" "Removed container registration file : ${path}"

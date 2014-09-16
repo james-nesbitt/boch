@@ -3,11 +3,3 @@
 # Settings for the docker library
 #
 
-# A path in which to put a registration file for each started container
-if [ -z "${docker_container_registerpath}" ]; then
-  if [ "${path_projectconf}" != "${empty_path}" ]; then
-    docker_container_registerpath="${path_projectconf}/containers"
-  else
-    docker_container_registerpath="${empty_path}";
-  fi
-fi
