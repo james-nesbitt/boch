@@ -105,9 +105,15 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} 
 # These are run time mounts, where the host FS can be changed
 # directly changing the container FS.
 #
+# @NOTE Path aliases:
+#   -  root~ : the root path of the project
+#   -  project~ : the path the project's .boch folder
+#   -  home~ : the users home folder
+#   -  user~ : the path the user's home .boch folder
+#
 
-# Source mount : www server builds use /app/source for the project source (and likely expect /app/source/www for webroot
-settings_mount_addmount \"\${path_project}/source:/app/source\"
+# Source mount : www server builds use /app/source for the project source (and likely expect /app/source/www for webroot)
+settings_mount_addmount \"\root~/source:/app/source\"
 
 # SSH
 # This lets your container user do ssh like the host user (selinux may block this on the host)
