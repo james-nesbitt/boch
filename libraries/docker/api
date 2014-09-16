@@ -53,9 +53,6 @@ docker_build() {
         path="${2}"
         shift
         ;;
-      -q|--dirty)
-        clean=""
-        ;;
       -v|--version)
         version="${2}"
         shift
@@ -74,14 +71,18 @@ docker_build() {
   # build a tag from the image and version (we always explicitly build a version, but default to "latest"
   [ -n "${image}" ] && tag="--tag=${image}:${version:-latest}"
 
+  hooks_execute "docker/build" --state "pre" --image "${image}" --version "${version}" --path "${path}" --startargs $@
+
   # Run docker command
-  debug --level 5 --topic "DOCKER" "docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
+  debug --level 5 --topic "DOCKER->BUILD" "docker_build: [path:${path}][image:${image}][version:${version}][tag:${tag}] ==> docker build ${clean} ${tag} ${path}"
   docker build ${clean} ${tag} ${path}
   local success=$?
   if [ $success == 0 ]; then
-    debug --level 6 --topic "DOCKER" "Docker build run. '${image:-"Keyed"}' image created"
+    debug --level 6 --topic "DOCKER->BUILD" "Docker build run. '${image:-"Keyed"}' image created"
+    hooks_execute "docker/build" --state "post" --image "${image}" --version "${version}" --path "${path}" --startargs $@
   else
-    debug --level 2 --topic "DOCKER" "Docker build failed."
+    debug --level 2 --topic "DOCKER->BUILD" "Docker build failed."
+    hooks_execute "docker/build" --state "fail" --image "${image}" --version "${version}" --path "${path}" --startargs $@
   fi
   return $success
 }
@@ -125,14 +126,18 @@ docker_rmi()
   # build a proper image tag
   [ -n "${version}" ] && tag="${image}:${version}" || tag="${image}"
 
+  hooks_execute "docker/rmi" --state "pre" --image "${image}" --version "${version}" --startargs $@
+
   # Run docker command
   debug --level 5 --topic "DOCKER" "docker_rmi [image:${image}][version:${version}][flags:${flags}][tag:${tag}] ==> docker rmi ${flags} ${tag}"
   docker rmi ${flags} ${tag}
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER" "Docker rmi succeeded. \"${image}:${version}\" image removed"
+    hooks_execute "docker/rmi" --state "post" --image "${image}" --version "${version}" --startargs $@
   else
     debug --level 2 --topic "DOCKER" "Docker rmi failed."
+    hooks_execute "docker/rmi" --state "faile" --image "${image}" --version "${version}" --startargs $@
   fi
   return $sucess
 }
@@ -230,25 +235,23 @@ docker_run()
   # Run docker command
   if [ "${daemon}" == "" ]; then
     # run the docker command in the foreground (no hooks are run in this case)
-    debug --level 5 --topic "DOCKER->START" "docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    debug --level 5 --topic "DOCKER->RUN" "docker_run (no-fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     docker run ${flags} ${image}:${version} ${command}
   else
+
+    hooks_execute "docker/run" --state "pre" --image "${image}" --version "${version}" ${hook_flags} --startargs $@
+
     # run the docker command and capture the container ID
-    debug --level 5 --topic "DOCKER->START" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
+    debug --level 5 --topic "DOCKER->RUN" "docker_run (fork)[image:${image}][version:${version}][flags:${flags}][command:${command}] ==> docker run ${daemon} ${flags} ${image}:${version}  ${command}"
     local container="`docker run ${daemon} ${flags} ${image}:${version} ${command}`"
     local success=$?
 
     if [ $success -eq 0 ] && [ -n "${container}" ]; then
-      debug --level 5 --topic "DOCKER->START" "RESULTS of docker run => container started [ID:$container]"
-
       local ip="`docker_inspect_getIP --container ${container}`"
-
-      # execute any existing hooks
-      debug --level 8 --topic "DOCKER->START" "Running run_post hooks [flags:${hook_flags}] => hooks_execute \"docker/run\" --state \"post\" --image \"${image}\" --version \"${version}\" --id \"${container}\" ${hookflags} --startargs $@"
+      debug --level 5 --topic "DOCKER->RUN" "RESULTS of docker run => container started [ID:$container][ip:${ip}]"
       hooks_execute "docker/run" --state "post" --image "${image}" --version "${version}" --id "${container}" ${hook_flags} --ip "${ip}" --startargs $@
-
     else
-      debug --level 2 --topic "DOCKER->START" "Docker run failed."
+      debug --level 2 --topic "DOCKER->RUN" "Docker run failed."
       hooks_execute "docker/run" --state "fail" --image "${image}" --version "${version}" --id "${container}" ${hook_flags} --ip "${ip}" --startargs $@
     fi
 
@@ -290,7 +293,7 @@ docker_attach()
   done
 
   # execute pre hoosk
-  hooks_execute "docker/attach" --state "pre" --image "${image}" --version "${version}" --container "${container} ${flags} $@"
+  hooks_execute "docker/attach" --state "pre" --image "${image}" --version "${version}" --container "${container}" ${flags} $@
 
   # Run docker command
   debug --level 5 --topic "DOCKER" "docker_attach [container:${container}][flags:${flags}] ==> docker attach ${flags} ${container}"
@@ -298,10 +301,10 @@ docker_attach()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER" "Docker attach succeeded. \"${container}\" container was attached"
-    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container} ${flags} $@"
+    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container}" ${flags} $@
   else
     debug --level 2 --topic "DOCKER" "Docker attach failed."
-    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container} ${flags} $@"
+    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container}" ${flags} $@
   fi
   return $sucess
 }
@@ -338,18 +341,20 @@ docker_start()
   fi
 
   # execute pre hooks
-  hooks_execute "docker/start" --state "pre" --image "${image}" --version "${version}" --container "${container} $@"
+  hooks_execute "docker/start" --state "pre" --image "${image}" --version "${version}" --container "${container}" $@
 
   # Run docker command
   debug --level 5 --topic "DOCKER" "docker_start [container:${container}][flags:${flags}] ==> docker start ${flags} ${container}"
   docker start ${flags} ${container}
   local success=$?
   if [ $success == 0 ]; then
+    local ip="`docker_inspect_getIP --container ${container}`"
+
     debug --level 6 --topic "DOCKER" "Docker start succeeded. \"${container}\" container started"
-    hooks_execute "docker/start" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
+    hooks_execute "docker/start" --state "post" --image "${image}" --version "${version}" --container "${container}" --ip "${ip}" $@
   else
     debug --level 2 --topic "DOCKER" "Docker start failed."
-    hooks_execute "docker/start" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
+    hooks_execute "docker/start" --state "fail" --image "${image}" --version "${version}" --container "${container}" $@
   fi
   return $sucess
 }
@@ -390,7 +395,7 @@ docker_stop()
   fi
 
   # execute pre hooks
-  hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
+  hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container}" $@
 
   # Run docker command
   debug --level 5 --topic "DOCKER" "docker_stop [container:${container}][flags:${flags}] ==> docker stop ${flags} ${container}"
@@ -398,10 +403,10 @@ docker_stop()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER" "Docker stop succeeded. \"${container}\" container stopped"
-    hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container} $@"
+    hooks_execute "docker/stop" --state "post" --image "${image}" --version "${version}" --container "${container}" $@
   else
     debug --level 2 --topic "DOCKER" "Docker stop failed."
-    hooks_execute "docker/stop" --state "fail" --image "${image}" --version "${version}" --container "${container} $@"
+    hooks_execute "docker/stop" --state "fail" --image "${image}" --version "${version}" --container "${container}" $@
   fi
   return $sucess
 }
@@ -453,12 +458,10 @@ docker_rm()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER" "Docker rm succeeded. \"${container}\" container removed"
-
-    # execute any existing hooks
-    hooks_execute "docker/rm" --state "post" --container "${container}"
+    hooks_execute "docker/rm" --state "post" --container "${container}" $@
   else
     debug --level 2 --topic "DOCKER" "Docker rm failed."
-    hooks_execute "docker/rm" --state "fail" --container "${container}"
+    hooks_execute "docker/rm" --state "fail" --container "${container}" $@
   fi
   return $sucess
 }
@@ -499,7 +502,7 @@ docker_commit()
   done
 
   # execute any existing hooks
-  hooks_execute attach --state pre --image "${image}" --version "${version}" --container "${container}"
+  hooks_execute attach --state pre --image "${image}" --version "${version}" --container "${container}" $@
 
   # Run docker command
   debug --level 5 --topic "DOCKER" "docker_commit [image:${image}][version:${version}][container:${container}][flags:${flags}] ==> docker commit ${container} ${image}:${version}"
@@ -507,10 +510,10 @@ docker_commit()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER" "Docker commit succeeded. \"${container}\" container committed to ${image}:${version}"
-    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container}"
+    hooks_execute "docker/attach" --state "post" --image "${image}" --version "${version}" --container "${container}" $@
   else
     debug --level 2 --topic "DOCKER" "Docker commit failed."
-    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container}"
+    hooks_execute "docker/attach" --state "fail" --image "${image}" --version "${version}" --container "${container}" $@
   fi
   return $sucess
 }
@@ -542,7 +545,7 @@ docker_pause()
   done
 
   # execute pre hooks
-  hooks_execute "docker/pause" --state "pre" --container "${container} $@"
+  hooks_execute "docker/pause" --state "pre" --container "${container}" $@
 
   # Run docker command
   debug --level 5 --topic "DOCKER" "docker_pause [container:${container}][flags:${flags}] ==> docker pause ${flags} ${container}"
@@ -550,10 +553,10 @@ docker_pause()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER" "Docker pause succeeded. \"${container}\" container was paused"
-    hooks_execute "docker/pause" --state "post" --container "${container} $@"
+    hooks_execute "docker/pause" --state "post" --container "${container}" $@
   else
     debug --level 2 --topic "DOCKER" "Docker pause failed."
-    hooks_execute "docker/pause" --state "post" --container "${container} $@"
+    hooks_execute "docker/pause" --state "post" --container "${container}" $@
   fi
   return $sucess
 }
@@ -585,7 +588,7 @@ docker_unpause()
   done
 
   # execute pre hooks
-  hooks_execute "docker/unpause" --state "pre" --container "${container} $@"
+  hooks_execute "docker/unpause" --state "pre" --container "${container}" $@
 
   # Run docker command
   debug --level 5 --topic "DOCKER" "docker_unpause [container:${container}][flags:${flags}] ==> docker unpause ${flags} ${container}"
@@ -593,10 +596,10 @@ docker_unpause()
   local success=$?
   if [ $success == 0 ]; then
     debug --level 6 --topic "DOCKER" "Docker unpause succeeded. \"${container}\" container was unpaused"
-    hooks_execute "docker/unpause" --state "post" --container "${container} $@"
+    hooks_execute "docker/unpause" --state "post" --container "${container}" $@
   else
     debug --level 2 --topic "DOCKER" "Docker unpause failed."
-    hooks_execute "docker/unpause" --state "fail" --container "${container} $@"
+    hooks_execute "docker/unpause" --state "fail" --container "${container}" $@
   fi
   return $sucess
 }
@@ -695,7 +698,7 @@ docker_inspect()
 
   # Run docker command
   debug --level 9 --topic "DOCKER" "docker_inspect [container:${container}][flags:${flags}] ==> docker inspect ${flags} ${container}"
-  docker inspect ${flags} ${container}
+  docker inspect ${flags} "${container}"
   return $?
 }
 # get the IP address for a container
@@ -815,9 +818,8 @@ docker_inspect_container_list()
     case "$1" in
       -n|--name)
         # this is a container name
-        # @BUG this doesn't work when containers are linked
-        #         filter="${filter} | grep -i \"\\s${2}\s*$\" "
-        filter="${filter} | grep -i \"\\${2}\" "
+        # Not sure why \s doesn't work here ?!?
+        filter="${filter} | grep -i \"[ ,]${2} .*$\" "
         shift
         ;;
       -d|--id)
