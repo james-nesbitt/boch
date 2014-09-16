@@ -28,10 +28,11 @@ This hook will output settings related to hooks
 # execute method
 hook_hook_settings_output_200_execute()
 {
-  echo "HOOKS SETTINGS OUTPUT
---------------------: [
->HOOKS
--->path_hooks------------: `settings_output_list $(hooks_getpath)`
+  echo "
+HOOKS SETTINGS OUTPUT
+---------------------: [
+### HOOKS ###
+- path_hooks------------: `settings_output_list $(hooks_getpath)`
 ]"
 }
 

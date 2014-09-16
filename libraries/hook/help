@@ -81,8 +81,7 @@ hook_helplist()
 # @TODO put some usefull material here
 hook_help_generalhelp()
 {
-  echo "
-hook->help->hook->050 : Getting help information about a hook
+  echo "Getting help information about a hook
 
 This message is a part of the general help system, and how it
 can be used to get help about hooks.
