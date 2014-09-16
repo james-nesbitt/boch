@@ -59,7 +59,7 @@ log_execute()
   if path_is --file "${path_log}"; then
 
     # Run the logs function
-    debug --level 5 --topic "COMMAND" "log [ executing log output command ][command:${command}][flags:${flags}] ==> ${com} ${flags} \"${path}\""
+    debug --level 5 --topic "COMMAND->LOG" "log [ executing log output command ][command:${command}][flags:${flags}] ==> ${com} ${flags} \"${path}\""
     eval "${com} ${flags} ${path}"
     return $?
 

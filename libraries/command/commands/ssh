@@ -60,7 +60,7 @@ ssh_execute()
 
   if docker_container_running "${container}"; then
 
-    local ip="$(docker_inspect_getIP ${container})"
+    local ip=`docker_inspect_getIP ${container}`
 
     message "Now executing ssh for container [${container}] : ssh ${flags} ${user}@${ip} $@"
     message --separator

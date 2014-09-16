@@ -80,6 +80,8 @@ start_execute()
 
   # Add the default flags to the end of the flaglist
   flags="${flags} ${machine_runargs} `settings_mount_getmounts --mount`"
+  # Add default container links
+  flags="${flags} ${machine_runargs} `settings_link_get --link`"
 
   # Check for an existing container
   if docker_container_exists "${container}"; then
@@ -87,11 +89,11 @@ start_execute()
     if docker_container_running "${container}"; then
       message "No need to start the container (${container}) as it is already running."
 
-      debug --level 5 --topic "COMMAND" "didn't start container as it was already running [container:${container}]"
+      debug --level 5 --topic "COMMAND->START" "didn't start container as it was already running [container:${container}]"
       return 0
     else
       # Run the start function
-      debug --level 5 --topic "COMMAND" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
+      debug --level 5 --topic "COMMAND->START" "start [ handing off to docker start abstraction ] ==> docker_start --container ${container}"
       message "Starting stopped container (${container}): `docker_start --container ${container}`"
       return $?
     fi
@@ -101,7 +103,7 @@ start_execute()
     message "Starting new container (${container}):"
 
     # Run the run function
-    debug --level 5 --topic "COMMAND" "start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${container}\" --hostname \"${hostname}\" ${flags} $@"
+    debug --level 5 --topic "COMMAND->START" "start [ handing off to docker abstraction ] ==> docker_run --image \"${image}\" --version \"${version}\" --name \"${container}\" --hostname \"${hostname}\" ${flags} $@"
     docker_run --image "${image}" --version "${version}" --container "${container}" --hostname "${hostname}" ${flags} $@
     return $?
   fi

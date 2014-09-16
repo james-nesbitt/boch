@@ -59,16 +59,18 @@ shell_execute()
   done
 
   # use the machine shell or pass in a command
-  command=${@:-${machine_shell}}
+  command="${@:-${machine_shell}}"
 
   # add default flags to the end of the flag list
   flags="${flags} ${machine_shellrunargs} `settings_mount_getmounts --mounts`"
+  # Add default container links
+  flags="${flags} ${machine_runargs} `settings_link_get --link`"
 
   message "Giving shell access to a new container :"
   message --separator
 
   # Run the shell function
-  debug --level 5 --topic "COMMAND" "shell [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"
+  debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"
   docker_run ${temp} --shell "${command}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@
   return $?
 }
