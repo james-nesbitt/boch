@@ -29,19 +29,20 @@ in the core library.
 # execute method
 hook_settings_output_100_execute()
 {
-  echo "CORE SETTINGS OUTPUT
+  echo "
+CORE SETTINGS OUTPUT
 --------------------: [
->SINGLE PATHS USED
--->path_project----------: ${path_project}
--->path_execution--------: ${path_execution}
--->path_library----------: ${path_library}
->SETTINGS LIBRARY PATHS
--->path_userconf---------: ${path_userconf}
--->path_projectconf------: ${path_projectconf}
->ALIASES
--->active_aliases--------: `settings_output_list $(aliases_get)`
->LIBRARIES
--->libraries loaded------: `settings_output_list $(libraries_list)`
+### SINGLE PATHS USED ###
+- path_project----------: ${path_project}
+- path_execution--------: ${path_execution}
+- path_library----------: ${path_library}
+### SETTINGS LIBRARY PATHS ###
+- path_userconf---------: ${path_userconf}
+- path_projectconf------: ${path_projectconf}
+### ALIASES ###
+- active_aliases--------: `settings_output_list $(aliases_get)`
+### LIBRARIES ###
+- libraries loaded------: `settings_output_list $(libraries_list)`
 ]"
 }
 

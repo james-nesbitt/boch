@@ -28,6 +28,7 @@ Output the settings header, before any actual settings are output.
 # execute method
 hook_settings_output_100_execute()
 {
-  echo "PROJECT SETTINGS
+  echo "
+PROJECT SETTINGS
 ================"
 }

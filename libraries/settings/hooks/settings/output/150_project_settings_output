@@ -29,20 +29,22 @@ in the core library to control the project.
 # execute method
 hook_settings_output_150_execute()
 {
-  echo "PROJECT SETTINGS OUTPUT
---------------------: [
->PROJECT DOCKER CONFIGURATIONS
--->project_container-----: ${project_container}
--->project_image---------: ${project_image}
--->project_imageversion--: ${project_imageversion}
->PROJECT MACHINE CONFIGURATIONS
--->Machine_hostname------: ${machine_hostname}
--->Machine_mountvolumes--: `settings_output_list $(settings_mount_getmounts --short)`
--->Machine_runargs-------: ${machine_runargs}
->PROJECT SHELL CONFIGURATIONS (setting overrides used for $/> boch command shell)
--->Machine_username------: ${machine_username}
--->Machine_shell---------: ${machine_shell}
--->Machine_shellrunargs--: ${machine_shellrunargs}
+  echo "
+PROJECT SETTINGS OUTPUT
+-----------------------: [
+### PROJECT DOCKER CONFIGURATIONS ###
+- project_container-----: ${project_container}
+- project_image---------: ${project_image}
+- project_imageversion--: ${project_imageversion}
+### PROJECT MACHINE CONFIGURATIONS ###
+- Machine_hostname------: ${machine_hostname}
+- Machine_mountvolumes--: `settings_output_list $(settings_mount_getmounts --short)`
+- Machine_links---------: `settings_output_list $(settings_link_get --short)`
+- Machine_runargs-------: ${machine_runargs}
+### PROJECT SHELL CONFIGURATIONS (setting overrides used for $/> boch command shell) ###
+- Machine_username------: ${machine_username}
+- Machine_shell---------: ${machine_shell}
+- Machine_shellrunargs--: ${machine_shellrunargs}
 ]"
 }
 

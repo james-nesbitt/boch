@@ -86,7 +86,7 @@ settings_mount_addmount()
 # Clear out all mounts
 settings_mount_clearmounts()
 {
-  list_reset "machine_mountvolumes" $1
+  list_reset "machine_mountvolumes"
 }
 # get a list of added mounts
 settings_mount_getmounts()
@@ -101,9 +101,6 @@ settings_mount_getmounts()
       -f|--format)
         format="$2"
         shift
-        ;;
-      -l|--list)
-        format="list"
         ;;
       -m|--mount|--mounts)
         format="mount"
@@ -138,6 +135,71 @@ settings_mount_getmounts()
       ;;
     *)
       echo "${mounts}"
+      ;;
+  esac
+}
+
+####
+# Container links management
+#
+
+# Add a container link
+settings_link_add()
+{
+  list_add "settings_links" "${1}"
+}
+# Clear out all links
+settings_link_clear()
+{
+  list_reset "settings_links"
+}
+# retrieve all container links
+settings_link_get()
+{
+  local format="list"
+  local links="`list_get "settings_links"`"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -f|--format)
+        format="$2"
+        shift
+        ;;
+      -l|--link|--links)
+        format="link"
+        ;;
+      -s|--short)
+        format="short"
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # $1 would allow for different formats
+  case "${format}" in
+    "link")
+      # allow hooks to alter the value
+      links="`hooks_altervalue "machinelinks" ${links}`"
+
+      local link=""
+      local collect=""
+      for link in ${links}; do
+        collect="${collect} --link=${link}"
+      done
+      echo "${collect}"
+      ;;
+    "short")
+      local link=""
+      for link in ${links}; do
+        echo "`path_shorten \"${link%:*}\"`:${link#*:}"
+      done
+      ;;
+    *)
+      echo "${links}"
       ;;
   esac
 }
