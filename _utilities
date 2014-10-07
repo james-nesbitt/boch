@@ -33,7 +33,7 @@ list_add()
   value="${value} ${item}"
   value=${value%% }
   value=${value## }
-  eval "$var=\"${value}\""
+  eval "$var='${value}'"
   debug --level 8 --topic "UTIITY->LIST->ADD" "Adding list to lists var [list:${var}][value:${!var}][added:${item}]"
 }
 list_remove()
@@ -77,6 +77,16 @@ list_get()
     echo "${value}"
   done
   debug --level 9 --topic "UTIITY->LIST->GET" "get lists var [list:${var}][value:${trimmed}]"
+}
+# Count the number of results in a list
+list_count()
+{
+  local count=0
+  local item=""
+  for item in `list_get $1`; do
+    count=count+1
+  done
+  echo ${count}
 }
 
 #########################
@@ -404,6 +414,20 @@ path_is()
 
   fi
 
+  return 1
+}
+# Does one path container another
+path_in()
+{
+  local parent=`path_expand $1`
+  local child=`path_expand $2`
+
+  case "${child}" in
+    "${parent}"*)
+      debug --level 8 --topic "UTILITY->PATH->IN" "Child found in parent [parent:${parent}][child:${child}]"
+      return 0
+  esac
+  debug --level 8 --topic "UTILITY->PATH->IN" "Child not found in parent [parent:${parent}][child:${child}]"
   return 1
 }
 # include a source file at a given path
