@@ -26,7 +26,6 @@ Any new container has a file created here: ${docker_container_registerpath}
 # execute method
 hook_docker_run_post_200_execute()
 {
-
   local registerpath="`docker_containerregisterpaths_get`"
 
   local flags=""
@@ -61,7 +60,6 @@ hook_docker_run_post_200_execute()
 
   registerpath="`path_expand "${registerpath}"`"
 
-echo "CONTAINER REGISTRATION UPDATE : ${registerpath} : [container:${container}][image:${image}][version:${version}][ip:${ip}]"
   if [ "${registerpath}" != "${empty_path}" ]; then
 
     if ! path_is --dir "${registerpath}"; then
