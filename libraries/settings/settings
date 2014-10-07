@@ -204,6 +204,72 @@ settings_link_get()
   esac
 }
 
+
+####
+# Container environment variable management
+#
+
+# Add a container env
+settings_env_set()
+{
+  list_add "settings_envs" "${1}"
+}
+# Clear out all links
+settings_env_clear()
+{
+  list_reset "settings_envs"
+}
+# retrieve all container links
+settings_env_get()
+{
+  local format="list"
+  local envs="`list_get "settings_envs"`"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -f|--format)
+        format="$2"
+        shift
+        ;;
+      -e|--export|--exportss)
+        format="export"
+        ;;
+      -s|--short)
+        format="short"
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # $1 would allow for different formats
+  case "${format}" in
+    "export")
+      # allow hooks to alter the value
+      envs="`hooks_altervalue "machineenvs" ${envs}`"
+
+      local env=""
+      local collect=""
+      for env in ${envs}; do
+        collect="${collect} --env=${env}"
+      done
+      echo "${collect}"
+      ;;
+    "short")
+      local env=""
+      for env in ${envs}; do
+        echo "${env}"
+      done
+      ;;
+    *)
+      echo "${envs}"
+      ;;
+  esac
+}
+
 #
 # This library doesn't do too much yet,
 # other than run a lot of hooks

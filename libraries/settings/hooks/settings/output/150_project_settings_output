@@ -38,6 +38,7 @@ PROJECT SETTINGS OUTPUT
 - project_imageversion--: ${project_imageversion}
 ### PROJECT MACHINE CONFIGURATIONS ###
 - Machine_hostname------: ${machine_hostname}
+- Machine_envs----------: `settings_output_list $(settings_env_get --short)`
 - Machine_mountvolumes--: `settings_output_list $(settings_mount_getmounts --short)`
 - Machine_links---------: `settings_output_list $(settings_link_get --short)`
 - Machine_runargs-------: ${machine_runargs}
