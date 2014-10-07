@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# HOOK->FEATURE->UPDATE->500 Copy source www into the feature
+#
+
+hook_version=2
+hook_root="hook_feature_update_500"
+
+# description method
+hook_feature_update_500_desription()
+{
+  echo "Copy source www into the feature"
+}
+
+# help method
+hook_feature_update_500_help()
+{
+  echo "HOOK->FEATURE->UPDATE->500 Copy source www from the feature to the source
+
+Put a copy of the source from the feature into the webroot.
+
+"
+}
+
+# Execute method
+hook_feature_update_500_execute()
+{
+  if [ -n "${feature}" ]; then
+    library_load 'command'
+    command_load 'sync'
+    if [ $? -gt 0 ]; then
+      debug --level 5 --topic 'FEATURE->UPDATE' 'Cannot load the sync command, which is needed to update the feature'
+      return 1
+    fi
+    local each_feature_path=''
+    for each_feature_path in `feature_path_get`; do
+      if path_in "${feature_path}" "${each_feature_path%:*}"; then
+
+        # we need to sync this path
+        debug --level 5 --topic 'FEATURE->UPDATE' "Updating source from feature path [path:${each_feature_path#*:}][feature_path:${each_feature_path%:*}]"
+        message "Updating source from feature file path : ${each_feature_path%:*} -> ${each_feature_path#*:}"
+        command_execute 'sync' --action 'sync' "${each_feature_path%:*}" "${each_feature_path#*:}"
+
+      fi
+    done
+
+  else
+    message "Could not update the feature from the system, as it was not found: ${feature_path}"
+    debug --level 5 --topic "FEATURE->UPDATE" "Could not update feature, not found [path:${feature_path%:*}]"
+  fi
+
+  return 0
+}

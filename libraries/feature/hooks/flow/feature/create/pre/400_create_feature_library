@@ -29,6 +29,7 @@ hook_feature_create_pre_400_execute()
     debug --level 8 --topic "HOOK->FEATURE->CREATE->PRE->400" "Creating feature library [name:${feature_name}][path:${feature_path}]"
     message "Creating ${feature_name} feature library"
 
+    # We put the feature creation into a function so that other functions can reuse it
     feature_create --path "${feature_path}" "${feature_name}"
 
     if [ $? -eq 0 ]; then

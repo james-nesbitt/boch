@@ -40,15 +40,18 @@ feature_helplist()
     echo "FEATURE HELP TOPICS
 -------------------
 - create : Create a new feature (feature:create)
+- sync   : Copy project source into the feature (feature:sync)
+- update : Copy any feature source back into the project (feature:update)
+- empty  : Empty out any source in the feature (feature:empty)
 
 EXISTING FEATURES
 -----------------
 * To activate an alias on command line : $/> boch %feature:{name}
-* For more help try : $/> boch help feature:@{name}"
+* For more help try : $/> boch help feature:{name}"
     local feature=""
     for feature in `features_list`; do
       local feature_id="${feature%:*}"
-      echo "- ${feature_id} (feature:@${feature_id})"
+      echo "- ${feature_id} : `path_shorten "${feature#*:}"` (feature:@${feature_id})"
     done
   else
     echo "no help topics"
@@ -104,8 +107,15 @@ Besides activation, the following actions can be taken with features:
 1. Create: create a new feature library, either for the project, or for the user.
   - This will create a new library
   - This can copy source code into the feature
+2. Sync: Sync any registered feature source paths into the feature
+  - This will copy each source path from it's source into the feature
+3. Update: Update any registered feature source paths from the feature
+  - This will copy each source path to it's source from the feature
+4. Empty: Empty any source that has been copied into the feature
+  - Leaves settings and custom functions in place
+  - remove any registered source paths from inside the feature
 
-@TODO write other feature actions: destroy, sync, reset,
+@TODO write other feature actions: destroy, reset,
 
 "
 }

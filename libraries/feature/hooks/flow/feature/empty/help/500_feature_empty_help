@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# HOOK->FEATURE->EMPTY->HELP->500 General help for the feature:empty
+#
+
+hook_version=2
+hook_root="hook_feature_empty_help_500"
+
+# description method
+hook_feature_empty_help_500_description()
+{
+  echo "General help text for the feature empty action"
+}
+
+# help method
+hook_feature_empty_help_500_help()
+{
+  echo "
+HOOK->FEATURE->EMPTY->HELP->500 General help for feature:empty
+
+The purpose of this flow is make empty all source and data from a
+feature, but not delete it or it's settings.
+
+This can allow you to clean out a featurte or keep a feature in
+place, without worrying about file-size, or code rot, while it
+is dormant.  Fresh source can  synced back into the feature when
+required
+
+FEATURE EMPTY
+
+Empty source and data from your feature
+
+Paths considered eligible for sync/update/empty should be added using
+the feature_path_add function:
+  feature_path_add \"\${feature_name}~source/www/:root~source/www/\"
+
+Usage:
+
+  $/> ./boch feature empty <options> <feature_name>
+
+Options: (all used in hooks)
+
+"
+  help_scope_add "feature:general"
+  help_scope_list
+}
+
+# execute method
+hook_feature_empty_help_500_execute()
+{
+  hook_feature_empty_help_500_help
+}

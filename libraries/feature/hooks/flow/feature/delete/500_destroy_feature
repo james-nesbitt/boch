@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# HOOK->FEATURE->DESTROY->500 Remove a feature from the system
+#
+
+hook_version=2
+hook_root="hook_feature_destroy_500"
+
+# description method
+hook_feature_destroy_500_desription()
+{
+  echo "Remove a feature from the system"
+}
+
+# help method
+hook_feature_destroy_500_help()
+{
+  echo "HOOK->FEATURE->DESTROY->500 Remove source synced into the feature
+
+Remove and feature path elements that may have been synced
+
+"
+}
+
+# Execute method
+hook_feature_destroy_500_execute()
+{
+  if [ -n "${feature}" ]; then
+
+    # rm the feature path
+    message "Removing feature from the system: ${feature_path}"
+    debug --level 5 --topic "FEATURE->DESTROY" "Destroying feature [path:${feature_path%:*}]"
+    rm -rf "${feature_path}"
+
+  else
+    message "Could not remove the feature from the system, as it was not found: ${feature_path}"
+    debug --level 5 --topic "FEATURE->DESTROY" "Could not destroy feature, not found [path:${feature_path%:*}]"
+  fi
+
+  return 0
+}

@@ -1,0 +1,84 @@
+#!/bin/env bash
+#
+# COMMAND->SYNC : Synchronise from one file-system to another
+#
+
+# Description handler
+sync_description()
+{
+  echo "Sync two filesystems/folders, using RSync"
+}
+
+
+# Help handler for the command
+sync_help()
+{
+  echo "=== COMMAND->SYNC Synchronise 2 file-systems/folders ===
+
+This command will synchronise from one file-system into another,
+by using a copy tool.
+
+== Syntax: ==
+
+    sync [options] {from} {to}
+
+    [options]:
+
+      -o|--options {rsync options} : Currently we are only using RSync
+            this will add additional rsync options
+
+@ NOTE The preference is to use rsync, but other
+    operations could likely be added.
+"
+
+}
+
+# Execute the command
+sync_execute()
+{
+  message "Syncing file paths using RSync: $@"
+  message --separator
+
+  sync_sync $@
+
+}
+
+# Message free options for running syncs, that hands off to the
+# currently active sync tool
+#
+# @NOTE you can run this with:  command_execute 'sync' --action 'sync' 'from' 'to'
+#
+# @TODO add more sync options and maybe add a case statement here
+sync_sync()
+{
+  sync_rsync $@
+}
+
+# Sync using RSync
+sync_rsync()
+{
+
+  local flags="-aAXC"
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -o|--options)
+        flags="${flags} ${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+  local from=`path_expand "$1"`
+  local to=`path_expand "$2"`
+
+#   if path_is "${2}"; then
+    debug --level 7 --topic 'COMMAND->SYNC->RSYNC' "Syncing [from:${from}][to:${to}]"
+    path_ensure --dir "${to}"
+    rsync ${flags} ${from} ${to}
+#   else
+#     debug --level 4 --topic 'COMMAND->SYNC->RSYNC' "Syncing failed as the source path was not found (from) [from:${from}][to:${to}]"
+#   fi
+}

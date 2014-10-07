@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# HOOK->FEATURE->EMPTY->500 Remove source that may have been synced into the feature
+#
+
+hook_version=2
+hook_root="hook_feature_empty_500"
+
+# description method
+hook_feature_empty_500_desription()
+{
+  echo "Remove source that may have been synced into the feature"
+}
+
+# help method
+hook_feature_empty_500_help()
+{
+  echo "HOOK->FEATURE->EMPTY->500 Remove source synced into the feature
+
+Remove and feature path elements that may have been synced
+
+"
+}
+
+# Execute method
+hook_feature_empty_500_execute()
+{
+  if [ -n "${feature}" ]; then
+    local each_feature_path=''
+    for each_feature_path in `feature_path_get`; do
+      if path_in "${feature_path}" "${each_feature_path%:*}"; then
+
+       # rm the path
+       message "Removing source path from feature: ${each_feature_path%:*}"
+       debug --level 5 --topic "FEATURE->EMPTY" "Removing feature source [path:${each_feature_path%:*}]"
+       rm -rf "`path_expand ${each_feature_path%:*}`"
+
+      fi
+    done
+  else
+    message "Could not empty the feature from the system, as it was not found: ${feature_path}"
+    debug --level 5 --topic "FEATURE->EMPTY" "Could not empty feature, not found [path:${feature_path%:*}]"
+  fi
+
+  return 0
+}

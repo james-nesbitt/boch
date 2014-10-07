@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# HOOK->FEATURE->SYNC->PRE->300 Convert arguments to variables
+#
+
+hook_version=2
+hook_root="hook_feature_sync_pre_300"
+
+# description method
+hook_feature_sync_pre_300_description()
+{
+  echo "Convert arguments to variables"
+}
+
+# Help method
+hook_feature_sync_pre_300_help()
+{
+  echo "HOOK->FEATURE->SYNC->PRE->300 Convert arguments to variables
+
+"
+}
+
+# execute method
+hook_feature_sync_pre_300_execute()
+{
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # set up the feature name
+  feature_name="${feature_name:-${1}}"
+
+  if [ -z "${feature_name}" ]; then
+    message "No feature name provided, cannot sync the feature"
+    debug --level 5 --topic "FEATURE->SYNC" "No feature name provided, halting feature sync process"
+    return 1
+  fi
+  # maybe load the feature in case it isn't loaded
+  feature_load "${feature_name}"
+
+  if [ $? -gt 0 ]; then
+    message "No matching feature found, cannot sync the feature"
+    debug --level 5 --topic "FEATURE->SYNC" "No mathing feature provided, halting feature sync process [feature:${feature_name}]"
+    return 1
+  fi
+
+  feature=`libraries_list_get "${feature_name}"`
+  feature_path=`library_path "${feature}"`
+}

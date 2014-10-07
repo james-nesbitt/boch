@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Output feature settings
+#
+
+hook_version=2
+hook_root="hook_feature_settings_output_250"
+
+# description method
+hook_feature_settings_output_250_description()
+{
+  echo "Output core project settings"
+}
+
+# help method
+hook_feature_settings_output_250_help()
+{
+  echo "
+hook->feature->settings->output->250 : Output feature settings
+
+This hook outputs settings used in the features library
+"
+  help_topic_add "features:settings"
+  help_topic_list
+}
+
+# execute method
+hook_feature_settings_output_250_execute()
+{
+  echo "
+FEATURES SETTINGS OUTPUT
+-----------------------: [
+### FEATURES SETTINGS ###
+- path_features --------: ${path_features}
+- feature_path_source_www : ${feature_path_source_www}
+### FEATURES IN THE SYSTEM ###
+- available features----: `settings_output_list $(features_list)`
+- loaded features ------: `settings_output_list $(feature_loaded_get)`
+### FEATURE PATHS ###
+- active feature paths -: `settings_output_list $(feature_path_get)`
+]"
+}
+
+settings_output_list()
+{
+  echo ""
+  local value
+  for value in $@; do
+    echo "      ${value}"
+  done
+}

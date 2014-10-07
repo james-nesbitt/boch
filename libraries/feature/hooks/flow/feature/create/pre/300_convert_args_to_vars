@@ -39,6 +39,9 @@ hook_feature_create_pre_300_execute()
       -i|--ignore-source)
         feature_create_copysource=1
         ;;
+      -u|--user)
+        feature_path="user~features"
+        ;;
       *)
         break;
     esac

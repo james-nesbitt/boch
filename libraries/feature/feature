@@ -3,10 +3,74 @@
 # Feature Library hander
 #
 
+#
+# A list manager for loaded features
+#
+# @NOTE there is no current functional use for this, just
+#    used for information purposes
+#
+feature_loaded_add()
+{
+  list_add 'features_loaded' $1
+}
+feature_loaded_get()
+{
+  list_get 'features_loaded'
+}
+
 feature_path()
 {
   echo "${path_features}/${1}"
 }
+
+#
+# A list manager for feature paths for
+# substitution in mounts, and for sync and
+# udpate flows
+
+# Add a feature path
+feature_path_add()
+{
+  list_add 'feature_paths' $1
+}
+feature_path_get()
+{
+  local format="list"
+  local paths="`list_get 'feature_paths'`"
+
+  local flags=''
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # $1 would allow for different formats
+  case "${format}" in
+    'short'|'list')
+      local path=""
+      for path in ${paths}; do
+        echo "${path}"
+      done
+      ;;
+    *)
+      echo "${mounts}"
+      ;;
+  esac
+}
+
+
+# check if a feature exists
+# @TODO write library_exists
+#
+# feature_exists()
+# {
+#   library_exists --component $1 'feature'
+#   return $?
+# }
 
 # Boch handler
 feature_execute()
@@ -18,16 +82,16 @@ feature_execute()
     local flow="feature/${action}"
 
     # make sure that we have loaded the flow library
-    library_load "flow"
+    library_load 'flow'
 
     if flow_exists "${flow}"; then
 
-      library_execute "flow" "${flow}" $@
+      library_execute 'flow' "${flow}" $@
       return $?
 
     else
 
-      library_execute "help" "feature:${action}" $@
+      library_execute 'help' "feature:${action}" $@
 
     fi
 
@@ -52,6 +116,8 @@ feature_load()
   library_load --component "${feature}" "feature"
   local success=$?
   if [ $success -eq 0 ]; then
+    feature_loaded_add "${feature}"
+
     # execute any feature load pre hooks
     hooks_execute "feature/load"--state "post" --feature "${feature}" $@
 

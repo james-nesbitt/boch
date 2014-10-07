@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# HOOK->FEATURE->SYNC->HELP->500 General help for the feature:sync
+#
+
+hook_version=2
+hook_root="hook_feature_sync_help_500"
+
+# description method
+hook_feature_sync_help_500_description()
+{
+  echo "General help text for the feature sync action"
+}
+
+# help method
+hook_feature_sync_help_500_help()
+{
+  echo "
+HOOK->FEATURE->SYNC->HELP->500 General help for feature:sync
+
+This hook give general help about the feature:sync flow
+
+The purposed of the sync flow is to sync one of more feature
+file-systems from the feature back into the project source.
+Combined with feature:update, this can provide a method for
+managing copies of source files and folder in the feature
+to allow for an isolated file-system for the feature container.
+
+FEATURE SYNC
+
+Sync the feature file system with the source file system
+
+Paths considered eligible for sync/update/empty should be added using
+the feature_path_add function:
+  feature_path_add \"\${feature_name}~source/www/:root~source/www/\"
+
+Usage:
+
+  $/> ./boch feature sync <options> <feature_name>
+
+Options: (all used in hooks)
+
+"
+  help_scope_add "feature:general"
+  help_scope_list
+}
+
+# execute method
+hook_feature_sync_help_500_execute()
+{
+  hook_feature_sync_help_500_help
+}
