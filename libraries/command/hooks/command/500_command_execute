@@ -30,12 +30,12 @@ that impements the functionality.  If the function fails, then run the fail hook
 hook_command_500_execute()
 {
   # Command is the first argument
-  COMMAND=$1
+  COMMAND="$1"
   shift
 
 
   debug --level 8 --topic "HOOK->COMMAND->500" "Command execute [command:${COMMAND}]"
-  command_execute $COMMAND $@
+  command_execute "$COMMAND" $@
 
   if [ $? -eq 0 ]; then
     debug --level 5 --topic "HOOK->COMMAND->500" "Command succeeded [command:${COMMAND}]"

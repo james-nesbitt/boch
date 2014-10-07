@@ -61,8 +61,12 @@ shell_execute()
   # use the machine shell or pass in a command
   command="${@:-${machine_shell}}"
 
+  # Add machine shell args
+  flags="${flags} ${machine_shellrunargs}"
+  # Add ENV vars
+  flags="${flags} `settings_env_get --export`"
   # add default flags to the end of the flag list
-  flags="${flags} ${machine_shellrunargs} `settings_mount_getmounts --mounts`"
+  flags="${flags} `settings_mount_getmounts --mounts`"
   # Add default container links
   flags="${flags} ${machine_runargs} `settings_link_get --link`"
 

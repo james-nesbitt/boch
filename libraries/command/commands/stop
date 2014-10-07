@@ -4,7 +4,7 @@
 #
 
 # command description function
-shell_description()
+stop_description()
 {
   echo "Stop a running container"
 }

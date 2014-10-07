@@ -78,8 +78,12 @@ start_execute()
   # use some safe values (do this now to respond to changes in container via arguments)
   hostname="${hostname:-"${container}"}"
 
+  # Add machine run args to the flags
+  flags="${flags} ${machine_runargs}"
+  # Add ENV vars
+  flags="${flags} `settings_env_get --export`"
   # Add the default flags to the end of the flaglist
-  flags="${flags} ${machine_runargs} `settings_mount_getmounts --mount`"
+  flags="${flags} `settings_mount_getmounts --mount`"
   # Add default container links
   flags="${flags} ${machine_runargs} `settings_link_get --link`"
 
