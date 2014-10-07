@@ -99,10 +99,46 @@ boot2docker_mount_vboxsf()
   # path for the mount
   local path="`path_expand \"${1}\"`"
 
-  debug --level 5 --topic "BOOT2DOCKER->MOUNT" "Mounting folder.  Ignore errors saying \"mount already exists\" as VBoxManage gives no means to check if the mounts are already there [name:${name}][vm:${vm}][path:${path}]"
+  debug --level 5 --topic "BOOT2DOCKER->MOUNT->VBOXSF" "Mounting folder.  Ignore errors saying \"mount already exists\" as VBoxManage gives no means to check if the mounts are already there [name:${name}][vm:${vm}][path:${path}]"
 
   # if it were possible to determine if the mount existed, then we would do that here
 #    VBoxManage sharedfolder remove "${vm}" --name "${name}" ${flags}
     VBoxManage sharedfolder add "${vm}" --name "${name}" --hostpath "${path}" --automount ${flags} 2>&1
+  return $?
+}
+# Mount using nfs
+boot2docker_mount_nfs()
+{
+  local vm="${boot2docker_vm_name}"
+  local name="${RANDOM}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -n|--name)
+        name="${2}"
+        shift
+        ;;
+      -t|--transient)
+        flags="${flags} --transient"
+        ;;
+      -v|--vm)
+        vm="${2}"
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # path for the mount
+  local path="`path_expand \"${1}\"`"
+
+  debug --level 5 --topic "BOOT2DOCKER->MOUNT->NFS" "Mounting folder [name:${name}][vm:${vm}][path:${path}]"
+
+  # if it were possible to determine if the mount existed, then we would do that here
+
   return $?
 }

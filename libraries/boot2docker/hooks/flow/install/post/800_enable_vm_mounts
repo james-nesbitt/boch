@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# enable boot2docker mounts in the VM
+#
+
+hook_version=2
+hook_root="hook_boot2docker_flow_init_post_800"
+
+# description method
+hook_boot2docker_flow_init_post_800_description()
+{
+  echo "enable boot2docker mounts in the VM"
+}
+
+# help method
+hook_boot2docker_flow_init_post_800_help()
+{
+  echo "HOOK->B2D->FLOW->INSTALL->POST->800 Enable boot2docker mounts in vm
+
+During install, this hook will create the mounts to be used on the
+"
+}
+
+# execute method
+hook_boot2docker_flow_init_post_800_execute()
+{
+  local right_now="do_nothing"
+}
