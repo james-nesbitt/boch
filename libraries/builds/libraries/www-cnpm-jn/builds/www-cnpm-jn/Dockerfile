@@ -16,8 +16,7 @@ RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
 RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum -y makecache
 
 # Install some tools used here.
-RUN /usr/bin/yum install -y wget curl git tar unzip
-ADD bin_hostname /usr/bin/hostname
+RUN /usr/bin/yum install -y wget curl git tar unzip hostname
 
 # Install the mimimum services required to get a base platform (ssh service generates keys)
 RUN /usr/bin/yum install -y openssh-server && \
@@ -27,8 +26,8 @@ EXPOSE 22
 
 # Install MariaDB : this is the standard Maria 5.x, as the 10.x doesn't have a centos7 install yet
 RUN /usr/bin/yum install -y mariadb-server mariadb
-ADD etc_my.cnf.d_server.cnf /etc/my.cnf.d/server.cnf
-ADD etc_my.cnf /etc/my.cnf
+ADD etc/my.cnf.d/server.cnf /etc/my.cnf.d/server.cnf
+ADD etc/my.cnf /etc/my.cnf
 RUN /usr/bin/mysql_install_db --basedir=/usr --datadir=/var/lib/mysql --user=mysql --log-error=/var/log/mariadb/error.log --pid-file=/var/run/mariadb/mariadb.pid --socket=/var/run/mariadb/mariadb.sock --bind=0.0.0.0 --port=3306
 # Rassafrakkin' php-mysql doesn't want to look anywhere else, php-mysqlnd doesn't play well with drupal
 RUN ln -s /var/run/mariadb/mariadb.sock /var/lib/mysql/mysql.sock
@@ -36,7 +35,7 @@ RUN (/usr/bin/mysqld_safe &) && sleep 5 && mysql -uroot -e "GRANT ALL ON *.* to 
 EXPOSE 3306
 
 # Install nginx (make it run as the nginx user)
-ADD etc_yum.repos.d/nginx.repo /etc/yum.repos.d/nginx.repo
+ADD etc/yum.repos.d/nginx.repo /etc/yum.repos.d/nginx.repo
 RUN /usr/bin/yum install -y nginx
 RUN chown -R nginx:nginx /var/log/nginx && \
     chmod -R ug+rwX /var/log/nginx

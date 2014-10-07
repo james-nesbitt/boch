@@ -74,8 +74,8 @@ The straight init call is actually a short form of :
 If you like one of our www-server image then you can include a copy of it
 for your project by adding this:
 
-    $/> boch %www-builds:www-cnpm-jn flow init --name "name"
-    $/> boch %www-builds:www-lamp-mk flow init --name "name"
+    $/> boch %builds:www-cnpm-jn flow init --name "name"
+    $/> boch %builds:www-lamp-mk flow init --name "name"
 
 You can get help using one of two equivalent forms:
 

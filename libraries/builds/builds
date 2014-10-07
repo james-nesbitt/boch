@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# WWW Server library
+# Existing Builds library
 #
 # This library does little more than provide some optional prepackaged build
 # libraries, one of which could be used to include some of our pre-built server
@@ -14,9 +14,9 @@
 #
 
 # get the library build list
-www_builds_list_get()
+builds_list_get()
 {
-  local lib="`libraries_list_get "www-builds"`"
+  local lib="`libraries_list_get "builds"`"
   local builds_path="`library_path "${lib}"`/libraries"
   for path in `path_contents --library "${builds_path}"`; do
     echo "${path##*/}:`path_shorten "${path}"`"

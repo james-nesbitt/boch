@@ -1,25 +1,25 @@
 #!/bin/sh
 #
-# INIT:HOOK: POssible include www-build libraries during init
+# INIT:HOOK: POssible include build libraries during init
 #
 
 hook_version=2
-hook_root="hook_flow_init_pre_910"
+hook_root="hook_builds_flow_init_pre_910"
 
 # descriptoin method
-hook_flow_init_pre_910_description()
+hook_builds_flow_init_pre_910_description()
 {
-  echo "Include the www-build libraries during init, if told to do so"
+  echo "Include the build libraries during init, if told to do so"
 }
 
 # help method
-hook_flow_init_pre_910_help()
+hook_builds_flow_init_pre_910_help()
 {
-  echo "hook->init->pre->910 : Include www-build libraries, if told to do so
+  echo "hook->init->pre->910 : Include build libraries, if told to do so
 
-This hook will include one of the www-build libraries,
+This hook will include one of the build libraries,
 
-  [--www-build {build} : which build library to include
+  [--build {build} : which build library to include
 
   There are currently 2 shortcut arguments to the existing builds:
   --www-cnpm-jn
@@ -34,7 +34,7 @@ This hook will include one of the www-build libraries,
 }
 
 # execute method
-hook_flow_init_pre_910_execute()
+hook_builds_flow_init_pre_910_execute()
 {
   additional_libraries=""
 
@@ -42,7 +42,7 @@ hook_flow_init_pre_910_execute()
   while [ $# -gt 0 ]
   do
     case "$1" in
-      --www-build)
+      --build)
         additional_libraries="${additional_libraries} ${2}"
         shift
         ;;

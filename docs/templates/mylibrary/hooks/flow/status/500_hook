@@ -4,24 +4,24 @@
 #
 
 hook_version=2
-hook_root="mylibrary_flow_status_500"
+hook_root="hook_mylibrary_flow_status_500"
 
-# Descriptionn method
+# Description method
 #
 # This description is used in help lists, when lists of hooks
 # that affect a scope are shown.
-500_hook_example_description()
+hook_mylibrary_flow_status_500_description()
 {
-  echo "Output during status flow that this library is enabled"
+  echo "Output during status flow that the mylibrary example library is enabled"
 }
 
 # help method
 #
 # Proovide full help text for the hook, including which arguments
 # it may depend on
-500_hook_example_help()
+hook_mylibrary_flow_status_500_help()
 {
-  echo "hook->flow->status->500 : Tell status that this lbirary is enabled
+  echo "hook->flow->status->500 : Tell status that this library is enabled
 
   This hook outputs that this library is active, during execution of the
   status flow.
@@ -30,7 +30,8 @@ hook_root="mylibrary_flow_status_500"
 }
 
 # execute method
-500_hook_example_execute()
+hook_mylibrary_flow_status_500_execute()
 {
-  echo "Example is Enabled!!!"
+  echo "== MY LIBRARY ==
+--Example library is Enabled!!!"
 }

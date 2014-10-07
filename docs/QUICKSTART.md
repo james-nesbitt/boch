@@ -54,11 +54,11 @@ The goal of the init flow is to create a .boch folder in the project
 root, which contains configurations and functionality for the project.
 
 A common way to use the flow is:
-$/> boch flow init --name "{name}" --www-build www-cnpm-jn
+$/> boch flow init --name "{name}" --builds www-cnpm-jn
 
 - name : is a file-safe name for the project.  If omitted, the foldername
         is used for the name value
-- www-build : selects one of the sub-libraries from the www-builds libraries
+- builds : selects one of the sub-libraries from the builds libraries
         as a template build library; in this case the www-cnpm-jn library
         is used to provide a CENTOS server build, with a "developer" user
         which can be used to ssh into running containers.
@@ -95,7 +95,7 @@ The following stuff should likely be edited:
     what build should be used to build an image for the project.
 - the build : there should be a default build in the project ./builds folder
     which will match your project name.  If there is none, then you will likey
-    want a docker build there.  The --www-build flag in init is essentially
+    want a docker build there.  The --builds flag in init is essentially
     there only to add a default build.
     - Dockerfile : edit anything in here; like the DB creation script. Also
         consider adding additional script runs for docker build.
@@ -151,12 +151,12 @@ parrallel environments, based on the same image.
 ## JUST GIVE ME THE COMMANDS ##
 
 1. init the project
-$/> boch flow init --name nynewname --www-build www-cnpm-jn
+$/> boch flow init --name mynewname --builds www-cnpm-jn
 
 2. change settings in .boch files
 
 3. finalize the init
-$/> boch flow init --name nynewname --www-build www-cnpm-jn --finalize
+$/> boch flow init --name mynewname --builds www-cnpm-jn --finalize
 
 4. start a container
 $/> boch command start

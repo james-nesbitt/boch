@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Feature alias, to load aliased www-builds libraries
+#"
+
+debug --level 8 --topic "BUILDS->ALIAS" "Build alias included : $@"
+
+build_alias_target=""
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    --source-include-path)
+      shift
+      ;;
+    --target)
+      build_alias_target="${2}"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+if [ -n "${build_alias_target}" ]; then
+  library_load "${build_alias_target}"
+  if [ $? -eq 0 ]; then
+    debug --level 5 --topic "BUILDS->ALIAS" "builds library loaded via alias [library:${build_alias_target}]"
+  else
+    debug --level 4 --topic "BUILDS->ALIAS" "Unable to load a builds library via alias [library:${build_alias_target}]"
+  fi
+fi
