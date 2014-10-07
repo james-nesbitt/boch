@@ -14,6 +14,8 @@
 
 ## LIBRARIES ##
 
+1. We could use a library_exists method that can look for libraries and library components
+
 The following are ideas for libraries that should be started
 
 1. boot2docker (STARTED) : to implement hooks that integrate better with boot2docker

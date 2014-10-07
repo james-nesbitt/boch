@@ -6,100 +6,146 @@ This folder contains a set of tools that can be used to control docker images
 to support a project.  The toolset starts off with a simple approach, but is
 geared towards a more complex mix of images and containers for a project.
 
+This Documentation can easily fall out of data, but the toolset itself includes
+a good help system, and even offers help for all hooks used.
+
+This README gives some installation instructions, and then some usage examples,
+just to give an idea of how it works.
+
+== DESIGN AND LANGUAGE ==
+
+The tool is a POSIX compliant bash script collection.  It should probably be
+something else, but it just sort of grew into what it is.
+I started to rewrite it in PYTHON, but it is hard to keep some of the same
+extensible functionality using PYTHON, and would make it basically a different
+tool.
+I haven't tested some of the newer aspect for POSIX compliant, but I believe
+it is still something that can be run all over the place.  It uses `eval` a
+few times, but it is not use any privilege escalation, and runs little else
+other than shell commands, file commands, and of course some docker commands.
+
+== INSTALLATION ==
+
+The tool can be installed centrally somewhere, to act like any application
+on your system.  As long as you can run the primary script, it can be run from
+anywhere on your system.  It behaves like git and vagrant, looking up the folder
+tree for an indication of a project root.
+
+Typically you can check it out into ~/lib/boch  and copy the provided bin template
+to ~/bin to make it easily available across your system.
+
+To get the source, clone it from github:
+
+    $/> git clone git@github.com:james-nesbitt/boch.git
+or
+    $/> git clone https://github.com/james-nesbitt/boch.git
+
+If you want to make a user bin, copy the script template into place like this:
+    $/> cp docs/templates/boch ~/bin/boch
+And modify the ${path_library} variable to point to where you have the git repo
+root path.
+If you don't want to do that, then you will just have to run the /boch scripts
+with full path.  The toolset doesn't care which approach you take, you can keep
+as many copies of the tools around, and even embed it into your project repo if
+you want.
+These documentation assume that you can run $/> boch directly, so consider that
+in the following instructions.
+
+=== PREPARING A PROJECT TO USE BOCH ===
+
+the toolset runs like git and vagrant, in the it inspects the current path,
+and all parent paths to look for a .boch folder.  The tool assumes that the
+first parent to contain .boch is the project root.
+
+If you are in your project root, and you want the toolset to know about it,
+you can run
+
+    $/> boch init
+
+If you want to use a particular project name (which will be used as a default
+for things like default image name, container name, hostname:
+
+    $/> boch init --name "projectnamehere"
+
+The straight init call is actually a short form of :
+
+    $/> boch flow init --name "name"
+
+If you like one of our www-server image then you can include a copy of it
+for your project by adding this:
+
+    $/> boch %www-builds:www-cnpm-jn flow init --name "name"
+    $/> boch %www-builds:www-lamp-mk flow init --name "name"
+
+You can get help using one of two equivalent forms:
+
+    $/> boch -h flow init --name "name"  <-- just add the -h flag
+    $/> boch help flow init              <-- use the help handler directly
+
+    $/> boch help flow:init   <-- this is the syntax that the help system often gives
+
+=== SOME ARCHITECTURE ===
+
 Typical file layouts used:
 
 project_root/
-  manage/   <-- the code from this toolset that you checked out
   source/   <-- your actual source code for your project
 
-  project   <-- toolset settings for your particular project
+  .boch   <-- toolset settings for your particular project
                 (you can automatically generate this, see below)
 
+== SOME TYPICAL OPERATIONS ==
 
-Typical workflow for starting a project:
+=== Get a list of settings used in your project ===
 
-1. Checkout source-code and this toolset together
-  $/> git clone {source} source
-  $/> git clone {this toolset} manage
+    $/> boch settings
 
-2. Initialize the project settings
-  $/> manage/flow init --name "{a_name_for_this_project}" --libraries "www-cnpm-jn"
+Check help for settings:
+    $/> boch settings help
 
-    -> the --name presets an image name, a build name, and some container names
-    -> the --libraries www-cnpm-jn includes our centos based box tools and settings
+=== Get a status report on your images and containers ===
 
-  * this creates the following:
-    /project/
-      settings     <-- script that has settings for the project
-      builds/
-        {name}    <-- a docker build for your project
+    $/> boch flow status
 
-3. Customize the settings for your project:
+Check help for status
+    $/> boch help flow status
 
-  - edit any of the files in /project
-  - change any of the configurations in /project/settings
-    - in particular remove any of it (leave the lines that start with ## SETTINGS FROM HOOK)
-  - configure your base docker box
-    - change the name of the nginx conf file when copied into the host?
-    - alter the php.ini to change php-fpm settings for your image
-    - alter the nginx.conf as you may need
-    - add/alter the Dockerfile RUN commands to customize you DB, or any other tricks.
-    - change the project/builds/{name}/dev_dotssh/ files, especially authorized_keys (allows ssh into the box)
+=== Stop/Restart a container ===
 
-    * errors in the changes to the build are easily discovered in the next step
+    $/> boch stop
+    $/> boch start
 
-4. Re-initialize to build the project image / or just build the image
+These are also short forms for commands:
+    $/> boch command start
+    $/> boch command stop
 
-  To build the image, you can either re-run the init flow, or build manually
+To get help on commands
+    $/> boch -h command start
+    $/> boch help command       <-- this gives a list of available commands
 
-  $/>manage/flow init --buildnow
+=== get help ===
 
-  OR
+    $/> manage/help
+    $/> manage/control --help
+    $/> manage/flow --help
 
-  $/> manage/control build
+    $/> manage/control --help {command} (e.g. manage/control --help build  OR   manage/help command:build)
+    $/> manage/flow --help {flow}  (e.g. manage/flow --help init   OR   manage/help flow:init)
 
-5. Start your first container
+== Advanced stuff ==
 
-  $/> manage/control start
+=== Start a second container ==
 
-  then ssh in using this:
+    $/> manage/control start --container "{different container name}"
 
-  $/> manage/control ssh
+now all of the other commands can control this container with the same --container {name} flag
 
-Other tools that are available:
+=== Commit changes from a container to an image (all new containers from that image then contain that change) ===
 
-A. Get a status report on your images and containers:
+    $/> manage/control commit [--container {which source container}] [--image {which image}] [--version {image tag/version}]
 
-  $/> manage/flow status
+* this can be used to fork the image
 
-B. Stop/Restart a container
+=== Get shell access to a temporary container using the image (great for testing the image, and testing changes - but don't commit it) ===
 
-  $/> manage/control stop
-  $/> manage/control start
-
-C. get help
-
-  $/> manage/help
-  $/> manage/control --help
-  $/> manage/flow --help
-
-  $/> manage/control --help {command} (e.g. manage/control --help build  OR   manage/help command:build)
-  $/> manage/flow --help {flow}  (e.g. manage/flow --help init   OR   manage/help flow:init)
-
-*. Advanced stuff
-
-Start a second container
-
-  $/> manage/control start --container "{different container name}"
-
-  now all of the other commands can control this container with the same --container {name} flag
-
-Commit changes from a container to an image (all new containers from that image then contain that change)
-
-  $/> manage/control commit [--container {which source container}] [--image {which image}] [--version {image tag/version}]
-
-  * this can be used to fork the image
-
-Get shell access to a temporary container using the image (great for testing the image, and testing changes - but don't commit it)
-
-  $/> manage/control shell
+    $/> manage/control shell
