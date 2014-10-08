@@ -76,7 +76,7 @@ start_execute()
   done
 
   # use some safe values (do this now to respond to changes in container via arguments)
-  hostname="${hostname:-"${container}"}"
+  hostname="${hostname:-${container}}"
 
   # Add machine run args to the flags
   flags="${flags} ${machine_runargs}"
