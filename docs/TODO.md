@@ -59,6 +59,8 @@ The following commands would be a good idea:
 
 ## FLOW ##
 
+@BUG Flows continue running following hook states, even if 1 state fails
+
 1. make some interesting flows, that might make this system worth using  :P
     I actually started the feature flow, so it could be useful soon ... soon
 
