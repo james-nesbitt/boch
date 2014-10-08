@@ -338,7 +338,7 @@ hooks_list_debug()
   for path in ${hooks_paths}; do
     path="${path}/${hook}"
     if [ -d ${path} ]; then
-echo "CHECKING HOOKS ROOT :${path} --> this root hooks path look like it may have hooks for our hook"
+echo "CHECKING HOOKS ROOT :${path} --> this root hooks path looks like it may have hooks for our hook"
       for path_hook in ${path}/*; do
         if [ -f ${path_hook} ] && [ -x ${path_hook} ]; then
           # add a sorting prefix that will sort based on file prefix (the integer numbers) instead of the path
