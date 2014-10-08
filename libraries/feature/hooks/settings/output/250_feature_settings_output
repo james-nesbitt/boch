@@ -32,12 +32,11 @@ FEATURES SETTINGS OUTPUT
 -----------------------: [
 ### FEATURES SETTINGS ###
 - path_features --------: ${path_features}
-- feature_path_source_www : ${feature_path_source_www}
 ### FEATURES IN THE SYSTEM ###
 - available features----: `settings_output_list $(features_list)`
 - loaded features ------: `settings_output_list $(feature_loaded_get)`
 ### FEATURE PATHS ###
-- active feature paths -: `settings_output_list $(feature_path_get)`
+- feature mount paths --: `settings_output_list $(feature_path_get)`
 ]"
 }
 
