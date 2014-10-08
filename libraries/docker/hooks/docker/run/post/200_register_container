@@ -18,7 +18,7 @@ hook_docker_run_post_200_help()
   echo "
 HOOK->DOCKER->RUN->POST->200 Register any new containers in the system
 
-Any new container has a file created here: ${docker_container_registerpath}
+Any new container has a file created here: `docker_containerregisterpaths_get --active`
 
 "
 }
@@ -64,6 +64,7 @@ hook_docker_run_post_200_execute()
         flags="${flags} --publish-all=true"
         ;;
       --startargs)
+        # ignore these for now
         shift
         break
         ;;

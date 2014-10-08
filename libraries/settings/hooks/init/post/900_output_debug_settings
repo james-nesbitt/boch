@@ -38,8 +38,7 @@ variable in any library.
 hook_settings_init_post_900_execute()
 {
   if [ ${settings_debug_output:-1} -eq 0 ] || [ `debug_get_level` -gt 4 ]; then
-    echo "
-"
-    help_execute "settings:settings"
+    help_execute "settings:settings"    
+    echo " " # put a line after the settings
   fi
 }
