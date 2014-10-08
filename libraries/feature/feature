@@ -42,6 +42,9 @@ feature_path_get()
   while [ $# -gt 0 ]
   do
     case "$1" in
+      --expanded)
+        format='expanded'
+        ;;
       *)
         break;
     esac
@@ -50,6 +53,12 @@ feature_path_get()
 
   # $1 would allow for different formats
   case "${format}" in
+    'expanded')
+      local path=""
+      for path in ${paths}; do
+        echo "`path_expand ${path%:*}`:`path_expand ${path#*:}`"
+      done
+      ;;
     'short'|'list')
       local path=""
       for path in ${paths}; do

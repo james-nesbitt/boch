@@ -42,6 +42,7 @@ hook_feature_sync_500_execute()
         command_execute 'sync' --action 'sync' "${each_feature_path#*:}" "${each_feature_path%:*}"
 
       fi
+    done
   else
     message "Could not sync the feature from the system, as it was not found: ${feature_path}"
     debug --level 5 --topic "FEATURE->SYNC" "Could not sync feature, not found [path:${feature_path%:*}]"

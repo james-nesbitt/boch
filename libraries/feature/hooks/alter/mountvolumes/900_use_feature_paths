@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# Alter mount volumes to point to corresponding paths mapped in the feature
+#
+
+hook_version=2
+hook_root="hook_alter_mountvolumes_900"
+
+# Description method
+hook_alter_mountvolumes_900_description()
+{
+  echo "Alter Mountvolumes for feature paths"
+}
+
+# Help method
+hook_alter_mountvolumes_900_help()
+{
+ echo "HOOKS->ALTER->MOUNTVOLUMES->900 Alter Mountvolumes for the feature
+
+This hook alters the mount volumes before any containers are mounted, to transform
+local paths in to feature mapped equivalents.
+A feature can declare map overrides using the feature_path_add function
+
+Syntax:
+  feature_path_add \"myfeature~/source/www:project~/source/www\"
+
+  Which will mean that anything mapped into project~/source/www gets replaceced
+  with an equivalent in myfeature~/source/www
+"
+}
+
+# Execute method
+hook_alter_mountvolumes_900_execute()
+{
+  local mount_local=""
+  local feature_paths="`feature_path_get`"
+
+  for mount_local in $@; do
+    local feature_path=""
+    local found=1
+    for feature_path in ${feature_paths}; do
+
+      # if the mount path overlaps with a feature path, replace part of the local mount with the feature path
+      if path_in "${feature_path#*:}" "${mount_local%:*}"; then
+        local mount_path="${mount_local%:*}"  #just the local part of the mount
+        echo "${mount_path/${feature_path#*:}/${feature_path%:*}}:${mount_local#*:}"
+
+        found=0
+        break
+      fi
+    done
+
+    if [ ${found} -gt 0 ]; then
+      echo "${mount_local}"
+    fi
+  done
+}
