@@ -5,12 +5,10 @@
 FROM            centos:centos7
 MAINTAINER      james.nesbitt@wunderkraut.com
 
-## EPEL Dependency on CentOS 6 and Red Hat (RHEL) 6 ##
+## EPEL Dependency on CentOS 7 and Fedora EPEL 7 ##
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
     rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 && \
-    rpm --import https://repo.webtatic.com/yum/RPM-GPG-KEY-webtatic-el7 && \
-    rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-1.noarch.rpm && \
-    rpm -Uvh http://repo.webtatic.com/yum/el7/webtatic-release.rpm
+    rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-2.noarch.rpm
 
 # Update and clean
 RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum -y makecache
@@ -39,7 +37,7 @@ ADD etc/yum.repos.d/nginx.repo /etc/yum.repos.d/nginx.repo
 RUN /usr/bin/yum install -y nginx
 RUN chown -R nginx:nginx /var/log/nginx && \
     chmod -R ug+rwX /var/log/nginx
-ADD etc_nginx_nginx.conf /etc/nginx/nginx.conf
+ADD etc/nginx/nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80 443
 
 # Install php-fpm (libX11 and libX11-common come with php-gd)
@@ -47,9 +45,9 @@ RUN /usr/bin/yum install -y php-fpm php-common \
     php-pecl-apc php-cli php-pear php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
     php-mcrypt php-xml
-ADD etc_php-fpm.conf /etc/php-fpm.conf
-ADD etc_php-fpm.d_www.conf /etc/php-fpm.d/www.conf
-ADD etc_php.ini /etc/php.ini
+ADD etc/php-fpm.conf /etc/php-fpm.conf
+ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
+ADD etc/php.ini /etc/php.ini
 RUN chown -R nginx:nginx /var/log/php-fpm && \
     chmod -R ug+rwX /var/log/php-fpm && \
     chown nginx /var/run/php-fpm
@@ -59,7 +57,7 @@ RUN /usr/bin/yum install -y php-drush-drush
 
 # Install supervisord
 RUN /usr/bin/yum install -y supervisor
-ADD etc_supervisord.d /etc/supervisord.d
+ADD etc/supervisord.d /etc/supervisord.d
 EXPOSE 9001
 
 # Create a place for the web project
