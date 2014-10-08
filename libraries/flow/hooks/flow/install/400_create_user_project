@@ -21,20 +21,17 @@ hook_command_init_400_help()
 This hook will try to ensure that there is a user oriented library folder, to share across
 all user projects.  This will give access to shared functionality, but it also provides system
 level support for libraries like boot2docker, which store settings across projects
-
 "
 }
 
 # execute method
 hook_command_init_400_execute()
 {
-  # bin path to install the symlink
-  local path_userconf="${path_userconf:-${path_userhome}/bin}"
-
   if [ -z "${path_userconf}" ] || [ "${path_userconf}" == "${empty_path}" ]; then
-    path_userconf="${path_user}/${path_userconf_subpath}"
+    path_userconf="${path_userhome}/${path_userconf_subpath}"
     debug --level 5 --topic "HOOK->COMMAND->INSTALL->400" "No user project path was found, so a new one will be created [path:${path_userconf}]"
 
+    message "Creating boch user library at ${path_userconf}"
     library_create --complex --path "${path_userconf}" "`library_handler "${path_userconf}"`"
     if [ $? -eq 0 ]; then
       debug --level 5 --topic "HOOK->COMMAND->INSTALL->400" "Created a new user library [path:${path_userconf}]"

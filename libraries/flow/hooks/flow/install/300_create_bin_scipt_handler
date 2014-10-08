@@ -47,10 +47,22 @@ hook_command_init_300_execute()
 
   local path_link="${path_bin}/boch"
   if path_is "${path_link}"; then
+    message "No need to create a bin/ link, as one already exists"
     debug --level 5 --topic "HOOK->COMMAND->INSTALL->300" "Not creating a bin link to the boch script, as one already exists [path:${path_link}]"
   else
+    message "Creating a link to the boch library as ${path_link}"
     debug --level 5 --topic "HOOK->COMMAND->INSTALL->300" "Creating a bin link to the boch script [link:${path_link}][source:${path_library}/boch]"
-    ln -s "${path_library}/boch" "${path_link}"
+    echo "#!/bin/sh
+#
+# This is a bin handler for the boch library.  It 
+# points to the boch library, and runs the boch
+# script directly.
+#
+# Path to the boch toolset folder (used in the boch toolset)
+path_library=\"${path_library}\"
+# Hand off to the toolset
+source \"\${path_library}/boch\" $@" > "${path_link}"
+    chmod u+x "${path_link}"
     return $?
   fi
 }
