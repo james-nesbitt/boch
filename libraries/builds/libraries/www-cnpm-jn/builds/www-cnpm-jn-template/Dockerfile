@@ -18,7 +18,7 @@ ADD     etc/nginx/confd/project.conf /etc/nginx/conf.d/project.conf
 
 # Add developer home folder overrides
 ADD     home/developer /home/developer
-RUN     /bin/chown -R developer:developer /home/developer/.ssh
+RUN     /bin/chown -R developer:developer /home/developer
 RUN     /bin/chmod -R go-rwx /home/developer/.ssh && \
         /bin/chmod go+r /home/developer/.ssh/* && \
         /bin/chmod go-rwx /home/developer/.ssh/id_rsa
