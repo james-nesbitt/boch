@@ -71,7 +71,8 @@ list_get()
   trimmed=${trimmed## }
   local value=""
   if [ $reverse -eq 0 ]; then
-    trimmed=`echo ${trimmed} | tac --separator " "`
+    #trimmed=`echo ${trimmed} | tac --separator " "`
+    trimmed=`echo ${trimmed} | awk '{print NR,$0}' | sort -nr | sed 's/^[0-9]* //'`
   fi
   for value in ${trimmed}; do
     echo "${value}"
