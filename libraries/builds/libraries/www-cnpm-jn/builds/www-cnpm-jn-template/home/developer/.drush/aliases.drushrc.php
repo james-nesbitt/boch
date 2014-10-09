@@ -31,7 +31,7 @@ $aliases['project'] = array(
     ),
   ),
   'path-aliases' => array(
-    '%files' => '/app/source/www/sites/default/files',
+    '%files' => 'sites/default/files',
     '%dump-dir' => '/tmp',
   ),
   'command-specific' => array(
