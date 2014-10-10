@@ -33,9 +33,10 @@ hook_settings_output_150_execute()
 PROJECT SETTINGS OUTPUT
 -----------------------: [
 ### PROJECT DOCKER CONFIGURATIONS ###
-- project_container-----: ${project_container}
+- project_build---------: ${project_build}
 - project_image---------: ${project_image}
 - project_imageversion--: ${project_imageversion}
+- project_container-----: ${project_container}
 ### PROJECT MACHINE CONFIGURATIONS ###
 - Machine_hostname------: ${machine_hostname}
 - Machine_envs----------: `settings_output_list $(settings_env_get --short)`
