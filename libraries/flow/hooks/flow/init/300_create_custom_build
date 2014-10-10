@@ -37,7 +37,7 @@ hook_command_init_300_execute()
     debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Not creating a custom build for the project, as no template was specified."
   else
 
-    local path_build="${path_projectconf}/builds/${project_image}"
+    local path_build="${path_projectconf}/builds/${project_build}"
     if [ -d "${path_projectconf}" ] && [ ! -d "${path_build}" ]; then
 
       library_load "command"

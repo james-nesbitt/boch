@@ -113,7 +113,7 @@ machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} 
 #
 
 # Source mount : www server builds use /app/source for the project source (and likely expect /app/source/www for webroot)
-settings_mount_addmount \"\root~/source:/app/source\"
+settings_mount_addmount \"root~/source:/app/source\"
 
 # SSH
 # This lets your container user do ssh like the host user (selinux may block this on the host)
