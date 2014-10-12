@@ -255,12 +255,17 @@ path_shorten()
 
   local library=""
   for library in `libraries_list --reverse`; do
-    case "${path}" in
-      *"${library##*:}"*)
-        echo "${library%:*}~${path#${library##*:}/}"
-        return 0
-        ;;
-    esac
+    if [ "${library%:*}" == "core" ]; then
+      # skip the core library
+      library=""
+    else 
+      case "${path}" in
+        *"${library##*:}"*)
+          echo "${library%:*}~${path#${library##*:}/}"
+          return 0
+          ;;
+      esac
+    fi
   done
 
   case "${path}" in
