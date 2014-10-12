@@ -27,7 +27,7 @@ hook_init_500_execute()
   # what is the root path to the project folder
   local path="${path_projectconf:-${path_project}/${path_projectconf_subpath}}"
 
-  if ! path_is --dir "${path_projectconf}"; then
+  if ! path_is --dir "${path_projectconf}"; next
     # path to the executable library handler, in the library folder
     local path_projectconf_executable="`library_handler "project:${path}"`"
 
@@ -35,5 +35,6 @@ hook_init_500_execute()
     debug --level 5 --topic "HOOK->FLOW->INIT->PRE->500" "Making sure that we have a project conf library folder and handler [path:${path_projectconf%/*}][name:${path_projectconf##*/}][handler:${path_projectconf_executable}]"
     # make sure that we have a custom library in the data path
     library_create --complex --path "${path_projectconf%/*}" "${path_projectconf##*/}"
+    path_ensure "${path_projectconf}/containers"
   fi
 }
