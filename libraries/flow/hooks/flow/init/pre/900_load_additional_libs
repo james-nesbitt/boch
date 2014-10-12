@@ -15,7 +15,7 @@ hook_flow_init_pre_900_description()
 # help method
 hook_flow_init_pre_900_help()
 {
-  echo "hook->init->pre->090 : Include additional libraries, if told to do so
+  echo "HOOK->FLOW-INIT->PRE->090 : Include additional libraries, if told to do so
 
 This hook will include additional libraries during init, where they can
 then implement hooks, add settings, enable specific builds, and
@@ -26,9 +26,6 @@ add other features.
 
   [--boot2docker] : include the boot2docker as a dependency; This library
       will add settings and handlers for running docker through boot2docker.
-
-  [--www-builds] {www-build-library} : include the www-builds library, and
-    indicate that one of the builds will be needed.
 
 @NOTE that this option does not make these libraries loaded during
   subsequent calls to the system.  If a library wants to self-load,
@@ -41,7 +38,7 @@ add other features.
 # execute method
 hook_flow_init_pre_900_execute()
 {
-  additional_libraries=""
+  local additional_libraries=""
 
   local flags=""
   while [ $# -gt 0 ]
@@ -57,12 +54,6 @@ hook_flow_init_pre_900_execute()
         # straight target for the boot2docker library
         additional_libraries="${additional_libraries} boot2docker"
         ;;
-      --www-build|--www-builds)
-        additional_libraries="${additional_libraries} www-builds"
-        # treat the argument as an alias target, that www-builds will handler
-        alias_add "www-builds:${2}"
-        shift
-        ;;
     esac
     shift
   done
@@ -70,6 +61,7 @@ hook_flow_init_pre_900_execute()
   local library=""
   for library in ${additional_libraries}; do
     if ! library_loaded "${library}"; then
+      message "Loading ${library} as directed"
       debug --level 5 --topic "HOOK->FLOW->INIT->PRE->900 Loading the ${library} library as directed"
       library_load "${library}"
 

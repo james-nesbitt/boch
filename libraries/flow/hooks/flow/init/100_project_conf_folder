@@ -4,25 +4,25 @@
 #
 
 hook_version=2
-hook_root="hook_init_500"
+hook_root="hook_init_100"
 
 # descriptoin method
-hook_init_500_description()
+hook_init_100_description()
 {
   echo "Create the custom project folder, if missing."
 }
 
 # help method
-hook_init_500_help()
+hook_init_100_help()
 {
-  echo "HOOK->FLOW->INIT->PRE->500 : Create the custom conf folder for the project
+  echo "HOOK->FLOW->INIT->100 : Create the custom conf folder for the project
 
 This hook will create a new root level folder for your project
 in which all of your settings, and custom project code can go."
 }
 
 # execute method
-hook_init_500_execute()
+hook_init_100_execute()
 {
   # what is the root path to the project folder
   local path="${path_projectconf:-${path_project}/${path_projectconf_subpath}}"
@@ -32,7 +32,7 @@ hook_init_500_execute()
     local path_projectconf_executable="`library_handler "project:${path}"`"
 
     message "Creating project library, for project demarcation and configuration"
-    debug --level 5 --topic "HOOK->FLOW->INIT->PRE->500" "Making sure that we have a project conf library folder and handler [path:${path_projectconf%/*}][name:${path_projectconf##*/}][handler:${path_projectconf_executable}]"
+    debug --level 5 --topic "HOOK->FLOW->INIT->100" "Making sure that we have a project conf library folder and handler [path:${path_projectconf%/*}][name:${path_projectconf##*/}][handler:${path_projectconf_executable}]"
     # make sure that we have a custom library in the data path
     library_create --complex --path "${path_projectconf%/*}" "${path_projectconf##*/}"
   fi

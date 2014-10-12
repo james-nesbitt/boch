@@ -38,6 +38,7 @@ hook_flow_init_100_execute()
   # 1. check projectconf, point to execution path if it makes sense
   if [ -z "${path_projectconf}" ] || [ "${path_projectconf}" == "${empty_path}" ]; then
     path_projectconf="${path_project}/${path_projectconf_subpath}"
+    message "The current environment has no project-conf folder found, adjusting configuration to make sense : ${path_projectconf}"
     debug --level 5 --topic "HOOK->FLOW->INIT->100" "The current environment has no project-conf folder found; marking the project-conf with a new path to be created [path:${path_projectconf}]"
   fi
 

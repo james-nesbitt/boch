@@ -36,11 +36,12 @@ hook_flow_init_900_execute()
   if ! library_loaded "project"; then
     # library_load checks to see if a library is already loaded, so no worries about
     # reloading an existing project folder.
+    message "Loading new project core library"
     library_load --path "${path_projectconf}" "project"
     if [ $? -gt 0 ]; then
-      debug --level 3 --topic "HOOK->FLOW->INIT->900" "No custom data/project folder exists [path:${path_projectconf}]"
+      debug --level 3 --topic "HOOK->SETTINGS->FLOW->INIT->900" "No custom data/project folder exists [path:${path_projectconf}]"
     else
-      debug --level 5 --topic "HOOK->FLOW->INIT->900" "Loaded Data/Project folder as a library [path:${path_projectconf}]"
+      debug --level 5 --topic "HOOK->SETTINGS->FLOW->INIT->900" "Loaded Data/Project folder as a library [path:${path_projectconf}]"
     fi
   fi
 

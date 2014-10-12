@@ -19,7 +19,7 @@ hook_builds_flow_init_pre_910_help()
 
 This hook will include one of the build libraries,
 
-  [--build {build} : which build library to include
+  [--builds {build} : which build library to include
 
   There are currently 2 shortcut arguments to the existing builds:
   --www-cnpm-jn
@@ -36,13 +36,13 @@ This hook will include one of the build libraries,
 # execute method
 hook_builds_flow_init_pre_910_execute()
 {
-  additional_libraries=""
+  local additional_libraries=""
 
   local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
-      --build)
+      --builds)
         additional_libraries="${additional_libraries} ${2}"
         shift
         ;;
@@ -58,9 +58,9 @@ hook_builds_flow_init_pre_910_execute()
   done
 
   local library=""
-
   for library in ${additional_libraries}; do
     if ! library_loaded "${library}"; then
+      message "Builds library is loading ${library} as directed"
       debug --level 5 --topic "HOOK->FLOW->INIT->PRE->910 Loading the ${library} library as directed"
       library_load "${library}"
 

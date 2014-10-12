@@ -40,6 +40,7 @@ hook_init_100_execute()
 
   if ! path_is --file "${path}"; then
 
+    message "Creating custom settings file for project"
     debug --level 6 --topic "HOOK->COMMAND->INIT->100" "Creating missing default custom settings file [${path}]"
 
     path_ensure --exec "${path}"

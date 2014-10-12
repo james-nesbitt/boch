@@ -15,7 +15,7 @@ hook_flow_init_300_description()
 # help method
 hook_flow_init_300_help()
 {
-  echo "hook->init->300 : Interpret arguments as global variables
+  echo "HOOK->FLOW->INIT->PRE->300 : Interpret arguments as global variables
 
 This hook will attempt to interpret the flow arguments into
 global variables, which will reduce the dependence on args
@@ -103,4 +103,7 @@ hook_flow_init_300_execute()
     shift
   done
 
+  message "Preparing the INIT flow process, interpreting command arguments."
+  message --separator
+  
 }

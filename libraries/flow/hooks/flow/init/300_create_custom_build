@@ -34,7 +34,7 @@ hook_command_init_300_execute()
 {
 
   if [ -z "${project_buildtemplate}" ]; then
-    debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Not creating a custom build for the project, as no template was specified."
+    debug --level 5 --topic "HOOK->FLOW->INIT->300" "Not creating a custom build for the project, as no template was specified."
   else
 
     local path_build="${path_projectconf}/builds/${project_build}"
@@ -47,14 +47,15 @@ hook_command_init_300_execute()
       if path_is --dir "${path_template}"; then
         path_ensure --dir "${path_build%/*}"
         cp -R "${path_template}" "${path_build}"
-        debug --level 5 --topic "HOOK->COMMAND->INIT->300" "Created custom build [`path_shorten \"${path_template}\"` => `path_shorten \"${path_build}\"`]"
+        message "Created custom build for the project `path_shorten ${path_template}`->`path_shorten ${path_build}`"
+        debug --level 5 --topic "HOOK->FLOW->INIT->300" "Created custom build [`path_shorten \"${path_template}\"` => `path_shorten \"${path_build}\"`]"
       else
-        debug --level 6 --topic "HOOK->COMMAND->INIT->300" "no matching custom build found [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
+        debug --level 6 --topic "HOOK->FLOW->INIT->300" "no matching custom build found [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
       fi
 
     else
 
-      debug --level 6 --topic "HOOK->COMMAND->INIT->300" "Custom build found in project folder [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
+      debug --level 6 --topic "HOOK->FLOW->INIT->300" "Custom build found in project folder [build:${project_build}][image:${project_image}][version:${project_imageversion}]"
       return 0
 
     fi

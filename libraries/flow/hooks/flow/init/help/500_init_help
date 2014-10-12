@@ -36,7 +36,7 @@ made in each hook should be non-destructive where possible.
 
 Usage:
 
-  $/> ./flow init <options>
+  $/> boch flow init <options>
 
 Options: (in general these are converted to global vars in the first hook)
 
@@ -76,10 +76,12 @@ project folder.
 
 @NOTE I suggest that you run the command like this:
   1. Give yourself a project folder like this:
-       $/> ./flow init --name {a_project_name} --wwwserver
+       $/> boch flow init --name \"{a_project_name}\"
+    To use one of our common builds from the builds library:
+       $/> boch %builds:www-cnpm-jn flow init 
   2. Then make changes to /project/settings, /project/builds/{name}/Dockerfile, and add your
      pub key to /project/builds/{name}/dev_dotssh/authorized_keys
   3. Then then run the flow again like this:
-       $/> ./flow init --buildnow
+       $/> flow init --buildnow
 "
 }

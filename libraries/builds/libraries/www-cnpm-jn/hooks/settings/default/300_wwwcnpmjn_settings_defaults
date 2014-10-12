@@ -53,6 +53,8 @@ wwwcnpmjn_settings_defaults_300_execute()
 #    so in general it isn't really necessary to load it during normal
 #    operations.  If you are rebuilding the parent images a lot then
 #    you might need access to the library, so uncomment this line.
+#
+# @NOTE You can load this library at runtime using $/> boch %builds:www-cnpm-jn
 #alias_add \"%builds:www-cnpm-jn\"
 
 ###
