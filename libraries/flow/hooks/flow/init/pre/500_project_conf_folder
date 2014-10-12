@@ -34,7 +34,7 @@ hook_init_500_execute()
     message "Creating project library, for project demarcation and configuration"
     debug --level 5 --topic "HOOK->FLOW->INIT->PRE->500" "Making sure that we have a project conf library folder and handler [path:${path_projectconf%/*}][name:${path_projectconf##*/}][handler:${path_projectconf_executable}]"
     # make sure that we have a custom library in the data path
-    library_create --complex --path "${path_projectconf%/*}" "${path_projectconf##*/}"
+    library_create --complex --include-settings --path "${path_projectconf%/*}" "${path_projectconf##*/}"
     path_ensure "${path_projectconf}/containers"
   fi
 }

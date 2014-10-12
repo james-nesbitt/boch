@@ -32,7 +32,7 @@ hook_command_init_400_execute()
     debug --level 5 --topic "HOOK->COMMAND->INSTALL->400" "No user project path was found, so a new one will be created [path:${path_userconf}]"
 
     message "Creating boch user library at ${path_userconf}"
-    library_create --complex --path "${path_userconf}" "`library_handler "${path_userconf}"`"
+    library_create --complex --include-settings --path "${path_userconf%/*}" "${path_userconf##*/}"
     if [ $? -eq 0 ]; then
       debug --level 5 --topic "HOOK->COMMAND->INSTALL->400" "Created a new user library [path:${path_userconf}]"
     else
