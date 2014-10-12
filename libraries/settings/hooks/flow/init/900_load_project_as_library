@@ -15,7 +15,7 @@ hook_flow_init_900_description()
 # help method
 hook_flow_init_900_help()
 {
-  echo "hook->settings->900 Include the project as a library
+  echo "HOOK->SETTINGS->FLOW->INIT->900 Include the project as a library
 
 This hooks attempts to load the custom data/project folder as a library,
 to include any settings from the folder. This needs to be done so that
@@ -26,8 +26,7 @@ now created the project folder.
   are running the init flow, and it has just created the project folder.
 @NOTE there is a chance that elements created in an existing project
   folder are not loaded, but most libraries should be late checking
-  libraries for their requirements.
-"
+  libraries for their requirements."
 }
 
 # execute method
