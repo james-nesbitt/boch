@@ -15,12 +15,9 @@ hook_docker_run_post_200_descrtiption()
 # help method
 hook_docker_run_post_200_help()
 {
-  echo "
-HOOK->DOCKER->START->POST->200 Register any new containers in the system
+  echo "HOOK->DOCKER->START->POST->200 Register any new containers in the system
 
-Any new container has a file created here: ${docker_container_registerpath}
-
-"
+Any new container has a file created here: ${docker_container_registerpath}"
 }
 
 # execute method
