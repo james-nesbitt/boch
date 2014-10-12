@@ -572,6 +572,7 @@ library_create()
 
   # make sure that the parent folder exists
   path_ensure --dir "${path}"
+  local root="${path}"
   local path="${path}/${name}"
 
   if [ "${type}" == "complex" ]; then
@@ -582,8 +583,9 @@ library_create()
     else
       debug --level 7 --topic "LIBRARY->CREATE" "Create new library folder [path:${path}]"
     fi
-    path="`library_handler "${name}:${path}"`"
+
     path_settings="${path}/settings"
+    path="`library_handler "${name}:${path}"`"
   fi
 
   path_ensure --exec "${path}"
@@ -625,6 +627,7 @@ library_create()
 
   if [ $include_settings -eq 0 ] && [ -n "${path_settings}" ]; then
 
+    path_ensure --exec "${path_settings}"
     echo "#!/bin/sh
 #
 # ${name} library settings
@@ -642,7 +645,7 @@ library_create()
 #
 # * You can delete this file if you don't need it.
 #
-" > ${path}
+" > ${path_settings}
 
   fi
 
