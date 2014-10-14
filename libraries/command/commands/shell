@@ -22,14 +22,15 @@ creates a new container and gives shell access to it
 # Command execute function
 shell_execute()
 {
-  image="${project_image}"
-  version="${project_imageversion}"
-  hostname="${machine_hostname}"
+  # default values for docker image, and hostname
+  local image="${project_image}"
+  local version="${project_imageversion}"
+  local hostname="${machine_hostname}"
 
   # temp.  empty this to make the shell a persistant container
-  temp="--temporary"
+  local temp="--temporary"
 
-  flags=""
+  local flags=""
   while [ $# -gt 0 ]
   do
     case "$1" in
@@ -57,6 +58,9 @@ shell_execute()
     esac
     shift
   done
+
+  # use some safe values (do this now to respond to changes in container via arguments)
+  hostname="${hostname:-${container}}"
 
   # use the machine shell or pass in a command
   command="${@:-${machine_shell}}"

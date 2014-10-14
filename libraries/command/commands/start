@@ -44,7 +44,7 @@ start_execute()
   local version="${project_imageversion}"
 
   local container="${project_container}"
-  local hostname=""
+  local hostname="${project_hostname}"
 
   local flags=""
   while [ $# -gt 0 ]
