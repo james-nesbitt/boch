@@ -168,13 +168,13 @@ feature_create()
     if path_ensure --dir "${path}"; then
       library_create --complex --path "${path}" "${name}" $@
       if [ $? -eq 0 ]; then
-        debug --level 7 --topic "HOOK->FEATURE->CREATE->PRE->400" "Created feature library [name:${name}][path:${path}]"
+        debug --level 7 --topic "FEATURE->CREATE" "Created feature library [name:${name}][path:${path}]"
       else
-        debug --level 7 --topic "HOOK->FEATURE->CREATE->PRE->400" "Failed to create feature library [name:${name}][path:${path}]"
+        debug --level 7 --topic "FEATURE->CREATE" "Failed to create feature library [name:${name}][path:${path}]"
         return 1
       fi
     else
-      debug --level 7 --topic "HOOK->FEATURE->CREATE->PRE->400" "Failed to create feature library because the path does not exist [name:${name}][path:${path}]"
+      debug --level 7 --topic "FEATURE->CREATE" "Failed to create feature library because the path does not exist [name:${name}][path:${path}]"
       return 1
     fi
   fi
