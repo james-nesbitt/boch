@@ -23,7 +23,6 @@ for following hooks.
 Following hooks won't need to interpret flow arguments as
 much, and can depend on global settings.
 
-
   [-f|--finalize] : Finalize the init process, which will mean running docker builds
 
   [-l|--libraries] \"{additional libraries}\"] : load additional libraries during init to

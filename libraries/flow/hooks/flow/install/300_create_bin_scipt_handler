@@ -65,4 +65,7 @@ source \"\${path_library}/boch\" $@" > "${path_link}"
     chmod u+x "${path_link}"
     return $?
   fi
+  if [ "${PATH/${path_bin}}" == "${PATH}" ]; then
+    message "Warning: it appears that the bin path used is not a part of the current shell PATH.  You should add it if you want this script to be available anywhere on the command line."
+  fi
 }
