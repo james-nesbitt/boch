@@ -1,7 +1,7 @@
 # Project DockerFile
 #
 # Site/Project specific image for the project
-# Built on top of the wwwserver-cnpm build
+# Built on top of the www-cnpm build
 #
 FROM jamesnesbitt/www-cnpm-jn-dev
 MAINTAINER James Nesbitt <james.nesbitt@wunderkraut.com>
