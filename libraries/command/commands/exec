@@ -1,0 +1,88 @@
+#!/bin/sh
+#
+#  Execute a command inside a running container
+#
+
+# command description function
+exec_description()
+{
+  echo "Execute a command in a running container"
+}
+
+exec_help()
+{
+  echo "
+Execute a command in a running container
+
+SYNTAX
+======
+
+  $/> boch command exec -c|--container \"{container}\" {options} {command}
+
+  -c|--container \"container\"
+
+=== Options ===
+
+  -b|--background  : detach and execute in the backgroun
+  -i|--input       : keep input attached
+  -t|--terminal    : allocate a tty
+
+@NOTE requires Docker > 1.3
+"
+}
+
+exec_execute()
+{
+  local container="${project_container}"
+  local user="${machine_username:-root}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--background)
+        flags="${flags} --detach"
+        ;;
+      -c|--container)
+        container="$2"
+        shift
+        ;;
+      -i|--input)
+        flags="${flags} --interactive"
+        ;;
+      -t|--terminal)
+        flags="${flags} --tty"
+        ;;
+      -*)
+        echo >&2 "unknown flag $1 : exec -c|--container {container} [-b|--background] [-i|--input] [-t|--terminal] {command}"
+        break;; # terminate while loop
+      *)
+        break;
+    esac
+    shift
+  done
+
+  if docker_container_running "${container}"; then
+
+    local ip=`docker_inspect_getIP ${container}`
+
+    # Run the start function
+    debug --level 5 --topic "COMMAND->EXEC" "exec [ handing off to docker exec abstraction ] ==> docker_exec --container ${container} $@"
+    message "Now executing command inside container [${container}] : docker_exec ${flags} --container \"${container}\" $@"
+    message --separator
+    docker_exec ${flags} --container "${container}" $@
+    return $?
+
+  else
+
+    if docker_container_exists "${container}"; then
+      message "Could not execute command in container (${container}) as it was not running"
+      debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container exists but is not running [container:${container}]"
+    else
+      message "Could not ssh into container (${container}) as it does not exist."
+      debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container does not exist [container:${container}]"
+    fi
+    return 1
+  fi
+
+}

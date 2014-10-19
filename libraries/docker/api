@@ -421,7 +421,6 @@ docker_stop()
 # @TODO validate parameters
 # @TODO check if container exists
 # @TODO stop container if running ?
-# @TODO check execution success before running hook
 docker_rm()
 {
 
@@ -600,6 +599,67 @@ docker_unpause()
   else
     debug --level 2 --topic "DOCKER" "Docker unpause failed."
     hooks_execute "docker/unpause" --state "fail" --container "${container}" $@
+  fi
+  return $sucess
+}
+
+
+#
+# Execute a command inside any container
+#
+# -c|--container : container to execute inside of
+#
+# -d, --detach         Detached mode: run command in the background
+# -i, --interactive    Keep STDIN open even if not attached
+# -t, --tty            Allocate a pseudo-TTY
+#
+# @TODO validate parameters
+# @TODO check if container exists
+# @TODO stop container if running ?
+docker_exec()
+{
+
+  # hook to call after removing
+  hook=""
+
+  # start with an empty argument list
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        container="${2}"
+        shift
+        ;;
+      -d|detach)
+	flags="${flags} --detach=true"
+	;;
+      -i|--interactive)
+	flags="${flags} --interactive=true"
+	;;
+      -t|--tty)
+	flags="${flags} --tty=true"
+	;;
+      -*) echo >&2 "docker_execute(): unknown flag $1 : execute -c|--container {container}";;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # execute any existing hooks
+  hooks_execute "docker/execute" --state "pre" --container "${container}"
+
+  # Run docker command
+  debug --level 5 --topic "DOCKER" "docker_execute [container:${container}][flags:${flags}] ==> docker exec ${flags} ${container} $@"
+  docker exec ${flags} ${container} $@
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "DOCKER" "Docker execute succeeded."
+    hooks_execute "docker/execute" --state "post" --container "${container}" $@
+  else
+    debug --level 2 --topic "DOCKER" "Docker execute failed."
+    hooks_execute "docker/execute" --state "fail" --container "${container}" $@
   fi
   return $sucess
 }
