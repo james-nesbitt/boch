@@ -9,6 +9,7 @@ exec_description()
   echo "Execute a command in a running container"
 }
 
+# Help method
 exec_help()
 {
   echo "
@@ -28,9 +29,15 @@ SYNTAX
   -t|--terminal    : allocate a tty
 
 @NOTE requires Docker > 1.3
+
+@NOTE the --terminal option is going to be necessary if you want to run any
+    comprehensive action, such as \"sudo\"
+@NOTE the --input options is going to be necessary if you want to run any
+    shell processes
 "
 }
 
+# Execute method
 exec_execute()
 {
   local container="${project_container}"
