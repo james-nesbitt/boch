@@ -107,7 +107,7 @@ exec_execute()
       message "Could not execute command in container (${container}) as it was not running"
       debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container exists but is not running [container:${container}]"
     else
-      message "Could not ssh into container (${container}) as it does not exist."
+      message "Could not execute command in container (${container}) as it does not exist."
       debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container does not exist [container:${container}]"
     fi
     return 1

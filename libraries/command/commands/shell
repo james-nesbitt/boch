@@ -63,11 +63,27 @@ shell_execute()
     shift
   done
 
-  message "Giving shell access container [${container}]:"
-  message --separator
 
-  # Run the exec command sudo handler function
-  debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to exec command abstraction ] ==> exec_exec_sudo --user \"${user}\" --container \"${container}\" ${flags} ${command}"
-  exec_exec_sudo --user "${user}" --container "${container}" ${flags} ${command}
-  return $?
+  if docker_container_running "${container}"; then
+
+    message "Giving shell access container [${container}]:"
+    message --separator
+
+    # Run the exec command sudo handler function
+    debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to exec command abstraction ] ==> exec_exec_sudo --user \"${user}\" --container \"${container}\" ${flags} ${command}"
+    exec_exec_sudo --user "${user}" --container "${container}" ${flags} ${command}
+    return $?
+
+  else
+
+    if docker_container_exists "${container}"; then
+      message "Could not execute shell command in container (${container}) as it was not running"
+      debug --level 5 --topic "COMMAND->SHELL" "Shell not started.  The container exists but is not running [container:${container}]"
+    else
+      message "Could not execute shell command in container (${container}) as it does not exist."
+      debug --level 5 --topic "COMMAND->SHELL" "Shell not started.  The container does not exist [container:${container}]"
+    fi
+    return 1
+  fi
+
 }
