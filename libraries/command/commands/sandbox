@@ -1,0 +1,98 @@
+#!/bin/sh
+#
+# COMMAND: Get access to a sandbox shell running on a certain image
+#
+
+# command description function
+sandbox_description()
+{
+  echo "Get access to a sandbox shell in a new container"
+}
+
+# Command help function
+sandbox_help()
+{
+  echo "Sandbox Command help
+
+Give shell access to a new container based on the image
+this does not term into a running container, but rather
+creates a new container and gives shell access to it.
+This can be really usefull to test small changes and operations
+inside a container, such as running Dockerfile RUN lines
+to test them, and checking files system contents.
+
+OPTIONS:
+  [ -c|--container \"{container}\" ] : new container name
+  [ -h|--hostname \"{hostname}\" ]   : hostname for new container
+  [ -i|--image \"{image}\" ]         : image to run
+  [ -r|--persistant ]                : don't remove the container on exit
+  [ -v|--version \"{version}\"       : image version to run
+
+@NOTE this used to be \"shell\:, but shell was repurposed
+  to run a shell inside a running container.
+"
+}
+
+# Command execute function
+sandbox_execute()
+{
+  # default values for docker image, and hostname
+  local image="${project_image}"
+  local version="${project_imageversion}"
+  local hostname="${machine_hostname}"
+
+  # temp.  empty this to make the sandbox a persistant container
+  local temp="--temporary"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        flags="${flags} --name $2"
+        shift
+        ;;
+      -h|--hostname)
+        hostname="${2}"
+        shift
+        ;;
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -r|--persistant)
+        temp=""
+        ;;
+      -v|--version)
+        version="${2}"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # use some safe values (do this now to respond to changes in container via arguments)
+  hostname="${hostname:-${container}}"
+
+  # use the machine sandbox or pass in a command
+  command="${@:-${machine_shell}}"
+
+  # Add machine shell args
+  flags="${flags} ${machine_sandboxrunargs}"
+  # Add ENV vars
+  flags="${flags} `settings_env_get --export`"
+  # add default flags to the end of the flag list
+  flags="${flags} `settings_mount_getmounts --mounts`"
+  # Add default container links
+  flags="${flags} ${machine_runargs} `settings_link_get --link`"
+
+  message "Giving sandbox access to a new container :"
+  message --separator
+
+  # Run the sandbox shell function
+  debug --level 5 --topic "COMMAND->SANDBOX" "sandbox [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"
+  docker_run ${temp} --shell "${command}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@
+  return $?
+}

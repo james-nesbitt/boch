@@ -20,20 +20,25 @@ SYNTAX
 
   $/> boch command exec -c|--container \"{container}\" {options} {command}
 
-  -c|--container \"container\"
 
-=== Options ===
+OPTION
+======
 
-  -b|--background  : detach and execute in the backgroun
-  -i|--input       : keep input attached
-  -t|--terminal    : allocate a tty
+  -c|--container \"container\" : select a container to exec inside of
+  -b|--background              : detach and execute in the backgroun
+  -i|--input                   : keep input attached
+  -t|--terminal                : allocate a tty
+  -s|--sudo                    : use a sudo on this exec
 
-@NOTE requires Docker > 1.3
+@NOTE requires Docker > 1.3!
+               -------------
 
 @NOTE the --terminal option is going to be necessary if you want to run any
     comprehensive action, such as \"sudo\"
 @NOTE the --input options is going to be necessary if you want to run any
     shell processes
+
+@TODO allow user selection for sudo,  currently the \${machine_username} value is used
 "
 }
 
@@ -41,8 +46,77 @@ SYNTAX
 exec_execute()
 {
   local container="${project_container}"
-  local user="${machine_username:-root}"
+  local method='standard'
 
+  local sudo_user="${machine_username}"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--background)
+        flags="${flags} --background"
+        ;;
+      -c|--container)
+        container="$2"
+        shift
+        ;;
+      -i|--input)
+        flags="${flags} --input"
+        ;;
+      -t|--terminal)
+        flags="${flags} --terminal"
+        ;;
+      -s|--sudo)
+        method="sudo"
+        ;;
+      -*)
+        echo >&2 "unknown flag $1 : exec -c|--container {container} [-b|--background] [-i|--input] [-t|--terminal] {command}"
+        break;; # terminate while loop
+      *)
+        break;
+    esac
+    shift
+  done
+
+  if docker_container_running "${container}"; then
+
+    if [ "${method}" == "standard" ]; then
+
+      # Run the standard function
+      debug --level 5 --topic "COMMAND->EXEC" "exec [ handing off to standard exec abstraction ] ==> exec_exec_standard ${flags} --container ${container} $@"
+      message "Now executing command inside container [${container}]"
+      message --separator
+      exec_exec_standard ${flags} --container "${container}" $@
+      return $?
+
+    else
+
+      # Run the sudo exec function
+      debug --level 5 --topic "COMMAND->EXEC" "exec [ handing off to standard exec abstraction ] ==> exec_exec_standard ${flags} --container ${container} $@"
+      message "Now executing command inside container [${container}]"
+      message --separator
+      exec_exec_sudo ${flags} --user "${sudo_user}" --container "${container}" $@
+      return $?
+
+    fi
+
+  else
+
+    if docker_container_exists "${container}"; then
+      message "Could not execute command in container (${container}) as it was not running"
+      debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container exists but is not running [container:${container}]"
+    else
+      message "Could not ssh into container (${container}) as it does not exist."
+      debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container does not exist [container:${container}]"
+    fi
+    return 1
+  fi
+
+}
+
+exec_exec_standard()
+{
   local flags=""
   while [ $# -gt 0 ]
   do
@@ -51,7 +125,7 @@ exec_execute()
         flags="${flags} --detach"
         ;;
       -c|--container)
-        container="$2"
+        local container="$2"
         shift
         ;;
       -i|--input)
@@ -71,25 +145,52 @@ exec_execute()
 
   if docker_container_running "${container}"; then
 
-    local ip=`docker_inspect_getIP ${container}`
-
     # Run the start function
-    debug --level 5 --topic "COMMAND->EXEC" "exec [ handing off to docker exec abstraction ] ==> docker_exec --container ${container} $@"
-    message "Now executing command inside container [${container}] : docker_exec ${flags} --container \"${container}\" $@"
-    message --separator
+    debug --level 5 --topic "COMMAND->EXEC->STANDARD" "exec_standard [ handing off to docker exec abstraction ] ==> docker_exec --container ${container} $@"
     docker_exec ${flags} --container "${container}" $@
     return $?
 
-  else
-
-    if docker_container_exists "${container}"; then
-      message "Could not execute command in container (${container}) as it was not running"
-      debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container exists but is not running [container:${container}]"
-    else
-      message "Could not ssh into container (${container}) as it does not exist."
-      debug --level 5 --topic "COMMAND->EXEC" "command not executed.  The container does not exist [container:${container}]"
-    fi
-    return 1
   fi
 
+  debug --level 5 --topic "COMMAND->EXEC->STANDARD" "exec_standard could not find any matching running container [container:${container}]"
+  return 1
+}
+
+exec_exec_sudo()
+{
+  local flags="--interactive --tty"
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -b|--background) #not sure if this is compatible with sudo
+        flags="${flags} --detach"
+        ;;
+      -c|--container)
+        local container="$2"
+        shift
+        ;;
+      -u|--user)
+        local user="$2"
+        shift
+        ;;
+      -*)
+        echo >&2 "unknown flag $1 : exec -c|--container {container} [-b|--background] [-i|--input] [-t|--terminal] {command}"
+        break;; # terminate while loop
+      *)
+        break;
+    esac
+    shift
+  done
+
+  if docker_container_running "${container}"; then
+
+    # Run the start function
+    debug --level 5 --topic "COMMAND->EXEC->SUDO" "[ handing off to docker exec abstraction ] ==> docker_exec ${flags} --container \"${container}\" sudo -u \"${user}\" $@"
+    docker_exec ${flags} --container "${container}" sudo -u "${user}" $@
+    return $?
+
+  fi
+
+  debug --level 5 --topic "COMMAND->EXEC->SUDO" "Could not find any matching running container [container:${container}]"
+  return 1
 }

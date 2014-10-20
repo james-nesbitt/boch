@@ -3,6 +3,9 @@
 # COMMAND: Get access to a shell running on a certain image
 #
 
+# Load the exec command
+command_load "exec"
+
 # command description function
 shell_description()
 {
@@ -13,22 +16,34 @@ shell_description()
 shell_help()
 {
   echo "
-Give shell access to a new container based on the image
-this does not term into a running container, but rather
-creates a new container and gives shell access to it
+Give shell access to a running container.
+
+SYNTAX
+======
+
+  $/> boch command shell {options}
+
+OPTIONS
+=======
+
+  -c|--container \"{container}\" : specify which container
+  -
+
+@NOTE this command used to give access to a shell in a new
+   temporary container.  This functionality has been moved
+   to the \"sandbox\" command.
 "
 }
 
 # Command execute function
 shell_execute()
 {
-  # default values for docker image, and hostname
-  local image="${project_image}"
-  local version="${project_imageversion}"
-  local hostname="${machine_hostname}"
-
-  # temp.  empty this to make the shell a persistant container
-  local temp="--temporary"
+  # which container to run the shell in
+  local container="${project_container}"
+  # use the machine shell or pass in a command
+  local command="${machine_shell}"
+  # which user to run the shell as
+  local user="${machine_username}"
 
   local flags=""
   while [ $# -gt 0 ]
@@ -38,19 +53,8 @@ shell_execute()
         flags="${flags} --name $2"
         shift
         ;;
-      -h|--hostname)
-        hostname="${2}"
-        shift
-        ;;
-      -i|--image)
-        image="${2}"
-        shift
-        ;;
-      -r|--persistant)
-        temp=""
-        ;;
-      -v|--version)
-        version="${2}"
+      -s|--shell)
+        command="$2"
         shift
         ;;
       *)
@@ -59,26 +63,11 @@ shell_execute()
     shift
   done
 
-  # use some safe values (do this now to respond to changes in container via arguments)
-  hostname="${hostname:-${container}}"
-
-  # use the machine shell or pass in a command
-  command="${@:-${machine_shell}}"
-
-  # Add machine shell args
-  flags="${flags} ${machine_shellrunargs}"
-  # Add ENV vars
-  flags="${flags} `settings_env_get --export`"
-  # add default flags to the end of the flag list
-  flags="${flags} `settings_mount_getmounts --mounts`"
-  # Add default container links
-  flags="${flags} ${machine_runargs} `settings_link_get --link`"
-
-  message "Giving shell access to a new container :"
+  message "Giving shell access container [${container}]:"
   message --separator
 
-  # Run the shell function
-  debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to docker abstraction ] ==> docker_run ${temp} --shell \"${command}\" --image \"${image}\" --version \"${version}\" --hostname \"${hostname}\" ${flags} $@"
-  docker_run ${temp} --shell "${command}" --image "${image}" --version "${version}" --hostname "${hostname}" ${flags} $@
+  # Run the exec command sudo handler function
+  debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to exec command abstraction ] ==> exec_exec_sudo --user \"${user}\" --container \"${container}\" ${flags} ${command}"
+  exec_exec_sudo --user "${user}" --container "${container}" ${flags} ${command}
   return $?
 }
