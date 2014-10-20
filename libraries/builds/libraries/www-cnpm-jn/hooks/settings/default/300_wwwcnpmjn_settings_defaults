@@ -99,12 +99,12 @@ machine_shell=\"/bin/zsh\"
 # arguments for docker run that should always be included when starting a shell: docker help run
 # @NOTE you should probably take a look at docker run to learn more
 # @NOTE our builds have a developer user created, and a home directory created
-machine_shellrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} --user=\${machine_username}\"
+machine_sandboxrunargs=\"--publish-all=true --env HOME=/home/\${machine_username} --user=\${machine_username}\"
 
 ###
 # Environment Variables
 #
-# With these actions you can preset system environment variables to pass 
+# With these actions you can preset system environment variables to pass
 # Information from otside the container.
 # This is usefull for passing in things like passwords and usernames, to
 # override image settings.
