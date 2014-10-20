@@ -1,5 +1,9 @@
 # TODO LIST #
 
+## CORE ##
+
+1. the base .boch script should better determine the library root.  Currently it doesn't handle symlinks well.
+
 ## DOCUMENTATION ##
 
 * this toolset suffers from a lack of documentation, both as lots of --help features;
