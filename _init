@@ -101,7 +101,7 @@ source "${path_library}/_libraries"
 
 if [ "${path_projectconf}" == "${empty_path}" ]; then
   debug --level 3 --topic "INIT" "NO PROJECT LIBRARY FOUND"
-  message ">> You are currently operating boch outside of a project folder.  This makes sense if you have not yet run $/> boch flow init, but otherwise indicates that you may be in the wrong folder"
+  #message ">> You are currently operating boch outside of a project folder.  This makes sense if you have not yet run $/> boch flow init, but otherwise indicates that you may be in the wrong folder"
 fi
 
 # Include all of our source libraries
