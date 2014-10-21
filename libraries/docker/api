@@ -618,7 +618,6 @@ docker_unpause()
 # @TODO stop container if running ?
 docker_exec()
 {
-
   # hook to call after removing
   hook=""
 
@@ -631,16 +630,16 @@ docker_exec()
         container="${2}"
         shift
         ;;
-      -d|detach)
-	flags="${flags} --detach=true"
-	;;
+      -d|--detach)
+        flags="${flags} --detach=true"
+        ;;
       -i|--interactive)
-	flags="${flags} --interactive=true"
-	;;
+        flags="${flags} --interactive=true"
+        ;;
       -t|--tty)
-	flags="${flags} --tty=true"
-	;;
-      -*) echo >&2 "docker_execute(): unknown flag $1 : execute -c|--container {container}";;
+        flags="${flags} --tty=true"
+        ;;
+      -*) echo >&2 "docker_execute(): unknown flag $1 : execute -d|--detach -i|--interactive -t|--tty -c|--container {container}";;
       *)
         break;; # terminate while loop
     esac

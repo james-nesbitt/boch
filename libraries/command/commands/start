@@ -85,7 +85,7 @@ start_execute()
   # Add the default flags to the end of the flaglist
   flags="${flags} `settings_mount_getmounts --mount`"
   # Add default container links
-  flags="${flags} ${machine_runargs} `settings_link_get --link`"
+  flags="${flags} `settings_link_get --link`"
 
   # Check for an existing container
   if docker_container_exists "${container}"; then

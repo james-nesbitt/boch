@@ -146,8 +146,8 @@ exec_exec_standard()
   if docker_container_running "${container}"; then
 
     # Run the start function
-    debug --level 5 --topic "COMMAND->EXEC->STANDARD" "exec_standard [ handing off to docker exec abstraction ] ==> docker_exec --container ${container} $@"
-    docker_exec ${flags} --container "${container}" $@
+    debug --level 5 --topic "COMMAND->EXEC->STANDARD" "exec_standard [ handing off to docker exec abstraction ] ==> docker_exec --container ${container} ${flags} $@"
+    docker_exec --container "${container}" ${flags}  $@
     return $?
 
   fi
@@ -185,8 +185,8 @@ exec_exec_sudo()
   if docker_container_running "${container}"; then
 
     # Run the start function
-    debug --level 5 --topic "COMMAND->EXEC->SUDO" "[ handing off to docker exec abstraction ] ==> docker_exec ${flags} --container \"${container}\" sudo -u \"${user}\" $@"
-    docker_exec ${flags} --container "${container}" sudo -u "${user}" $@
+    debug --level 5 --topic "COMMAND->EXEC->SUDO" "[ handing off to docker exec abstraction ] ==> docker_exec ${flags} --container \"${container}\" ${flags} sudo -u \"${user}\" $@"
+    docker_exec --container "${container}" ${flags} sudo -u "${user}" $@
     return $?
 
   fi
