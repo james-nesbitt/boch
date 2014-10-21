@@ -64,19 +64,16 @@ list_get()
     esac
     shift
   done
-
   local var="${_list_rootvar}${name}"
   local trimmed="${!var}"
-  trimmed=${trimmed%% }
-  trimmed=${trimmed## }
-  local value=""
+
   if [ $reverse -eq 0 ]; then
     #trimmed=`echo ${trimmed} | tac --separator " "`
-    trimmed=`echo ${trimmed} | awk '{print NR,$0}' | sort -nr | sed 's/^[0-9]* //'`
+    echo ${trimmed} | tr " " "\n" | awk '{print NR,$0}' | sort -nr | sed 's/^[0-9]* //'
+  else
+    echo ${trimmed} | tr " " "\n"
   fi
-  for value in ${trimmed}; do
-    echo "${value}"
-  done
+
   debug --level 9 --topic "UTIITY->LIST->GET" "get lists var [list:${var}][value:${trimmed}]"
 }
 # Count the number of results in a list
@@ -258,7 +255,7 @@ path_shorten()
     if [ "${library%:*}" == "core" ]; then
       # skip the core library
       library=""
-    else 
+    else
       case "${path}" in
         *"${library##*:}"*)
           echo "${library%:*}~${path#${library##*:}/}"
