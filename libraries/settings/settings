@@ -102,7 +102,9 @@ alias_create()
     shift
   done
 
-  path="`path_expand "${path}aliases/${name}"`"
+  path="`path_expand "${path}aliases"`"
+  path_ensure --dir "${path}"
+  path="${path}/${name}"
 
   if path_is "${path}"; then
     debug --level 4 --topic "SETTINGS->ALIAS->CREATE" "Alias path already exists, so alias was not created [path:${path}]"
