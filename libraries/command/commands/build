@@ -87,6 +87,7 @@ build_execute()
   local image="${project_image}"
   local build="${project_build:-${project_image}}"
   local version="${project_imageversion}"
+  local force=0
 
   # local flags
   local flags=""
@@ -99,6 +100,7 @@ build_execute()
         shift
         ;;
       -f|--force)
+        force=1
         flags="${flags} --force"
         ;;
       -i|--image)
@@ -116,6 +118,22 @@ build_execute()
     shift
   done
 
+  local tag="${image}"
+  if [ -n "${version}" ]; then
+    tag="${tag}:${version}"
+  fi
+
+  if docker_image_exists "${tag}"; then
+    if [ $force -eq 0 ]; then
+      debug --level 4 --topic "COMMAND->BUILD" "build_exec() :: error building custom image, image already exists: ${tag}"
+      message "Build image already exists [${tag}], so will not be built.  Run with --force to build anyway"
+      return 1
+    else
+      message "The biuld image already exists, forcing build anyway due to force flag: ${tag}"
+    fi
+
+  fi
+
   # build on the flags (valid for both create and destroy)
   flags="${flags} --image ${image}"
   if [ -n "${version}" ]; then
@@ -128,7 +146,14 @@ build_execute()
   message --separator
 
   build_build ${flags} --path "${path}"
-  return $?
+  local success=$?
+
+  if [ $success -gt 0 ]; then
+    message "Build failed"
+  fi
+
+  return $succces
+
 }
 
 # try to find a build in a build path
