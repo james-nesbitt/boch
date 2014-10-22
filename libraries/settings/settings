@@ -72,6 +72,78 @@ function _alias_load()
     debug --level 8 --topic "HOOK->SETTINGS->ALIAS->_LOAD" "Library does not implement aliad [library:${library}][alias:${alias}][path:${alias_path}][flags:${flags}]"
   fi
 }
+# handler for creating a hook (no messages)
+alias_create()
+{
+  debug --level 9 --topic "SETTINGS->ALIAS->_CREATE" "alias_create"
+
+  # default values
+  local name="empty"
+  local path="project~"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--library)
+        path="${2}~"
+        shift
+        ;;
+      -n|--name)
+        name="${2}"
+        shift
+        ;;
+      -p|--path)
+        path="$2"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  path="`path_expand "${path}aliases/${name}"`"
+
+  if path_is "${path}"; then
+    debug --level 4 --topic "SETTINGS->ALIAS->CREATE" "Alias path already exists, so alias was not created [path:${path}]"
+  else
+    if path_ensure --exec "${path}"; then
+      echo "#!/bin/sh
+#
+# ${name} alias
+#
+
+debug --level 8 --topic \"SETTINGS->ALIAS->${name}\" \"${name} alias included : $@\"
+
+# alias feature target
+feature_alias_target=\"\"
+
+while [ \$# -gt 0 ]
+do
+  case \"\$1\" in
+    --source-include-path)
+      shift
+      ;;
+    --target)
+      feature_alias_target=\"\${2}\"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+message \"${name} alias was generated, but never edited.  Make it do something [path:${path}]\"
+
+" > ${path}
+      debug --level 6 --topic "SETTINGS->ALIAS->CREATE" "Alias was created [name:${name}][path:${path}]"
+    else
+      debug --level 4 --topic "SETTINGS->ALIAS->CREATE" "Could not create alias file, so alias was not created [name:${name}][path:${path}]"
+    fi
+  fi
+}
+
 
 ###
 # Mount related functions
@@ -302,12 +374,25 @@ settings_init()
 # Execute handler
 settings_execute()
 {
+
   if [ -z "${1}" ]; then
     # @NOTE I can't decide what the default behaviour should be
     # help_execute "settings:general"
     help_execute "settings:settings"
   else
     case "${1}" in
+      alias)
+        shift
+        case "${1}" in
+          create)
+            shift
+            message "Creating alias $@"
+            alias_create $@
+            ;;
+          *)
+            help_execute "settings:aliases"
+        esac
+        ;;
       settings|show|all)
         shift
         help_execute "settings:settings"

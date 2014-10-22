@@ -72,6 +72,144 @@ hooks_altervalue()
   return 0
 }
 
+# Execute handler
+hook_execute()
+{
+  if [ -z "${1}" ]; then
+    # @NOTE I can't decide what the default behaviour should be
+    # help_execute "hook:general"
+    help_execute "hook:general"
+  else
+    case "${1}" in
+      create)
+        shift
+        hook_create $@
+        ;;
+      *)
+        help_execute "hook:${1}"
+    esac
+  fi
+}
+
+# handler for creating a hook (no messages)
+hook_create()
+{
+  debug --level 9 --topic "HOOK->_CREATE" "hook_create"
+
+  # default values
+  local priority="500"
+  local hook=""
+  local name="empty_hook"
+  local path="project~"
+  local state=""
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -h|--hook)
+        hook="$2"
+        shift
+        ;;
+      -l|--library)
+        path="${2}~"
+        shift
+        ;;
+      -n|--name)
+        name="${2}"
+        shift
+        ;;
+      -r|--priority)
+        priority="${2}"
+        shift
+        ;;
+      -p|--path)
+        path="$2"
+        shift
+        ;;
+      -s|--state)
+        path="${path}/$2"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # add any state to the hook name
+  if [ -n "${state}" ]; then
+    hook="${hook}/${state}"
+    name="${name}_${state}"
+  fi
+
+  path="`path_expand "${path}hooks/${hook}"`"
+  path_ensure --dir "${path}"
+  path="${path}/${priority}_${name}"
+
+  if path_is "${path}"; then
+    debug --level 4 --topic "HOOK->CREATE" "Path already exists, so hook was not created [path:${path}]"
+  else
+    if path_ensure --exec "${path}"; then
+      echo "#!/bin/sh
+#
+# INIT:HOOK: Describe your hook
+#
+# @NOTE this hook will only execute if IT IS EXECUTABLE
+# @NOTE that the file name used has the number prefix to sort
+#     across all hooks that are in scope, across all folders
+#
+
+# Hook version is always 2, it tells the hook handler that
+# you will have the description, help and execute methods
+hook_version=2
+# Hook root is the base of all function names in this hook
+hook_root=\"${name}_${priority}\"
+
+# Description method
+#
+# This description is used in help lists, when lists of hooks
+# that affect a scope are shown.
+${name}_${priority}_description()
+{
+  echo \"Provide a 1-line description of your hook\"
+}
+
+# help method
+#
+# Proovide full help text for the hook, including which arguments
+# it may depend on
+${name}_${priority}_help()
+{
+  echo \"HOOK->${name}->${priority} : Example hook help
+
+Describe the hook here
+
+  [-a|--argument {additional parameter} : describe what arguments
+      the hook may act on
+
+@NOTE add some useful notes
+
+@TODO indicate what work still needs to be done
+\"
+}
+
+# execute method
+${name}_${priority}_execute()
+{
+  # replace these things:
+  debug --level 3 --topic \"HOOK->${name}->${priority}\" \"Hook running in default state.[path:${path}]\"
+  message \"Hook running in default state.  This hook was created using hook_create, but never modified.  Find this hook and make it do something [path:${path}]\"
+}
+" > ${path}
+      message "New ${name} hook create for ${hook} [path:${path}]"
+      debug --level 5 --topic "HOOK->CREATE" "Hook was created [path:${path}]"
+    else
+      debug --level 4 --topic "HOOK->CREATE" "Could not create hook file, so hook was not created [path:${path}]"
+    fi
+  fi
+}
+
+
 ###
 # Run hooks for an operation
 #
@@ -126,7 +264,7 @@ hooks_execute()
   for hook_path in ${hooks_paths}; do
 
     debug --level 9 --topic "HOOKS->EXECUTE" "hook execution [hook:${hook}][state:${state}][hooks:${hooks_paths}]";
-    hook_execute $hook_path --action "${action}" $@
+    _hook_execute $hook_path --action "${action}" $@
 
     if [ $? -gt 0 ]; then
       debug --level 7 --topic "HOOKS->EXECUTE" "Hook return an error during execution [hook:${hook}][path:${hook_path}]"
@@ -213,7 +351,7 @@ hook_include()
 }
 
 # execute a hook method (must be loaded already)
-hook_execute()
+_hook_execute()
 {
   # hook path is the first param
   local path="$1"
