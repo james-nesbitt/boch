@@ -88,10 +88,6 @@ alias_create()
         path="${2}~"
         shift
         ;;
-      -n|--name)
-        name="${2}"
-        shift
-        ;;
       -p|--path)
         path="$2"
         shift
@@ -101,6 +97,14 @@ alias_create()
     esac
     shift
   done
+
+  # Alias name is first parameter
+  name="${1}"
+  shift
+
+  if [ -z "${name}" ]; then
+    return 1
+  fi
 
   path="`path_expand "${path}aliases"`"
   path_ensure --dir "${path}"

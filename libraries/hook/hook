@@ -106,10 +106,6 @@ hook_create()
   while [ $# -gt 0 ]
   do
     case "$1" in
-      -h|--hook)
-        hook="$2"
-        shift
-        ;;
       -l|--library)
         path="${2}~"
         shift
@@ -135,6 +131,14 @@ hook_create()
     esac
     shift
   done
+
+  # Hook is the first argument
+  hook="${1}"
+  shift
+
+  if [ -z "${hook}" ]; then
+    return 1
+  fi
 
   # add any state to the hook name
   if [ -n "${state}" ]; then
