@@ -110,6 +110,10 @@ hook_create()
         path="${2}~"
         shift
         ;;
+      -u|--user)
+        path="user~"
+        ;;
+
       -n|--name)
         name="${2}"
         shift
@@ -123,7 +127,7 @@ hook_create()
         shift
         ;;
       -s|--state)
-        path="${path}/$2"
+        state="${2}"
         shift
         ;;
       *)
@@ -139,7 +143,6 @@ hook_create()
   if [ -z "${hook}" ]; then
     return 1
   fi
-
   # add any state to the hook name
   if [ -n "${state}" ]; then
     hook="${hook}/${state}"

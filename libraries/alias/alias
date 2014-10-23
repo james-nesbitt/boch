@@ -89,6 +89,9 @@ alias_create()
         path="${2}~"
         shift
         ;;
+      -u|--user)
+        path="user~"
+        ;;
       -p|--path)
         path="$2"
         shift
@@ -125,14 +128,16 @@ debug --level 8 --topic \"ALIAS->${name}\" \"${name} alias included : $@\"
 # alias feature target
 feature_alias_target=\"\"
 
+# Interpret alias arguments that come from the toolset
 while [ \$# -gt 0 ]
 do
   case \"\$1\" in
     --source-include-path)
+      alias_path=\"\${2}\"
       shift
       ;;
     --target)
-      feature_alias_target=\"\${2}\"
+      alias_target=\"\${2}\"
       shift
       ;;
     *)
@@ -141,6 +146,18 @@ do
   shift
 done
 
+###
+# Alias code
+#
+# @NOTE put your alias code and settings here.
+#
+# @NOTE the above created variables:
+#    alias_path : the path to this alias file
+#    alias_target : if someone used the alias like @alias:target
+#        then this variable will contain the target.
+#
+
+# This is an examle of an action that an alias could make.  Replace it
 message \"${name} alias was generated, but never edited.  Make it do something [path:${path}]\"
 
 " > ${path}
