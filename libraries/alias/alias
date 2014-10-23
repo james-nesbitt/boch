@@ -1,0 +1,175 @@
+#!/bin/sh
+#
+# alias library handler
+#
+
+
+# Alias list add method
+alias_add()
+{
+  local alias="${1}"
+
+  case "${alias}" in
+    @*) # just an marker for aliases from the command line
+      alias="${alias:1}"
+      ;;
+    %*) # load the first part as a lib, then use it as an alias
+      alias="${alias:1}"
+      library_load "${alias%:*}"
+      ;;
+    ^*) # laod the first part as a lib, and use the second part as an alias
+      alias="${alias:1}"
+      library_load "${alias%:*}"
+      if [ "${alias}" == "${alias#:*}" ]; then
+        alias=""
+      else
+        alias="${alias#*:}"
+      fi
+      ;;
+  esac
+
+  if [ -n "${alias}" ]; then
+    list_add "alias_aliases" "${alias}"
+    alias_load "${alias}"
+  fi
+}
+# Alias list retrieve method
+aliases_get()
+{
+  list_get "alias_aliases"
+}
+
+# Load an alias
+alias_load()
+{
+  local alias="${1}"
+  shift
+
+  local library=""
+  local alias_path=""
+  for library in `libraries_list`; do
+    debug --level 8 --topic "HOOK->SETTINGS->ALIAS->LOAD" "Checking library for aliases [library:${library}][alias:${alias}]"
+    _alias_load "${library}" "${alias}" $@
+  done
+}
+function _alias_load()
+{
+  local library="${1}"
+  local alias="${2}"
+  shift 2
+
+  local flags=""
+
+  if [ "${alias}" != "${alias%:*}" ]; then
+    flags="${flags} --target ${alias#*:}"
+    alias="${alias%:*}"
+  fi
+
+  alias_path="`library_path "${library}"`/aliases/${alias}"
+  if path_is --exec "${alias_path}"; then
+    debug --level 6 --topic "HOOK->SETTINGS->ALIAS->_LOAD" "Loading alias library [library:${library}][alias:${alias}][path:${alias_path}][flags:${flags}]"
+    path_include "${alias_path}" ${flags} $@
+  else
+    debug --level 8 --topic "HOOK->SETTINGS->ALIAS->_LOAD" "Library does not implement aliad [library:${library}][alias:${alias}][path:${alias_path}][flags:${flags}]"
+  fi
+}
+# handler for creating a hook (no messages)
+alias_create()
+{
+  debug --level 9 --topic "SETTINGS->ALIAS->_CREATE" "alias_create"
+
+  # default values
+  local name="empty"
+  local path="project~"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -l|--library)
+        path="${2}~"
+        shift
+        ;;
+      -p|--path)
+        path="$2"
+        shift
+        ;;
+      *)
+          break;; # terminate while loop
+    esac
+    shift
+  done
+
+  # Alias name is first parameter
+  name="${1}"
+  shift
+
+  if [ -z "${name}" ]; then
+    return 1
+  fi
+
+  path="`path_expand "${path}aliases"`"
+  path_ensure --dir "${path}"
+  path="${path}/${name}"
+
+  if path_is "${path}"; then
+    debug --level 4 --topic "SETTINGS->ALIAS->CREATE" "Alias path already exists, so alias was not created [path:${path}]"
+  else
+    if path_ensure --exec "${path}"; then
+      echo "#!/bin/sh
+#
+# ${name} alias
+#
+
+debug --level 8 --topic \"SETTINGS->ALIAS->${name}\" \"${name} alias included : $@\"
+
+# alias feature target
+feature_alias_target=\"\"
+
+while [ \$# -gt 0 ]
+do
+  case \"\$1\" in
+    --source-include-path)
+      shift
+      ;;
+    --target)
+      feature_alias_target=\"\${2}\"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+message \"${name} alias was generated, but never edited.  Make it do something [path:${path}]\"
+
+" > ${path}
+      debug --level 6 --topic "SETTINGS->ALIAS->CREATE" "Alias was created [name:${name}][path:${path}]"
+    else
+      debug --level 4 --topic "SETTINGS->ALIAS->CREATE" "Could not create alias file, so alias was not created [name:${name}][path:${path}]"
+    fi
+  fi
+}
+
+
+# Execute handler
+alias_execute()
+{
+
+  if [ -z "${1}" ]; then
+    # @NOTE I can't decide what the default behaviour should be
+    # help_execute "settings:general"
+    help_execute "alias:general"
+  else
+    case "${1}" in
+      create)
+        shift
+        message "Creating alias $@"
+        alias_create $@
+        ;;
+      *)
+        help_execute "alias:${1}"
+    esac
+  fi
+
+}

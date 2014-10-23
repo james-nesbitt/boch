@@ -4,16 +4,16 @@
 #
 
 hook_version=2
-hook_root="hook_settings_library_pre_650"
+hook_root="hook_alias_library_pre_650"
 
 # description method
-hook_settings_library_pre_650_description()
+hook_alias_library_pre_650_description()
 {
   echo "If a library has a settings file, include it"
 }
 
 # help method
-hook_settings_library_pre_650_help()
+hook_alias_library_pre_650_help()
 {
   echo "
 Add any aliases marked for inclusion, found in the library
@@ -25,7 +25,7 @@ for inclusion using alias_add.
 }
 
 # execute method
-hook_settings_library_pre_650_execute()
+hook_alias_library_pre_650_execute()
 {
   local library=""
   local path=""

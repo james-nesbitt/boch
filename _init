@@ -110,6 +110,9 @@ debug --level 7 --topic "INIT" "INCLUDING CORE SYSTEM LIBRARIES"
 # include utility functions for running hooks (which every other library relies on)
 library_load "hook"
 
+# include alias tools
+library_load "alias"
+
 # run init related hooks
 hooks_execute "init" --state "pre"
 

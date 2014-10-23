@@ -8,9 +8,6 @@
 settings_help()
 {
   case "${1}" in
-    aliases|alias)
-      settings_help_aliaseshelp
-      ;;
     settings|setting)
       settings_help_outputsettings
       ;;
@@ -28,7 +25,7 @@ settings_helplist()
   if [ -z "${1}" ]; then
     echo "Settings library topics"
     echo "--> Output active settings (settings:settings)"
-    echo "--> Alias settings (settings:aliases)"
+    echo "--> Alias settings (aliases:general)"
   fi
 }
 
@@ -52,64 +49,6 @@ There are two primary actions that the settings library makes:
    when a script is run.
 2. Provide \"default\" settings from libraries, which can be used to
    generate a default settings file for a project,  during the init flow.
-"
-}
-
-# Help message about aliases
-settings_help_aliaseshelp()
-{
-  echo "Settings Aliases
-
-Aliases are compact single file scripts, that can be lazy loaded at
-will, and contain functions, expressions and settings to be used when
-the alias is activated.
-
-An alias has a name, and when activated, every matching names alias
-file in any loaded library is included.  Additionally, whenever a library
-is loaded, it is checked for matching aliases.
-
-The easiest way to activate an alias is to include it in the global
-arguments with an @ like this:
-
-$/> boch @local status
-
-This would load the \"local\" alias.
-
-Targets:
-
-If an alias has a \":\" in it, then the alias is considered to be the
-string before the \":\", and the string after is considered the target.
-In this case the alias is executed, and passed the target string.
-This allows single alias files to handler multiple usecases.
-
-@, %, ^ : Loading libraries
-
-If an alias starts with @, % ot ,^, then the symbol is stripped before
-running.  The latter two symbols let you autoload a library before
-running the alias.
-The various symbols have different implications:
-@ : nothing special, just remove the symbol and run the alias
-    @test : run the test alias
-    @test:example : run the test alias, with a example as a target
-% : this is a library, so load the library of the same name before
-  running the alias.
-    %test:example : will load the test library, and then run the test alias
-        with example
-^ : this is a library, so load the library of the same name and then
-  ignore the alias, and use the alias target as an alias
-    ^test:example : would load the test library, then run the example alias
-    ^test : would load the test library, and then run NO alias
-
-Handlers:
-
-Alias handlers are kept in any library, in a ./aliases/ folder.  If a
-library has an executable script of a name that matches the alias, then
-that script is executed to run the alias.
-The script is executed with:
-  --source-include-path : the path to the alias file
-  --target : any passed alias target for the alias
-
-All matching aliases in all libraries are executed.
 "
 }
 

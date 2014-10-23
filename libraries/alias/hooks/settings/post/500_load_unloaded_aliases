@@ -4,16 +4,16 @@
 #
 
 hook_version=2
-hook_root="hook_settings_post_500"
+hook_root="hook_alias_post_500"
 
 # description method
-hook_settings_post_500_description()
+hook_alias_post_500_description()
 {
   echo "hook->settings (post) 500: late load any pre-seeded aliases"
 }
 
 # help method
-hook_settings_post_500_help()
+hook_alias_post_500_help()
 {
   echo "
 hook->settings (post) 500: late load any pre-seeded aliases
@@ -25,7 +25,7 @@ which makes their resources available, before the alaises are loaded.
 }
 
 # execute method
-hook_settings_post_500_execute()
+hook_alias_post_500_execute()
 {
   # First preprocess aliases
   if [ -n "${alias_unloaded_aliases}" ]; then
