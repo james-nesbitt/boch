@@ -2,3 +2,6 @@
 #
 # alias library settings
 #
+
+# Default path for new alaises
+project_alias_defaultpath="project~"
