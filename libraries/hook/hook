@@ -449,7 +449,7 @@ hook_description()
   local hook=$1
   shift
 
-  hook_execute "${hook}" --action "description" $@
+  _hook_execute "${hook}" --action "description" $@
 }
 
 # List all hooks, not in the sorted order
