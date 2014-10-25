@@ -1,8 +1,9 @@
 #!/bin/sh
 #
-# INIT:HOOK: Convert flow arguments into global variables
+# STATUS:HOOK: Convert flow arguments into global variables
 #
 
+# Configure the hook
 hook_version=2
 hook_root="hook_flow_status_300"
 
@@ -15,7 +16,7 @@ hook_flow_status_300_description()
 # help method
 hook_flow_status_300_help()
 {
-  echo "hook->init->300 : Interpret arguments as global variables
+  echo "HOOK->FLOW->STATUS->PRE->300 : Interpret arguments as global variables
 
 This hook will attempt to interpret the flow arguments into
 global variables, which will reduce the dependence on args
@@ -23,7 +24,7 @@ for following hooks.
 Following hooks won't need to interpret flow arguments as
 much, and can depend on global settings.
 "
-  help_scope_add "hook:flow/init"
+  help_scope_add "hook:flow/status"
 }
 
 # execute method
@@ -35,17 +36,17 @@ hook_flow_status_300_execute()
     case "$1" in
       -b|--build)
         project_build="${2}"
-        debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Using alternate build [build:${project_build}]"
+        debug --level 5 --topic "HOOK->FLOW->STATUS->PRE->300" "Using alternate build [build:${project_build}]"
         shift
         ;;
       -c|--container)
         project_container="${2}"
-        debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Using alternate container [container:${project_container}]"
+        debug --level 5 --topic "HOOK->FLOW->STATUS->PRE->300" "Using alternate container [container:${project_container}]"
         shift
         ;;
       -i|--image)
         project_image="${2}"
-        debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Using alternate image [image:${project_image}]"
+        debug --level 5 --topic "HOOK->FLOW->STATUS->PRE->300" "Using alternate image [image:${project_image}]"
         shift
         ;;
       -l|--libraries)
@@ -74,6 +75,6 @@ hook_flow_status_300_execute()
     flow_status_topics="${flow_status_topics} ${targets_local}"
   fi
 
-  debug --level 5 --topic "HOOK->FLOW->STATUS->300" "Topics to be used for status flow [topics:${flow_status_topics}]"
+  debug --level 5 --topic "HOOK->FLOW->STATUS->PRE->300" "Topics to be used for status flow [topics:${flow_status_topics}]"
 
 }
