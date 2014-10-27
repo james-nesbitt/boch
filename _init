@@ -29,12 +29,16 @@ log=${log:-0}
 # de based on them
 #
 
+# load docker functions earlier - bash abstractions for docker operations
+libraries_default="${libraries_default:-docker}"
+
 # empty path text
 empty_path="not found"
 
 # Subpath of a root project folder, that contains project configuration
-path_projectconf_subpath="${path_projectconf_subpath:-.boch}"
-path_userconf_subpath="${path_userconf_subpath:-.boch}"
+path_conf_subpath="${path_conf_subpath:-.boch}"
+path_projectconf_subpath="${path_projectconf_subpath:-${path_conf_subpath}}"
+path_userconf_subpath="${path_userconf_subpath:-${path_conf_subpath}}"
 
 # path executed from
 path_execution="${path_execution:-`pwd`}"
@@ -113,14 +117,17 @@ library_load "hook"
 # run init related hooks
 hooks_execute "init" --state "pre"
 
+# include default libraries
+for add_library in ${libraries_default}; do
+  library_load "${add_library}"
+done
+
 # include alias tools
 library_load "alias"
 # include the settings library (with a tool to load settings from other libraries)
 library_load "settings"
 # include help related functions (not debug, which is in utilities to get it loaded early.)
 library_load "help"
-# include docker functions - bash abstractions for docker operations
-library_load "docker"
 
 # run init related hooks
 hooks_execute "init" --state "post"

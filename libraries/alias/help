@@ -24,6 +24,10 @@ alias_help_generalhelp()
 Aliases are compact single file scripts, that can be lazy loaded at
 will, and contain functions, expressions and settings to be used when
 the alias is activated.
+The original purpose of aliases was to allow a fast in-line command
+option to capture a collection of settings changes, to be used for
+alternate container management, instead of having to repeatedly
+type in a collection of flags for docker commands.
 
 An alias has a name, and when activated, every matching names alias
 file in any loaded library is included.  Additionally, whenever a library
