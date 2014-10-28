@@ -81,7 +81,8 @@ source "${path_script}/_init"
 if [ -z "${library}" ]; then
 
   # First we assume that a library was passed as the first
-  # parameter, and try to load it
+  # parameter, and try to load it.
+  # E.G.
   # $/> boch flow status
   # $/> boch command ps
   # $/> boch help hook:general
@@ -105,7 +106,7 @@ if [ -z "${library}" ]; then
         library="command"
         target="${1}"
         shift
-        debug --level 5 --topic "HANDLER" "Assumed command handler [handler:${library}][target:${target}] : $@"
+        debug --level 5 --topic "HANDLER" "Assumed 'command' handler [handler:${library}][target:${target}] : $@"
       fi
     fi
 
@@ -117,11 +118,13 @@ if [ -z "${library}" ]; then
         library="flow"
         target="${1}"
         shift
-        debug --level 5 --topic "HANDLER" "Assumed flow handler [handler:${library}][target:${target}] : $@"
+        debug --level 5 --topic "HANDLER" "Assumed 'flow' handler [handler:${library}][target:${target}] : $@"
       fi
     fi
   fi
+
 else
+
   debug --level 5 --topic "HANDLER" "Explicit handler CHECK [library:${library}][target:${target}] : $@"
   if [ -z "${target}" ]; then
     target="${1}"
@@ -130,6 +133,7 @@ else
   else
     debug --level 5 --topic "HANDLER" "Explicit handler and target [library:${library}][target:${target}] : $@"
   fi
+
 fi
 
 ################################################################################

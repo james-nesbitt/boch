@@ -7,7 +7,7 @@
 # @NOTE don't use this, as all it does is rememeber the path
 _libraries_addlibrary()
 {
-  list_add "libraries_loaded" "${1}"
+  list_add 'libraries_loaded' "${1}"
 }
 # add the core manage folder as a library, even though it isn't really a library
 # this just makes some things easier, like finding libraries
@@ -16,7 +16,7 @@ _libraries_addlibrary "core:${path_library}"
 # retrieve the list of loaded libraries
 libraries_list()
 {
-  list_get "libraries_loaded" $@
+  list_get 'libraries_loaded' $@
 }
 # get the list record for a specific library from the loaded list
 libraries_list_get()
@@ -74,27 +74,27 @@ library_handler()
 #       any library.
 libraries_contents()
 {
-  local subpath=""
-  local type="exec"
+  local subpath=''
+  local type='exec'
   local reverse=""
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -d|--dir|--directory)
-        type="dir"
+        type='dir'
         ;;
       -f|--file)
-        type="file"
+        type='file'
         ;;
       -l|--library)
-        type="library"
+        type='library'
         ;;
       -r|--reverse)
-        reverse=" --reverse "
+        reverse=' --reverse '
         ;;
       -x|--executable)
-        type="exec"
+        type='exec'
         ;;
       -s|--subpath)
         subpath="/${2}"
@@ -124,13 +124,13 @@ library_loaded()
   for library in `libraries_list`; do
     case " ${library} " in
       *" ${1}:"*)
-          debug --level 9 --topic "LIBRARY->LOADED" "library is already loaded [library:${library}]"
+          debug --level 9 --topic 'LIBRARY->LOADED' "library is already loaded [library:${library}]"
           return 0
         ;;
     esac
   done
 
-  debug --level 9 --topic "LIBRARY->LOADED" "library is NOT already loaded [library:${library}]"
+  debug --level 9 --topic 'LIBRARY->LOADED' "library is NOT already loaded [library:${library}]"
   return 1
 }
 
@@ -138,7 +138,7 @@ library_loaded()
 # this is necessary for the case of loading the hooks library, and any libraries before that.
 _libraries_hooks_execute()
 {
-  if function_exists "hooks_execute"; then
+  if function_exists 'hooks_execute'; then
     hooks_execute $@
   fi
 }
@@ -146,10 +146,10 @@ _libraries_hooks_execute()
 # public handler for loading a library
 library_load()
 {
-  local library=""
-  local component=""
-  local path=""
-  local subpath=""
+  local library=''
+  local component=''
+  local path=''
+  local subpath=''
 
   while [ $# -gt 0 ]
   do
@@ -181,7 +181,7 @@ library_load()
 
   if library_loaded "${library}"; then
     # library is already loaded
-    debug --level 7 --topic "LIBRARY->LOAD" "library already loaded [library:${library}]"
+    debug --level 7 --topic 'LIBRARY->LOAD' "library already loaded [library:${library}]"
     success=0
   else
 
@@ -191,41 +191,41 @@ library_load()
         _library_load --library "${library}" --path "${path}" $@
         success=$?
         if [ $success -eq 0 ]; then
-          debug --level 7 --topic "LIBRARY->LOAD" "suggested path library loaded [library:${library}][path:${path}][success:${success}]"
+          debug --level 7 --topic 'LIBRARY->LOAD' "suggested path library loaded [library:${library}][path:${path}][success:${success}]"
         else
-          debug --level 7 --topic "LIBRARY->LOAD" "suggested path library load failed [library:${library}][path:${path}][success:${success}]"
+          debug --level 7 --topic 'LIBRARY->LOAD' "suggested path library load failed [library:${library}][path:${path}][success:${success}]"
         fi
       else
         success=1
-        debug --level 6 --topic "LIBRARY->LOAD" "suggested path for library not found, or not a library [library:${library}][path:${path}][success:${success}]"
+        debug --level 6 --topic 'LIBRARY->LOAD' "suggested path for library not found, or not a library [library:${library}][path:${path}][success:${success}]"
       fi
 
     else
 
-      local library_each=""
+      local library_each=''
       for library_each in `libraries_list`
       do
         path="`library_path "${library_each}"`/libraries/${library}"
 
         if path_is --library "${path}"; then
-          debug --level 8 --topic "LIBRARY->LOAD" "library exists [library:${library}][path:${path}][success:${success}]"
+          debug --level 8 --topic 'LIBRARY->LOAD' "library exists [library:${library}][path:${path}][success:${success}]"
           _library_load --library "${library}" --path "${path}" $@
           success=$?
           if [ $success -eq 0 ]; then
-            debug --level 7 --topic "LIBRARY->LOAD" "library found and loaded [library:${library}][path:${path}][success:${success}]"
+            debug --level 7 --topic 'LIBRARY->LOAD' "library found and loaded [library:${library}][path:${path}][success:${success}]"
           else
-            debug --level 6 --topic "LIBRARY->LOAD" "library found but load failed [library:${library}][path:${path}][success:${success}]"
+            debug --level 6 --topic 'LIBRARY->LOAD' "library found but load failed [library:${library}][path:${path}][success:${success}]"
           fi
 
           break
         else
           success=1
-          debug --level 8 --topic "LIBRARY->LOAD" "library path does not exist [library:${library}][path:${path}][success:${success}]"
+          debug --level 8 --topic 'LIBRARY->LOAD' "library path does not exist [library:${library}][path:${path}][success:${success}]"
         fi
       done
 
       if [ $success -lt 0 ]; then
-        debug --level 6 --topic "LIBRARY->LOAD" "library could not be found [library:${library}][path:${path}][success:${success}]"
+        debug --level 6 --topic 'LIBRARY->LOAD' "library could not be found [library:${library}][path:${path}][success:${success}]"
         success=1
       fi
 
@@ -238,22 +238,22 @@ library_load()
 
     if library_loaded "${component}"; then
       # library is already loaded
-      debug --level 7 --topic "LIBRARY->LOAD" "library component already loaded [library:${library}][component:${component}]"
+      debug --level 7 --topic 'LIBRARY->LOAD' "library component already loaded [library:${library}][component:${component}]"
       success=0
     else
 
       if [ -n "${path}" ]; then
-        if path_is --type "library" "${path}"; then
+        if path_is --type 'library' "${path}"; then
           _library_load --library "${component}" --path "${path}"
           local success=$?
           if [ $success -eq 0 ]; then
-            debug --level 7 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loaded [library:${library}][component:${component}]"
+            debug --level 7 --topic 'LIBRARIES->COMPONENT->LOAD' "Library component loaded [library:${library}][component:${component}]"
           else
-            debug --level 6 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loading failed [library:${library}][component:${component}][success:${success}]"
+            debug --level 6 --topic 'LIBRARIES->COMPONENT->LOAD' "Library component loading failed [library:${library}][component:${component}][success:${success}]"
           fi
           return $success
         else
-          debug --level 5 --topic "LIBRARIES->COMPONENT->LOAD" "Library component could not be found, it does not exists or was not a library [library:${library}][component:${component}][given path:${path}]"
+          debug --level 5 --topic 'LIBRARIES->COMPONENT->LOAD' "Library component could not be found, it does not exists or was not a library [library:${library}][component:${component}][given path:${path}]"
           return 1
         fi
       else
@@ -262,24 +262,24 @@ library_load()
           subpath="${library}s"
         fi
 
-        local this_library=""
+        local this_library=''
         for this_library in `libraries_list`; do
           path="`library_path \"${this_library}\"`/${subpath}/${component}"
-          if path_is --type "library" "${path}"; then
+          if path_is --type 'library' "${path}"; then
             _library_load --library "${component}" --path "${path}"
             success=$?
             if [ $success -eq 0 ]; then
-              debug --level 7 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loaded [library:${library}][component:${component}][in library:${this_library}]"
+              debug --level 7 --topic 'LIBRARIES->COMPONENT->LOAD' "Library component loaded [library:${library}][component:${component}][in library:${this_library}]"
             else
-              debug --level 6 --topic "LIBRARIES->COMPONENT->LOAD" "Library component loading failed [library:${library}][component:${component}][in library:${this_library}]"
+              debug --level 6 --topic 'LIBRARIES->COMPONENT->LOAD' "Library component loading failed [library:${library}][component:${component}][in library:${this_library}]"
             fi
             return $success
           else
-            debug --level 9 --topic "LIBRARIES->COMPONENT->LOAD" "Library component could not be found in loaded library path [library:${this_library%:*}][component:${component}][checked path:${path}]"
+            debug --level 9 --topic 'LIBRARIES->COMPONENT->LOAD' "Library component could not be found in loaded library path [library:${this_library%:*}][component:${component}][checked path:${path}]"
           fi
         done
 
-        debug --level 5 --topic "LIBRARIES->COMPONENT->LOAD" "Library component could not be found [library:${library}][component:${component}]"
+        debug --level 5 --topic 'LIBRARIES->COMPONENT->LOAD' "Library component could not be found [library:${library}][component:${component}]"
         return 1
       fi
 
@@ -299,8 +299,8 @@ library_load()
 #       simple or directory library, loading the core
 _library_load()
 {
-  local library=""
-  local path=""
+  local library=''
+  local path=''
 
   while [ $# -gt 0 ]
   do
@@ -323,42 +323,42 @@ _library_load()
     local path_include="${path}"
 
     if path_is --dir "${path}"; then
-      debug --level 8 --topic "LIBRARY->_LOAD" "library is a directory based lib [library:${library}][path:${path}]"
+      debug --level 8 --topic 'LIBRARY->_LOAD' "library is a directory based lib [library:${library}][path:${path}]"
       path_include="`library_handler "${library}:${path}"`"
     else
-      debug --level 8 --topic "LIBRARY->_LOAD" "library is a simple library (this library can't have components or includes.) [path:${path}]"
+      debug --level 8 --topic 'LIBRARY->_LOAD' "library is a simple library (this library can't have components or includes.) [path:${path}]"
     fi
 
-    debug --level 8 --topic "LIBRARY->_LOAD" "Now loading library [library:${library}][path:${path}]"
+    debug --level 8 --topic 'LIBRARY->_LOAD' "Now loading library [library:${library}][path:${path}]"
 
 
-    debug --level 7 --topic "LIBRARY->_LOAD" "Including library root.  Handing off to path_include ==> path_include \"${path_include}\" $@ "
+    debug --level 7 --topic 'LIBRARY->_LOAD' "Including library root.  Handing off to path_include ==> path_include \"${path_include}\" $@ "
     if path_include "${path_include}" $@; then
       # register the library as a path
-      list_add "libraries_loaded" "${library}:${path}"
+      list_add 'libraries_loaded' "${library}:${path}"
 
       # run pre hooks
-      _libraries_hooks_execute "library/load" --state "pre" --library "${library}" --path "${path}" $@
+      _libraries_hooks_execute 'library/load' --state 'pre' --library "${library}" --path "${path}" $@
 
-      if _library_execute --action "init" "${library}" --path "${path}"; then
-        debug --level 7 --topic "LIBRARY->LOAD" "Library init function run"
+      if _library_execute --action 'init' "${library}" --path "${path}"; then
+        debug --level 7 --topic 'LIBRARY->LOAD' 'Library init function run'
       fi
 
       # run post hooks
-      _libraries_hooks_execute "library/load" --state "post" --library "${library}" --path "${path}" $@
+      _libraries_hooks_execute 'library/load' --state 'post' --library "${library}" --path "${path}" $@
 
-      debug --level 6 --topic "LIBRARY->_LOAD" "library loaded [library:${library}][path:${path}]"
+      debug --level 6 --topic 'LIBRARY->_LOAD' "library loaded [library:${library}][path:${path}]"
       return 0
     else
-      debug --level 6 --topic "LIBRARY->_LOAD" "library load failed  [library:${library}][path:${path}][success:${success}]"
+      debug --level 6 --topic 'LIBRARY->_LOAD' "library load failed  [library:${library}][path:${path}][success:${success}]"
       # run fail hooks
-      _libraries_hooks_execute "library/load" --state "fail" --library ${library} --path ${path} $@
+      _libraries_hooks_execute 'library/load' --state 'fail' --library ${library} --path ${path} $@
       return 1
     fi
 
   fi
 
-  debug --level 7 --topic "LIBRARY->_LOAD" "library root does not exist, or is not executable, it cannot be loaded [library:${library}][path:${path}]"
+  debug --level 7 --topic 'LIBRARY->_LOAD' "library root does not exist, or is not executable, it cannot be loaded [library:${library}][path:${path}]"
   return 1
 }
 # Include a file in a library root
@@ -404,7 +404,7 @@ library_include()
   fi
 
   path="${path}/${subpath}${include}"
-  debug --level 5 --topic "LIBRARY->INCLUDE" "Including library component file [library:${library%:*}][component:${component}][path:${path}] : $@"
+  debug --level 5 --topic 'LIBRARY->INCLUDE' "Including library component file [library:${library%:*}][component:${component}][path:${path}] : $@"
   path_include "${path}"
   return $?
 }
@@ -415,9 +415,9 @@ library_include()
 library_execute()
 {
   # empty defaults
-  local library=""
-  local component=""
-  local action="execute"
+  local library=''
+  local component=''
+  local action='execute'
 
   while [ $# -gt 0 ]
   do
@@ -447,7 +447,7 @@ library_execute()
     if [ $success -eq 0 ]; then
       _library_execute --action "${action}" "${library}" $@
     else
-      debug --level 4 --topic "LIBRARY->EXECUTE" "library execute was not given a valid library name [library:${library}][action:${action}][function:${library_function}]"
+      debug --level 4 --topic 'LIBRARY->EXECUTE' "library execute was not given a valid library name [library:${library}][action:${action}][function:${library_function}]"
       return 1
     fi
   else
@@ -466,9 +466,9 @@ library_execute()
 _library_execute()
 {
   # empty defaults
-  local library=""
-  local component=""
-  local action="execute"
+  local library=''
+  local component=''
+  local action='execute'
 
   while [ $# -gt 0 ]
   do
@@ -492,7 +492,7 @@ _library_execute()
   shift
 
   if [ -z "${library}" ]; then
-    debug --level 2 --topic "LIBRARY->_EXECUTE" "library execute was not given any library name [library:${library}][action:${action}][function:${library_function}]"
+    debug --level 2 --topic 'LIBRARY->_EXECUTE' "library execute was not given any library name [library:${library}][action:${action}][function:${library_function}]"
     return 1
   fi
 
@@ -501,22 +501,22 @@ _library_execute()
     local library_function="${library//-/_}_${action}"
   else
     local library_function="${component//-/_}_${action}"
-    debug --level 8 --topic "LIBRARY->_EXECUTE" "library execute is for a component [library:${library}][action:${action}][function:${library_function}]"
+    debug --level 8 --topic 'LIBRARY->_EXECUTE' "library execute is for a component [library:${library}][action:${action}][function:${library_function}]"
   fi
 
   function_exists "${library_function}"
   if [ $? -eq 0 ]; then
-    debug --level 8 --topic "LIBRARY->_EXECUTE" "Handing off to library function [library:${library}][action:${action}] : ${library_function} $@"
+    debug --level 8 --topic 'LIBRARY->_EXECUTE' "Handing off to library function [library:${library}][action:${action}] : ${library_function} $@"
     eval ${library_function} $@
     success=$?
     if [ $success -eq 0 ]; then
-      debug --level 7 --topic "LIBRARY->_EXECUTE" "Library execute succeeded [library:${library}][action:${action}]."
+      debug --level 7 --topic 'LIBRARY->_EXECUTE' "Library execute succeeded [library:${library}][action:${action}]."
     else
-      debug --level 5 --topic "LIBRARY->_EXECUTE" "Command execution failed for library, command method returned an error [library:${library}][component:${component}][action:${action}][success:${success}]"
+      debug --level 5 --topic 'LIBRARY->_EXECUTE' "Command execution failed for library, command method returned an error [library:${library}][component:${component}][action:${action}][success:${success}]"
     fi
     return $sucess
   else
-    debug --level 7 --topic "LIBRARY->_EXECUTE" "Library execute method was not found in the library [library:${library}][action:${action}]."
+    debug --level 7 --topic 'LIBRARY->_EXECUTE' "Library execute method was not found in the library [library:${library}][action:${action}]."
     return 1
   fi
 }
@@ -528,9 +528,9 @@ _library_execute()
 library_create()
 {
   # default to a comple type lib
-  local type="complex"
+  local type='complex'
   # by default, create new libraries in the project libraries folder
-  local path="project~/libraries"
+  local path='project~/libraries'
 
   # Include a settings file?
   local include_settings=1
@@ -551,10 +551,10 @@ library_create()
         shift
         ;;
       -s|--simple)
-        type="simple"
+        type='simple'
         ;;
       -c|--complex)
-        type="complex"
+        type='complex'
         ;;
       *)
         break;; # terminate while loop
@@ -565,7 +565,7 @@ library_create()
   local name="${1}"
   shift
 
-  debug --level 8 --topic "LIBRARY->CREATE" "Creating new library [type:${type}][name:${name}][path:${path}]"
+  debug --level 8 --topic 'LIBRARY->CREATE' "Creating new library [type:${type}][name:${name}][path:${path}]"
 
   # exand the path now to save cycles
   path="`path_expand "${path}"`"
@@ -575,13 +575,13 @@ library_create()
   local root="${path}"
   local path="${path}/${name}"
 
-  if [ "${type}" == "complex" ]; then
+  if [ "${type}" == 'complex' ]; then
     path_ensure --dir "${path}"
     if [ $? -gt 0 ]; then
-      debug --level 4 --topic "LIBRARY->CREATE" "Could not create Library path [path:${path}]"
+      debug --level 4 --topic 'LIBRARY->CREATE' "Could not create Library path [path:${path}]"
       return 1
     else
-      debug --level 7 --topic "LIBRARY->CREATE" "Create new library folder [path:${path}]"
+      debug --level 7 --topic 'LIBRARY->CREATE' "Create new library folder [path:${path}]"
     fi
 
     path_settings="${path}/settings"
@@ -590,10 +590,10 @@ library_create()
 
   path_ensure --exec "${path}"
   if [ $? -gt 0 ]; then
-    debug --level 4 --topic "LIBRARY->CREATE" "Could not create Library handler [path:${path}]"
+    debug --level 4 --topic 'LIBRARY->CREATE' "Could not create Library handler [path:${path}]"
     return 1
   else
-    debug --level 7 --topic "LIBRARY->CREATE" "Created new library handler [path:${path}]"
+    debug --level 7 --topic 'LIBRARY->CREATE' "Created new library handler [path:${path}]"
   fi
 
   echo "#!/bin/sh

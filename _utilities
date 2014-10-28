@@ -14,7 +14,7 @@ list_reset()
   local name=$1
 
   local var="${_list_rootvar}${name}"
-  eval "$var=\"\""
+  eval "$var=''"
   debug --level 9 --topic "UTIITY->LIST->RESET" "Resetting lists var [list:${var}][value:${!var}]"
 }
 list_add()
@@ -34,15 +34,15 @@ list_add()
   value=${value%% }
   value=${value## }
   eval "$var='${value}'"
-  debug --level 8 --topic "UTIITY->LIST->ADD" "Adding list to lists var [list:${var}][value:${!var}][added:${item}]"
+  debug --level 8 --topic 'UTIITY->LIST->ADD' "Adding list to lists var [list:${var}][value:${!var}][added:${item}]"
 }
 list_remove()
 {
-echo "@TODO Remove item from list"
+echo '@TODO Remove item from list'
 }
 list_replace()
 {
-echo "@TODO Replace old item with new item in list"
+echo '@TODO Replace old item with new item in list'
 }
 list_get()
 {
@@ -74,7 +74,7 @@ list_get()
     echo ${trimmed} | tr " " "\n"
   fi
 
-  debug --level 9 --topic "UTIITY->LIST->GET" "get lists var [list:${var}][value:${trimmed}]"
+  debug --level 9 --topic 'UTIITY->LIST->GET' "get lists var [list:${var}][value:${trimmed}]"
 }
 # Count the number of results in a list
 list_count()
@@ -123,7 +123,7 @@ debug_set_level()
   fi
   debug=${1}
   shift
-  debug --level 3 --topic "UTILITY->DEBUG" "Debug mode enabled/set (level:${debug}) $@"
+  debug --level 3 --topic 'UTILITY->DEBUG' "Debug mode enabled/set (level:${debug}) $@"
 }
 # Get the debug level
 debug_get_level()
@@ -135,7 +135,7 @@ debug_reset_level()
 {
   if [ -n "${original_debug}" ]; then
     debug=${original_debug}
-    debug --level 3 --topic "UTILITY->DEBUG" "Debug mode reset (level:${debug}) $@"
+    debug --level 3 --topic 'UTILITY->DEBUG' "Debug mode reset (level:${debug}) $@"
   fi
 }
 # set the debug logging value
@@ -143,13 +143,13 @@ debug_set_log()
 {
   log=${1}
   shift
-  debug --level 3 --topic "UTILITY->DEBUG" "Logging mode enabled/set (level:${log}) $@"
+  debug --level 3 --topic 'UTILITY->DEBUG' "Logging mode enabled/set (level:${log}) $@"
 }
 # disable the "execution stop on critical" feature in debug()
 debug_disable_critical()
 {
   debug_critical_level=${1:--1}
-  debug --level 3 --topic "UTILITY->DEBUG" "Forced mode enabled $@"
+  debug --level 3 --topic 'UTILITY->DEBUG' "Forced mode enabled $@"
 }
 
 # handle user interface messages
@@ -159,7 +159,7 @@ message()
   do
     case "$1" in
       -s|--separator)
-        echo "==============================================================================================="
+        echo '==============================================================================================='
         return 0
         ;;
       *)
@@ -179,7 +179,7 @@ debug()
 
   # default organization config
   local level=5
-  local topic="GENERAL"
+  local topic='GENERAL'
 
   while [ $# -gt 0 ]
   do
@@ -205,13 +205,13 @@ debug()
   if [ ${level} -le ${debug} ]; then
     echo "[${level}]${topic} $@"
     if [ ${critical} -gt 0 ]; then
-      echo "STOPPING EXECUTION DUE TO CRITICAL NOTICE"
+      echo 'STOPPING EXECUTION DUE TO CRITICAL NOTICE'
     fi
   fi
   if [ ${level} -le ${log} ]; then
     echo "${executionid} ${date} : [${level}]${topic} $@" >> ${path_log}
     if [ ${critical} -gt 0 ]; then
-      echo "STOPPING EXECUTION DUE TO CRITICAL NOTICE" >> ${path_log}
+      echo 'STOPPING EXECUTION DUE TO CRITICAL NOTICE' >> ${path_log}
     fi
   fi
 
@@ -252,7 +252,7 @@ path_shorten()
 
   local library=""
   for library in `libraries_list --reverse`; do
-    if [ "${library%:*}" == "core" ]; then
+    if [ "${library%:*}" == 'core' ]; then
       # skip the core library
       library=""
     else
@@ -305,7 +305,7 @@ path_expand()
         return 0
         ;;
       *)
-        if function_exists "libraries_list"; then
+        if function_exists 'libraries_list'; then
           local library=""
           for library in `libraries_list`; do
             case "${path}" in
@@ -333,26 +333,26 @@ path_expand()
 # return boolean on if a path exists
 path_is()
 {
-  local type="any"
-  local corefile=""
+  local type='any'
+  local corefile=''
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -b|--build)
-        type="build"
+        type='build'
         ;;
       -d|--dir|--directory)
-        type="dir"
+        type='dir'
         ;;
       -f|--file)
-        type="file"
+        type='file'
         ;;
       -l|--lib|--library)
-        type="library"
+        type='library'
         ;;
       -x|--exec|--executable)
-        type="exec"
+        type='exec'
         ;;
       -t|--type)
         type="${2}"
@@ -364,7 +364,7 @@ path_is()
     shift
   done
 
-  debug --level 9 --topic "UTILITIES->PATH->IS" "Path check [type:${type}][path:${1}]"
+  debug --level 9 --topic 'UTILITIES->PATH->IS' "Path check [type:${type}][path:${1}]"
 
   # take the first argument as a path, but expand it
   local path="`path_expand \"${1}\"`"
@@ -374,29 +374,29 @@ path_is()
   if [ "${path%*${empty_path}*}" == "${path}" ]; then
 
     case "${type}" in
-      "build")
+      'build')
         if [ -d "${path}" ] && [ -f "${path}/Dockerfile" ]; then
           return 0
         fi
         ;;
-      "file")
+      'file')
         if [ -f "${path}" ]; then
           return 0
         fi
         ;;
-      "dir")
+      'dir')
         if [ -d "${path}" ]; then
           return 0
         else
           return 1
         fi
         ;;
-      "exec")
+      'exec')
         if [ -f "${path}" ] && [ -x "${path}" ]; then
           return 0
         fi
         ;;
-      "library")
+      'library')
         #interesting case, either an exec file, or a folder with an exec files of the same name
         if [ -f "${path}" ] && [ -x "${path}" ]; then
           return 0
@@ -427,10 +427,10 @@ path_in()
 
   case "${child}" in
     "${parent}"*)
-      debug --level 8 --topic "UTILITY->PATH->IN" "Child found in parent [parent:${parent}][child:${child}]"
+      debug --level 8 --topic 'UTILITY->PATH->IN' "Child found in parent [parent:${parent}][child:${child}]"
       return 0
   esac
-  debug --level 8 --topic "UTILITY->PATH->IN" "Child not found in parent [parent:${parent}][child:${child}]"
+  debug --level 8 --topic 'UTILITY->PATH->IN' "Child not found in parent [parent:${parent}][child:${child}]"
   return 1
 }
 # include a source file at a given path
@@ -443,32 +443,32 @@ path_include()
   if path_is --exec "${path}"; then
     source "${path}" --source-include-path "${path%/*}/" $@
     local success=$?
-    debug --level 8 --topic "UTILITY->PATH->INCLUDE" "Including source item [path:${path}][success:${success}]"
+    debug --level 8 --topic 'UTILITY->PATH->INCLUDE' "Including source item [path:${path}][success:${success}]"
     return $success
   else
-    debug --level 6 --topic "UTILITY->PATH->INCLUDE" "Could not include source item.  Item was not found, or is not a file [path:${path}]"
+    debug --level 6 --topic 'UTILITY->PATH->INCLUDE' "Could not include source item.  Item was not found, or is not a file [path:${path}]"
     return 1
   fi
 }
 # List contents of a path
 path_contents()
 {
-  local type="any"
+  local type='any'
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -d|--directory)
-        type="dir"
+        type='dir'
         ;;
       -f|--file)
-        type="file"
+        type='file'
         ;;
       -l|--library)
-        type="library"
+        type='library'
         ;;
       -x|--executable)
-        type="exec"
+        type='exec'
         ;;
       -t|--type)
         type="${2}"
@@ -492,20 +492,20 @@ path_contents()
 # make sure that a path exists
 path_ensure()
 {
-  local path=""
-  local type="dir"
+  local path=''
+  local type='dir'
 
   while [ $# -gt 0 ]
   do
     case "$1" in
       -d|--dir|--directory)
-        type="dir"
+        type='dir'
         ;;
       -e|--exec)
-        type="exec"
+        type='exec'
         ;;
       -f|--file)
-        type="file"
+        type='file'
         ;;
       -t|--type)
         type="${2}"
@@ -521,58 +521,58 @@ path_ensure()
   shift
 
   # Some sanity checks
-  if [ -z "$path" ] || [ "${path}" == "not found" ]; then
+  if [ -z "$path" ] || [ "${path}" == 'not found' ]; then
     return 1
   fi
 
   case "${type}" in
-    "file"|"exec")
+    'file'|'exec')
       if [ -e "$path" ]; then
         if [ -d "$path" ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file.  Already exists but as a directory [type:${type}][path:$path]"
+          debug --level 6 --topic 'UTILITY->PATH->ENSURE' "could not create file.  Already exists but as a directory [type:${type}][path:$path]"
           return 1
         else
 
           if [ "${type}" == "exec" ]; then
             if [ ! -x "${path}" ]; then
               chmod u+x "${path}"
-              debug --level 8 --topic "UTILITY->PATH->ENSURE" "file already exists, but was not executable; no need to create it, but marked it executable [type:${type}][path:$path]"
+              debug --level 8 --topic 'UTILITY->PATH->ENSURE' "file already exists, but was not executable; no need to create it, but marked it executable [type:${type}][path:$path]"
             fi
           else
-            debug --level 8 --topic "UTILITY->PATH->ENSURE" "file already exists, no need to create it [type:${type}][path:$path]"
+            debug --level 8 --topic 'UTILITY->PATH->ENSURE' "file already exists, no need to create it [type:${type}][path:$path]"
           fi
           return 0
         fi
       else
-        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing file [type:${type}][path:$path]"
+        debug --level 8 --topic 'UTILITY->PATH->ENSURE' "creating missing file [type:${type}][path:$path]"
         touch "${path}"
         local success=$?
         if [ $success -gt 0 ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create file [type:${type}][path:$path]"
+          debug --level 6 --topic 'UTILITY->PATH->ENSURE' "could not create file [type:${type}][path:$path]"
         fi
 
         if [ "${type}" == "exec" ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "making file executable [type:${type}][path:$path]"
+          debug --level 6 --topic 'UTILITY->PATH->ENSURE' "making file executable [type:${type}][path:$path]"
           chmod u+x "${path}"
         fi
         return $success
       fi
       ;;
-    "dir")
+    'dir')
       if [ -e "${path}" ]; then
         if [ -f "${path}" ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder.  Already exists but not as a directory [type:${type}][path:$path]"
+          debug --level 6 --topic 'UTILITY->PATH->ENSURE' "could not create folder.  Already exists but not as a directory [type:${type}][path:$path]"
           return 1
         else
-          debug --level 8 --topic "UTILITY->PATH->ENSURE" "folder already exists. No need to create it [type:${type}][path:$path]"
+          debug --level 8 --topic 'UTILITY->PATH->ENSURE' "folder already exists. No need to create it [type:${type}][path:$path]"
           return 0
         fi
       else
-        debug --level 8 --topic "UTILITY->PATH->ENSURE" "creating missing folder [type:${type}][path:$path]"
+        debug --level 8 --topic 'UTILITY->PATH->ENSURE' "creating missing folder [type:${type}][path:$path]"
         mkdir -p "${path}"
         local success=$?
         if [ $success -gt 0 ]; then
-          debug --level 6 --topic "UTILITY->PATH->ENSURE" "could not create folder [type:${type}][path:$path]"
+          debug --level 6 --topic 'UTILITY->PATH->ENSURE' "could not create folder [type:${type}][path:$path]"
         fi
         return $success
       fi
