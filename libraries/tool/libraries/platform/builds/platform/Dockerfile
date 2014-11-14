@@ -26,6 +26,8 @@ RUN /usr/bin/yum install -y openssl zsh git sudo vim && \
     /usr/bin/ssh-keygen -b 2048 -t rsa -f /home/platform/.ssh/id_rsa -q -N "" && \
     chown -R platform:platform /home/platform && \
     echo "platform        ALL=(ALL)       NOPASSWD: ALL" > /etc/sudoers.d/platform
+
+# Everything else is run as the platform user
 USER platform
 
 # Install DRUSH, which is a requiremnt for platform
@@ -38,4 +40,5 @@ RUN composer global require "commerceguys/platform-cli=1.*"
 #RUN curl -L https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | sh
 
 ENV HOME /home/platform
+ENV PATH $HOME/bin:${HOME}/.composer/vendor/bin:$HOME/.gem/ruby/2.1.0/bin:/usr/local/bin:$PATH
 CMD /bin/zsh
