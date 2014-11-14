@@ -44,7 +44,7 @@ EXPOSE 80 443
 RUN /usr/bin/yum install -y php-fpm php-common \
     php-pecl-apc php-cli php-pear php-pdo php-mysql php-pgsql php-pecl-mongo \
     php-ldap php-sqlite php-pecl-memcache php-pecl-memcached php-gd php-mbstring \
-    php-mcrypt php-xml
+    php-mcrypt php-xml php-pecl-yaml
 ADD etc/php-fpm.conf /etc/php-fpm.conf
 ADD etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
 ADD etc/php.ini /etc/php.ini
