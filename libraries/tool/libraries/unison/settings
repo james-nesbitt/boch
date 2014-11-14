@@ -14,7 +14,7 @@ settings_env_set "HOME:/root"
 #
 # Often unison needs to wait for the container unison daemon
 # to start before engaging it
-unison_sleep="10"
+unison_sleep="5"
 
 # Unison arguments
 #
@@ -44,4 +44,4 @@ unison_socket_port="${unison_socket_port:-}"
 # What paths to map into the container
 #
 # @NOTE This uses a standard boch list mechanism
-unison_sync_path_add "root~:/app/source"
+#unison_sync_path_add "root~:/app/source"
