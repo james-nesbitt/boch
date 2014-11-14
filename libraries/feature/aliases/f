@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Feature alias, to load aliased feature components,
+# this is a shortcut from %feature to make it easier to run
+#"
+
+debug --level 8 --topic "FEATURE->ALIAS" "Feature alias included : $@"
+
+# alias feature target
+feature_alias_target=""
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    --source-include-path)
+      shift
+      ;;
+    --target)
+      feature_alias_target="${2}"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+if [ -n "${feature_alias_target}" ]; then
+  feature_load "${feature_alias_target}"
+  if [ $? -eq 0 ]; then
+    debug --level 5 --topic "FEATURE->ALIAS" "Feature loaded via alias [feature:${feature_alias_target}]"
+  else
+    debug --level 4 --topic "FEATURE->ALIAS" "Unable to load a feature via alias [feature:${feature_alias_target}]"
+  fi
+fi

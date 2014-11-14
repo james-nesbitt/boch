@@ -26,7 +26,8 @@ feature_path()
 #
 # A list manager for feature paths for
 # substitution in mounts, and for sync and
-# udpate flows
+# update flows
+#
 
 # Add a feature path
 feature_path_add()
