@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# INIT:HOOK: Describe you hook
+#
+# @NOTE this hook will only execute if IT IS EXECUTABLE
+# @NOTE that the file name used has the number prefix to sort
+#     across all hooks that are in scope, across all folders
+#
+
+# Hook version is always 2, it tells the hook handler that
+# you will have the description, help and execute methods
+hook_version=2
+# Hook root is the base of all function names in this hook
+hook_root="hook_sandler_remote_unison_sync_stop_500"
+
+# Description method
+#
+# This description is used in help lists, when lists of hooks
+# that affect a scope are shown.
+hook_sandler_remote_unison_sync_stop_500_description()
+{
+  echo "Stop Unison syncing"
+}
+
+# help method
+#
+# Proovide full help text for the hook, including which arguments
+# it may depend on
+hook_sandler_remote_unison_sync_stop_500_help()
+{
+  echo "hook->example->500 : Example hook help header
+
+}
+
+# execute method
+hook_sandler_remote_unison_sync_stop_500_execute()
+{
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        local container=$2
+        shift
+        ;;
+      -i|--image)
+        local image="${2}"
+        shift
+        ;;
+      -v|--version)
+        local version="${2}"
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  debug --level 5 --topic "HOOK->REMOTE->DOCKER->STOP->PRE->500" "Stoping Unison sync"
+
+}

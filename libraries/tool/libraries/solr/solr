@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# solr library handler
+#
+
+###
+# What to put here
+#
+# - nothing if you don't want anything in here
+# - custom functions for your library
+# - an execute handler for $/> boch solr
+#
+# * The core expects library methods to be prefixed
+#   with solr_
+#    e.g.  solr_help, solr_execute
+#
+# What to not put here
+#
+# - variable settings; put those in ./settings
+# - help handler : put those in ./help
+# * unless this is a simple, single file library
+#
+# Do not delete this!
+#
+# Technically, your library will not be a valid
+# library without this file.
+#

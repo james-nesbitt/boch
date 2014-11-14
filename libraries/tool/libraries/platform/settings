@@ -1,0 +1,61 @@
+#!/bin/sh
+#
+# platform library settings
+#
+
+####
+# Platform container configurations
+#
+
+# let host settings override the container
+platform_settings_user_path="${platform_settings_user_path:-user~.platform}"
+platform_settings_project_path="${platform_settings_project_path:-project~platform}"
+
+# Add the platform workdir for platform commands
+platform_settings_workdir="${platform_settings_workdir:-/app/source}"
+machine_runargs="${machine_runargs} --workdir=\"${platform_settings_workdir}\""
+
+####
+# Docker image configurations
+#
+
+# Project build and image
+#
+project_build='platform'
+# which image should we use for creating containers (and build if it is missing)
+project_image='platformsh'
+# which image version/tag should we build/use for containers
+project_imageversion='latest'
+# Container name
+project_container="${project_name}_platform"
+
+# User used inside the containers, for shell and ssh
+machine_username='platform'
+
+####
+# Mount list:
+#
+
+# remove the typical mounts
+settings_mount_clearmounts
+
+# Source mount : www server builds use /app/source for the project source (and likely expect /app/source/www for webroot)
+settings_mount_addmount 'root~:/app'
+
+#message "PLATFORM [platform_settings_user_path:${platform_settings_user_path}][platform_settings_project_path:"${platform_settings_project_path}"]"
+
+# If there is a user's .platform file, then use it in the container
+if [ -n "${platform_settings_user_path}" ]; then
+  local_platform_settings_user_path="`path_expand "${platform_settings_user_path}"`"
+  if path_is "${local_platform_settings_user_path}"; then
+    settings_mount_addmount "${local_platform_settings_user_path}:/home/platform/.platform"
+  fi
+fi
+
+# If there is a project platform folder. map it over the source
+if [ -n "${platform_settings_project_path}" ]; then
+  local_platform_settings_project_path="`path_expand "${platform_settings_project_path}"`"
+  if path_is "${local_platform_settings_project_path}"; then
+    settings_mount_addmount "${local_platform_settings_project_path}:/app/source/.platform"
+  fi
+fi

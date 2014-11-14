@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# solr Feature settings
+#
+
+# The solr feature uses a different image and container name
+project_container="user_solr"
+project_version="latest"
+
+# Build using hte tehes solr 4.9.0 build (does not require a build)
+#project_image="tehes/solr-4.9.0"
+# Run using the lune solr-drupal setup (does not require a build)
+project_image="lune/solr-drupal"
+project_build=""
+
+# Machine settings
+machine_hostname="solr"
+machine_username="root"
+machine_shell="/bin/bash"
+machine_shellrunargs=""
+machine_runargs="--tty -P"
+
+# Don't use any project mounts
+settings_mount_clearmounts
+# Don't use any project link
+settings_link_clear

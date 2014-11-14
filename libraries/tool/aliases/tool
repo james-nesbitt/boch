@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Feature alias, to load aliased www-builds libraries
+#"
+
+debug --level 8 --topic "BUILDS->ALIAS" "Tool alias included : $@"
+
+tool_alias_target=""
+
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    --source-include-path)
+      shift
+      ;;
+    --target)
+      tool_alias_target="${2}"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+if [ -n "${tool_alias_target}" ]; then
+  library_load "${tool_alias_target}"
+  if [ $? -eq 0 ]; then
+    debug --level 5 --topic "BUILDS->ALIAS" "tool library loaded via alias [library:${tool_alias_target}]"
+  else
+    debug --level 4 --topic "BUILDS->ALIAS" "Unable to load a tool library via alias [library:${tool_alias_target}]"
+  fi
+fi

@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Tool library
+#
+#
+
+# A shortcut into loading a tool library
+tool_load()
+{
+  local tool="${1}"
+  shift
+
+  library_load "${1}" $@
+}
+
+# get the library build list
+tool_list_get()
+{
+  local lib="`libraries_list_get "tool"`"
+  local tool_path="`library_path "${lib}"`/libraries"
+  for path in `path_contents --library "${tool_path}"`; do
+    echo "${path##*/}:`path_shorten "${path}"`"
+  done
+}

@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# SOLR Feature help
+#
+
+solr_help()
+{
+  echo "
+SOLR Feature
+============
+
+This is a small custom feature library that uses settings
+for a SOLR enabled build, based on \"${project_image}\"
+
+This feature can provide a user container that makes SOLR
+available across all projects.
+"
+
+}
+
+solr_helplist()
+{
+  echo ""
+}

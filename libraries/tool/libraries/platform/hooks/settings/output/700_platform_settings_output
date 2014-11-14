@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Output platform project settings
+#
+
+hook_version=2
+hook_root="hook_platform_output_700"
+
+# description method
+hook_platform_output_700_description()
+{
+  echo "Output core project settings"
+}
+
+# help method
+hook_platform_output_700_help()
+{
+  echo "
+hook->platform->output->700 : Platform output core settings
+
+This is the platform settings output hook, which will output settings used
+in the platform library to control the project.
+
+"
+}
+
+# execute method
+hook_platform_output_700_execute()
+{
+  echo "
+PLATFORM SETTINGS OUTPUT
+-----------------------: [
+### PLATFORM STATIC VARIABLES ###
+ - platform_settings_user_path -----: ${platform_settings_user_path}
+ - platform_settings_project_path --: ${platform_settings_project_path}
+### PROJECT PLATFORM.SH CONFIGURATIONS ###
+ - platform_settings_workdir -------: ${platform_settings_workdir}
+]"
+}

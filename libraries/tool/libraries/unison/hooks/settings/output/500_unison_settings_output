@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Output unison project settings
+#
+
+hook_version=2
+hook_root="hooks_unison_settings_output_500"
+
+# description method
+hooks_unison_settings_output_500_description()
+{
+  echo "Output unison project settings"
+}
+
+# help method
+hooks_unison_settings_output_500_help()
+{
+  echo "
+hook->settings->output->100 : Output unison settings
+
+This is the unison settings output hook, which will output settings used
+in the unison library to control unison mappings.
+
+"
+  help_topic_add "settings:settings"
+  help_topic_list
+}
+
+# execute method
+hooks_unison_settings_output_500_execute()
+{
+  echo "
+UNISON SETTINGS OUTPUT
+-----------------------: [
+### PROJECT DOCKER CONFIGURATIONS ###
+ - unison_sleep----------:${unison_sleep}
+ - unison_arguments------:${unison_arguments}
+ - unison_archive_path---:${unison_archive_path}
+ - unison_socket_port----:${unison_socket_port}
+ - unison_mounts---------: `settings_output_list $(unison_sync_path_get)`
+]"
+}
+
+settings_output_list()
+{
+  echo ""
+  local value
+  for value in $@; do
+    echo "      ${value}"
+  done
+}

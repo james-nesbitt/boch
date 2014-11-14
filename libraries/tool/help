@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# Help handler for the tool library
+#
+
+# help topic handler
+tool_help()
+{
+  if [ -z "${1}" ]; then
+    tool_help_generalhelp
+
+    help_scope_add "tool:general"
+    help_scope_list
+  else
+    local toollib=""
+    for toollib in `tool_list_get`; do
+      if [ "${1}" == "${toollib%:*}" ]; then
+        tool_help_topichelp "${toollib}"
+      fi
+    done
+  fi
+
+}
+# help topic provider
+tool_helplist()
+{
+  if [ -z "${1}" ]; then
+    local toollib=""
+    echo "The following libraries are tool libraries (they have their own help topics):"
+    for toollib in `tool_list_get`; do
+      echo "--> ${toollib%:*} (tool:${toollib%:*}) `library_path "${toollib}"`"
+    done
+  else
+    echo ""
+  fi
+}
+
+# General help text
+tool_help_generalhelp()
+{
+  echo "General help for the tool library
+
+This library is a collection of other libraries that are optional to
+provide different common functionality to the boch environment for a
+project
+"
+}
+
+# Topic help
+# @NOTE we hand of any topic/library help to the handler for that library
+tool_help_topichelp()
+{
+  local library="${1}"
+  library_load "${library%:*}"
+  help_execute "${library%:*}"
+}

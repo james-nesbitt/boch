@@ -1,0 +1,73 @@
+#!/bin/sh
+#
+# Apply some default settings, if you are using the wwwserver library
+#
+
+hook_version=2
+hook_root="unison_settings_defaults_300"
+
+# description method
+unison_settings_defaults_300_description()
+{
+  echo "Default settings for the unison library"
+}
+
+# help method
+unison_settings_defaults_300_help()
+{
+  echo "Add default settings from the unison library
+
+This hook adds default settings that integration with the unison library.
+
+"
+}
+
+# execute method
+unison_settings_defaults_300_execute()
+{
+
+  echo "####
+# UNISON CONFIGURATION
+#
+
+# Include the unison library
+library_include 'unison'
+
+# Unison start sleep
+#
+# Often unison needs to wait for the container unison daemon
+# to start before engaging it
+unison_sleep=\"10\"
+
+# Unison arguments
+#
+# Arguments to pass to unison
+#
+unison_arguments=\"${unison_arguments}\"
+
+# UNISON ARCHIVE
+#
+# Unison sets up an archive that can interfere with setting
+# up new unison syncs when a container starts.  The archive
+# needs to be removed whenever a container starts.
+#
+unison_archive_path=\"${unison_archive_path}\"
+
+# UNISON SOCKET
+#
+# The Unison socket is made of 2 parts:
+#    - port : port that unison is listening on
+#    - path : path to the sync folder inside the container
+#
+# @NOTE if the port isn't set, then unison won't start
+unison_socket_port=\"${unison_socket_port}\"
+
+# UNISON MAP PATHS
+#
+# What paths to map into the container
+#
+# @NOTE This uses a standard boch list mechanism
+
+# Set up at least one sync path or nothing will happen
+#unison_sync_path_add \"root~:/app/source\""
+}

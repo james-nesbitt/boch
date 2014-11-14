@@ -1,0 +1,30 @@
+#!/bin/sh
+#
+# platform alias
+#
+
+debug --level 8 --topic "ALIAS->platform" "platform alias included : "
+
+# alias feature target
+feature_alias_target=""
+
+# Interpret alias arguments that come from the toolset
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    --source-include-path)
+      alias_path="${2}"
+      shift
+      ;;
+    --target)
+      alias_target="${2}"
+      shift
+      ;;
+    *)
+      break;
+  esac
+  shift
+done
+
+# Load the platform feature
+feature_load 'platform'

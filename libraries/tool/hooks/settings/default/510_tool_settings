@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# Add tool controls to the default settings
+#
+
+hook_version=2
+hook_root="hook_tool_default_510"
+
+hook_tool_default_510_description()
+{
+  echo "Add tool controls to the default settings"
+}
+
+hook_tool_default_510_help()
+{
+  echo "HOOK->SETTINGS->DEFAULT->010 Add tool controls default settings file"
+}
+
+hook_tool_default_510_execute()
+{
+  echo "####
+# Tool Library Settings
+#
+# Different tool library controls.  This library contains a number
+# of optional tool libraries that can be loaded.
+#
+
+# make sure that the tool library is loaded
+library_load \"tool\"
+
+# load any tools you want.
+#
+# @NOTE that not all tools should be loaded here, as many tools should
+#   be loaded only on command line using aliases.
+#      boch %tool:{tool} <command>
+#   Or if that is too much. you can create a local project alias that
+#   loads the tool on its own.
+#
+# tool_load \"{tool}\"
+
+"
+}

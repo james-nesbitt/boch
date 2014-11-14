@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# platform library handler
+#
+
+# Feature action handler
+platform_execute()
+{
+
+  local path=''
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -p|--path)
+        path="$2"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  local action="${1}"
+
+  case "${action}" in
+    *)
+      if [ -n "${path}" ]; then
+        path="--path ${path}"
+      fi
+
+      platform_run ${path} $@
+
+  esac
+
+}
+
+# Run a platform command
+#
+# Usage:
+#   platform_run <options> <platform command> <platform command options>
+#
+# Options:
+#   -p|--path : the project path to run the platform command in
+#
+# Platform command:
+#  this is determned but the platform cli.  Run platform list for a list
+#
+# @NOTE the path aspect doesn't work
+#
+# @TODO make the path thing work
+platform_run()
+{
+
+  # an optional path to execute the platform command in
+  local path=''
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -p|--path)
+        path="$2"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  library_load 'command'
+  command_load 'exec'
+  if [ -n "${path}" ]; then
+# @TODO this doesn't work
+    command_execute 'exec' cd ${path}; /home/platform/.composer/vendor/bin/platform $@
+  else
+    command_execute 'exec' --input --terminal /home/platform/.composer/vendor/bin/platform $@
+  fi
+
+}

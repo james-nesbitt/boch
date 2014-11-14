@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+# UNISON_SYNC::HOOK->DOCKER->RUN->POST->500
+#
+# Start a unison sync when a container is started
+#
+
+# Hook version is always 2, it tells the hook handler that
+# you will have the description, help and execute methods
+hook_version=2
+# Hook root is the base of all function names in this hook
+hook_root="hook_dockysync_sync_unison_500"
+
+# Description method
+hook_dockysync_sync_unison_500_description()
+{
+  echo "Start Unison syncing"
+}
+
+# help method
+hook_dockysync_sync_unison_500_help()
+{
+  echo "hook->example->500 : Example hook help header
+
+Describe the hook
+
+  [-a|--argument {additional parameter} : describe what arguments
+      the hook may act on
+
+@NOTE add some useful notes
+
+@TODO indicate what work still needs to be done
+"
+}
+
+# execute method
+hook_dockysync_sync_unison_500_execute()
+{
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--container)
+        local container=$2
+        shift
+        ;;
+      -d|--id)
+        local containerID=$2
+        shift
+        ;;
+      -e|--execute)
+        local command="${2}"
+        shift
+        ;;
+      -h|--hostname)
+        flags="${flags} --hostname=\"$2\""
+        shift
+        ;;
+      -i|--image)
+        local image="${2}"
+        shift
+        ;;
+      -n|--ip)
+        local ip="${2}"
+        shift
+        ;;
+      -v|--version)
+        local version="${2}"
+        shift
+        ;;
+      -P|--allports)
+        flags="${flags} --publish-all=true"
+        ;;
+      --startargs)
+        # ignore these for now
+        shift
+        break
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  if [ -n "${unison_socket_port}" ]; then
+
+    debug --level 6 --topic "HOOK->REMOTE->DOCKER->RUN->POST->500" "Starting Unison sync. Unison needs to be setup and started in the image beforehand."
+
+    # @NOTE originally we were starting the unison with an exec, but not it is started as a part of the container image
+    #command_load "exec"
+    #exec_exec_standard --terminal --background --container "${container}" unison -socket 45678
+
+    #remove archive if one is set
+    if [ -n "${unison_archive_path}" ]; then
+      rm `path_expand "${unison_archive_path}"`
+    fi
+
+    # build the socket root, from the IP and port
+    #
+    # @NOTE we could just pass ip into the union_sync function, but it would effectively
+    #     build the socket root once per path.  This is slightly more efficient.
+    unison_socket_root="socket://${ip}:${unison_socket_port}/"
+
+    # if we were told to sleep, then sleep
+    if [ -n "${unison_sleep}" ]; then
+      sleep ${unison_sleep}
+    fi
+
+    # start a sync process for each sync path that was registered in settings
+    for sync_path in `unison_sync_path_get`; do
+      # each path is of the form host:container  (host can be shortened, so we expand it)
+      sync_path_host="`path_expand "${sync_path%:*}"`"
+      sync_path_container="${sync_path##*:}"
+
+      debug --level 7 --topic "HOOK->REMOTE->DOCKER->RUN->POST->500" "Executing union_sync [path:${sync_path}] : unison_sync --socket \"${unison_socket_root}\" \"${sync_path_host}\" \"${sync_path_container}\""
+      unison_sync --socket "${unison_socket_root}" "${sync_path_host}" "${sync_path_container}"
+      if [ $? ]; then
+        debug --level 5 --topic "HOOK->REMOTE->DOCKER->RUN->POST->500" "Started Unison sync. Unison is now mapping into the new container [hostpath:${sync_path_host}][unison_socket:${unison_socket}]"
+      else
+        debug --level 5 --topic "HOOK->REMOTE->DOCKER->RUN->POST->500" "Unison sync failed. Unison failed to map into the new container [hostpath:${sync_path_host}][unison_socket:${unison_socket}]"
+      fi
+
+    done
+
+    message "Started Unison sync. Unison is now mapping into the newly created container"
+
+  else
+
+    debug --level 4 --topic "HOOK->REMOTE->DOCKER->RUN->POST->500" "Tried to start Unison sync but missing some important settings for the sync. [unison_socket_port:${unison_socket_port}][unison_socket_path:${unison_socket_path}]"
+    message "Tried to start Unison sync but missing some important settings for the sync. [unison_socket_port:${unison_socket_port}][unison_socket_path:${unison_socket_path}]"
+
+  fi
+}

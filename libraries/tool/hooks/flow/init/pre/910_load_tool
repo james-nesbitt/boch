@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# INIT:HOOK: Possible include tool libraries during init
+#
+
+hook_version=2
+hook_root="hook_tool_flow_init_pre_905"
+
+# descriptoin method
+hook_tool_flow_init_pre_905_description()
+{
+  echo "Include the tool libraries during init, if told to do so"
+}
+
+# help method
+hook_tool_flow_init_pre_905_help()
+{
+  echo "hook->init->pre->905 : Include tool libraries, if told to do so
+
+This hook will include one of the tool libraries,
+
+  [--tool {tool} : which tool library to include
+
+@NOTE that this option does not make these libraries loaded during
+  subsequent calls to the system.  If a library wants to self-load,
+  it should add a library_load call to a settings/default hook, to
+  have it added to the default settings file.
+"
+}
+
+# execute method
+hook_tool_flow_init_pre_905_execute()
+{
+  local additional_libraries=""
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      --tool)
+        additional_libraries="${additional_libraries} ${2}"
+        shift
+        ;;
+    esac
+    shift
+  done
+
+  local library=""
+  for library in ${additional_libraries}; do
+    if ! library_loaded "${library}"; then
+      message "Builds library is loading ${library} as directed"
+      debug --level 5 --topic "HOOK->TOOL->FLOW->INIT->PRE->905 Loading the ${library} library as directed"
+      library_load "${library}"
+
+      if [ $? -gt 0 ]; then
+        debug --level 5 --topic "HOOK->TOOL->FLOW->INIT->PRE->905 Error occured loading the ${library} library as directed"
+        return 1
+      fi
+    fi
+  done
+  return 0
+}

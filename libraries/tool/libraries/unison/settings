@@ -1,0 +1,47 @@
+#!/bin/sh
+#
+# DockySync library settings
+#
+
+# ENV path that should be inside the container
+settings_env_set "HOME:/root"
+
+####
+# UNISON CONFIGURATION
+#
+
+# Unison start sleep
+#
+# Often unison needs to wait for the container unison daemon
+# to start before engaging it
+unison_sleep="10"
+
+# Unison arguments
+#
+# Arguments to pass to unison
+#
+unison_arguments="${unison_arguments:-"-silent -ignore 'Name {.git,*.swp}' -batch -confirmbigdel=false -ui text"}"
+
+# UNISON ARCHIVE
+#
+# Unison sets up an archive that can interfere with setting
+# up new unison syncs when a container starts.  The archive
+# needs to be removed whenever a container starts.
+#
+unison_archive_path="${unison_archive_path:-}"
+
+# UNISON SOCKET
+#
+# The Unison socket is made of 2 parts:
+#    - port : port that unison is listening on
+#    - path : path to the sync folder inside the container
+#
+# @NOTE if the port isn't set, then unison won't start
+unison_socket_port="${unison_socket_port:-}"
+
+# UNISON MAP PATHS
+#
+# What paths to map into the container
+#
+# @NOTE This uses a standard boch list mechanism
+unison_sync_path_add "root~:/app/source"

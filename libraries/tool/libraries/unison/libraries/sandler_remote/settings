@@ -1,0 +1,16 @@
+#!/bin/sh
+#
+# remote Feature settings
+#
+
+# Just in case this is side-loaded
+library_load "feature"
+
+# Name of this feature
+feature_name="remote"
+# Path to this feature
+feature_path="/Users/mik/env/sandlerdocker/.boch/features/sandler_remote"
+
+#project_image="csb_squeeze_php53"
+#project_container="test"
+settings_env_set "HOME:/root"

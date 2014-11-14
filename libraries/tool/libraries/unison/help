@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+# Help hander
+#
+
+# execute method
+unison_help()
+{
+  unison_help_generalhelp
+}
+# list method
+unison_helplist()
+{
+  local helplist='there is no help list for this library'
+}
+
+# General help for this library
+unison_help_generalhelp()
+{
+  echo "The Unison library
+
+The unison library is a sync library that tries to integrate
+the unison tool into container deployment.
+By mapping paths from outside the containers, to inside, the
+tool will try to start a union sync using fswatch to sync the
+contents.
+
+There is an abstract function for the sync, but it requires an
+IP or unison style socket (socket://ip:port/path)
+"
+}
