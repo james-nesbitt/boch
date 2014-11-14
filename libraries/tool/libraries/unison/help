@@ -3,15 +3,16 @@
 # Help hander
 #
 
-# execute method
+# help handler for the unison library
 unison_help()
 {
   unison_help_generalhelp
 }
-# list method
+
+# list help topics for the unison library
 unison_helplist()
 {
-  local helplist='there is no help list for this library'
+  echo ''
 }
 
 # General help for this library
@@ -28,4 +29,7 @@ contents.
 There is an abstract function for the sync, but it requires an
 IP or unison style socket (socket://ip:port/path)
 "
+
+  help_scope_add "unison"
+  help_scope_list
 }

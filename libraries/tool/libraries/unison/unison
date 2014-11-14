@@ -1,6 +1,8 @@
 #!/bin/sh
 #
-# remote library handler
+# Unison Sync library handler
+#
+# @TODO move this into an abstracted sync library, with various backends
 #
 
 ####
@@ -75,6 +77,9 @@ unison_sync()
 
   # if no socket was passed in, build it from the ip and port (if provided)
   # if you provided no socket or port, then you should have made the sync_path_container contain the socket
+
+  # @TODO this if stuff is broken.  Fix it
+
   #if [ -n "${socket_root}" ]; then
     sync_path_socket="${socket_root}/${sync_path_container}"
   #fi
