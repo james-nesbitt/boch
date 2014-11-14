@@ -3,7 +3,7 @@
 # solr alias
 #
 
-debug --level 8 --topic "ALIAS->solr" "solr alias included : "
+debug --level 8 --topic "ALIAS->SOLR" "solr alias included : "
 
 # alias feature target
 feature_alias_target=""
@@ -27,4 +27,4 @@ do
 done
 
 # Load the solr feature
-feature_load 'solr'
+alias_add '%tool:solr'

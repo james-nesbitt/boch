@@ -6,35 +6,23 @@
 # execute method
 platform_help()
 {
-  if [ -n "${1}" ]; then
+  platform_help_generalhelp
+}
+# list method
+platform_helplist()
+{
+  local helplist='there is no help list for this library'
+}
 
-    case "${1}" in
-
-      *)
-        echo "Unknown platform help topic : $1
-
-You asked for help on an unknow docker topic
-
-"
-      ;;
-    esac
-
-  else
-
-    echo "Help for the Platform library
+# execute method
+platform_help_generalhelp()
+{
+  echo "Platform.sh library
 
 The Platform library is a toolset/API library that provides an interactive
 platform cli container for that can be used for any platform interactions
 on a project.
 "
-
-    help_scope_add "platform"
-    help_scope_list
-
-  fi
-}
-# list method
-platform_helplist()
-{
-  echo ""
+  help_scope_add "platform"
+  help_scope_list
 }

@@ -74,7 +74,7 @@ platform_run()
   library_load 'command'
   command_load 'exec'
   if [ -n "${path}" ]; then
-# @TODO this doesn't work
+# @TODO this doesn't work, make it work
     command_execute 'exec' cd ${path}; /home/platform/.composer/vendor/bin/platform $@
   else
     command_execute 'exec' --input --terminal /home/platform/.composer/vendor/bin/platform $@

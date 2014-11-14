@@ -3,11 +3,22 @@
 # SOLR Feature help
 #
 
+# help handler for solr
 solr_help()
 {
-  echo "
-SOLR Feature
-============
+  solr_help_generalhelp
+}
+
+# List help topics for the solr library
+solr_helplist()
+{
+  local helplist='there is no help list for this library'
+}
+
+# general help for the solr library
+solr_help_generalhelp()
+{
+  echo "SOLR Library
 
 This is a small custom feature library that uses settings
 for a SOLR enabled build, based on \"${project_image}\"
@@ -15,10 +26,6 @@ for a SOLR enabled build, based on \"${project_image}\"
 This feature can provide a user container that makes SOLR
 available across all projects.
 "
-
-}
-
-solr_helplist()
-{
-  echo ""
+  help_scope_add "solr"
+  help_scope_list
 }

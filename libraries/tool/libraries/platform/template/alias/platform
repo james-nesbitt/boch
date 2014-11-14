@@ -3,7 +3,7 @@
 # platform alias
 #
 
-debug --level 8 --topic "ALIAS->platform" "platform alias included : "
+debug --level 8 --topic "ALIAS->PLATFORM" "platform alias included : "
 
 # alias feature target
 feature_alias_target=""
@@ -27,4 +27,4 @@ do
 done
 
 # Load the platform feature
-feature_load 'platform'
+alias_add '%tool:platform'
