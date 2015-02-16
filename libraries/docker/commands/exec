@@ -85,7 +85,7 @@ exec_execute()
 
       # Run the standard function
       debug --level 5 --topic "COMMAND->EXEC" "exec [ handing off to standard exec abstraction ] ==> exec_exec_standard ${flags} --container ${container} $@"
-      message "Now executing command inside container [${container}]"
+      message "Executing command inside container [${container}] : $@"
       message --separator
       exec_exec_standard ${flags} --container "${container}" $@
       return $?
@@ -94,7 +94,7 @@ exec_execute()
 
       # Run the sudo exec function
       debug --level 5 --topic "COMMAND->EXEC" "exec [ handing off to standard exec abstraction ] ==> exec_exec_standard ${flags} --container ${container} $@"
-      message "Now executing command inside container [${container}]"
+      message "Executing command inside container [${container}] : $@"
       message --separator
       exec_exec_sudo ${flags} --user "${sudo_user}" --container "${container}" $@
       return $?
