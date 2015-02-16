@@ -8,7 +8,7 @@ MAINTAINER      james.nesbitt@wunderkraut.com
 ## EPEL Dependency on CentOS 7 and Fedora EPEL 7 ##
 RUN rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
     rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 && \
-    rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-2.noarch.rpm
+    rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
 
 # Update and clean
 RUN /usr/bin/yum update -y && /usr/bin/yum clean -y all && /usr/bin/yum -y makecache
@@ -22,7 +22,7 @@ RUN /usr/bin/yum install -y openssh-server && \
     /usr/bin/ssh-keygen -A
 EXPOSE 22
 
-# Install MariaDB : this is the standard Maria 5.x, as the 10.x doesn't have a centos7 install yet
+# Install MariaDB
 RUN /usr/bin/yum install -y mariadb-server mariadb
 ADD etc/my.cnf.d/server.cnf /etc/my.cnf.d/server.cnf
 ADD etc/my.cnf /etc/my.cnf
