@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Some last chance variable sets, for things that should have default values
+#
+
+hook_version=2
+hook_root="hook_settings_post_900"
+
+# description method
+hook_settings_post_900_description()
+{
+  echo "hook->settings (post) 900: include some safe values for important variables"
+}
+
+# help method
+hook_settings_post_900_help()
+{
+  echo "
+hook->settings (post) 900: include some safe values for important variables
+"
+}
+
+# execute method
+hook_settings_post_900_execute()
+{
+  ###################################################
+  # Overridable settings for qemu and the machine   #
+  ###################################################
+  # these are here because they tend to depend on each
+  # other, and you may want to override one of the top
+  # items, and let the rest be based on it.
+
+  local unused="unused"
+
+}

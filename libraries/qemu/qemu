@@ -1,0 +1,76 @@
+#!/bin/sh
+#
+# coreos_kvm library handler
+#
+
+# Add a redir to the system (of the form tcp:host:vm)
+qemu_redir_addredir()
+{
+  list_add "machine_portredirs" $1
+}
+# Clear out all portredirs
+qemu_redir_clearportredirs()
+{
+  list_reset "machine_portredirs"
+}
+# get a list of added portredirs
+qemu_redir_getportredirs()
+{
+  local format="list"
+  local portredirs="`list_get "machine_portredirs"`"
+
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -f|--format)
+        format="$2"
+        shift
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  # $1 would allow for different formats
+  case "${format}" in
+    *)
+      echo "${portredirs}"
+      ;;
+  esac
+}
+# Add a redir to the system (of the form tcp:host:vm)
+qemu_redir_addredir()
+{
+  list_add "machine_portredirs" $1
+}
+# Clear out all portredirs
+qemu_redir_clearportredirs()
+{
+  list_reset "machine_portredirs"
+}
+
+
+
+# initialize the docker library
+qemu_init()
+{
+  local path=""
+  # default flags
+  local flags=""
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+       --path)
+        path="${2}"
+        shift
+        ;;
+      *)
+        break;; # terminate while loop
+    esac
+    shift
+  done
+
+  path_include "${path}/api" $@
+}

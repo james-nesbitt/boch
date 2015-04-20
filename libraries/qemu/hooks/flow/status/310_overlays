@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->310 Project builds
+#
+
+hook_version=2
+hook_root="hook_flow_status_310"
+
+# description method
+hook_flow_status_310_description()
+{
+  echo "Analyze overlays used in the project"
+}
+
+# help method
+hook_flow_status_310_help()
+{
+ echo "HOOK->FLOW->STATUS->310 Project overlays
+
+If directed to do so by status topics, display a information about
+the project KVM overlays on screen.
+Overlays are wrappers for core images, so that any changes made inside
+a VM don't affect the image itself.  This way images can be used across
+projects.
+"
+  help_scope_add "docker:docker_build"
+  help_scope_list
+}
+
+# execute method
+hook_flow_status_310_execute()
+{
+  case " ${flow_status_topics} " in
+    *" all "*|*" default "*)
+      echo "
+QEMU PROJECT OVERLAYS
+====================="
+
+      local overlays_path=""
+      local overlay_path=""
+      for overlays_path in ${qemu_overlayimage_path}; do
+        for overlay_path in `path_contents --file "${overlays_path}"`; do
+          local overlay="${overlay_path##*/}"
+          echo "
+OVERLAY: ${overlay}
+  >> PATH: ${overlay_path}"
+        done
+      done
+
+      ;;
+  esac
+}

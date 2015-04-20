@@ -1,0 +1,164 @@
+#!/bin/sh
+#
+# COMMAND: Start a KVM VM
+#
+
+# command description function
+start_description()
+{
+  echo "Start a new QEMU instance"
+}
+
+# command help function
+start_help()
+{
+  echo "
+Start a new QEMU instance
+
+This command will run a QEMU start command
+
+"
+}
+
+# Command execute function
+start_execute()
+{
+  local handler="${qemu_handler:-qemu-kvm}"
+  local handler_overlay="${qemu_handler_overlay:-qemu-img}"
+
+  local image_source="${qemu_baseimage_source}"
+  local image="${qemu_image}"
+  local image_type="${qemu_image_type}"
+  local name="${qemu_vm_name}"
+
+  local overlay="${qemu_overlayimage:-${image}.overlay}"
+  local overlay_type="${qemu_overlayimage_type:-qcow2}"
+
+  local ram="${qemu_vm_mem:-1024}"
+  local cpus="${qemu_vm_cpu:-1}"
+
+  local redirs="${qemu_redirs:-tcp:2222::22}"
+
+  local usetempholder="true"
+
+  local flags="-daemonize"
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -c|--cpus)
+        cpus="${2}"
+        shift
+        ;;
+      -n|--name)
+        name="${2}"
+        shift
+        ;;
+      -i|--image)
+        image="${2}"
+        shift
+        ;;
+      -r|--ram)
+        overlay="${2}"
+        shift
+        ;;
+      -o|--overlay)
+        overlay="${2}"
+        shift
+        ;;
+      -s|--source)
+        source="${2}"
+        shift
+        ;;
+      -t|--type)
+        image_type="${2}"
+        shift
+        ;;
+      -n|--noin)
+        flags="${flags} --noinput"
+        ;;
+      -s|--signals)
+        flags="${flags} --signals"
+        ;;
+      -*)
+        echo >&2 "unknown flag $1 : attach [-c|--container] {container}"
+        exit
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  hooks_execute "qemu/start" --state "pre" --image "${image}" --overlay "${overlay}" --path "${path}" --startargs $@
+
+  # Core setup
+  flags="${flags} -name ${name}"
+  flags="${flags} -m ${ram}"
+  flags="${flags} -smp ${cpus}"
+
+  # check if we need to download the image
+  if ! qemu_image_is --overlay "${overlay}"; then
+
+    # if we have no image name, then make one up
+    if [ -z "${qemu_image}" ]; then
+      image="${qemu_baseimage_source##*/}"
+      image="${image%.*}"
+    fi
+
+    if ! qemu_image_is "${image}"; then
+      debug --level 5 --topic "QEMU->COMMAND->START" "Getting image [image:${image}][type:${type}][overlay:${overlay}]"
+      message "Base image '${image}' [${source}] doesn't exits.  Getting it now";
+      qemu_image_get "${image_source}"
+    fi
+    debug --level 5 --topic "QEMU->COMMAND->START" "Creating QEMU Overlay image [image:${image}][type:${type}][overlay:${overlay}]"
+    message "Overlay image '${overlay}' doesn't exits.  Creating it now";
+    qemu_overlay_make "${image}" "${overlay}"
+    #qemu-img create -o backing_file=${image},backing_fmt=${image_type} -f ${overlay_type} ${overlay}
+  fi
+  # Add the overlay device as the root
+  flags="${flags} -drive if=virtio,file=`path_expand "${qemu_overlayimage_path}"`/${overlay}"
+
+  # FLAGS_NET="-netdev user,id=network0,hostname=${PROJECT} -device e1000,netdev=network0"
+  # FLAGS_NET="${FLAGS_NET} -netdev bridge,id=qemu0 -device virtio-net-pci,netdev=qemu0,id=nic1"
+  # FLAGS_NET="${FLAGS_NET} -netdev tap,helper=/usr/lib/qemu/qemu-bridge-helper,id=qemu0 -device virtio-net-pci,netdev=qemu0,id=nic1"
+  # FLAGS_NET="-net nic,vlan=0,model=virtio -net user,vlan=0,hostfwd=tcp::${SSH_PORT}-:22,hostname=${PROJECT}"
+
+  # add port redirects
+  local thisredir=""
+  for thisredir in `qemu_redir_getportredirs`; do
+    flags="${flags} -redir ${thisredir}"
+  done
+
+  # local file mapping
+  if [ "${usetempholder}" == "true" ]; then
+    local tmproot="${qemu_temproot:-`qemu_temproot_make ${name}`}"
+  fi
+  for thismount in `settings_mount_getmounts`; do
+    local thismount_local="`path_expand "${thismount%:*}"`"
+    local thismount_key="${thismount#*:}"
+    thismount_key="${thismount_key//[.\/]/}"
+
+    if [ "${usetempholder}" == "true" ]; then
+      if ! path_is --dir "${tmproot}/${thismount#*:}"; then
+        ln -s "${thismount_local}" "${tmproot}/${thismount_key}"
+      fi
+      thismount_local="${tmproot}/${thismount_key}"
+    fi
+
+    # @TODO readonly is one of the -fsdev options, it would be nice for security reasons
+    flags="${flags} -fsdev local,id=${thismount_key},security_model=none,path=${thismount_local} -device virtio-9p-pci,fsdev=${thismount_key},mount_tag=${thismount_key}"
+  done
+
+  debug --level 5 --topic "QEMU->COMMAND->START" "Running QEMU start [handler:${handler}][image:${image}][type:${type}][overlay:${overlay}]"
+  message "running QEMU start command : ${handler} ${flags}"
+  ${handler} ${flags}
+  local success=$?
+  if [ $success == 0 ]; then
+    debug --level 6 --topic "QEMU->START" "QEMU VM start."
+    hooks_execute "qemu/start" --state "post" --image "${image}" --overlay "${overlay}" --path "${path}" --startargs $@
+  else
+    debug --level 6 --topic "QEMU->START" "QEMU VM start failed."
+    hooks_execute "qemu/start" --state "fail" --image "${image}" --overlay "${overlay}" --path "${path}" --startargs $@
+  fi
+  return ${success}
+}

@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# QEMU abstraction
+#
+
+####
+# Image handling
+#
+
+# Does an image exist
+#
+#  -o|--overlay : this is looking for an overlay image
+#
+# $1 image file
+qemu_image_is()
+{
+  local path="${qemu_baseimage_path}"
+
+  while [ $# -gt 0 ]
+  do
+    case "$1" in
+      -o|--overlay)
+        path="${qemu_overlayimage_path}"
+        ;;
+      -*)
+        echo >&2 "unknown flag $1 : qemu_image_is [-o|--overlar] {name}"
+        exit
+        ;;
+      *)
+        break;
+    esac
+    shift
+  done
+
+  local file="$1"
+
+  if path_is --file "${path}/${file}"; then
+    return 0
+  fi
+  return 1
+}
+
+qemu_image_get()
+{
+  local path="`path_expand "${qemu_baseimage_path}"`"
+  local source="$1"
+
+  # make sure that we have path for images
+  if ! path_ensure --dir "${path}"; then
+    return 1
+  fi
+
+  debug --level 7 --topic "QEMU->API->IMAGE GET" "Retrieving source to tmp copy [source:${source}]]"
+  wget --directory=/tmp "${source}"
+  local file="/tmp/${source##*/}"
+
+  case "${file##*.}" in
+    "bz2")
+      debug --level 7 --topic "QEMU->API->IMAGE GET" "File is an archive : using bunzip2 [file:${file}]]"
+      bunzip2 ${file}
+      file="${file%.*}"
+      ;;
+  esac
+
+  debug --level 7 --topic "QEMU->API->IMAGE GET" "Moving new image to path [file:${file}][path:${path}]"
+  mv "${file}" "${path}/"
+}
+# Make an overlay image for another image
+#
+# $1 image filename
+# $2 overlay filename
+qemu_overlay_make()
+{
+  local image_path="`path_expand "${qemu_baseimage_path}"`"
+  local overlay_path="`path_expand "${qemu_overlayimage_path}"`"
+
+  local image="`path_expand "$1"`"
+  local type="qcow2"
+  local overlay="`path_expand "$2"`"
+  local overlaytype="qcow2"
+
+  # make sure that we have path for overlaty images
+  if ! path_ensure --dir "${overlay_path}"; then
+    return 1
+  fi
+
+  debug --level 6 --topic "QEMU->API->OVERLAY_MAKE" "Making new overlay [image:${image_path}/${image}][overlay:${overlay_path}/${overlay}]"
+  ${qemu_handler_overlay:-qemu-img} create -o backing_file=${image_path}/${image},backing_fmt=${type} -f "${overlay_type}" "${overlay_path}/${overlay}"
+}
+
+####
+# Temproot handlin
+#
+
+# qemu_temproot_make Make a temp root
+#
+# $1 seed the path
+#
+qemu_temproot_make()
+{
+  mktemp -t -d $1.XXXXXXXXXX
+}

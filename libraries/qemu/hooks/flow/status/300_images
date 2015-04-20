@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# HOOK->FLOW->STATUS->300 Project builds
+#
+
+hook_version=2
+hook_root="hook_flow_status_300"
+
+# description method
+hook_flow_status_300_description()
+{
+  echo "Analyze builds used in the project"
+}
+
+# help method
+hook_flow_status_300_help()
+{
+ echo "HOOK->FLOW->STATUS->300 Project builds
+
+If directed to do so by status topics, display a information about
+the project build on screen.
+Builds are folders that container a Dockerfile, and various other
+contents, used by Docker to build an image.
+"
+  help_scope_add "docker:docker_build"
+  help_scope_list
+}
+
+# execute method
+hook_flow_status_300_execute()
+{
+echo "TOPICS: ${flow_status_topics}"
+  case " ${flow_status_topics} " in
+    *" all "*|*" default "*)
+      echo "
+QEMU IMAGES
+==========="
+
+      local images_path=""
+      local image_path=""
+      for images_path in ${qemu_baseimage_path}; do
+        for image_path in `path_contents --file "${images_path}"`; do
+          local image="${image_path##*/}"
+          echo "
+IMAGE: ${image}
+  >> PATH: ${image_path}"
+        done
+      done
+
+      ;;
+  esac
+}

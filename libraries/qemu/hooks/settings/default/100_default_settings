@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# Add some default core settings
+#
+
+hook_version=2
+hook_root="hook_settings_default_015"
+
+# Hook description method
+hook_settings_default_015_description()
+{
+  echo "Add default core settings"
+}
+
+# Hook help method
+hook_settings_default_015_help()
+{
+  echo "
+HOOK->SETTINGS->DEFAULT->015 Add some default QEMU configuration
+
+"
+}
+
+# Hook execute method
+hook_settings_default_015_execute()
+{
+  echo "
+###
+# QEMU image configurations
+#
+
+# Base image
+#
+qemu_baseimage_source=\"http://stable.release.core-os.net/amd64-usr/current/coreos_production_qemu_image.img.bz2\"
+qemu_baseimage=\"${path_conf_subpath}/kvm_images/${project_name}\"
+qemu_baseimage_type=\"${qemu_baseimage:-qcow2}\"
+
+# Project overlay image
+#
+qemu_overlayimage=\"${qemu_overlayimage:-${path_conf_subpath}/overlays/${project_name}}\"
+
+###
+# QEMU machine configurations
+#
+qemu_vm_name=\"${project_name}\"
+qemu_vm_machine=\"accel=kvm\"
+
+# Control memory usage
+qemu_vm_mem="${qemu_vm_mem}"
+# Control how many cpus are used
+qemu_vm_cpu="${qemu_vm_cpu}"
+
+# Add port redirects
+settings_redir_addredir \"tcp:2222::22\"
+
+# Source mount : Map the whole app folder into the machine
+settings_mount_addmount \"root~/app:/app\"
+
+# SSH
+# This lets your container user do ssh like the host user (selinux may block this on the host)
+settings_mount_addmount \"home~.ssh:/home/core/.ssh-host\"
+
+"
+}

@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# coreos_qemu Feature settings
+#
+
+# Just in case this is side-loaded
+library_load "feature"
+
+# Name of this feature
+feature_name="qemu"
+# Path to this feature
+feature_path="/home/james/Documents/Develop/CoreOS/KVM/.boch/features/qemu"
+
+qemu_baseimage_path="${qemu_baseimage_path:-user~qemu/images}"
+qemu_overlayimage_path="${qemu_overlayimage_path:-project~qemu/overlays}"
+
+# default to using the qemu-kvm handler
+qemu_handler="${qemu_handler:-qemu-kvm}"
+# default img handler
+qemu_handler_overlay="${qemu_handler_overlay:-`which qemu-img`}"
+
+# default to 1 GB memory
+qemu_vm_mem="${qemu_vm_mem:-1024}"
+
+# Automatically determine how CPUs are in the machine and default to using all of them
+qemu_vm_cpu="${qemu_vm_cpu:-`grep -c ^processor /proc/cpuinfo`}"
+if [ -z "${qemu_vm_cpu}" ]; then
+  qemu_vm_cpu="1"
+fi

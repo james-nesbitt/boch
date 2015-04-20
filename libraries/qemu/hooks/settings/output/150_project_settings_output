@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# Output core project settings
+#
+
+hook_version=2
+hook_root="hook_settings_output_150"
+
+# description method
+hook_settings_output_150_description()
+{
+  echo "Output core project settings"
+}
+
+# help method
+hook_settings_output_150_help()
+{
+  echo "
+hook->settings->output->100 : Output core QEMU settings
+
+This is the project settings output hook, which will output settings used
+in the core library to control the project.
+
+"
+  help_topic_add "settings:settings"
+  help_topic_list
+}
+
+# execute method
+hook_settings_output_150_execute()
+{
+  echo "
+QEMU SETTINGS OUTPUT
+-----------------------: [
+### PROJECT QEMU CORE CONFIGURATIONS ###
+- qemu_handler----------: ${qemu_handler}
+- qemu_imagehandler-----: ${qemu_handler_overlay}
+- qemu_baseimage_path---: `path_expand "${qemu_baseimage_path}"`
+- qemu_overlayimage_path: `path_expand "${qemu_overlayimage_path}"`
+### PROJECT QEMU SOURCE CONFIGURATIONS ###
+- qemu_baseimage_source-: ${qemu_baseimage_source}
+### PROJECT QEMU IMAGE AND OVERLAY CONFIGURATIONS ###
+- qemu_baseimage--------: ${qemu_baseimage}
+- qemu_baseimage_type---: ${qemu_baseimage_type}
+- qemu_overlayimage-----: ${qemu_overlayimage}
+### PROJECT QEMU MACHINE CONFIGURATIONS ###
+- qemu_vm_name----------: ${qemu_vm_name}
+### PROJECT MACHINE CONFIGURATIONS ###
+- qemu_mem--------------: ${qemu_vm_mem}
+- qemu_cpus-------------: ${qemu_vm_cpu}
+- qemu_envs----------: `settings_output_list $(settings_env_get --short)`
+- machine_mountvolumes--: `settings_output_list $(settings_mount_getmounts --short)`
+- qemu_portredirs----: `settings_output_list $(qemu_redir_getportredirs)`
+]"
+}
+
+# Name of this feature
+feature_name="coreos_kvm"
+# Path to this feature
+feature_path="/home/james/Documents/Develop/CoreOS/QEMU/.boch/features/coreos_kvm"
+
+kvm_vm_mem="1024"
+kvm_vm_cpu="`grep -c ^processor /proc/cpuinfo`"
+
+kvm_vm_handler="qemu-system-x86_64"
+
+
+settings_output_list()
+{
+  echo ""
+  local value
+  for value in $@; do
+    echo "      ${value}"
+  done
+}

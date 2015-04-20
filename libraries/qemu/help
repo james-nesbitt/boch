@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# Help hander
+#
+
+# execute method
+qemu_help()
+{
+  if [ -n "${1}" ]; then
+
+    case "${1}" in
+      *)
+        echo "Unknown qemu help topic : $1
+
+You asked for help on an unknown QEMU topic
+
+"
+      ;;
+    esac
+
+  else
+    echo "Help for the QEMU library
+
+The QEMU library implements VMs in QEMU containers, most often using
+the KVM backend.
+
+@TODO this topic list is quite incomplete and needs more work
+"
+
+    help_scope_add "qemu"
+    help_scope_list
+
+  fi
+}
+# list method
+qemu_helplist()
+{
+  if [ -n "${1}" ]; then
+
+    case "${1}" in
+      "qemu")
+        echo "LIST OF HELP TOPICS FOR QEMU SCOPE - @TODO this will be a list of all of the QEMU functions
+--> qemu_image_is :
+--> qemu_image_get :
+--> qemu_overlay_make :
+--> qemu_tmproot_make :
+"
+        ;;
+      *)
+        echo "UNKNOWN QEMU HELP LIST SCOPE ${1}"
+        ;;
+    esac
+
+  fi
+}
