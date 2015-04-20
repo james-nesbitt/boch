@@ -69,10 +69,17 @@ shell_execute()
     message "Giving shell access container [${container}]:"
     message --separator
 
-    # Run the exec command sudo handler function
-    debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to exec command abstraction ] ==> exec_exec_sudo --user \"${user}\" --container \"${container}\" ${flags} ${command}"
-    exec_exec_sudo --user "${user}" --container "${container}" ${flags} ${command}
-    return $?
+    if [ -z "${user}" ] || [ "${user}" == "<default>" ]; then
+      # Run the exec command handler function
+      debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to exec command abstraction ] ==> exec_exec_standard --container \"${container}\" ${flags} ${command}"
+      exec_exec_standard --terminal --interactive --container "${container}" ${flags} ${command}
+      return $?
+    else
+      # Run the exec command sudo handler function
+      debug --level 5 --topic "COMMAND->SHELL" "shell [ handing off to exec command abstraction ] ==> exec_exec_sudo --user \"${user}\" --container \"${container}\" ${flags} ${command}"
+      exec_exec_sudo --user "${user}" --container "${container}" ${flags} ${command}
+      return $?
+    fi
 
   else
 
