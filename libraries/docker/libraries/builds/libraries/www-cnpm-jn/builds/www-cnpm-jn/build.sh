@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build --tag="www-cnpm-jn" ./
+docker build --tag="jamesnesbitt/www-cnpm-jn" ./
