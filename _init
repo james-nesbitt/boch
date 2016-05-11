@@ -30,7 +30,7 @@ log=${log:-0}
 #
 
 # load docker functions earlier - bash abstractions for docker operations
-libraries_default="${libraries_default:-docker}"
+libraries_default="${libraries_default}"
 
 # empty path text
 empty_path="not found"

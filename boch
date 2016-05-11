@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Command based docker container management
+# Command based environment management
 #
 
 ############################
