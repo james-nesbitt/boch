@@ -2,11 +2,23 @@
 
 Documentation is in the /docs folder. This readme is a quick intro.
 
-This folder contains a set of tools that can be used to control docker images
-to support a project.  The toolset starts off with a simple approach, but is
-geared towards a more complex mix of images and containers for a project.
+BOCH is a bash command line tool, that is library and hook based, meant to 
+provide project specific configuration, and extensibility, on top of a 
+default set of functionality.
 
-This Documentation can easily fall out of data, but the toolset itself includes
+BOCH applications are based on a set of commands, each of which can have 
+arbitrary hooks run before and after.  Commands and hooks are based in 
+libraries, and libraries can be either project specific, user specific or
+default (from this repo.)
+A BOCH application is demarked by a .boch folder in it's root.  The boch
+command line tool can be run anywhere inside that root, to affect the 
+application.
+
+Originally written for docker container management, the usefullness of the
+docker approach fell quickly out of favour, but the tools is very easy to
+user, and has persisted.
+
+This Documentation can easily fall out of date, but the toolset itself includes
 a good help system, and even offers help for all hooks used.
 
 This README gives some installation instructions, and then some usage examples,
@@ -23,6 +35,13 @@ I haven't tested some of the newer aspect for POSIX compliant, but I believe
 it is still something that can be run all over the place.  It uses `eval` a
 few times, but it is not use any privilege escalation, and runs little else
 other than shell commands, file commands, and of course some docker commands.
+
+The layout of the application is library dependent, and all source is kept
+in libraries.  Libraries can contain libraries, and can have libraries as
+dependencies, so all code inclusion work in such a way.  The project specific
+.boch folder, and a user ~/.boch are also libraries.
+Commands are kept in any library, so they can be added to the application,
+or the user.
 
 == INSTALLATION ==
 
@@ -41,7 +60,9 @@ or
     $/> git clone https://github.com/james-nesbitt/boch.git
 
 If you want to make a user bin, copy the script template into place like this:
+
     $/> cp docs/templates/boch ~/bin/boch
+    
 And modify the ${path_library} variable to point to where you have the git repo
 root path.
 If you don't want to do that, then you will just have to run the /boch scripts
@@ -72,7 +93,8 @@ The straight init call is actually a short form of :
     $/> boch flow init --name "name"
 
 If you like one of our www-server image then you can include a copy of it
-for your project by adding this:
+for your project by adding this [THIS IS DOCKER SPECIFIC AND THE REFERRED
+IMAGES ARE OBSOLETE]:
 
     $/> boch %builds:www-cnpm-jn flow init --name "name"
     $/> boch %builds:www-lamp-mk flow init --name "name"
@@ -110,7 +132,7 @@ Check help for settings:
 Check help for status
     $/> boch help flow status
 
-=== Stop/Restart a container ===
+=== Stop/Restart a container [DOCKER LIBRARY REQUIRED] ===
 
     $/> boch stop
     $/> boch start
@@ -131,21 +153,3 @@ To get help on commands
 
     $/> manage/control --help {command} (e.g. manage/control --help build  OR   manage/help command:build)
     $/> manage/flow --help {flow}  (e.g. manage/flow --help init   OR   manage/help flow:init)
-
-== Advanced stuff ==
-
-=== Start a second container ==
-
-    $/> manage/control start --container "{different container name}"
-
-now all of the other commands can control this container with the same --container {name} flag
-
-=== Commit changes from a container to an image (all new containers from that image then contain that change) ===
-
-    $/> manage/control commit [--container {which source container}] [--image {which image}] [--version {image tag/version}]
-
-* this can be used to fork the image
-
-=== Get shell access to a temporary container using the image (great for testing the image, and testing changes - but don't commit it) ===
-
-    $/> manage/control shell
